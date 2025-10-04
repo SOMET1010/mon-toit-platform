@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Home, Menu, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -18,7 +18,7 @@ const Navbar = () => {
   const { user, profile, signOut } = useAuth();
 
   const navLinks = [
-    { to: "/recherche", label: "Rechercher" },
+    { to: "/recherche", label: "Rechercher", icon: Search },
     { to: "/publier", label: "Publier une annonce" },
     { to: "/a-propos", label: "À propos" },
   ];
@@ -87,6 +87,12 @@ const Navbar = () => {
                       Mon profil
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/favoris" className="cursor-pointer">
+                      <Heart className="mr-2 h-4 w-4" />
+                      Mes favoris
+                    </Link>
+                  </DropdownMenuItem>
                   {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
                     <DropdownMenuItem asChild>
                       <Link to="/mes-biens" className="cursor-pointer">
@@ -149,6 +155,12 @@ const Navbar = () => {
                           <Link to="/profil">
                             <User className="h-4 w-4" />
                             Mon profil
+                          </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full gap-2" asChild>
+                          <Link to="/favoris">
+                            <Heart className="h-4 w-4" />
+                            Mes favoris
                           </Link>
                         </Button>
                         {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (

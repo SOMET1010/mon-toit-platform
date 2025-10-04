@@ -11,6 +11,8 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import MyProperties from "./pages/MyProperties";
+import Search from "./pages/Search";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/recherche" element={<Search />} />
             <Route path="/certification" element={<Certification />} />
             <Route path="/auth" element={<Auth />} />
             <Route 
@@ -39,6 +42,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/favoris" 
+              element={
+                <ProtectedRoute>
+                  <Favorites />
                 </ProtectedRoute>
               } 
             />
