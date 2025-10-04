@@ -1,10 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { Home, Menu, User } from "lucide-react";
+import { Home, Menu, User, LogOut, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import monToitLogo from "@/assets/mon-toit-logo.png";
 
 const Navbar = () => {
+  const { user, profile, signOut } = useAuth();
+
   const navLinks = [
     { to: "/recherche", label: "Rechercher" },
     { to: "/publier", label: "Publier une annonce" },
@@ -44,13 +56,65 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="hidden md:flex gap-2">
-              <User className="h-4 w-4" />
-              Connexion
-            </Button>
-            <Button size="sm" className="hidden md:flex">
-              S'inscrire
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar>
+                      <AvatarFallback>
+                        {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{profile?.full_name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Tableau de bord
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/profil" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      Mon profil
+                    </Link>
+                  </DropdownMenuItem>
+                  {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/mes-biens" className="cursor-pointer">
+                        <Home className="mr-2 h-4 w-4" />
+                        Mes biens
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Déconnexion
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" className="hidden md:flex gap-2" asChild>
+                  <Link to="/auth">
+                    <User className="h-4 w-4" />
+                    Connexion
+                  </Link>
+                </Button>
+                <Button size="sm" className="hidden md:flex" asChild>
+                  <Link to="/auth">S'inscrire</Link>
+                </Button>
+              </>
+            )}
             
             {/* Mobile Menu */}
             <Sheet>
@@ -73,14 +137,49 @@ const Navbar = () => {
                     ))}
                   </div>
                   <div className="border-t border-border pt-6 flex flex-col gap-3">
-                    <Button variant="outline" className="w-full gap-2">
-                      <User className="h-4 w-4" />
-                      Connexion
-                    </Button>
-                    <Button className="w-full gap-2">
-                      <Home className="h-4 w-4" />
-                      Créer mon compte
-                    </Button>
+                    {user ? (
+                      <>
+                        <Button variant="outline" className="w-full gap-2" asChild>
+                          <Link to="/dashboard">
+                            <LayoutDashboard className="h-4 w-4" />
+                            Tableau de bord
+                          </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full gap-2" asChild>
+                          <Link to="/profil">
+                            <User className="h-4 w-4" />
+                            Mon profil
+                          </Link>
+                        </Button>
+                        {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
+                          <Button variant="outline" className="w-full gap-2" asChild>
+                            <Link to="/mes-biens">
+                              <Home className="h-4 w-4" />
+                              Mes biens
+                            </Link>
+                          </Button>
+                        )}
+                        <Button variant="destructive" className="w-full gap-2" onClick={signOut}>
+                          <LogOut className="h-4 w-4" />
+                          Déconnexion
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="outline" className="w-full gap-2" asChild>
+                          <Link to="/auth">
+                            <User className="h-4 w-4" />
+                            Connexion
+                          </Link>
+                        </Button>
+                        <Button className="w-full gap-2" asChild>
+                          <Link to="/auth">
+                            <Home className="h-4 w-4" />
+                            Créer mon compte
+                          </Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </SheetContent>

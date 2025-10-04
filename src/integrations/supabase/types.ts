@@ -59,6 +59,96 @@ export type Database = {
         }
         Relationships: []
       }
+      properties: {
+        Row: {
+          address: string
+          bathrooms: number | null
+          bedrooms: number | null
+          charges_amount: number | null
+          city: string
+          created_at: string
+          deposit_amount: number | null
+          description: string | null
+          floor_number: number | null
+          has_ac: boolean | null
+          has_garden: boolean | null
+          has_parking: boolean | null
+          id: string
+          images: string[] | null
+          is_furnished: boolean | null
+          latitude: number | null
+          longitude: number | null
+          main_image: string | null
+          monthly_rent: number
+          neighborhood: string | null
+          owner_id: string
+          property_type: string
+          status: string
+          surface_area: number | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          address: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          charges_amount?: number | null
+          city: string
+          created_at?: string
+          deposit_amount?: number | null
+          description?: string | null
+          floor_number?: number | null
+          has_ac?: boolean | null
+          has_garden?: boolean | null
+          has_parking?: boolean | null
+          id?: string
+          images?: string[] | null
+          is_furnished?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          main_image?: string | null
+          monthly_rent: number
+          neighborhood?: string | null
+          owner_id: string
+          property_type: string
+          status?: string
+          surface_area?: number | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          address?: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          charges_amount?: number | null
+          city?: string
+          created_at?: string
+          deposit_amount?: number | null
+          description?: string | null
+          floor_number?: number | null
+          has_ac?: boolean | null
+          has_garden?: boolean | null
+          has_parking?: boolean | null
+          id?: string
+          images?: string[] | null
+          is_furnished?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          main_image?: string | null
+          monthly_rent?: number
+          neighborhood?: string | null
+          owner_id?: string
+          property_type?: string
+          status?: string
+          surface_area?: number | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
