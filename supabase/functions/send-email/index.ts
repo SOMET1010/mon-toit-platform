@@ -1,15 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import React from "npm:react@18.3.1";
-import { renderAsync } from "npm:@react-email/components@0.0.22";
-import { WelcomeEmail } from "./_templates/welcome.tsx";
-import { PaymentConfirmationEmail } from "./_templates/payment-confirmation.tsx";
-import { PaymentFailedEmail } from "./_templates/payment-failed.tsx";
-import { CertificationRequestedEmail } from "./_templates/certification-requested.tsx";
-import { CertificationApprovedEmail } from "./_templates/certification-approved.tsx";
-import { CertificationRejectedEmail } from "./_templates/certification-rejected.tsx";
-import { NewMessageEmail } from "./_templates/new-message.tsx";
-import { LeaseSignedEmail } from "./_templates/lease-signed.tsx";
-import { VerificationSuccessEmail } from "./_templates/verification-success.tsx";
+import { welcomeTemplate } from "./_templates/welcome.ts";
+import { paymentConfirmationTemplate } from "./_templates/payment-confirmation.ts";
+import { paymentFailedTemplate } from "./_templates/payment-failed.ts";
+import { certificationRequestedTemplate } from "./_templates/certification-requested.ts";
+import { certificationApprovedTemplate } from "./_templates/certification-approved.ts";
+import { certificationRejectedTemplate } from "./_templates/certification-rejected.ts";
+import { newMessageTemplate } from "./_templates/new-message.ts";
+import { leaseSignedTemplate } from "./_templates/lease-signed.ts";
+import { verificationSuccessTemplate } from "./_templates/verification-success.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,31 +40,31 @@ const handler = async (req: Request): Promise<Response> => {
     let html: string;
     switch (template) {
       case "welcome":
-        html = await renderAsync(React.createElement(WelcomeEmail, data));
+        html = welcomeTemplate(data);
         break;
       case "payment-confirmation":
-        html = await renderAsync(React.createElement(PaymentConfirmationEmail, data));
+        html = paymentConfirmationTemplate(data);
         break;
       case "payment-failed":
-        html = await renderAsync(React.createElement(PaymentFailedEmail, data));
+        html = paymentFailedTemplate(data);
         break;
       case "certification-requested":
-        html = await renderAsync(React.createElement(CertificationRequestedEmail, data));
+        html = certificationRequestedTemplate(data);
         break;
       case "certification-approved":
-        html = await renderAsync(React.createElement(CertificationApprovedEmail, data));
+        html = certificationApprovedTemplate(data);
         break;
       case "certification-rejected":
-        html = await renderAsync(React.createElement(CertificationRejectedEmail, data));
+        html = certificationRejectedTemplate(data);
         break;
       case "new-message":
-        html = await renderAsync(React.createElement(NewMessageEmail, data));
+        html = newMessageTemplate(data);
         break;
       case "lease-signed":
-        html = await renderAsync(React.createElement(LeaseSignedEmail, data));
+        html = leaseSignedTemplate(data);
         break;
       case "verification-success":
-        html = await renderAsync(React.createElement(VerificationSuccessEmail, data));
+        html = verificationSuccessTemplate(data);
         break;
       default:
         throw new Error(`Unknown template: ${template}`);
