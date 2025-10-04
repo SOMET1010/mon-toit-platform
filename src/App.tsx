@@ -18,6 +18,8 @@ import PropertyDetail from "./pages/PropertyDetail";
 import Messages from "./pages/Messages";
 import Application from "./pages/Application";
 import Applications from "./pages/Applications";
+import Leases from "./pages/Leases";
+import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -96,6 +98,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Applications />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/baux" 
+              element={
+                <ProtectedRoute>
+                  <Leases />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/payments" 
+              element={
+                <ProtectedRoute>
+                  <Payments />
                 </ProtectedRoute>
               } 
             />

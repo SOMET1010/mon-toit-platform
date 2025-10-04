@@ -269,6 +269,51 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
               </CardContent>
             </Card>
           )}
+
+          {isOwner && application.status === 'approved' && (
+            <Card>
+              <CardContent className="pt-6">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const startDate = new Date();
+                      const endDate = new Date();
+                      endDate.setFullYear(endDate.getFullYear() + 1);
+
+                      const { error } = await supabase.from("leases").insert({
+                        property_id: application.property_id,
+                        landlord_id: application.properties.owner_id,
+                        tenant_id: application.applicant_id,
+                        monthly_rent: application.properties.monthly_rent,
+                        deposit_amount: application.properties.deposit_amount,
+                        charges_amount: application.properties.charges_amount,
+                        lease_type: "location_meublee",
+                        start_date: startDate.toISOString().split("T")[0],
+                        end_date: endDate.toISOString().split("T")[0],
+                        status: "draft",
+                      });
+
+                      if (error) throw error;
+
+                      toast({
+                        title: "Bail créé",
+                        description: "Le bail a été créé avec succès. Rendez-vous dans 'Baux' pour le signer.",
+                      });
+                    } catch (error: any) {
+                      toast({
+                        title: "Erreur",
+                        description: error.message,
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  className="w-full"
+                >
+                  Créer le bail
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
 
