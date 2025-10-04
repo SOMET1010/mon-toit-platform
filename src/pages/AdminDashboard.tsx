@@ -5,11 +5,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, Home, Users, FileText } from 'lucide-react';
+import { LayoutDashboard, Home, Users, FileText, Settings } from 'lucide-react';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminProperties from '@/components/admin/AdminProperties';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminLeases from '@/components/admin/AdminLeases';
+import AdminIntegrations from '@/components/admin/AdminIntegrations';
 
 const AdminDashboard = () => {
   const { profile, loading } = useAuth();
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Vue d'ensemble
@@ -58,6 +59,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="leases" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Baux
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Intégrations
             </TabsTrigger>
           </TabsList>
 
@@ -75,6 +80,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="leases" className="space-y-6">
             <AdminLeases />
+          </TabsContent>
+
+          <TabsContent value="integrations" className="space-y-6">
+            <AdminIntegrations />
           </TabsContent>
         </Tabs>
       </main>
