@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import monToitLogo from "@/assets/mon-toit-logo.png";
+import MessageNotifications from "@/components/messaging/MessageNotifications";
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
@@ -56,6 +57,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {user && <MessageNotifications />}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

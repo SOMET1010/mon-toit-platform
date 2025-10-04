@@ -60,6 +60,60 @@ const Messages = () => {
     }
   }, [selectedConversation]);
 
+  // Realtime subscription for new messages
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('messages-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          
+          // Update conversations list
+          fetchConversations();
+          
+          // If message is from selected conversation, add to messages
+          if (newMessage.sender_id === selectedConversation) {
+            setMessages((prev) => [...prev, newMessage]);
+            markAsRead(selectedConversation);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          
+          // Update conversations list
+          fetchConversations();
+          
+          // If message is to selected conversation, add to messages
+          if (newMessage.receiver_id === selectedConversation) {
+            setMessages((prev) => [...prev, newMessage]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, selectedConversation]);
+
   const fetchConversations = async () => {
     if (!user) return;
 
@@ -172,8 +226,6 @@ const Messages = () => {
       if (error) throw error;
 
       setNewMessage('');
-      fetchMessages(selectedConversation);
-      fetchConversations();
 
       toast({
         title: "Message envoyé",
