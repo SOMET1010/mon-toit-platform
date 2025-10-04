@@ -10,6 +10,7 @@ import Certification from "./pages/Certification";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import MyProperties from "./pages/MyProperties";
 import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
@@ -49,6 +50,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute allowedUserTypes={['admin_ansut']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route
               path="/favoris" 
               element={
                 <ProtectedRoute>
