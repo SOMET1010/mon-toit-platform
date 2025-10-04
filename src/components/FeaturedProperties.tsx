@@ -77,7 +77,8 @@ const FeaturedProperties = () => {
               <div className="relative overflow-hidden">
                 <img
                   src={property.image}
-                  alt={property.title}
+                  alt={`${property.type} à ${property.location} - ${property.bedrooms} chambres`}
+                  loading="lazy"
                   className="w-full h-48 object-cover group-hover:scale-105 transition-smooth duration-500"
                 />
                 {property.featured && (

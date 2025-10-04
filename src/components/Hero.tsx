@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Home } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import heroImage from "@/assets/hero-bg.jpg";
+import CertifiedBadge from "@/components/ui/certified-badge";
 
 const Hero = () => {
   return (
@@ -17,51 +19,89 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 py-24 md:py-32">
+      <div className="relative container mx-auto px-4 py-20 md:py-28">
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-background">
-            Trouvez votre{" "}
+          <div className="mb-6">
+            <CertifiedBadge />
+          </div>
+          
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-background">
+            Le logement,{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              logement idéal
+              en toute confiance
             </span>
-            {" "}en Côte d'Ivoire
           </h1>
-          <p className="text-lg md:text-xl text-background/90 mb-8">
-            La plateforme de confiance pour louer ou publier des biens immobiliers en toute sécurité
+          <p className="text-lg md:text-xl text-background/90 mb-2">
+            100% ivoirien, 100% digital
+          </p>
+          <p className="text-base md:text-lg text-background/80 mb-8">
+            Développé avec la garantie ANSUT
           </p>
 
           {/* Search Bar */}
           <div className="bg-background rounded-xl shadow-card p-4 md:p-6">
-            <div className="flex flex-col md:flex-row gap-3">
-              <div className="flex-1 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input 
-                  placeholder="Ville, quartier..." 
-                  className="pl-10 h-12"
-                />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+                  <Input 
+                    placeholder="Ex. Cocody, Marcory, Zone 4..." 
+                    className="pl-10 h-12"
+                  />
+                </div>
+                <div className="flex-1">
+                  <Select>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Type de bien" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="appartement">Appartement</SelectItem>
+                      <SelectItem value="villa">Villa</SelectItem>
+                      <SelectItem value="studio">Studio</SelectItem>
+                      <SelectItem value="duplex">Duplex</SelectItem>
+                      <SelectItem value="maison">Maison</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Input 
+                    type="number"
+                    placeholder="Budget max (FCFA)" 
+                    className="h-12"
+                  />
+                </div>
+                <Button size="xl" variant="hero" className="md:w-auto gap-2">
+                  <Search className="h-5 w-5" />
+                  Rechercher
+                </Button>
               </div>
-              <div className="flex-1">
-                <Input 
-                  placeholder="Type de bien (Appartement, Villa...)" 
-                  className="h-12"
-                />
-              </div>
-              <Button size="xl" variant="hero" className="md:w-auto">
-                <Search className="h-5 w-5" />
-                Rechercher
-              </Button>
             </div>
             
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4 items-center">
               <span className="text-sm text-muted-foreground">Recherches populaires:</span>
-              {["Abidjan", "Cocody", "Appartement 2 pièces", "Villa à louer"].map((tag) => (
+              {[
+                { label: "Abidjan", search: "abidjan" },
+                { label: "Yamoussoukro", search: "yamoussoukro" },
+                { label: "Bouaké", search: "bouake" },
+                { label: "Cocody", search: "cocody" },
+                { label: "Marcory", search: "marcory" },
+                { label: "Plateau", search: "plateau" }
+              ].map((tag) => (
                 <button
-                  key={tag}
-                  className="text-xs px-3 py-1 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-smooth"
+                  key={tag.search}
+                  onClick={() => {/* TODO: trigger search */}}
+                  className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground text-foreground transition-smooth"
                 >
-                  {tag}
+                  {tag.label}
                 </button>
               ))}
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-border">
+              <Button variant="outline" size="lg" className="w-full md:w-auto gap-2">
+                <Home className="h-4 w-4" />
+                Créer mon compte
+              </Button>
             </div>
           </div>
         </div>

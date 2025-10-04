@@ -1,10 +1,11 @@
-import { Shield, FileCheck, MessageSquare, Wallet } from "lucide-react";
+import { Shield, FileCheck, MessageSquare, Wallet, Lock } from "lucide-react";
 
 const features = [
   {
     icon: Shield,
     title: "Sécurité garantie",
     description: "Vérification d'identité et transactions sécurisées pour votre tranquillité d'esprit",
+    badge: true,
   },
   {
     icon: FileCheck,
@@ -19,7 +20,7 @@ const features = [
   {
     icon: Wallet,
     title: "Paiement en ligne",
-    description: "Payez vos loyers via Mobile Money ou carte bancaire",
+    description: "Payez vos loyers via Mobile Money (Orange, MTN, Moov) ou carte bancaire",
   },
 ];
 
@@ -29,7 +30,7 @@ const Features = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Pourquoi choisir ImmoCI ?
+            Pourquoi choisir Mon Toit ?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Une plateforme moderne et sécurisée pour simplifier vos démarches immobilières
@@ -44,14 +45,25 @@ const Features = () => {
                 key={index}
                 className="text-center group"
               >
-                <div className="inline-flex p-4 rounded-xl bg-gradient-primary mb-4 group-hover:shadow-primary transition-smooth">
+                <div className="relative inline-flex p-4 rounded-xl bg-gradient-primary mb-4 group-hover:shadow-primary transition-smooth">
                   <Icon className="h-8 w-8 text-primary-foreground" />
+                  {feature.badge && (
+                    <div className="absolute -top-1 -right-1">
+                      <Lock className="h-5 w-5 text-secondary fill-secondary/20" />
+                    </div>
+                  )}
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
               </div>
             );
           })}
+        </div>
+        
+        <div className="text-center mt-12">
+          <p className="text-sm text-muted-foreground">
+            Conforme à la loi ivoirienne 2013-450 sur la protection des données
+          </p>
         </div>
       </div>
     </section>
