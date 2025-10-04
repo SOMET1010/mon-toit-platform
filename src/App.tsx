@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard";
 import MyProperties from "./pages/MyProperties";
 import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
+import PropertyDetail from "./pages/PropertyDetail";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recherche" element={<Search />} />
+            <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/certification" element={<Certification />} />
             <Route path="/auth" element={<Auth />} />
             <Route 
@@ -50,6 +53,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Favorites />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/messages" 
+              element={
+                <ProtectedRoute>
+                  <Messages />
                 </ProtectedRoute>
               } 
             />
