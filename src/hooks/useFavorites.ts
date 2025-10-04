@@ -3,6 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from '@/hooks/use-toast';
 
+// Temporary type until Supabase types regenerate
+type UserFavorite = {
+  id: string;
+  user_id: string;
+  property_id: string;
+  created_at: string;
+};
+
 export const useFavorites = () => {
   const { user } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -21,20 +29,20 @@ export const useFavorites = () => {
     if (!user) return;
     
     try {
-      // Check if favorites table exists, if not we'll use localStorage
       const { data, error } = await supabase
-        .from('user_favorites')
+        .from('user_favorites' as any)
         .select('property_id')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as { data: UserFavorite[] | null; error: any };
 
       if (error) {
-        // Fallback to localStorage if table doesn't exist
+        console.error('Error fetching favorites:', error);
         const localFavorites = localStorage.getItem(`favorites_${user.id}`);
         setFavorites(localFavorites ? JSON.parse(localFavorites) : []);
       } else {
-        setFavorites(data.map(f => f.property_id));
+        setFavorites(data?.map(f => f.property_id) || []);
       }
     } catch (err) {
+      console.error('Exception fetching favorites:', err);
       const localFavorites = localStorage.getItem(`favorites_${user.id}`);
       setFavorites(localFavorites ? JSON.parse(localFavorites) : []);
     } finally {
@@ -58,7 +66,7 @@ export const useFavorites = () => {
       if (isFavorite) {
         // Remove favorite
         const { error } = await supabase
-          .from('user_favorites')
+          .from('user_favorites' as any)
           .delete()
           .eq('user_id', user.id)
           .eq('property_id', propertyId);
@@ -73,7 +81,7 @@ export const useFavorites = () => {
       } else {
         // Add favorite
         const { error } = await supabase
-          .from('user_favorites')
+          .from('user_favorites' as any)
           .insert({ user_id: user.id, property_id: propertyId });
 
         if (error) throw error;
