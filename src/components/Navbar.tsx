@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import monToitLogo from "@/assets/mon-toit-logo.png";
+import NotificationBell from "@/components/NotificationBell";
 import MessageNotifications from "@/components/messaging/MessageNotifications";
 
 const Navbar = () => {
@@ -57,9 +58,10 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {user && <MessageNotifications />}
             {user ? (
-              <DropdownMenu>
+              <>
+                <NotificationBell />
+                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar>
@@ -119,6 +121,7 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </>
             ) : (
               <>
                 <Button variant="ghost" size="sm" className="hidden md:flex gap-2" asChild>
