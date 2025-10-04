@@ -112,6 +112,19 @@ const PropertyDetail = () => {
     navigate(`/messages?recipient=${property?.owner_id}`);
   };
 
+  const handleApply = () => {
+    if (!user) {
+      toast({
+        title: "Connexion requise",
+        description: "Veuillez vous connecter pour postuler",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+    navigate(`/application/${property?.id}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -340,14 +353,12 @@ const PropertyDetail = () => {
                       <MessageCircle className="h-4 w-4" />
                       Contacter le propriétaire
                     </Button>
-                    {user && property.status === 'disponible' && (
-                      <Button variant="outline" className="w-full gap-2" asChild>
-                        <Link to={`/candidature/${property.id}`}>
-                          <Calendar className="h-4 w-4" />
-                          Postuler
-                        </Link>
-                      </Button>
-                    )}
+                  {user && property.status === 'disponible' && property.owner_id !== user.id && (
+                    <Button variant="outline" className="w-full gap-2" onClick={handleApply}>
+                      <Calendar className="h-4 w-4" />
+                      Postuler
+                    </Button>
+                  )}
                   </div>
                 </CardContent>
               </Card>

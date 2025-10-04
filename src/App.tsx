@@ -16,6 +16,8 @@ import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
 import PropertyDetail from "./pages/PropertyDetail";
 import Messages from "./pages/Messages";
+import Application from "./pages/Application";
+import Applications from "./pages/Applications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +80,22 @@ const App = () => (
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
                   <MyProperties />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/application/:propertyId" 
+              element={
+                <ProtectedRoute>
+                  <Application />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/candidatures" 
+              element={
+                <ProtectedRoute>
+                  <Applications />
                 </ProtectedRoute>
               } 
             />
