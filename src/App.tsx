@@ -20,6 +20,7 @@ import Application from "./pages/Application";
 import Applications from "./pages/Applications";
 import Leases from "./pages/Leases";
 import Payments from "./pages/Payments";
+import Verification from "./pages/Verification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -114,6 +115,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Payments />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/verification" 
+              element={
+                <ProtectedRoute>
+                  <Verification />
                 </ProtectedRoute>
               } 
             />

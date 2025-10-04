@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search } from "lucide-react";
+import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -93,6 +93,15 @@ const Navbar = () => {
                       Mes favoris
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/verification" className="cursor-pointer">
+                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      Vérification d'identité
+                      {(profile?.oneci_verified || profile?.cnam_verified) && (
+                        <span className="ml-auto text-xs text-green-600">✓</span>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
                   {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
                     <DropdownMenuItem asChild>
                       <Link to="/mes-biens" className="cursor-pointer">
@@ -161,6 +170,15 @@ const Navbar = () => {
                           <Link to="/favoris">
                             <Heart className="h-4 w-4" />
                             Mes favoris
+                          </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full gap-2" asChild>
+                          <Link to="/verification">
+                            <ShieldCheck className="h-4 w-4" />
+                            Vérification
+                            {(profile?.oneci_verified || profile?.cnam_verified) && (
+                              <span className="ml-auto text-xs text-green-600">✓</span>
+                            )}
                           </Link>
                         </Button>
                         {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
