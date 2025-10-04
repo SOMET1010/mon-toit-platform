@@ -17,6 +17,10 @@ export type Database = {
       leases: {
         Row: {
           ansut_certified_at: string | null
+          certification_notes: string | null
+          certification_requested_at: string | null
+          certification_status: string | null
+          certified_by: string | null
           charges_amount: number | null
           created_at: string
           deposit_amount: number | null
@@ -36,6 +40,10 @@ export type Database = {
         }
         Insert: {
           ansut_certified_at?: string | null
+          certification_notes?: string | null
+          certification_requested_at?: string | null
+          certification_status?: string | null
+          certified_by?: string | null
           charges_amount?: number | null
           created_at?: string
           deposit_amount?: number | null
@@ -55,6 +63,10 @@ export type Database = {
         }
         Update: {
           ansut_certified_at?: string | null
+          certification_notes?: string | null
+          certification_requested_at?: string | null
+          certification_status?: string | null
+          certified_by?: string | null
           charges_amount?: number | null
           created_at?: string
           deposit_amount?: number | null

@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Eye } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import LeaseCertificationReview from '@/components/admin/LeaseCertificationReview';
+import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 
 type Lease = {
   id: string;
@@ -14,6 +16,8 @@ type Lease = {
   status: string;
   lease_type: string;
   ansut_certified_at: string | null;
+  certification_status: string;
+  certification_requested_at: string | null;
   created_at: string;
   properties: {
     title: string;
@@ -29,6 +33,8 @@ type Lease = {
 const AdminLeases = () => {
   const [leases, setLeases] = useState<Lease[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLeaseId, setSelectedLeaseId] = useState<string | null>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchLeases();
@@ -45,6 +51,8 @@ const AdminLeases = () => {
           status,
           lease_type,
           ansut_certified_at,
+          certification_status,
+          certification_requested_at,
           created_at,
           properties:property_id (title),
           tenant:tenant_id (full_name),
@@ -64,6 +72,11 @@ const AdminLeases = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReviewLease = (leaseId: string) => {
+    setSelectedLeaseId(leaseId);
+    setReviewDialogOpen(true);
   };
 
   const certifyLease = async (leaseId: string) => {
@@ -133,7 +146,7 @@ const AdminLeases = () => {
               <TableHead>Loyer</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Certifié</TableHead>
+              <TableHead>Certification</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -154,23 +167,20 @@ const AdminLeases = () => {
                   <TableCell className="capitalize">{lease.lease_type}</TableCell>
                   <TableCell>{getStatusBadge(lease.status)}</TableCell>
                   <TableCell>
-                    {lease.ansut_certified_at ? (
-                      <Badge variant="default" className="gap-1">
-                        <CheckCircle className="h-3 w-3" />
-                        Certifié
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">Non certifié</Badge>
-                    )}
+                    <ANSUTCertifiedBadge 
+                      status={lease.certification_status as any}
+                      certifiedAt={lease.ansut_certified_at}
+                    />
                   </TableCell>
                   <TableCell className="text-right">
-                    {!lease.ansut_certified_at && lease.status !== 'draft' && (
+                    {lease.certification_status === 'pending' && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => certifyLease(lease.id)}
+                        onClick={() => handleReviewLease(lease.id)}
                       >
-                        Certifier
+                        <Eye className="h-4 w-4 mr-2" />
+                        Examiner
                       </Button>
                     )}
                   </TableCell>
@@ -180,6 +190,15 @@ const AdminLeases = () => {
           </TableBody>
         </Table>
       </CardContent>
+
+      {selectedLeaseId && (
+        <LeaseCertificationReview
+          leaseId={selectedLeaseId}
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          onStatusUpdated={fetchLeases}
+        />
+      )}
     </Card>
   );
 };

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import CertificationRequest from "@/components/leases/CertificationRequest";
+import ANSUTCertifiedBadge from "@/components/ui/ansut-certified-badge";
 
 interface Lease {
   id: string;
@@ -23,6 +25,8 @@ interface Lease {
   tenant_signed_at: string | null;
   landlord_signed_at: string | null;
   ansut_certified_at: string | null;
+  certification_status: string;
+  certification_requested_at: string | null;
   properties: {
     title: string;
     address: string;
@@ -95,16 +99,13 @@ export default function Leases() {
   };
 
   const getStatusBadge = (lease: Lease) => {
-    if (lease.ansut_certified_at) {
-      return <Badge className="bg-green-500">Certifié ANSUT</Badge>;
-    }
-    if (lease.tenant_signed_at && lease.landlord_signed_at) {
-      return <Badge className="bg-blue-500">Signé</Badge>;
-    }
-    if (lease.tenant_signed_at || lease.landlord_signed_at) {
-      return <Badge className="bg-yellow-500">Signature partielle</Badge>;
-    }
-    return <Badge variant="outline">En attente</Badge>;
+    // Use the new certification badge component
+    return (
+      <ANSUTCertifiedBadge 
+        status={lease.certification_status as any}
+        certifiedAt={lease.ansut_certified_at}
+      />
+    );
   };
 
   if (loading) {
@@ -230,7 +231,7 @@ export default function Leases() {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {profile?.user_type === "proprietaire" && !lease.landlord_signed_at && (
                       <Button onClick={() => handleSign(lease.id, "landlord")}>
                         <FileText className="h-4 w-4 mr-2" />
@@ -243,6 +244,16 @@ export default function Leases() {
                         Signer le bail
                       </Button>
                     )}
+                    
+                    {/* Certification request button - shown after both parties signed */}
+                    {lease.tenant_signed_at && lease.landlord_signed_at && (
+                      <CertificationRequest
+                        leaseId={lease.id}
+                        certificationStatus={lease.certification_status}
+                        onRequestSubmitted={fetchLeases}
+                      />
+                    )}
+                    
                     <Button
                       variant="outline"
                       onClick={() => navigate(`/payments?lease=${lease.id}`)}
