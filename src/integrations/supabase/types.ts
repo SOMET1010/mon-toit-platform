@@ -14,6 +14,212 @@ export type Database = {
   }
   public: {
     Tables: {
+      leases: {
+        Row: {
+          ansut_certified_at: string | null
+          charges_amount: number | null
+          created_at: string
+          deposit_amount: number | null
+          document_url: string | null
+          end_date: string
+          id: string
+          landlord_id: string
+          landlord_signed_at: string | null
+          lease_type: string
+          monthly_rent: number
+          property_id: string
+          start_date: string
+          status: string
+          tenant_id: string
+          tenant_signed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          ansut_certified_at?: string | null
+          charges_amount?: number | null
+          created_at?: string
+          deposit_amount?: number | null
+          document_url?: string | null
+          end_date: string
+          id?: string
+          landlord_id: string
+          landlord_signed_at?: string | null
+          lease_type: string
+          monthly_rent: number
+          property_id: string
+          start_date: string
+          status?: string
+          tenant_id: string
+          tenant_signed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ansut_certified_at?: string | null
+          charges_amount?: number | null
+          created_at?: string
+          deposit_amount?: number | null
+          document_url?: string | null
+          end_date?: string
+          id?: string
+          landlord_id?: string
+          landlord_signed_at?: string | null
+          lease_type?: string
+          monthly_rent?: number
+          property_id?: string
+          start_date?: string
+          status?: string
+          tenant_id?: string
+          tenant_signed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leases_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          application_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          application_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          application_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "rental_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mobile_money_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          fees: number | null
+          id: string
+          payment_id: string
+          phone_number: string
+          provider: string
+          provider_response: Json | null
+          status: string
+          transaction_ref: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fees?: number | null
+          id?: string
+          payment_id: string
+          phone_number: string
+          provider: string
+          provider_response?: Json | null
+          status?: string
+          transaction_ref?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fees?: number | null
+          id?: string
+          payment_id?: string
+          phone_number?: string
+          provider?: string
+          provider_response?: Json | null
+          status?: string
+          transaction_ref?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_money_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          payer_id: string
+          payment_method: string
+          payment_type: string
+          property_id: string | null
+          receiver_id: string
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          payer_id: string
+          payment_method: string
+          payment_type: string
+          property_id?: string | null
+          receiver_id: string
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          payer_id?: string
+          payment_method?: string
+          payment_type?: string
+          property_id?: string | null
+          receiver_id?: string
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -149,6 +355,53 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_applications: {
+        Row: {
+          applicant_id: string
+          application_score: number | null
+          cover_letter: string | null
+          created_at: string
+          documents: Json | null
+          id: string
+          property_id: string
+          reviewed_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          application_score?: number | null
+          cover_letter?: string | null
+          created_at?: string
+          documents?: Json | null
+          id?: string
+          property_id: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          application_score?: number | null
+          cover_letter?: string | null
+          created_at?: string
+          documents?: Json | null
+          id?: string
+          property_id?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_applications_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -166,6 +419,60 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_verifications: {
+        Row: {
+          cnam_data: Json | null
+          cnam_employer: string | null
+          cnam_social_security_number: string | null
+          cnam_status: string | null
+          cnam_verified_at: string | null
+          created_at: string
+          id: string
+          oneci_cni_number: string | null
+          oneci_data: Json | null
+          oneci_status: string | null
+          oneci_verified_at: string | null
+          score_updated_at: string | null
+          tenant_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cnam_data?: Json | null
+          cnam_employer?: string | null
+          cnam_social_security_number?: string | null
+          cnam_status?: string | null
+          cnam_verified_at?: string | null
+          created_at?: string
+          id?: string
+          oneci_cni_number?: string | null
+          oneci_data?: Json | null
+          oneci_status?: string | null
+          oneci_verified_at?: string | null
+          score_updated_at?: string | null
+          tenant_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cnam_data?: Json | null
+          cnam_employer?: string | null
+          cnam_social_security_number?: string | null
+          cnam_status?: string | null
+          cnam_verified_at?: string | null
+          created_at?: string
+          id?: string
+          oneci_cni_number?: string | null
+          oneci_data?: Json | null
+          oneci_status?: string | null
+          oneci_verified_at?: string | null
+          score_updated_at?: string | null
+          tenant_score?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
