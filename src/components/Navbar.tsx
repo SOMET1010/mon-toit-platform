@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import monToitLogo from "@/assets/mon-toit-logo.png";
 import NotificationBell from "@/components/NotificationBell";
+import CertificationNotificationBadge from "@/components/admin/CertificationNotificationBadge";
 import MessageNotifications from "@/components/messaging/MessageNotifications";
 
 const Navbar = () => {
@@ -167,9 +168,10 @@ const Navbar = () => {
                   )}
                   {canAccessAdminDashboard && (
                     <DropdownMenuItem asChild>
-                      <Link to="/admin/certifications" className="cursor-pointer">
+                      <Link to="/admin/certifications" className="cursor-pointer flex items-center">
                         <Shield className="mr-2 h-4 w-4" />
                         Certifications ANSUT
+                        <CertificationNotificationBadge />
                       </Link>
                     </DropdownMenuItem>
                   )}

@@ -9,6 +9,10 @@ import { fr } from 'date-fns/locale';
 import LeaseCertificationReview from '@/components/admin/LeaseCertificationReview';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface LeaseCertificationQueueProps {
+  status?: 'pending' | 'in_review' | 'certified' | 'rejected';
+}
+
 interface PendingLease {
   id: string;
   property_id: string;
@@ -31,7 +35,7 @@ interface PendingLease {
   };
 }
 
-const LeaseCertificationQueue = () => {
+const LeaseCertificationQueue = ({ status = 'pending' }: LeaseCertificationQueueProps) => {
   const [pendingLeases, setPendingLeases] = useState<PendingLease[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLeaseId, setSelectedLeaseId] = useState<string | null>(null);
@@ -62,13 +66,13 @@ const LeaseCertificationQueue = () => {
             full_name
           )
         `)
-        .eq('certification_status', 'pending')
+        .eq('certification_status', status)
         .order('certification_requested_at', { ascending: true });
 
       if (error) throw error;
       setPendingLeases(data as any || []);
     } catch (error) {
-      console.error('Error fetching pending leases:', error);
+      console.error('Error fetching leases:', error);
     } finally {
       setLoading(false);
     }
@@ -79,14 +83,14 @@ const LeaseCertificationQueue = () => {
 
     // Real-time subscription for lease updates
     const channel = supabase
-      .channel('certification-queue')
+      .channel(`certification-queue-${status}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'leases',
-          filter: 'certification_status=eq.pending'
+          filter: `certification_status=eq.${status}`
         },
         () => {
           fetchPendingLeases();
@@ -97,7 +101,7 @@ const LeaseCertificationQueue = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [status]);
 
   const handleReviewClick = (leaseId: string) => {
     setSelectedLeaseId(leaseId);
@@ -120,13 +124,23 @@ const LeaseCertificationQueue = () => {
     );
   }
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending': return 'en attente';
+      case 'in_review': return 'en révision';
+      case 'certified': return 'certifié';
+      case 'rejected': return 'rejeté';
+      default: return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">File de certification ANSUT</h2>
+          <h2 className="text-2xl font-bold text-foreground">Baux {getStatusLabel(status)}</h2>
           <p className="text-muted-foreground">
-            {pendingLeases.length} {pendingLeases.length === 1 ? 'bail en attente' : 'baux en attente'}
+            {pendingLeases.length} {pendingLeases.length === 1 ? 'bail' : 'baux'} {getStatusLabel(status)}
           </p>
         </div>
         <Badge variant="secondary" className="text-lg px-4 py-2">

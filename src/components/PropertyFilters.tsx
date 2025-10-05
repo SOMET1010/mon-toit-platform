@@ -27,6 +27,7 @@ export interface PropertyFilters {
   has360View?: boolean;
   hasVirtualTour?: boolean;
   status?: string;
+  isAnsutCertified?: boolean;
 }
 
 interface PropertyFiltersProps {
@@ -298,6 +299,21 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                     />
                     <Label htmlFor="virtualtour" className="font-normal cursor-pointer">Visite virtuelle</Label>
                   </div>
+                </div>
+              </div>
+
+              {/* Certification ANSUT */}
+              <div className="space-y-3">
+                <Label>Certification</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="ansutCertified"
+                    checked={filters.isAnsutCertified}
+                    onCheckedChange={(checked) => handleFilterChange('isAnsutCertified', checked)}
+                  />
+                  <Label htmlFor="ansutCertified" className="font-normal cursor-pointer flex items-center gap-2">
+                    <span className="text-secondary">✓</span> Baux certifiés ANSUT uniquement
+                  </Label>
                 </div>
               </div>
 
