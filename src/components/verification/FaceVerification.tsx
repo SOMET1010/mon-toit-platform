@@ -40,6 +40,13 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
 
   const startCamera = async () => {
     try {
+      console.log('Démarrage de la caméra...');
+      
+      // Vérifier si mediaDevices est disponible
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('L\'API MediaDevices n\'est pas supportée par ce navigateur');
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: 'user',
@@ -48,14 +55,30 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
         } 
       });
       
+      console.log('Stream obtenu:', stream);
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
+        console.log('Caméra activée avec succès');
       }
     } catch (error) {
+      console.error('Erreur caméra détaillée:', error);
       logger.error('Error accessing camera', { error });
-      toast.error('Impossible d\'accéder à la caméra');
+      
+      let errorMessage = 'Impossible d\'accéder à la caméra';
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = 'Autorisation caméra refusée. Vérifiez les paramètres de votre navigateur.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = 'Aucune caméra trouvée sur cet appareil';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = 'La caméra est déjà utilisée par une autre application';
+        }
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
