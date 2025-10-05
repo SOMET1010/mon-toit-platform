@@ -485,6 +485,7 @@ export type Database = {
           deposit_amount: number | null
           description: string | null
           floor_number: number | null
+          floor_plans: Json | null
           has_ac: boolean | null
           has_garden: boolean | null
           has_parking: boolean | null
@@ -494,15 +495,19 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           main_image: string | null
+          media_metadata: Json | null
           monthly_rent: number
           neighborhood: string | null
           owner_id: string
+          panoramic_images: Json | null
           property_type: string
           status: string
           surface_area: number | null
           title: string
           updated_at: string
+          video_url: string | null
           view_count: number | null
+          virtual_tour_url: string | null
         }
         Insert: {
           address: string
@@ -514,6 +519,7 @@ export type Database = {
           deposit_amount?: number | null
           description?: string | null
           floor_number?: number | null
+          floor_plans?: Json | null
           has_ac?: boolean | null
           has_garden?: boolean | null
           has_parking?: boolean | null
@@ -523,15 +529,19 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           main_image?: string | null
+          media_metadata?: Json | null
           monthly_rent: number
           neighborhood?: string | null
           owner_id: string
+          panoramic_images?: Json | null
           property_type: string
           status?: string
           surface_area?: number | null
           title: string
           updated_at?: string
+          video_url?: string | null
           view_count?: number | null
+          virtual_tour_url?: string | null
         }
         Update: {
           address?: string
@@ -543,6 +553,7 @@ export type Database = {
           deposit_amount?: number | null
           description?: string | null
           floor_number?: number | null
+          floor_plans?: Json | null
           has_ac?: boolean | null
           has_garden?: boolean | null
           has_parking?: boolean | null
@@ -552,15 +563,19 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           main_image?: string | null
+          media_metadata?: Json | null
           monthly_rent?: number
           neighborhood?: string | null
           owner_id?: string
+          panoramic_images?: Json | null
           property_type?: string
           status?: string
           surface_area?: number | null
           title?: string
           updated_at?: string
+          video_url?: string | null
           view_count?: number | null
+          virtual_tour_url?: string | null
         }
         Relationships: []
       }

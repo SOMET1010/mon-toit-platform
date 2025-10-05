@@ -22,6 +22,9 @@ export interface PropertyFilters {
   hasAc?: boolean;
   hasParking?: boolean;
   hasGarden?: boolean;
+  hasVideo?: boolean;
+  has360View?: boolean;
+  hasVirtualTour?: boolean;
   status?: string;
 }
 
@@ -265,6 +268,37 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                       onCheckedChange={(checked) => handleFilterChange('hasGarden', checked)}
                     />
                     <Label htmlFor="garden" className="font-normal cursor-pointer">Jardin</Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Multimedia */}
+              <div className="space-y-3">
+                <Label>Visites & Médias</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="video"
+                      checked={filters.hasVideo}
+                      onCheckedChange={(checked) => handleFilterChange('hasVideo', checked)}
+                    />
+                    <Label htmlFor="video" className="font-normal cursor-pointer">Avec vidéo</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="360view"
+                      checked={filters.has360View}
+                      onCheckedChange={(checked) => handleFilterChange('has360View', checked)}
+                    />
+                    <Label htmlFor="360view" className="font-normal cursor-pointer">Vue 360°</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="virtualtour"
+                      checked={filters.hasVirtualTour}
+                      onCheckedChange={(checked) => handleFilterChange('hasVirtualTour', checked)}
+                    />
+                    <Label htmlFor="virtualtour" className="font-normal cursor-pointer">Visite virtuelle</Label>
                   </div>
                 </div>
               </div>

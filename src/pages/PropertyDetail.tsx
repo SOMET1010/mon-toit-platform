@@ -19,6 +19,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
+import { MediaGallery } from '@/components/property/MediaGallery';
 
 interface Property {
   id: string;
@@ -41,6 +42,10 @@ interface Property {
   has_garden: boolean;
   main_image: string | null;
   images: string[] | null;
+  video_url?: string | null;
+  virtual_tour_url?: string | null;
+  panoramic_images?: any;
+  floor_plans?: any;
   status: string;
   created_at: string;
   owner_id: string;
@@ -304,48 +309,27 @@ const PropertyDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Images and main content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Main image */}
-              <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                {selectedImage ? (
-                  <img
-                    src={selectedImage}
-                    alt={property.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    Pas d'image disponible
-                  </div>
-                )}
+              {/* Multimedia Gallery */}
+              <div className="relative">
+                <MediaGallery
+                  images={allImages}
+                  videoUrl={property.video_url || undefined}
+                  virtualTourUrl={property.virtual_tour_url || undefined}
+                  panoramicImages={Array.isArray(property.panoramic_images) ? property.panoramic_images : []}
+                  floorPlans={Array.isArray(property.floor_plans) ? property.floor_plans : []}
+                />
                 <Button
                   size="icon"
                   variant="secondary"
-                  className="absolute top-4 right-4"
+                  className="absolute top-4 right-4 z-10"
                   onClick={() => toggleFavorite(property.id)}
                 >
                   <Heart className={`h-5 w-5 ${favorite ? 'fill-current text-destructive' : ''}`} />
                 </Button>
-                <Badge className="absolute top-4 left-4">
+                <Badge className="absolute top-4 left-4 z-10">
                   {property.status === 'disponible' ? 'Disponible' : 'Loué'}
                 </Badge>
               </div>
-
-              {/* Image gallery */}
-              {allImages.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {allImages.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedImage(img)}
-                      className={`aspect-video bg-muted rounded overflow-hidden border-2 transition-all ${
-                        selectedImage === img ? 'border-primary' : 'border-transparent'
-                      }`}
-                    >
-                      <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
 
               {/* Description */}
               <Card>
