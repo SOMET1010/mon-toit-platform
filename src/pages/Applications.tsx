@@ -58,20 +58,7 @@ const Applications = () => {
     try {
       let query = supabase
         .from('rental_applications')
-        .select(`
-          id,
-          property_id,
-          applicant_id,
-          status,
-          cover_letter,
-          documents,
-          application_score,
-          created_at,
-          reviewed_at,
-          updated_at,
-          properties!rental_applications_property_id_fkey (title, monthly_rent, city, owner_id, deposit_amount, charges_amount),
-          profiles!rental_applications_applicant_id_fkey (full_name, phone, oneci_verified, cnam_verified)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       // Si propriétaire, voir les candidatures sur ses biens
@@ -88,10 +75,36 @@ const Applications = () => {
         query = query.eq('applicant_id', user.id);
       }
 
-      const { data, error } = await query;
+      const { data: applicationsData, error } = await query;
 
       if (error) throw error;
-      setApplications(data as any || []);
+
+      // Enrichir les données avec les infos des propriétés et profils
+      const enrichedApplications = await Promise.all(
+        (applicationsData || []).map(async (app: any) => {
+          // Récupérer les infos de la propriété
+          const { data: property } = await supabase
+            .from('properties')
+            .select('title, monthly_rent, city, owner_id, deposit_amount, charges_amount')
+            .eq('id', app.property_id)
+            .single();
+
+          // Récupérer les infos du candidat
+          const { data: applicant } = await supabase
+            .from('profiles')
+            .select('full_name, phone, oneci_verified, cnam_verified')
+            .eq('id', app.applicant_id)
+            .single();
+
+          return {
+            ...app,
+            properties: property,
+            profiles: applicant,
+          };
+        })
+      );
+
+      setApplications(enrichedApplications);
     } catch (error) {
       console.error('Error fetching applications:', error);
       toast({
