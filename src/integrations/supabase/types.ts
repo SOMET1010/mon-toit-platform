@@ -275,6 +275,7 @@ export type Database = {
           city: string | null
           cnam_verified: boolean | null
           created_at: string
+          face_verified: boolean | null
           full_name: string
           id: string
           is_verified: boolean | null
@@ -289,6 +290,7 @@ export type Database = {
           city?: string | null
           cnam_verified?: boolean | null
           created_at?: string
+          face_verified?: boolean | null
           full_name: string
           id: string
           is_verified?: boolean | null
@@ -303,6 +305,7 @@ export type Database = {
           city?: string | null
           cnam_verified?: boolean | null
           created_at?: string
+          face_verified?: boolean | null
           full_name?: string
           id?: string
           is_verified?: boolean | null
@@ -508,6 +511,10 @@ export type Database = {
           cnam_status: string | null
           cnam_verified_at: string | null
           created_at: string
+          face_similarity_score: number | null
+          face_verification_attempts: number | null
+          face_verification_status: string | null
+          face_verified_at: string | null
           id: string
           oneci_cni_number: string | null
           oneci_data: Json | null
@@ -525,6 +532,10 @@ export type Database = {
           cnam_status?: string | null
           cnam_verified_at?: string | null
           created_at?: string
+          face_similarity_score?: number | null
+          face_verification_attempts?: number | null
+          face_verification_status?: string | null
+          face_verified_at?: string | null
           id?: string
           oneci_cni_number?: string | null
           oneci_data?: Json | null
@@ -542,6 +553,10 @@ export type Database = {
           cnam_status?: string | null
           cnam_verified_at?: string | null
           created_at?: string
+          face_similarity_score?: number | null
+          face_verification_attempts?: number | null
+          face_verification_status?: string | null
+          face_verified_at?: string | null
           id?: string
           oneci_cni_number?: string | null
           oneci_data?: Json | null

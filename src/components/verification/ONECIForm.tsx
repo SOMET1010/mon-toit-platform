@@ -6,10 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import FaceVerification from './FaceVerification';
 
 const ONECIForm = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [oneciVerified, setOneciVerified] = useState(false);
+  const [showFaceVerification, setShowFaceVerification] = useState(false);
   const [formData, setFormData] = useState({
     cniNumber: '',
     lastName: '',
@@ -63,14 +66,17 @@ const ONECIForm = () => {
       }
 
       toast({
-        title: verificationResult.verified ? 'Vérification réussie' : 'Vérification échouée',
-        description: verificationResult.message,
+        title: verificationResult.verified ? 'Vérification ONECI réussie' : 'Vérification échouée',
+        description: verificationResult.verified 
+          ? 'Vous pouvez maintenant effectuer la vérification faciale (optionnelle)'
+          : verificationResult.message,
         variant: verificationResult.verified ? 'default' : 'destructive',
       });
 
       if (verificationResult.verified) {
         setFormData({ cniNumber: '', lastName: '', firstName: '', birthDate: '' });
-        window.location.reload();
+        setOneciVerified(true);
+        setShowFaceVerification(true);
       }
     } catch (error: any) {
       console.error('Error:', error);
@@ -83,6 +89,37 @@ const ONECIForm = () => {
       setLoading(false);
     }
   };
+
+  const handleFaceVerificationSuccess = () => {
+    toast({
+      title: 'Vérification complète !',
+      description: 'Votre identité ONECI et votre Face ID ont été vérifiés avec succès',
+    });
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  };
+
+  const handleSkipFaceVerification = () => {
+    toast({
+      title: 'Vérification ONECI effectuée',
+      description: 'Vous pourrez ajouter la vérification faciale plus tard',
+    });
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  };
+
+  if (showFaceVerification && oneciVerified) {
+    return (
+      <div className="space-y-4">
+        <FaceVerification 
+          onSuccess={handleFaceVerificationSuccess}
+          onSkip={handleSkipFaceVerification}
+        />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

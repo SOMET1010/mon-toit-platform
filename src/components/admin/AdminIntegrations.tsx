@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Mail, CreditCard, Save, CheckCircle, XCircle } from "lucide-react";
+import { Shield, Mail, CreditCard, Save, CheckCircle, XCircle, Scan } from "lucide-react";
 
 interface IntegrationConfig {
   name: string;
@@ -26,6 +26,10 @@ const AdminIntegrations = () => {
   // Brevo Configuration
   const [brevoApiKey, setBrevoApiKey] = useState("");
   
+  // Azure Face API Configuration
+  const [azureEndpoint, setAzureEndpoint] = useState("");
+  const [azureApiKey, setAzureApiKey] = useState("");
+  
   const integrations: IntegrationConfig[] = [
     {
       name: "CinetPay",
@@ -38,6 +42,12 @@ const AdminIntegrations = () => {
       status: "not_configured",
       icon: Mail,
       description: "Emails transactionnels et notifications"
+    },
+    {
+      name: "Azure Face API",
+      status: "configured",
+      icon: Scan,
+      description: "Vérification faciale biométrique"
     }
   ];
 
@@ -102,6 +112,36 @@ const AdminIntegrations = () => {
     }
   };
 
+  const saveAzureConfig = async () => {
+    if (!azureEndpoint || !azureApiKey) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs Azure Face API",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      localStorage.setItem("azure_face_config", JSON.stringify({
+        endpoint: azureEndpoint,
+        apiKey: azureApiKey,
+        configuredAt: new Date().toISOString()
+      }));
+
+      toast({
+        title: "Configuration sauvegardée",
+        description: "Les paramètres Azure Face API ont été enregistrés avec succès"
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder la configuration",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -112,7 +152,7 @@ const AdminIntegrations = () => {
       </div>
 
       {/* Status Overview */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         {integrations.map((integration) => {
           const Icon = integration.icon;
           return (
@@ -148,7 +188,7 @@ const AdminIntegrations = () => {
 
       {/* Configuration Forms */}
       <Tabs defaultValue="cinetpay" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="cinetpay">
             <CreditCard className="mr-2 h-4 w-4" />
             CinetPay
@@ -156,6 +196,10 @@ const AdminIntegrations = () => {
           <TabsTrigger value="brevo">
             <Mail className="mr-2 h-4 w-4" />
             Brevo
+          </TabsTrigger>
+          <TabsTrigger value="azure">
+            <Scan className="mr-2 h-4 w-4" />
+            Azure Face API
           </TabsTrigger>
         </TabsList>
 
@@ -251,6 +295,66 @@ const AdminIntegrations = () => {
               <Button onClick={saveBrevoConfig} className="w-full">
                 <Save className="mr-2 h-4 w-4" />
                 Sauvegarder la configuration Brevo
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="azure" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configuration Azure Face API</CardTitle>
+              <CardDescription>
+                Configurez votre endpoint et clé API Azure pour activer la vérification faciale
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="azure-endpoint">Endpoint Azure</Label>
+                <Input
+                  id="azure-endpoint"
+                  placeholder="https://westeurope.api.cognitive.microsoft.com/"
+                  value={azureEndpoint}
+                  onChange={(e) => setAzureEndpoint(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="azure-api-key">Clé API Azure</Label>
+                <Input
+                  id="azure-api-key"
+                  type="password"
+                  placeholder="Votre clé API Azure Face"
+                  value={azureApiKey}
+                  onChange={(e) => setAzureApiKey(e.target.value)}
+                />
+              </div>
+
+              <div className="bg-muted p-4 rounded-lg space-y-2">
+                <h4 className="font-medium text-sm">Configuration actuelle</h4>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>✅ Endpoint: Configuré dans les secrets Lovable Cloud</p>
+                  <p>✅ API Key: Configurée dans les secrets Lovable Cloud</p>
+                  <p className="pt-2 text-xs">
+                    Les clés Azure sont stockées de manière sécurisée dans Lovable Cloud.
+                    Cette section est informative uniquement.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg space-y-2">
+                <h4 className="font-medium text-sm">Fonctionnalités activées</h4>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Vérification faciale optionnelle après ONECI</li>
+                  <li>Seuil de similarité: 70%</li>
+                  <li>Maximum 3 tentatives par jour par utilisateur</li>
+                  <li>Badge "Face ID vérifié" sur les profils</li>
+                </ul>
+              </div>
+
+              <Button onClick={saveAzureConfig} className="w-full" disabled>
+                <Save className="mr-2 h-4 w-4" />
+                Configuration gérée par Lovable Cloud
               </Button>
             </CardContent>
           </Card>
