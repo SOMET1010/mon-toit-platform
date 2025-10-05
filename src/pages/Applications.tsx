@@ -87,19 +87,19 @@ const Applications = () => {
             .from('properties')
             .select('title, monthly_rent, city, owner_id, deposit_amount, charges_amount')
             .eq('id', app.property_id)
-            .single();
+            .maybeSingle();
 
           // Récupérer les infos du candidat
           const { data: applicant } = await supabase
             .from('profiles')
             .select('full_name, phone, oneci_verified, cnam_verified')
             .eq('id', app.applicant_id)
-            .single();
+            .maybeSingle();
 
           return {
             ...app,
-            properties: property,
-            profiles: applicant,
+            properties: property || { title: 'Propriété supprimée', monthly_rent: 0, city: 'N/A', owner_id: '', deposit_amount: null, charges_amount: null },
+            profiles: applicant || { full_name: 'Utilisateur supprimé', phone: null, oneci_verified: false, cnam_verified: false },
           };
         })
       );
@@ -261,8 +261,15 @@ const ApplicationsList = ({
   if (applications.length === 0) {
     return (
       <Card>
-        <CardContent className="py-12 text-center text-muted-foreground">
-          Aucune candidature
+        <CardContent className="py-12 text-center">
+          <div className="space-y-4">
+            <p className="text-muted-foreground text-lg">Aucune candidature pour le moment</p>
+            {!isOwner && (
+              <p className="text-sm text-muted-foreground">
+                Parcourez nos annonces et déposez votre première candidature !
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     );
@@ -276,12 +283,12 @@ const ApplicationsList = ({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-lg">
-                  {(application.properties as any)?.title}
+                  {application.properties?.title || 'Propriété non disponible'}
                 </CardTitle>
                 <CardDescription>
                   {isOwner 
-                    ? `Candidat: ${(application.profiles as any)?.full_name}`
-                    : (application.properties as any)?.city
+                    ? `Candidat: ${application.profiles?.full_name || 'Inconnu'}`
+                    : application.properties?.city || 'N/A'
                   }
                 </CardDescription>
               </div>
@@ -293,14 +300,14 @@ const ApplicationsList = ({
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-4">
                   <span className="text-muted-foreground">
-                    Loyer: {(application.properties as any)?.monthly_rent.toLocaleString()} FCFA
+                    Loyer: {application.properties?.monthly_rent?.toLocaleString() || '0'} FCFA
                   </span>
                   {isOwner && (
                     <div className="flex gap-2">
-                      {(application.profiles as any)?.oneci_verified && (
+                      {application.profiles?.oneci_verified && (
                         <Badge variant="outline" className="text-xs">ONECI ✓</Badge>
                       )}
-                      {(application.profiles as any)?.cnam_verified && (
+                      {application.profiles?.cnam_verified && (
                         <Badge variant="outline" className="text-xs">CNAM ✓</Badge>
                       )}
                     </div>

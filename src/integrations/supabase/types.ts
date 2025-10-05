@@ -709,6 +709,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "rental_applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "rental_applications_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
