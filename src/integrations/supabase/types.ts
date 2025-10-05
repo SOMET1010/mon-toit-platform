@@ -1198,6 +1198,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_old_audit_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       detect_mass_actions: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1221,6 +1225,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      promote_to_super_admin: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

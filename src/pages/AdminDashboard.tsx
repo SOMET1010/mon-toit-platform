@@ -19,6 +19,7 @@ import AdvancedReporting from '@/components/admin/AdvancedReporting';
 import LeaseCertificationQueue from '@/components/admin/LeaseCertificationQueue';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { LeaseTemplateManager } from '@/components/admin/LeaseTemplateManager';
+import { PromoteToSuperAdmin } from '@/components/admin/PromoteToSuperAdmin';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -157,6 +158,9 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">
+            {!hasRole('super_admin') && !hasRole('admin') && (
+              <PromoteToSuperAdmin />
+            )}
             <AuditLogViewer />
           </TabsContent>
 
