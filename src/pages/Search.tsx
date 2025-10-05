@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -32,6 +33,7 @@ interface Property {
 }
 
 const Search = () => {
+  const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,34 @@ const Search = () => {
   useEffect(() => {
     fetchProperties();
   }, []);
+
+  useEffect(() => {
+    // Apply filters from URL parameters
+    if (properties.length > 0) {
+      const location = searchParams.get('location');
+      const type = searchParams.get('type');
+      const maxPrice = searchParams.get('maxPrice');
+
+      if (location || type || maxPrice) {
+        const filters: PropertyFilters = {};
+        
+        if (location) {
+          // Try to match city or neighborhood
+          filters.city = location;
+        }
+        
+        if (type) {
+          filters.propertyType = type;
+        }
+        
+        if (maxPrice) {
+          filters.maxPrice = parseInt(maxPrice);
+        }
+
+        handleFilterChange(filters);
+      }
+    }
+  }, [properties, searchParams]);
 
   const fetchProperties = async () => {
     try {

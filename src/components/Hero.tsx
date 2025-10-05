@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Home } from "lucide-react";
@@ -6,6 +8,19 @@ import heroImage from "@/assets/hero-bg.jpg";
 import CertifiedBadge from "@/components/ui/certified-badge";
 
 const Hero = () => {
+  const navigate = useNavigate();
+  const [location, setLocation] = useState('');
+  const [propertyType, setPropertyType] = useState('');
+  const [maxBudget, setMaxBudget] = useState('');
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (location) params.set('location', location);
+    if (propertyType) params.set('type', propertyType);
+    if (maxBudget) params.set('maxPrice', maxBudget);
+    navigate(`/recherche?${params.toString()}`);
+  };
+
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -47,10 +62,12 @@ const Hero = () => {
                   <Input 
                     placeholder="Ex. Cocody, Marcory, Zone 4..." 
                     className="pl-10 h-12"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
                   />
                 </div>
                 <div className="flex-1">
-                  <Select>
+                  <Select value={propertyType} onValueChange={setPropertyType}>
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Type de bien" />
                     </SelectTrigger>
@@ -68,9 +85,11 @@ const Hero = () => {
                     type="number"
                     placeholder="Budget max (FCFA)" 
                     className="h-12"
+                    value={maxBudget}
+                    onChange={(e) => setMaxBudget(e.target.value)}
                   />
                 </div>
-                <Button size="xl" variant="hero" className="md:w-auto gap-2">
+                <Button size="xl" variant="hero" className="md:w-auto gap-2" onClick={handleSearch}>
                   <Search className="h-5 w-5" />
                   Rechercher
                 </Button>
@@ -89,7 +108,14 @@ const Hero = () => {
               ].map((tag) => (
                 <button
                   key={tag.search}
-                  onClick={() => {/* TODO: trigger search */}}
+                  onClick={() => {
+                    setLocation(tag.search);
+                    const params = new URLSearchParams();
+                    params.set('location', tag.search);
+                    if (propertyType) params.set('type', propertyType);
+                    if (maxBudget) params.set('maxPrice', maxBudget);
+                    navigate(`/recherche?${params.toString()}`);
+                  }}
                   className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground text-foreground transition-smooth"
                 >
                   {tag.label}

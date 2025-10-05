@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Home, Building2, Users, BarChart3, Plus } from 'lucide-react';
+import { Home, Building2, Users, BarChart3, Plus, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -26,7 +26,8 @@ const Dashboard = () => {
     locataire: {
       title: 'Tableau de bord Locataire',
       cards: [
-        { title: 'Mes Candidatures', icon: Home, description: 'Suivez vos candidatures', link: '/mes-candidatures' },
+        { title: 'Mes Candidatures', icon: Home, description: 'Suivez vos candidatures', link: '/candidatures' },
+        { title: 'Mes Baux', icon: Building2, description: 'Consulter mes baux', link: '/baux' },
         { title: 'Mes Favoris', icon: Building2, description: 'Biens sauvegardés', link: '/favoris' },
       ],
     },
