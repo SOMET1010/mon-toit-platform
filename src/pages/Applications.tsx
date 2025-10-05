@@ -69,8 +69,8 @@ const Applications = () => {
           created_at,
           reviewed_at,
           updated_at,
-          properties:property_id (title, monthly_rent, city, owner_id, deposit_amount, charges_amount),
-          profiles:applicant_id (full_name, phone, oneci_verified, cnam_verified)
+          properties!rental_applications_property_id_fkey (title, monthly_rent, city, owner_id, deposit_amount, charges_amount),
+          profiles!rental_applications_applicant_id_fkey (full_name, phone, oneci_verified, cnam_verified)
         `)
         .order('created_at', { ascending: false });
 
