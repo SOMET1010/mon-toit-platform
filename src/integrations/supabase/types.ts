@@ -634,6 +634,33 @@ export type Database = {
           },
         ]
       }
+      phone_access_log: {
+        Row: {
+          access_granted: boolean
+          accessed_at: string
+          id: string
+          relationship_type: string | null
+          requester_id: string
+          target_user_id: string
+        }
+        Insert: {
+          access_granted: boolean
+          accessed_at?: string
+          id?: string
+          relationship_type?: string | null
+          requester_id: string
+          target_user_id: string
+        }
+        Update: {
+          access_granted?: boolean
+          accessed_at?: string
+          id?: string
+          relationship_type?: string | null
+          requester_id?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1389,6 +1416,23 @@ export type Database = {
           attempt_count: number
           email: string
           last_attempt: string
+        }[]
+      }
+      get_public_profile: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city: string
+          cnam_verified: boolean
+          created_at: string
+          face_verified: boolean
+          full_name: string
+          id: string
+          is_verified: boolean
+          oneci_verified: boolean
+          updated_at: string
+          user_type: Database["public"]["Enums"]["user_type"]
         }[]
       }
       get_user_phone: {
