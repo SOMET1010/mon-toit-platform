@@ -290,7 +290,7 @@ const PropertyDetail = () => {
   const favorite = isFavorite(property.id);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
@@ -304,7 +304,7 @@ const PropertyDetail = () => {
             {/* Images and main content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Main image */}
-              <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden shadow-xl">
                 {selectedImage ? (
                   <img
                     src={selectedImage}
@@ -347,9 +347,9 @@ const PropertyDetail = () => {
               )}
 
               {/* Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Description</CardTitle>
+              <Card className="border-2 shadow-lg rounded-xl">
+                <CardHeader className="p-8">
+                  <CardTitle className="text-2xl">Description</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground whitespace-pre-line">
@@ -359,9 +359,9 @@ const PropertyDetail = () => {
               </Card>
 
               {/* Characteristics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Caractéristiques</CardTitle>
+              <Card className="border-2 shadow-lg rounded-xl">
+                <CardHeader className="p-8">
+                  <CardTitle className="text-2xl">Caractéristiques</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
@@ -436,9 +436,9 @@ const PropertyDetail = () => {
               </Card>
 
               {/* Location */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Localisation</CardTitle>
+              <Card className="border-2 shadow-lg rounded-xl">
+                <CardHeader className="p-8">
+                  <CardTitle className="text-2xl">Localisation</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-start gap-2">

@@ -250,15 +250,18 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">Messages</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
+            <MessageCircle className="h-10 w-10 text-primary" />
+            Messages
+          </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[600px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px]">
             {/* Conversations list */}
-            <Card className="md:col-span-1">
+            <Card className="md:col-span-1 border-2 shadow-lg rounded-xl">
               <CardHeader>
                 <CardTitle>Conversations</CardTitle>
               </CardHeader>
@@ -310,7 +313,7 @@ const Messages = () => {
             </Card>
 
             {/* Messages */}
-            <Card className="md:col-span-2">
+            <Card className="md:col-span-2 border-2 shadow-lg rounded-xl">
               {selectedConversation ? (
                 <>
                   <CardHeader>

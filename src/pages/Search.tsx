@@ -7,7 +7,7 @@ import PropertyFiltersComponent, { PropertyFilters } from '@/components/Property
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Bed, Bath, Maximize, Grid, List, Map } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Maximize, Grid, List, Map, Search as SearchIcon } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Link } from 'react-router-dom';
 
@@ -143,8 +143,8 @@ const Search = () => {
     const favorite = isFavorite(property.id);
 
     return (
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-        <div className="relative h-48 bg-muted">
+      <Card className="overflow-hidden border-2 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-xl">
+        <div className="relative h-48 bg-muted rounded-t-xl">
           {property.main_image ? (
             <img
               src={property.main_image}
@@ -218,13 +218,16 @@ const Search = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-10">
             <div>
-              <h1 className="text-3xl font-bold">Recherche de biens</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 flex items-center gap-3">
+                <SearchIcon className="h-10 w-10 text-primary" />
+                Recherche de biens
+              </h1>
               <p className="text-muted-foreground mt-1">
                 {filteredProperties.length} bien{filteredProperties.length > 1 ? 's' : ''} trouvé{filteredProperties.length > 1 ? 's' : ''}
               </p>

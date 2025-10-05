@@ -60,15 +60,15 @@ const Dashboard = () => {
   const content = dashboardContent[profile.user_type];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-bold">{content.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">{content.title}</h1>
               <p className="text-muted-foreground mt-2">Bienvenue, {profile.full_name}</p>
             </div>
             {profile.user_type === 'proprietaire' && (
@@ -84,16 +84,18 @@ const Dashboard = () => {
           {/* Dashboard Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {content.cards.map((card, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <card.icon className="h-5 w-5 text-primary" />
-                    <CardTitle>{card.title}</CardTitle>
+              <Card key={index} className="border-2 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 rounded-xl">
+                <CardHeader className="p-8">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-gradient-primary rounded-xl">
+                      <card.icon className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <CardTitle className="text-xl">{card.title}</CardTitle>
                   </div>
-                  <CardDescription>{card.description}</CardDescription>
+                  <CardDescription className="text-base">{card.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Button asChild variant="outline" className="w-full">
+                <CardContent className="p-8 pt-0">
+                  <Button asChild className="w-full h-14 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all">
                     <Link to={card.link}>Accéder</Link>
                   </Button>
                 </CardContent>
