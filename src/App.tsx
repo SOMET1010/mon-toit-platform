@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Certification from "./pages/Certification";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -51,7 +52,8 @@ const App = () => (
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/certification" element={<Certification />} />
             <Route path="/auth" element={<Auth />} />
-            <Route 
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route
               path="/profil" 
               element={
                 <ProtectedRoute>
