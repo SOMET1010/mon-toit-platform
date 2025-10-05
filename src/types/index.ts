@@ -190,9 +190,10 @@ export interface ReputationScore {
 
 // Component-specific types
 export interface PropertyStats {
-  view_count: number;
-  favorites_count: number;
-  applications_count: number;
+  views: number;
+  favorites: number;
+  applications: number;
+  conversionRate: number;
 }
 
 export interface DashboardStats {
@@ -236,16 +237,20 @@ export interface TopPropertyData {
 
 export interface SearchFilters {
   city?: string;
-  propertyType?: string;
+  propertyType?: string[];
   minPrice?: number;
   maxPrice?: number;
   minBedrooms?: number;
   minBathrooms?: number;
   minSurface?: number;
   isFurnished?: boolean;
+  furnished?: boolean;
   hasParking?: boolean;
+  parking?: boolean;
   hasGarden?: boolean;
+  garden?: boolean;
   hasAc?: boolean;
+  ac?: boolean;
   latitude?: number;
   longitude?: number;
   radius?: number;

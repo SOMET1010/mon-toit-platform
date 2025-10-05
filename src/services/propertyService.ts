@@ -18,8 +18,8 @@ export const propertyService = {
     if (filters?.city) {
       query = query.eq('city', filters.city);
     }
-    if (filters?.propertyType) {
-      query = query.eq('property_type', filters.propertyType);
+    if (filters?.propertyType && filters.propertyType.length > 0) {
+      query = query.in('property_type', filters.propertyType);
     }
     if (filters?.minPrice) {
       query = query.gte('monthly_rent', filters.minPrice);
@@ -173,10 +173,14 @@ export const propertyService = {
         .single(),
     ]);
 
+    const views = propertyResult.data?.view_count || 0;
+    const applications = applicationsResult.count || 0;
+
     return {
-      view_count: propertyResult.data?.view_count || 0,
-      favorites_count: favoritesResult.count || 0,
-      applications_count: applicationsResult.count || 0,
+      views,
+      favorites: favoritesResult.count || 0,
+      applications,
+      conversionRate: views > 0 ? Math.round((applications / views) * 100) : 0,
     };
   },
 
