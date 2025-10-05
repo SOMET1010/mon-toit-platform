@@ -1450,16 +1450,7 @@ export type Database = {
       }
     }
     Views: {
-      mfa_metrics: {
-        Row: {
-          admins_with_2fa: number | null
-          percentage_with_2fa: number | null
-          total_admins: number | null
-          unused_backup_codes: number | null
-          used_backup_codes: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       approve_verification: {
@@ -1501,6 +1492,16 @@ export type Database = {
           attempt_count: number
           email: string
           last_attempt: string
+        }[]
+      }
+      get_mfa_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admins_with_2fa: number
+          percentage_with_2fa: number
+          total_admins: number
+          unused_backup_codes: number
+          used_backup_codes: number
         }[]
       }
       get_my_disputes: {

@@ -23,6 +23,7 @@ import { LeaseTemplateManager } from '@/components/admin/LeaseTemplateManager';
 import { PromoteToSuperAdmin } from '@/components/admin/PromoteToSuperAdmin';
 import PropertyModerationQueue from '@/components/admin/PropertyModerationQueue';
 import SensitiveDataAccessMonitor from '@/components/admin/SensitiveDataAccessMonitor';
+import { MfaSecurityMonitor } from '@/components/admin/MfaSecurityMonitor';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -177,6 +178,10 @@ const AdminDashboard = () => {
               <FileText className="h-4 w-4" />
               Baux
             </TabsTrigger>
+            <TabsTrigger value="mfa" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Sécurité 2FA
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -193,6 +198,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="security" className="space-y-6">
             <SensitiveDataAccessMonitor />
+          </TabsContent>
+
+          <TabsContent value="mfa" className="space-y-6">
+            <MfaSecurityMonitor />
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">
