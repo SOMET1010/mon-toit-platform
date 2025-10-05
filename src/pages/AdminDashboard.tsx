@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, Home, Users, FileText, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { LayoutDashboard, Home, Users, FileText, Settings, Shield } from 'lucide-react';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminProperties from '@/components/admin/AdminProperties';
 import AdminUsers from '@/components/admin/AdminUsers';
@@ -15,10 +16,43 @@ import PlatformAnalytics from '@/components/admin/PlatformAnalytics';
 import DisputeManager from '@/components/admin/DisputeManager';
 import ReviewModeration from '@/components/admin/ReviewModeration';
 import AdvancedReporting from '@/components/admin/AdvancedReporting';
+import LeaseCertificationQueue from '@/components/admin/LeaseCertificationQueue';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
   const { hasRole, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [pendingCertifications, setPendingCertifications] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      const { count } = await supabase
+        .from('leases')
+        .select('*', { count: 'exact', head: true })
+        .eq('certification_status', 'pending');
+      setPendingCertifications(count || 0);
+    };
+
+    fetchPendingCount();
+
+    const channel = supabase
+      .channel('admin-pending-count')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leases',
+          filter: 'certification_status=eq.pending'
+        },
+        () => fetchPendingCount()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -47,10 +81,19 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-8 mb-8">
+          <TabsList className="grid w-full grid-cols-9 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Vue d'ensemble
+            </TabsTrigger>
+            <TabsTrigger value="certifications" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Certifications
+              {pendingCertifications > 0 && (
+                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
+                  {pendingCertifications}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="disputes">Litiges</TabsTrigger>
@@ -72,6 +115,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="overview" className="space-y-6">
             <AdminStats />
+          </TabsContent>
+
+          <TabsContent value="certifications" className="space-y-6">
+            <LeaseCertificationQueue />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
