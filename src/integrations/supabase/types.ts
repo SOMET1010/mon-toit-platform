@@ -56,6 +56,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       disputes: {
         Row: {
           assigned_to: string | null
@@ -1125,6 +1155,23 @@ export type Database = {
       cleanup_expired_recommendations: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      detect_mass_actions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          action_count: number
+          admin_id: string
+          time_window_end: string
+          time_window_start: string
+        }[]
+      }
+      get_failed_login_attempts: {
+        Args: { hours_ago?: number }
+        Returns: {
+          attempt_count: number
+          email: string
+          last_attempt: string
+        }[]
       }
       has_role: {
         Args: {
