@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import FaceVerification from './FaceVerification';
+
+// Lazy load FaceVerification to avoid blocking the main page
+const FaceVerification = lazy(() => import('./FaceVerification'));
 
 const ONECIForm = () => {
   const { user } = useAuth();
@@ -113,10 +115,16 @@ const ONECIForm = () => {
   if (showFaceVerification && oneciVerified) {
     return (
       <div className="space-y-4">
-        <FaceVerification 
-          onSuccess={handleFaceVerificationSuccess}
-          onSkip={handleSkipFaceVerification}
-        />
+        <Suspense fallback={
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        }>
+          <FaceVerification 
+            onSuccess={handleFaceVerificationSuccess}
+            onSkip={handleSkipFaceVerification}
+          />
+        </Suspense>
       </div>
     );
   }

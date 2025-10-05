@@ -3,9 +3,18 @@ import { Camera, Upload, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+// Simple progress bar component to replace @radix-ui/react-progress
+const SimpleProgress = ({ value, className }: { value: number; className?: string }) => (
+  <div className={`relative h-2 w-full overflow-hidden rounded-full bg-secondary ${className}`}>
+    <div 
+      className="h-full bg-primary transition-all duration-300"
+      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+    />
+  </div>
+);
 
 interface FaceVerificationProps {
   onSuccess?: () => void;
@@ -258,7 +267,7 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
                 <p className="font-medium">{verificationResult.message}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-sm">Score de similarité :</span>
-                  <Progress value={parseFloat(verificationResult.similarityScore)} className="flex-1" />
+                  <SimpleProgress value={parseFloat(verificationResult.similarityScore)} className="flex-1" />
                   <span className="text-sm font-bold">{verificationResult.similarityScore}%</span>
                 </div>
                 {!verificationResult.verified && verificationResult.attemptsRemaining > 0 && (
