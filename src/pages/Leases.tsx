@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/services/logger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +38,7 @@ interface Lease {
   tenant_signed_at: string | null;
   landlord_signed_at: string | null;
   ansut_certified_at: string | null;
-  certification_status: string;
+  certification_status: 'not_requested' | 'pending' | 'certified' | 'rejected';
   certification_requested_at: string | null;
   document_url: string | null;
   properties: {
@@ -107,11 +108,12 @@ export default function Leases() {
         })
       );
 
-      setLeases(leasesWithProfiles);
-    } catch (error: any) {
+      setLeases(leasesWithProfiles as unknown as Lease[]);
+    } catch (error) {
+      logger.error('Error fetching leases', { error, userId: user?.id });
       toast({
         title: "Erreur",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Erreur lors du chargement",
         variant: "destructive",
       });
     } finally {
@@ -136,10 +138,11 @@ export default function Leases() {
       });
 
       fetchLeases();
-    } catch (error: any) {
+    } catch (error) {
+      logger.error("Error signing lease", { error, leaseId });
       toast({
         title: "Erreur",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Erreur lors de la signature",
         variant: "destructive",
       });
     }
@@ -178,10 +181,10 @@ export default function Leases() {
   const getStatusBadge = (lease: Lease) => {
     // Use the new certification badge component
     return (
-      <ANSUTCertifiedBadge 
-        status={lease.certification_status as any}
-        certifiedAt={lease.ansut_certified_at}
-      />
+                      <ANSUTCertifiedBadge 
+                        status={lease.certification_status}
+                        certifiedAt={lease.ansut_certified_at}
+                      />
     );
   };
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -71,11 +72,11 @@ const CNAMForm = () => {
         setFormData({ cniNumber: '', employerName: '', socialSecurityNumber: '' });
         window.location.reload();
       }
-    } catch (error: any) {
-      console.error('Error:', error);
+    } catch (error) {
+      logger.error('CNAM verification error', { error, userId: user?.id, formData });
       toast({
         title: 'Erreur',
-        description: error.message || 'Une erreur est survenue lors de la vérification',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la vérification',
         variant: 'destructive',
       });
     } finally {

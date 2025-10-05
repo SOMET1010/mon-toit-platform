@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/services/logger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,10 +54,11 @@ export default function Payments() {
 
       if (error) throw error;
       setPayments(data || []);
-    } catch (error: any) {
+    } catch (error) {
+      logger.error('Error fetching payments', { error, userId: user?.id });
       toast({
         title: "Erreur",
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Erreur lors de la récupération des paiements',
         variant: "destructive",
       });
     }
@@ -127,10 +129,11 @@ export default function Payments() {
           variant: "destructive",
         });
       }
-    } catch (error: any) {
+    } catch (error) {
+      logger.error('Error processing payment', { error, userId: user?.id, amount, paymentType });
       toast({
         title: "Erreur",
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Erreur lors du traitement du paiement',
         variant: "destructive",
       });
     } finally {

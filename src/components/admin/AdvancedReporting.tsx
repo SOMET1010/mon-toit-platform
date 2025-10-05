@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -110,7 +111,7 @@ const AdvancedReporting = () => {
         }
       });
     } catch (error) {
-      console.error('Error fetching report data:', error);
+      logger.error('Error fetching report data', { error });
     } finally {
       setLoading(false);
     }

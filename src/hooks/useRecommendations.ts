@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { useAuth } from './useAuth';
 import { toast } from '@/hooks/use-toast';
 
@@ -68,7 +69,7 @@ export const useRecommendations = ({
     }
   }, [user, type, propertyId, limit]);
 
-  const updatePreferences = useCallback(async (preferences: any) => {
+  const updatePreferences = useCallback(async (preferences: Record<string, unknown>) => {
     if (!user) return;
 
     setLoading(true);

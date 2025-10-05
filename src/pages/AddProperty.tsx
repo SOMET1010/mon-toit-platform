@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -184,10 +185,10 @@ const AddProperty = () => {
         if (!geocodeError && geocodeData) {
           latitude = geocodeData.latitude;
           longitude = geocodeData.longitude;
-          console.log('Geocoded coordinates:', { latitude, longitude });
+          logger.info('Geocoded coordinates', { latitude, longitude, address: data.address, city: data.city });
         }
       } catch (geocodeError) {
-        console.error('Geocoding error:', geocodeError);
+        logger.error('Geocoding error', { error: geocodeError, address: data.address, city: data.city });
         // Continue without coordinates
       }
 
@@ -243,11 +244,11 @@ const AddProperty = () => {
       });
 
       navigate('/mes-biens');
-    } catch (error: any) {
-      console.error('Error creating property:', error);
+    } catch (error) {
+      logger.error('Error creating property', { error, userId: profile?.id, propertyData: data });
       toast({
         title: 'Erreur',
-        description: error.message || 'Une erreur est survenue lors de la création du bien',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la création du bien',
         variant: 'destructive',
       });
     } finally {

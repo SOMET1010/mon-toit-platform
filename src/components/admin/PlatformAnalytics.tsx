@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -102,7 +103,7 @@ const PlatformAnalytics = () => {
         topProperties
       });
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      logger.error('Error fetching analytics', { error, period });
     } finally {
       setLoading(false);
     }

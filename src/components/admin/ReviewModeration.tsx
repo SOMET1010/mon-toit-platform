@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,8 +26,8 @@ interface Review {
   moderation_status: string;
   moderation_notes: string | null;
   created_at: string;
-  reviewer: { full_name: string };
-  reviewee: { full_name: string };
+  reviewer: { full_name: string } | null;
+  reviewee: { full_name: string } | null;
 }
 
 const ReviewModeration = () => {
@@ -54,9 +55,9 @@ const ReviewModeration = () => {
 
       if (error) throw error;
 
-      setReviews(data as any || []);
+      setReviews((data || []) as unknown as Review[]);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      logger.error('Error fetching reviews', { error });
     } finally {
       setLoading(false);
     }
@@ -88,7 +89,7 @@ const ReviewModeration = () => {
       setSelectedReview(null);
       setModerationNotes('');
     } catch (error) {
-      console.error('Error moderating review:', error);
+      logger.error('Error moderating review', { error, reviewId, action });
       toast({
         title: "Erreur",
         description: "Impossible de modérer l'avis",
@@ -161,7 +162,7 @@ const ReviewModeration = () => {
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <CardTitle className="text-base">
-                        {review.reviewer.full_name} → {review.reviewee.full_name}
+                        {review.reviewer?.full_name || 'N/A'} → {review.reviewee?.full_name || 'N/A'}
                       </CardTitle>
                       <div className="flex items-center gap-2">
                         <div className="flex">
@@ -194,11 +195,11 @@ const ReviewModeration = () => {
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <Label>Auteur</Label>
-                                <p className="text-sm">{selectedReview.reviewer.full_name}</p>
+                                <p className="text-sm">{selectedReview.reviewer?.full_name || 'N/A'}</p>
                               </div>
                               <div>
                                 <Label>À propos de</Label>
-                                <p className="text-sm">{selectedReview.reviewee.full_name}</p>
+                                <p className="text-sm">{selectedReview.reviewee?.full_name || 'N/A'}</p>
                               </div>
                             </div>
 

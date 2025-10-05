@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,18 +17,18 @@ type Lease = {
   status: string;
   lease_type: string;
   ansut_certified_at: string | null;
-  certification_status: string;
+  certification_status: 'not_requested' | 'pending' | 'certified' | 'rejected';
   certification_requested_at: string | null;
   created_at: string;
   properties: {
     title: string;
-  };
+  } | null;
   tenant: {
     full_name: string;
-  };
+  } | null;
   landlord: {
     full_name: string;
-  };
+  } | null;
 };
 
 const AdminLeases = () => {
@@ -61,9 +62,9 @@ const AdminLeases = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLeases(data as any || []);
+      setLeases((data || []) as unknown as Lease[]);
     } catch (error) {
-      console.error('Error fetching leases:', error);
+      logger.error('Error fetching leases', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les baux',
@@ -98,7 +99,7 @@ const AdminLeases = () => {
 
       fetchLeases();
     } catch (error) {
-      console.error('Error certifying lease:', error);
+      logger.error('Error certifying lease', { error, leaseId });
       toast({
         title: 'Erreur',
         description: 'Impossible de certifier le bail',
@@ -160,15 +161,15 @@ const AdminLeases = () => {
             ) : (
               leases.map((lease) => (
                 <TableRow key={lease.id}>
-                  <TableCell className="font-medium">{(lease.properties as any)?.title}</TableCell>
-                  <TableCell>{(lease.landlord as any)?.full_name}</TableCell>
-                  <TableCell>{(lease.tenant as any)?.full_name}</TableCell>
+                  <TableCell className="font-medium">{lease.properties?.title || 'N/A'}</TableCell>
+                  <TableCell>{lease.landlord?.full_name || 'N/A'}</TableCell>
+                  <TableCell>{lease.tenant?.full_name || 'N/A'}</TableCell>
                   <TableCell>{lease.monthly_rent.toLocaleString()} FCFA</TableCell>
                   <TableCell className="capitalize">{lease.lease_type}</TableCell>
                   <TableCell>{getStatusBadge(lease.status)}</TableCell>
                   <TableCell>
                     <ANSUTCertifiedBadge 
-                      status={lease.certification_status as any}
+                      status={lease.certification_status}
                       certifiedAt={lease.ansut_certified_at}
                     />
                   </TableCell>

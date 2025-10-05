@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,8 +25,8 @@ interface Dispute {
   priority: string;
   created_at: string;
   resolved_at: string | null;
-  reporter: { full_name: string };
-  reported: { full_name: string };
+  reporter: { full_name: string } | null;
+  reported: { full_name: string } | null;
 }
 
 const DisputeManager = () => {
@@ -58,15 +59,15 @@ const DisputeManager = () => {
 
       if (error) throw error;
 
-      setDisputes(data as any || []);
+      setDisputes((data || []) as unknown as Dispute[]);
     } catch (error) {
-      console.error('Error fetching disputes:', error);
+      logger.error('Error fetching disputes', { error, filter });
     } finally {
       setLoading(false);
     }
   };
 
-  const updateDispute = async (disputeId: string, updates: any) => {
+  const updateDispute = async (disputeId: string, updates: Partial<Dispute>) => {
     try {
       const { error } = await supabase
         .from('disputes')
@@ -83,7 +84,7 @@ const DisputeManager = () => {
       fetchDisputes();
       setSelectedDispute(null);
     } catch (error) {
-      console.error('Error updating dispute:', error);
+      logger.error('Error updating dispute', { error, disputeId, updates });
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour le litige",
@@ -175,14 +176,14 @@ const DisputeManager = () => {
                       </DialogHeader>
                       {selectedDispute && (
                         <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
+                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label>Rapporteur</Label>
-                              <p className="text-sm">{selectedDispute.reporter.full_name}</p>
+                              <p className="text-sm">{selectedDispute.reporter?.full_name || 'N/A'}</p>
                             </div>
                             <div>
                               <Label>Signalé</Label>
-                              <p className="text-sm">{selectedDispute.reported.full_name}</p>
+                              <p className="text-sm">{selectedDispute.reported?.full_name || 'N/A'}</p>
                             </div>
                           </div>
 
@@ -267,8 +268,8 @@ const DisputeManager = () => {
                     {dispute.description}
                   </p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>De: {dispute.reporter.full_name}</span>
-                    <span>Contre: {dispute.reported.full_name}</span>
+                    <span>De: {dispute.reporter?.full_name || 'N/A'}</span>
+                    <span>Contre: {dispute.reported?.full_name || 'N/A'}</span>
                     <span>{format(new Date(dispute.created_at), 'PPP', { locale: fr })}</span>
                   </div>
                 </div>

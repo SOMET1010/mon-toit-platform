@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -32,7 +33,7 @@ interface LeaseDetails {
   deposit_amount: number;
   start_date: string;
   end_date: string;
-  certification_status: string;
+  certification_status: 'not_requested' | 'pending' | 'certified' | 'rejected';
   certification_notes: string | null;
   landlord_signed_at: string | null;
   tenant_signed_at: string | null;
@@ -41,17 +42,17 @@ interface LeaseDetails {
     title: string;
     address: string;
     city: string;
-  };
+  } | null;
   landlord: {
     full_name: string;
     oneci_verified: boolean;
     cnam_verified: boolean;
-  };
+  } | null;
   tenant: {
     full_name: string;
     oneci_verified: boolean;
     cnam_verified: boolean;
-  };
+  } | null;
 }
 
 const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated }: LeaseCertificationReviewProps) => {
@@ -81,10 +82,10 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
         .single();
 
       if (error) throw error;
-      setLease(data as any);
+      setLease(data as unknown as LeaseDetails);
       setAdminNotes(data.certification_notes || '');
     } catch (error) {
-      console.error('Error fetching lease:', error);
+      logger.error('Error fetching lease', { error, leaseId });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les détails du bail',
@@ -98,7 +99,11 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
   const handleCertification = async (status: 'certified' | 'rejected') => {
     setActionLoading(true);
     try {
-      const updateData: any = {
+      const updateData: {
+        certification_status: 'certified' | 'rejected';
+        certification_notes: string | null;
+        ansut_certified_at?: string;
+      } = {
         certification_status: status,
         certification_notes: adminNotes.trim() || null,
       };
@@ -123,11 +128,11 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
 
       onOpenChange(false);
       onStatusUpdated?.();
-    } catch (error: any) {
-      console.error('Error updating certification:', error);
+    } catch (error) {
+      logger.error('Error updating certification', { error, leaseId, status });
       toast({
         title: 'Erreur',
-        description: error.message || 'Impossible de mettre à jour la certification',
+        description: error instanceof Error ? error.message : 'Impossible de mettre à jour la certification',
         variant: 'destructive',
       });
     } finally {
@@ -150,7 +155,7 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
   if (!lease) return null;
 
   const isFullySigned = lease.landlord_signed_at && lease.tenant_signed_at;
-  const bothVerified = lease.landlord.oneci_verified && lease.tenant.oneci_verified;
+  const bothVerified = lease.landlord?.oneci_verified && lease.tenant?.oneci_verified;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -169,7 +174,7 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
           {/* Status actuel */}
           <div>
             <ANSUTCertifiedBadge 
-              status={lease.certification_status as any}
+              status={lease.certification_status}
               certifiedAt={lease.ansut_certified_at}
               variant="detailed"
             />
@@ -182,9 +187,9 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
               Bien Immobilier
             </div>
             <div className="bg-muted p-4 rounded-lg space-y-2">
-              <p className="font-medium">{lease.property.title}</p>
+              <p className="font-medium">{lease.property?.title || 'N/A'}</p>
               <p className="text-sm text-muted-foreground">
-                {lease.property.address}, {lease.property.city}
+                {lease.property?.address || 'N/A'}, {lease.property?.city || 'N/A'}
               </p>
               <div className="flex gap-4 text-sm">
                 <span>Loyer: {lease.monthly_rent.toLocaleString()} FCFA/mois</span>
@@ -204,17 +209,17 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
                 Propriétaire
               </div>
               <div className="bg-muted p-4 rounded-lg space-y-2">
-                <p className="font-medium">{lease.landlord.full_name}</p>
+                <p className="font-medium">{lease.landlord?.full_name || 'N/A'}</p>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
-                    {lease.landlord.oneci_verified ? (
+                    {lease.landlord?.oneci_verified ? (
                       <Badge className="bg-green-600">ONECI Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">ONECI Non vérifié</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {lease.landlord.cnam_verified ? (
+                    {lease.landlord?.cnam_verified ? (
                       <Badge className="bg-green-600">CNAM Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">CNAM Non vérifié</Badge>
@@ -240,17 +245,17 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
                 Locataire
               </div>
               <div className="bg-muted p-4 rounded-lg space-y-2">
-                <p className="font-medium">{lease.tenant.full_name}</p>
+                <p className="font-medium">{lease.tenant?.full_name || 'N/A'}</p>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
-                    {lease.tenant.oneci_verified ? (
+                    {lease.tenant?.oneci_verified ? (
                       <Badge className="bg-green-600">ONECI Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">ONECI Non vérifié</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {lease.tenant.cnam_verified ? (
+                    {lease.tenant?.cnam_verified ? (
                       <Badge className="bg-green-600">CNAM Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">CNAM Non vérifié</Badge>
