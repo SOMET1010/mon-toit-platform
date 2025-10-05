@@ -26,3 +26,12 @@ verify_jwt = false
 
 [functions.tenant-scoring]
 verify_jwt = false
+
+[functions.send-reminders]
+verify_jwt = false
+
+[functions.moderate-review]
+verify_jwt = true
+
+[functions.generate-report]
+verify_jwt = true
