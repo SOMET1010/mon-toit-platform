@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search, ShieldCheck } from "lucide-react";
+import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search, ShieldCheck, Building2, FileText, Key } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -19,11 +19,56 @@ import MessageNotifications from "@/components/messaging/MessageNotifications";
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
 
-  const navLinks = [
-    { to: "/recherche", label: "Rechercher", icon: Search },
-    { to: "/publier", label: "Publier une annonce" },
-    { to: "/a-propos", label: "À propos" },
-  ];
+  const getNavLinks = (userType: string | null | undefined) => {
+    // Menu Visiteur (non connecté)
+    if (!userType) {
+      return [
+        { to: "/recherche", label: "Rechercher", icon: Search },
+        { to: "/publier", label: "Publier", icon: Building2 },
+        { to: "/a-propos", label: "À propos", icon: FileText },
+      ];
+    }
+
+    // Menu Locataire
+    if (userType === 'locataire') {
+      return [
+        { to: "/recherche", label: "Rechercher", icon: Search },
+        { to: "/favoris", label: "Favoris", icon: Heart },
+        { to: "/candidatures", label: "Mes candidatures", icon: FileText },
+        { to: "/a-propos", label: "À propos", icon: FileText },
+      ];
+    }
+
+    // Menu Propriétaire
+    if (userType === 'proprietaire') {
+      return [
+        { to: "/recherche", label: "Rechercher", icon: Search },
+        { to: "/mes-biens", label: "Mes biens", icon: Home },
+        { to: "/publier", label: "Publier", icon: Building2 },
+        { to: "/baux", label: "Mes baux", icon: FileText },
+        { to: "/a-propos", label: "À propos", icon: FileText },
+      ];
+    }
+
+    // Menu Agence
+    if (userType === 'agence') {
+      return [
+        { to: "/recherche", label: "Rechercher", icon: Search },
+        { to: "/mes-biens", label: "Portefeuille", icon: Building2 },
+        { to: "/publier", label: "Publier", icon: Building2 },
+        { to: "/baux", label: "Gestion baux", icon: FileText },
+        { to: "/a-propos", label: "À propos", icon: FileText },
+      ];
+    }
+
+    // Fallback
+    return [
+      { to: "/recherche", label: "Rechercher", icon: Search },
+      { to: "/a-propos", label: "À propos", icon: FileText },
+    ];
+  };
+
+  const navLinks = getNavLinks(profile?.user_type);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -46,15 +91,19 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.to}
-                to={link.to} 
-                className="text-sm font-medium text-foreground/80 hover:text-foreground transition-smooth"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link 
+                  key={link.to}
+                  to={link.to} 
+                  className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-smooth group"
+                >
+                  <Icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="flex items-center gap-3">
@@ -146,15 +195,19 @@ const Navbar = () => {
               <SheetContent side="right" className="w-[280px]">
                 <div className="flex flex-col gap-6 mt-8">
                   <div className="flex flex-col gap-4">
-                    {navLinks.map((link) => (
-                      <Link
-                        key={link.to}
-                        to={link.to}
-                        className="text-base font-medium text-foreground/80 hover:text-foreground transition-smooth px-2 py-2"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                    {navLinks.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link
+                          key={link.to}
+                          to={link.to}
+                          className="flex items-center gap-3 text-base font-medium text-foreground/80 hover:text-foreground transition-smooth px-2 py-2"
+                        >
+                          <Icon className="h-5 w-5" />
+                          {link.label}
+                        </Link>
+                      );
+                    })}
                   </div>
                   <div className="border-t border-border pt-6 flex flex-col gap-3">
                     {user ? (

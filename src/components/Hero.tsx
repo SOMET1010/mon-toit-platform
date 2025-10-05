@@ -1,11 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Home, DollarSign, CheckCircle2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import heroImage from "@/assets/hero-family-home.jpg";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import heroSlide1 from "@/assets/hero-slide-1.jpg";
+import heroSlide2 from "@/assets/hero-slide-2.jpg";
+import heroSlide3 from "@/assets/hero-slide-3.jpg";
+import heroSlide4 from "@/assets/hero-slide-4.jpg";
 import { PROPERTY_TYPES } from "@/constants";
+
+const heroSlides = [
+  {
+    image: heroSlide1,
+    title: "Immobilier en",
+    highlight: "Côte d'Ivoire",
+    description: "Trouvez votre logement idéal en Côte d'Ivoire. Appartements, villas, studios : des milliers de biens vérifiés par ANSUT."
+  },
+  {
+    image: heroSlide2,
+    title: "Villas de",
+    highlight: "Prestige",
+    description: "Découvrez nos villas d'exception avec piscine, dans les quartiers les plus prisés d'Abidjan."
+  },
+  {
+    image: heroSlide3,
+    title: "Concrétisez votre",
+    highlight: "Rêve",
+    description: "Des milliers de familles ont trouvé leur chez-soi avec Mon Toit. Pourquoi pas vous ?"
+  },
+  {
+    image: heroSlide4,
+    title: "Studios",
+    highlight: "Modernes",
+    description: "Pour jeunes professionnels : studios tout équipés dans les zones dynamiques d'Abidjan."
+  }
+];
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -13,6 +45,10 @@ const Hero = () => {
   const [propertyType, setPropertyType] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [zone, setZone] = useState('');
+  
+  const autoplayPlugin = useCallback(() => 
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  , []);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -29,15 +65,27 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0">
-        <img 
-          src={heroImage} 
-          alt="Immobilier en Côte d'Ivoire" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-foreground/40" />
-      </div>
+      {/* Background Carousel */}
+      <Carousel 
+        className="absolute inset-0"
+        plugins={[autoplayPlugin()]}
+        opts={{ loop: true }}
+      >
+        <CarouselContent>
+          {heroSlides.map((slide, index) => (
+            <CarouselItem key={index}>
+              <div className="relative w-full h-[600px]">
+                <img 
+                  src={slide.image} 
+                  alt={`${slide.title} ${slide.highlight}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-foreground/40" />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
 
       {/* Content */}
       <div className="relative container mx-auto px-4 py-20 md:py-28">
@@ -49,15 +97,29 @@ const Hero = () => {
             </span>
           </div>
           
-          <h1 className="text-h1 mb-6 text-background">
-            Immobilier en{" "}
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
-              Côte d'Ivoire
-            </span>
-          </h1>
-          <p className="text-body-lg text-background/95 mb-8 max-w-3xl">
-            Trouvez votre logement idéal en Côte d'Ivoire. Appartements, villas, studios : des milliers de biens vérifiés par ANSUT.
-          </p>
+          <Carousel 
+            className="mb-6"
+            plugins={[autoplayPlugin()]}
+            opts={{ loop: true }}
+          >
+            <CarouselContent>
+              {heroSlides.map((slide, index) => (
+                <CarouselItem key={index}>
+                  <div className="transition-all duration-700 animate-fade-in">
+                    <h1 className="text-h1 mb-6 text-background">
+                      {slide.title}{" "}
+                      <span className="bg-gradient-primary bg-clip-text text-transparent">
+                        {slide.highlight}
+                      </span>
+                    </h1>
+                    <p className="text-body-lg text-background/95 mb-8 max-w-3xl">
+                      {slide.description}
+                    </p>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
 
           {/* Search Bar */}
           <div className="bg-background rounded-2xl shadow-elegant p-6 md:p-8 backdrop-blur-sm">
