@@ -17,7 +17,7 @@ import ReviewModeration from '@/components/admin/ReviewModeration';
 import AdvancedReporting from '@/components/admin/AdvancedReporting';
 
 const AdminDashboard = () => {
-  const { profile, loading } = useAuth();
+  const { hasRole, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
   if (loading) {
@@ -28,7 +28,7 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!profile || profile.user_type !== 'admin_ansut') {
+  if (!hasRole('admin')) {
     return <Navigate to="/" replace />;
   }
 

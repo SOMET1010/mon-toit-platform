@@ -10,11 +10,13 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  roles: string[];
   loading: boolean;
   signUp: (email: string, password: string, fullName: string, userType: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  hasRole: (role: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
@@ -41,10 +44,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return data;
   };
 
+  const fetchUserRoles = async (userId: string) => {
+    logger.info('Fetching roles for user', { userId });
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+
+    if (error) {
+      logger.error('Error fetching roles', { error, userId });
+      return [];
+    }
+    logger.info('Roles fetched successfully', { userId, roles: data });
+    return data?.map(r => r.role) || [];
+  };
+
   const refreshProfile = async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
       setProfile(profileData);
+      const userRoles = await fetchUserRoles(user.id);
+      setRoles(userRoles);
     }
   };
 
@@ -62,9 +82,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id);
             setProfile(profileData);
+            const userRoles = await fetchUserRoles(session.user.id);
+            setRoles(userRoles);
           }, 0);
         } else {
           setProfile(null);
+          setRoles([]);
         }
       }
     );
@@ -79,6 +102,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setTimeout(async () => {
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
+          const userRoles = await fetchUserRoles(session.user.id);
+          setRoles(userRoles);
           setLoading(false);
           logger.info('Auth loading complete');
         }, 0);
@@ -147,6 +172,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
+      setRoles([]);
       toast({
         title: "Déconnexion",
         description: "À bientôt sur Mon Toit !",
@@ -154,8 +180,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const hasRole = (role: string): boolean => {
+    return roles.includes(role);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signUp, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, loading, signUp, signIn, signOut, refreshProfile, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

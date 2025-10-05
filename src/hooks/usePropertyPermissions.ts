@@ -6,7 +6,7 @@ import { ERROR_MESSAGES } from '@/constants';
  * Centralizes user type and ownership verification logic
  */
 export const usePropertyPermissions = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, roles } = useAuth();
 
   /**
    * Check if user can manage properties (create, edit, delete)
