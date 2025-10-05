@@ -63,7 +63,9 @@ export const usePushNotifications = () => {
       if (user) {
         await supabase.from('push_subscriptions').upsert({
           user_id: user.id,
-          subscription: subscription.toJSON(),
+          subscription: subscription.toJSON() as any,
+        }, {
+          onConflict: 'user_id'
         });
       }
     } catch (error) {
