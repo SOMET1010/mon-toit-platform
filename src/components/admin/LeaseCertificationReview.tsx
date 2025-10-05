@@ -154,6 +154,21 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
         });
       }
 
+      // Envoyer l'email de notification
+      try {
+        const emailAction = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'request_changes';
+        await supabase.functions.invoke('send-certification-email', {
+          body: {
+            leaseId,
+            action: emailAction,
+            notes: adminNotes,
+          },
+        });
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+        // Ne pas bloquer la certification si l'email échoue
+      }
+
       toast({
         title: action === 'approve' 
           ? 'Bail certifié' 

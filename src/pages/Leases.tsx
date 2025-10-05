@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import CertificationRequest from "@/components/leases/CertificationRequest";
+import { PreCertificationChecklist } from "@/components/leases/PreCertificationChecklist";
 import ANSUTCertifiedBadge from "@/components/ui/ansut-certified-badge";
 import { Download, FileText as FileTextIcon, Loader2, Star, Folder } from "lucide-react";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
@@ -362,14 +363,23 @@ export default function Leases() {
                             {generatingPdf === lease.id ? 'Génération...' : 'Générer le contrat'}
                           </Button>
                         )}
-                        
-                        {/* Certification request button */}
-                        <CertificationRequest
-                          leaseId={lease.id}
-                          certificationStatus={lease.certification_status}
-                          onRequestSubmitted={fetchLeases}
-                        />
                       </>
+                    )}
+
+                    {/* Pre-certification checklist */}
+                    {lease.tenant_signed_at && lease.landlord_signed_at && lease.certification_status === 'not_requested' && (
+                      <div className="w-full mt-4">
+                        <PreCertificationChecklist leaseId={lease.id} />
+                      </div>
+                    )}
+
+                    {/* Certification request button */}
+                    {lease.tenant_signed_at && lease.landlord_signed_at && (
+                      <CertificationRequest
+                        leaseId={lease.id}
+                        certificationStatus={lease.certification_status}
+                        onRequestSubmitted={fetchLeases}
+                      />
                     )}
                     
                     <Button

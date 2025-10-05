@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search, ShieldCheck, Building2, FileText, Key } from "lucide-react";
+import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search, ShieldCheck, Building2, FileText, Key, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ import MessageNotifications from "@/components/messaging/MessageNotifications";
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
+  const { canAccessAdminDashboard } = usePermissions();
 
   const getNavLinks = (userType: string | null | undefined) => {
     // Menu Visiteur (non connecté)
@@ -160,6 +162,14 @@ const Navbar = () => {
                       <Link to="/mes-biens" className="cursor-pointer">
                         <Home className="mr-2 h-4 w-4" />
                         Mes biens
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {canAccessAdminDashboard && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/certifications" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Certifications ANSUT
                       </Link>
                     </DropdownMenuItem>
                   )}
