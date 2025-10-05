@@ -1304,6 +1304,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_user_role: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:

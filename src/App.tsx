@@ -68,7 +68,7 @@ const App = () => (
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute allowedUserTypes={['admin_ansut']}>
+                <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } 
@@ -81,14 +81,14 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/tiers-dashboard" 
-              element={
-                <ProtectedRoute>
-                  <TiersDeConfianceDashboard />
-                </ProtectedRoute>
-              } 
-            />
+          <Route 
+            path="/tiers-dashboard" 
+            element={
+              <ProtectedRoute requiredRoles={['tiers_de_confiance']}>
+                <TiersDeConfianceDashboard />
+              </ProtectedRoute>
+            } 
+          />
             <Route
               path="/favoris" 
               element={
