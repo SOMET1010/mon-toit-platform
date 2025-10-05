@@ -70,7 +70,7 @@ const Navbar = () => {
 
   const navLinks = getNavLinks(profile?.user_type);
 
-  return (
+  return (<>
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -78,13 +78,13 @@ const Navbar = () => {
             <img 
               src={monToitLogo} 
               alt="Mon Toit" 
-              className="h-10 w-auto group-hover:scale-105 transition-smooth"
+              className="h-16 w-auto group-hover:scale-105 transition-smooth"
             />
             <div className="hidden sm:flex flex-col">
-              <span className="text-lg font-bold text-foreground leading-tight">
+              <span className="text-2xl font-bold text-primary leading-tight">
                 Mon Toit
               </span>
-              <span className="text-[10px] text-muted-foreground leading-tight">
+              <span className="text-xs text-secondary leading-tight">
                 Propulsé par ANSUT
               </span>
             </div>
@@ -276,7 +276,9 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
-  );
+    {/* Barre de couleurs identité */}
+    <div className="fixed top-16 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary z-40" />
+  </>);
 };
 
 export default Navbar;

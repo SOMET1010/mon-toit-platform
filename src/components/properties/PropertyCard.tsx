@@ -55,7 +55,7 @@ export const PropertyCard = ({
         {showStatus && (
           <Badge className={`absolute top-3 left-3 rounded-xl font-semibold ${
             property.status === 'disponible' 
-              ? 'bg-green-500 text-white animate-pulse' 
+              ? 'bg-primary text-primary-foreground animate-pulse' 
               : 'bg-gray-500 text-white'
           }`}>
             {getPropertyStatusLabel(property.status)}

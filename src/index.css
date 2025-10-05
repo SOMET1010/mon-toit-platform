@@ -17,23 +17,23 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 20 14% 10%;
 
-    /* Primary palette */
-    --primary-50: 22 95% 95%;
-    --primary-100: 22 95% 85%;
-    --primary: 22 95% 63%;
-    --primary-500: 22 95% 63%;
-    --primary-700: 22 95% 45%;
-    --primary-900: 22 95% 25%;
+    /* Primary palette - Orange vif du logo #FF8F00 */
+    --primary-50: 30 100% 97%;
+    --primary-100: 30 100% 90%;
+    --primary: 30 100% 50%;
+    --primary-500: 30 100% 50%;
+    --primary-700: 30 100% 40%;
+    --primary-900: 30 100% 25%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 22 95% 73%;
+    --primary-glow: 30 100% 60%;
 
-    /* Secondary palette */
-    --secondary-50: 145 100% 95%;
-    --secondary-100: 145 100% 85%;
-    --secondary: 145 100% 33%;
-    --secondary-500: 145 100% 33%;
-    --secondary-700: 145 100% 25%;
-    --secondary-900: 145 100% 15%;
+    /* Secondary palette - Bleu foncé du logo #1E3A8A */
+    --secondary-50: 225 80% 97%;
+    --secondary-100: 225 80% 90%;
+    --secondary: 225 80% 33%;
+    --secondary-500: 225 80% 33%;
+    --secondary-700: 225 80% 25%;
+    --secondary-900: 225 80% 15%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -47,8 +47,8 @@ All colors MUST be HSL.
     --muted: 20 20% 96%;
     --muted-foreground: 20 10% 45%;
 
-    --accent: 145 100% 33%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 220 15% 62%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -60,12 +60,12 @@ All colors MUST be HSL.
     --radius: 0.75rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(22 95% 63%), hsl(22 95% 73%));
-    --gradient-secondary: linear-gradient(135deg, hsl(145 100% 33%), hsl(145 100% 43%));
-    --gradient-hero: linear-gradient(135deg, hsl(22 95% 63% / 0.95), hsl(145 100% 33% / 0.85));
+    --gradient-primary: linear-gradient(135deg, hsl(30 100% 50%), hsl(30 100% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(225 80% 33%), hsl(225 80% 43%));
+    --gradient-hero: linear-gradient(135deg, hsl(30 100% 50% / 0.95), hsl(225 80% 33% / 0.85));
     
     /* Shadows */
-    --shadow-primary: 0 10px 40px -10px hsl(22 95% 63% / 0.3);
+    --shadow-primary: 0 10px 40px -10px hsl(30 100% 50% / 0.3);
     --shadow-card: 0 4px 20px -2px hsl(20 14% 10% / 0.08);
     
     /* Animations */
@@ -91,23 +91,23 @@ All colors MUST be HSL.
     --popover: 20 15% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary palette */
-    --primary-50: 22 95% 95%;
-    --primary-100: 22 95% 85%;
-    --primary: 22 95% 63%;
-    --primary-500: 22 95% 63%;
-    --primary-700: 22 95% 45%;
-    --primary-900: 22 95% 25%;
+    /* Primary palette - Orange vif du logo #FF8F00 */
+    --primary-50: 30 100% 97%;
+    --primary-100: 30 100% 90%;
+    --primary: 30 100% 50%;
+    --primary-500: 30 100% 50%;
+    --primary-700: 30 100% 40%;
+    --primary-900: 30 100% 25%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 22 95% 73%;
+    --primary-glow: 30 100% 60%;
 
-    /* Secondary palette */
-    --secondary-50: 145 100% 95%;
-    --secondary-100: 145 100% 85%;
-    --secondary: 145 100% 33%;
-    --secondary-500: 145 100% 33%;
-    --secondary-700: 145 100% 25%;
-    --secondary-900: 145 100% 15%;
+    /* Secondary palette - Bleu foncé du logo #1E3A8A */
+    --secondary-50: 225 80% 97%;
+    --secondary-100: 225 80% 90%;
+    --secondary: 225 80% 33%;
+    --secondary-500: 225 80% 33%;
+    --secondary-700: 225 80% 25%;
+    --secondary-900: 225 80% 15%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -121,8 +121,8 @@ All colors MUST be HSL.
     --muted: 20 15% 15%;
     --muted-foreground: 20 10% 65%;
 
-    --accent: 145 100% 33%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 220 15% 62%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
@@ -132,12 +132,12 @@ All colors MUST be HSL.
     --ring: 22 95% 63%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(22 95% 63%), hsl(22 95% 73%));
-    --gradient-secondary: linear-gradient(135deg, hsl(145 100% 33%), hsl(145 100% 43%));
-    --gradient-hero: linear-gradient(135deg, hsl(22 95% 63% / 0.95), hsl(145 100% 33% / 0.85));
+    --gradient-primary: linear-gradient(135deg, hsl(30 100% 50%), hsl(30 100% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(225 80% 33%), hsl(225 80% 43%));
+    --gradient-hero: linear-gradient(135deg, hsl(30 100% 50% / 0.95), hsl(225 80% 33% / 0.85));
     
     /* Shadows */
-    --shadow-primary: 0 10px 40px -10px hsl(22 95% 63% / 0.4);
+    --shadow-primary: 0 10px 40px -10px hsl(30 100% 50% / 0.4);
     --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
 
     --sidebar-background: 20 15% 10%;

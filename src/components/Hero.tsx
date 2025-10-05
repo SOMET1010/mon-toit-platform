@@ -90,9 +90,9 @@ const Hero = () => {
       {/* Content */}
       <div className="relative container mx-auto px-4 py-20 md:py-28">
         <div className="max-w-4xl">
-          <div className="mb-6 inline-flex items-center gap-2 bg-secondary/90 backdrop-blur-sm border-2 border-secondary px-4 py-2 rounded-full shadow-elegant">
-            <CheckCircle2 className="h-5 w-5 text-background fill-background" />
-            <span className="text-sm font-semibold text-background uppercase tracking-wide">
+          <div className="mb-6 inline-flex items-center gap-2 bg-primary backdrop-blur-sm border-2 border-primary px-4 py-2 rounded-full shadow-primary">
+            <CheckCircle2 className="h-5 w-5 text-primary-foreground fill-primary-foreground/50" />
+            <span className="text-sm font-semibold text-primary-foreground uppercase tracking-wide">
               Vérifié ANSUT
             </span>
           </div>
@@ -188,8 +188,7 @@ const Hero = () => {
 
               <Button 
                 size="xl" 
-                variant="default" 
-                className="w-full gap-2 h-14 rounded-xl text-base font-semibold shadow-primary hover:shadow-primary hover:scale-105 transition-transform" 
+                className="w-full gap-2 h-14 rounded-xl text-base font-semibold bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl hover:scale-105 transition-transform" 
                 onClick={handleSearch}
               >
                 <Search className="h-5 w-5" />
