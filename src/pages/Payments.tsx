@@ -228,9 +228,18 @@ export default function Payments() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="orange_money">Orange Money</SelectItem>
-                      <SelectItem value="mtn_money">MTN Money</SelectItem>
-                      <SelectItem value="wave">Wave</SelectItem>
+                      <SelectItem value="orange_money">
+                        🟠 Orange Money
+                      </SelectItem>
+                      <SelectItem value="mtn_money">
+                        🟡 MTN Money
+                      </SelectItem>
+                      <SelectItem value="moov_money">
+                        🔵 Moov Money
+                      </SelectItem>
+                      <SelectItem value="wave">
+                        💙 Wave
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -244,20 +253,20 @@ export default function Payments() {
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     placeholder={
                       paymentMethod === "orange_money"
-                        ? "07XXXXXXXX"
+                        ? "07XXXXXXXX ou 227XXXXXXXX"
                         : paymentMethod === "mtn_money"
-                        ? "05XXXXXXXX ou 06XXXXXXXX"
+                        ? "05XXXXXXXX ou 054XXXXXXXX"
+                        : paymentMethod === "moov_money"
+                        ? "01XXXXXXXX"
                         : "XXXXXXXX"
                     }
                     required
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Format:{" "}
-                    {paymentMethod === "orange_money"
-                      ? "07 + 8 chiffres"
-                      : paymentMethod === "mtn_money"
-                      ? "05 ou 06 + 8 chiffres"
-                      : "8 chiffres"}
+                    {paymentMethod === "orange_money" && "Format: 07 ou 227 + 8 chiffres"}
+                    {paymentMethod === "mtn_money" && "Format: 05, 054, 055 ou 056 + 8 chiffres"}
+                    {paymentMethod === "moov_money" && "Format: 01 + 8 chiffres"}
+                    {paymentMethod === "wave" && "Format: 8 à 10 chiffres"}
                   </p>
                 </div>
 
