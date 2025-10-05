@@ -113,7 +113,7 @@ const TiersDeConfianceDashboard = () => {
                 <CardTitle>Vérifications ONECI et CNAM en attente</CardTitle>
               </CardHeader>
               <CardContent>
-                <TiersVerificationQueue onUpdate={fetchStats} />
+                <TiersVerificationQueue />
               </CardContent>
             </Card>
           </TabsContent>
