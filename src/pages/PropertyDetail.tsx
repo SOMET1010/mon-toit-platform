@@ -4,13 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Heart, MapPin, Bed, Bath, Maximize, Home, CheckCircle2, 
-  ArrowLeft, MessageCircle, Calendar, DollarSign 
+  ArrowLeft, MessageCircle, Calendar, DollarSign, Edit, Users,
+  Eye, Star, FileText, TrendingUp
 } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,6 +52,29 @@ interface PropertyOwner {
   phone: string | null;
 }
 
+interface Application {
+  id: string;
+  applicant_id: string;
+  status: string;
+  created_at: string;
+  application_score: number | null;
+  profiles: {
+    full_name: string;
+    phone: string | null;
+  };
+  user_verifications: {
+    tenant_score: number | null;
+    oneci_status: string;
+    cnam_status: string;
+  }[];
+}
+
+interface PropertyStats {
+  view_count: number;
+  favorites_count: number;
+  applications_count: number;
+}
+
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -58,12 +84,22 @@ const PropertyDetail = () => {
   const [owner, setOwner] = useState<PropertyOwner | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [stats, setStats] = useState<PropertyStats | null>(null);
+  const [newStatus, setNewStatus] = useState<string>('');
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+
+  const isOwner = user?.id === property?.owner_id;
 
   useEffect(() => {
     if (id) {
       fetchPropertyDetails();
+      if (isOwner) {
+        fetchApplications();
+        fetchStats();
+      }
     }
-  }, [id]);
+  }, [id, isOwner]);
 
   const fetchPropertyDetails = async () => {
     try {
@@ -95,6 +131,104 @@ const PropertyDetail = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchApplications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rental_applications')
+        .select(`
+          id,
+          applicant_id,
+          status,
+          created_at,
+          application_score,
+          profiles:applicant_id(full_name, phone)
+        `)
+        .eq('property_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      // Fetch user verifications separately
+      if (data) {
+        const applicationsWithVerifications = await Promise.all(
+          data.map(async (app: any) => {
+            const { data: verificationData } = await supabase
+              .from('user_verifications')
+              .select('tenant_score, oneci_status, cnam_status')
+              .eq('user_id', app.applicant_id)
+              .single();
+
+            return {
+              ...app,
+              user_verifications: verificationData ? [verificationData] : [],
+            };
+          })
+        );
+        setApplications(applicationsWithVerifications as Application[]);
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      // Get favorites count
+      const { count: favCount } = await supabase
+        .from('user_favorites')
+        .select('*', { count: 'exact', head: true })
+        .eq('property_id', id);
+
+      // Get applications count
+      const { count: appCount } = await supabase
+        .from('rental_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('property_id', id);
+
+      // Get property view count
+      const { data: propertyData } = await supabase
+        .from('properties')
+        .select('view_count')
+        .eq('id', id)
+        .single();
+
+      setStats({
+        view_count: propertyData?.view_count || 0,
+        favorites_count: favCount || 0,
+        applications_count: appCount || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const handleStatusChange = async () => {
+    if (!newStatus || !property) return;
+
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .update({ status: newStatus })
+        .eq('id', property.id);
+
+      if (error) throw error;
+
+      setProperty({ ...property, status: newStatus });
+      setStatusDialogOpen(false);
+      toast({
+        title: 'Succès',
+        description: 'Statut mis à jour avec succès',
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la mise à jour du statut',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -323,6 +457,92 @@ const PropertyDetail = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
+              {/* Owner actions */}
+              {isOwner && (
+                <Card className="border-primary">
+                  <CardHeader>
+                    <CardTitle>Actions propriétaire</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full gap-2" 
+                      onClick={() => navigate(`/biens/${property.id}/modifier`)}
+                    >
+                      <Edit className="h-4 w-4" />
+                      Modifier ce bien
+                    </Button>
+                    
+                    <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full gap-2">
+                          <TrendingUp className="h-4 w-4" />
+                          Changer le statut
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Changer le statut du bien</DialogTitle>
+                          <DialogDescription>
+                            Sélectionnez le nouveau statut pour ce bien
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Select value={newStatus} onValueChange={setNewStatus}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner un statut" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="disponible">Disponible</SelectItem>
+                            <SelectItem value="loué">Loué</SelectItem>
+                            <SelectItem value="retiré">Retiré</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setStatusDialogOpen(false)}>
+                            Annuler
+                          </Button>
+                          <Button onClick={handleStatusChange}>
+                            Confirmer
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Statistics for owner */}
+              {isOwner && stats && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Statistiques</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Eye className="h-4 w-4" />
+                        <span className="text-sm">Vues</span>
+                      </div>
+                      <span className="font-semibold">{stats.view_count}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Star className="h-4 w-4" />
+                        <span className="text-sm">Favoris</span>
+                      </div>
+                      <span className="font-semibold">{stats.favorites_count}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <FileText className="h-4 w-4" />
+                        <span className="text-sm">Candidatures</span>
+                      </div>
+                      <span className="font-semibold">{stats.applications_count}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Price card */}
               <Card>
                 <CardHeader>
@@ -348,23 +568,25 @@ const PropertyDetail = () => {
 
                   <Separator />
 
-                  <div className="space-y-2">
-                    <Button className="w-full gap-2" onClick={handleContact}>
-                      <MessageCircle className="h-4 w-4" />
-                      Contacter le propriétaire
-                    </Button>
-                  {user && property.status === 'disponible' && property.owner_id !== user.id && (
-                    <Button variant="outline" className="w-full gap-2" onClick={handleApply}>
-                      <Calendar className="h-4 w-4" />
-                      Postuler
-                    </Button>
+                  {!isOwner && (
+                    <div className="space-y-2">
+                      <Button className="w-full gap-2" onClick={handleContact}>
+                        <MessageCircle className="h-4 w-4" />
+                        Contacter le propriétaire
+                      </Button>
+                      {user && property.status === 'disponible' && (
+                        <Button variant="outline" className="w-full gap-2" onClick={handleApply}>
+                          <Calendar className="h-4 w-4" />
+                          Postuler
+                        </Button>
+                      )}
+                    </div>
                   )}
-                  </div>
                 </CardContent>
               </Card>
 
               {/* Owner card */}
-              {owner && (
+              {owner && !isOwner && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Propriétaire</CardTitle>
@@ -382,6 +604,58 @@ const PropertyDetail = () => {
                           {owner.user_type}
                         </p>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Applications for owner */}
+              {isOwner && applications.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Candidatures ({applications.length})
+                    </CardTitle>
+                    <CardDescription>
+                      Liste des candidats pour ce bien
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {applications.slice(0, 5).map((app) => (
+                        <div key={app.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex-1">
+                            <p className="font-medium">{app.profiles.full_name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant={app.status === 'pending' ? 'secondary' : app.status === 'approved' ? 'default' : 'destructive'}>
+                                {app.status === 'pending' ? 'En attente' : app.status === 'approved' ? 'Approuvé' : 'Rejeté'}
+                              </Badge>
+                              {app.user_verifications[0]?.tenant_score && (
+                                <Badge variant="outline">
+                                  Score: {app.user_verifications[0].tenant_score}/100
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => navigate(`/candidatures`)}
+                          >
+                            Voir
+                          </Button>
+                        </div>
+                      ))}
+                      {applications.length > 5 && (
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => navigate(`/candidatures`)}
+                        >
+                          Voir toutes les candidatures
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
