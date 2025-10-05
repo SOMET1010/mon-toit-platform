@@ -18,6 +18,7 @@ import ReviewModeration from '@/components/admin/ReviewModeration';
 import AdvancedReporting from '@/components/admin/AdvancedReporting';
 import LeaseCertificationQueue from '@/components/admin/LeaseCertificationQueue';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
+import { LeaseTemplateManager } from '@/components/admin/LeaseTemplateManager';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -152,7 +153,20 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="leases" className="space-y-6">
-            <AdminLeases />
+            <Tabs defaultValue="list" className="w-full">
+              <TabsList>
+                <TabsTrigger value="list">Liste des Baux</TabsTrigger>
+                <TabsTrigger value="templates">Modèles de Baux</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="list" className="mt-4">
+                <AdminLeases />
+              </TabsContent>
+
+              <TabsContent value="templates" className="mt-4">
+                <LeaseTemplateManager />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="integrations" className="space-y-6">

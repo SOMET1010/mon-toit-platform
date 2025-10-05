@@ -228,6 +228,48 @@ export type Database = {
           },
         ]
       }
+      lease_templates: {
+        Row: {
+          content: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          template_type: string
+          updated_at: string
+          variables: Json
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          template_type?: string
+          updated_at?: string
+          variables?: Json
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          template_type?: string
+          updated_at?: string
+          variables?: Json
+        }
+        Relationships: []
+      }
       leases: {
         Row: {
           ansut_certified_at: string | null

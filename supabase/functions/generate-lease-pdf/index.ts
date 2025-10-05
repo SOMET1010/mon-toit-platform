@@ -61,7 +61,7 @@ serve(async (req) => {
       }
     );
 
-    const { leaseId } = await req.json();
+    const { leaseId, templateId } = await req.json();
 
     if (!leaseId) {
       throw new Error('leaseId is required');
@@ -108,18 +108,96 @@ serve(async (req) => {
       tenant,
     };
 
+    // Fetch template
+    let template;
+    if (templateId) {
+      const { data: templateData, error: templateError } = await supabaseClient
+        .from('lease_templates')
+        .select('*')
+        .eq('id', templateId)
+        .single();
+
+      if (templateError) throw new Error(`Template not found: ${templateError.message}`);
+      template = templateData;
+    } else {
+      // Get default template
+      const { data: templateData, error: templateError } = await supabaseClient
+        .from('lease_templates')
+        .select('*')
+        .eq('is_default', true)
+        .eq('is_active', true)
+        .single();
+
+      if (templateError) throw new Error(`Default template not found: ${templateError.message}`);
+      template = templateData;
+    }
+
+    console.log('Using template:', template.name);
+
+    // Prepare variable replacements
+    const leaseDuration = Math.ceil(
+      (new Date(leaseData.end_date).getTime() - new Date(leaseData.start_date).getTime()) /
+      (1000 * 60 * 60 * 24 * 30)
+    );
+
+    const variables: Record<string, string> = {
+      landlord_name: leaseData.landlord.full_name || 'N/A',
+      landlord_address: 'N/A',
+      landlord_phone: leaseData.landlord.phone || 'N/A',
+      tenant_name: leaseData.tenant.full_name || 'N/A',
+      tenant_address: 'N/A',
+      tenant_phone: leaseData.tenant.phone || 'N/A',
+      property_address: leaseData.properties.address || 'N/A',
+      property_type: leaseData.properties.property_type || 'N/A',
+      bedrooms: leaseData.properties.bedrooms?.toString() || '0',
+      bathrooms: leaseData.properties.bathrooms?.toString() || '0',
+      surface_area: leaseData.properties.surface_area?.toString() || 'N/A',
+      monthly_rent: leaseData.monthly_rent?.toString() || '0',
+      deposit_amount: leaseData.deposit_amount?.toString() || '0',
+      charges_amount: leaseData.charges_amount?.toString() || '0',
+      start_date: new Date(leaseData.start_date).toLocaleDateString('fr-FR'),
+      end_date: new Date(leaseData.end_date).toLocaleDateString('fr-FR'),
+      lease_duration: `${leaseDuration} mois`
+    };
+
     // Générer le PDF
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yPos = 20;
 
-    // En-tête
+    // Helper function to replace variables
+    const replaceVariables = (text: string): string => {
+      let result = text;
+      Object.entries(variables).forEach(([key, value]) => {
+        result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      });
+      return result;
+    };
+
+    // Helper function to add text with automatic wrapping
+    const addText = (text: string, x: number, fontSize: number = 10): number => {
+      pdf.setFontSize(fontSize);
+      const lines = pdf.splitTextToSize(text, 170);
+      
+      lines.forEach((line: string) => {
+        if (yPos > 270) {
+          pdf.addPage();
+          yPos = 20;
+        }
+        pdf.text(line, x, yPos);
+        yPos += fontSize === 12 ? 8 : 6;
+      });
+      
+      return yPos;
+    };
+
+    // Title
     pdf.setFontSize(20);
     pdf.setFont('helvetica', 'bold');
     pdf.text('CONTRAT DE BAIL', pageWidth / 2, yPos, { align: 'center' });
     yPos += 15;
 
-    // Certification ANSUT si applicable
+    // Certification badge if applicable
     if (leaseData.ansut_certified_at) {
       pdf.setFontSize(12);
       pdf.setTextColor(34, 139, 34);
@@ -128,82 +206,20 @@ serve(async (req) => {
       yPos += 10;
     }
 
-    // Numéro de contrat
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Numéro de contrat: ${leaseData.id}`, 20, yPos);
-    yPos += 15;
+    // Render each section from template
+    template.content.sections.forEach((section: { title: string; content: string }) => {
+      // Section title
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      yPos = addText(section.title, 20, 12);
+      yPos += 3;
 
-    // Section: Les Parties
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('LES PARTIES', 20, yPos);
-    yPos += 10;
-
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Propriétaire: ${leaseData.landlord.full_name}`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Téléphone: ${leaseData.landlord.phone || 'Non renseigné'}`, 25, yPos);
-    yPos += 10;
-
-    pdf.text(`Locataire: ${leaseData.tenant.full_name}`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Téléphone: ${leaseData.tenant.phone || 'Non renseigné'}`, 25, yPos);
-    yPos += 15;
-
-    // Section: Le Bien
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('LE BIEN IMMOBILIER', 20, yPos);
-    yPos += 10;
-
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Désignation: ${leaseData.properties.title}`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Type: ${leaseData.properties.property_type}`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Adresse: ${leaseData.properties.address}, ${leaseData.properties.city}`, 25, yPos);
-    yPos += 6;
-    if (leaseData.properties.neighborhood) {
-      pdf.text(`Quartier: ${leaseData.properties.neighborhood}`, 25, yPos);
-      yPos += 6;
-    }
-    pdf.text(`Surface: ${leaseData.properties.surface_area || 'N/A'} m²`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Chambres: ${leaseData.properties.bedrooms} | Salles de bain: ${leaseData.properties.bathrooms}`, 25, yPos);
-    yPos += 15;
-
-    // Section: Conditions Financières
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('CONDITIONS FINANCIÈRES', 20, yPos);
-    yPos += 10;
-
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Loyer mensuel: ${leaseData.monthly_rent.toLocaleString()} FCFA`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Dépôt de garantie: ${leaseData.deposit_amount?.toLocaleString() || '0'} FCFA`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Charges: ${leaseData.charges_amount?.toLocaleString() || '0'} FCFA`, 25, yPos);
-    yPos += 15;
-
-    // Section: Durée du Bail
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('DURÉE DU BAIL', 20, yPos);
-    yPos += 10;
-
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Type de bail: ${leaseData.lease_type}`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Date de début: ${new Date(leaseData.start_date).toLocaleDateString('fr-FR')}`, 25, yPos);
-    yPos += 6;
-    pdf.text(`Date de fin: ${new Date(leaseData.end_date).toLocaleDateString('fr-FR')}`, 25, yPos);
-    yPos += 15;
+      // Section content with variables replaced
+      pdf.setFont('helvetica', 'normal');
+      const processedContent = replaceVariables(section.content);
+      yPos = addText(processedContent, 20, 10);
+      yPos += 10;
+    });
 
     // Section: Signatures
     pdf.setFontSize(14);
