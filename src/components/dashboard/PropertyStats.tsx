@@ -10,16 +10,55 @@ interface PropertyStatsProps {
     averageRent: number;
     occupancyRate: number;
   };
+  trends?: {
+    totalProperties?: { value: number; isPositive: boolean };
+    totalViews?: { value: number; isPositive: boolean };
+    totalFavorites?: { value: number; isPositive: boolean };
+    totalApplications?: { value: number; isPositive: boolean };
+    averageRent?: { value: number; isPositive: boolean };
+    occupancyRate?: { value: number; isPositive: boolean };
+  };
 }
 
-const PropertyStats = ({ stats }: PropertyStatsProps) => {
+const PropertyStats = ({ stats, trends }: PropertyStatsProps) => {
   const statCards = [
-    { title: 'Biens totaux', value: stats.totalProperties, icon: Home },
-    { title: 'Vues totales', value: stats.totalViews.toLocaleString(), icon: Eye },
-    { title: 'Favoris', value: stats.totalFavorites, icon: Heart },
-    { title: 'Candidatures', value: stats.totalApplications, icon: FileText },
-    { title: 'Loyer moyen', value: `${stats.averageRent.toLocaleString()} FCFA`, icon: DollarSign },
-    { title: "Taux d'occupation", value: `${stats.occupancyRate}%`, icon: TrendingUp },
+    { 
+      title: 'Biens totaux', 
+      value: stats.totalProperties, 
+      icon: Home,
+      trend: trends?.totalProperties
+    },
+    { 
+      title: 'Vues totales', 
+      value: stats.totalViews.toLocaleString(), 
+      icon: Eye,
+      trend: trends?.totalViews
+    },
+    { 
+      title: 'Favoris', 
+      value: stats.totalFavorites, 
+      icon: Heart,
+      trend: trends?.totalFavorites
+    },
+    { 
+      title: 'Candidatures', 
+      value: stats.totalApplications, 
+      icon: FileText,
+      trend: trends?.totalApplications
+    },
+    { 
+      title: 'Loyer moyen', 
+      value: `${stats.averageRent.toLocaleString()} FCFA`, 
+      icon: DollarSign,
+      trend: trends?.averageRent,
+      description: 'Par mois'
+    },
+    { 
+      title: "Taux d'occupation", 
+      value: `${stats.occupancyRate}%`, 
+      icon: TrendingUp,
+      trend: trends?.occupancyRate
+    },
   ];
 
   return (

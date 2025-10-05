@@ -9,6 +9,8 @@ import ViewsChart from '@/components/dashboard/ViewsChart';
 import ApplicationsChart from '@/components/dashboard/ApplicationsChart';
 import MarketComparison from '@/components/dashboard/MarketComparison';
 import TopProperties from '@/components/dashboard/TopProperties';
+import UrgentActionsCard from '@/components/dashboard/UrgentActionsCard';
+import RevenueForecast from '@/components/dashboard/RevenueForecast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
@@ -28,6 +30,7 @@ const OwnerDashboard = () => {
   const [applicationsData, setApplicationsData] = useState<Array<{ property: string; pending: number; approved: number; rejected: number }>>([]);
   const [marketData, setMarketData] = useState<Array<{ propertyType: string; myAverage: number; marketAverage: number; difference: number; trend: 'up' | 'down' | 'neutral' }>>([]);
   const [topProperties, setTopProperties] = useState<Array<{ id: string; title: string; views: number; favorites: number; applications: number; conversionRate: number }>>([]);
+  const [urgentActions, setUrgentActions] = useState<Array<{ id: string; type: 'overdue_application' | 'expiring_lease' | 'incomplete_property'; title: string; description: string; priority: 'critical' | 'important' | 'info'; link: string; daysOverdue?: number }>>([]);
 
   useEffect(() => {
     if (user && profile) {
@@ -62,7 +65,7 @@ const OwnerDashboard = () => {
       // Fetch applications
       const { data: applications } = await supabase
         .from('rental_applications')
-        .select('property_id, status')
+        .select('property_id, status, created_at')
         .in('property_id', properties?.map(p => p.id) || []);
 
       // Calculate stats
@@ -148,6 +151,51 @@ const OwnerDashboard = () => {
       
       setTopProperties(propertiesWithMetrics);
 
+      // Generate urgent actions
+      const actions: Array<{ id: string; type: 'overdue_application' | 'expiring_lease' | 'incomplete_property'; title: string; description: string; priority: 'critical' | 'important' | 'info'; link: string; daysOverdue?: number }> = [];
+      
+      // Check overdue applications (>48h)
+      const now = new Date();
+      const overdueApps = applications?.filter(app => {
+        if (app.status !== 'pending') return false;
+        const createdAt = new Date(app.created_at);
+        const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+        return hoursDiff > 48;
+      }) || [];
+
+      if (overdueApps.length > 0) {
+        actions.push({
+          id: 'overdue-apps',
+          type: 'overdue_application',
+          title: `${overdueApps.length} candidature${overdueApps.length > 1 ? 's' : ''} en attente`,
+          description: 'Des candidatures attendent une réponse depuis plus de 48h',
+          priority: 'critical',
+          link: '/applications',
+          daysOverdue: Math.floor(Math.max(...overdueApps.map(app => {
+            const createdAt = new Date(app.created_at);
+            return (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+          }))),
+        });
+      }
+
+      // Check incomplete properties
+      const incompleteProperties = properties?.filter(p => 
+        !p.main_image || !p.description || p.description.length < 50
+      ) || [];
+
+      if (incompleteProperties.length > 0) {
+        actions.push({
+          id: 'incomplete-props',
+          type: 'incomplete_property',
+          title: `${incompleteProperties.length} bien${incompleteProperties.length > 1 ? 's' : ''} incomplet${incompleteProperties.length > 1 ? 's' : ''}`,
+          description: 'Ajoutez photos et descriptions pour améliorer vos annonces',
+          priority: 'important',
+          link: '/my-properties',
+        });
+      }
+
+      setUrgentActions(actions);
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -186,6 +234,9 @@ const OwnerDashboard = () => {
             </Button>
           </div>
 
+          {/* Urgent Actions */}
+          <UrgentActionsCard actions={urgentActions} />
+
           {/* Stats Overview */}
           <PropertyStats stats={stats} />
 
@@ -195,11 +246,17 @@ const OwnerDashboard = () => {
             <ApplicationsChart data={applicationsData} />
           </div>
 
-          {/* Bottom Row */}
+          {/* Revenue & Market Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RevenueForecast 
+              currentRevenue={stats.averageRent * stats.totalProperties} 
+              occupancyRate={stats.occupancyRate}
+            />
             <MarketComparison data={marketData} />
-            <TopProperties properties={topProperties} />
           </div>
+
+          {/* Top Properties */}
+          <TopProperties properties={topProperties} />
         </div>
       </main>
 
