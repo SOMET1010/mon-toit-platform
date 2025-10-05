@@ -17,6 +17,7 @@ import EditProperty from "./pages/EditProperty";
 import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
 import PropertyDetail from "./pages/PropertyDetail";
+import PropertyApplications from "./pages/PropertyApplications";
 import Messages from "./pages/Messages";
 import Application from "./pages/Application";
 import Applications from "./pages/Applications";
@@ -101,6 +102,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
                   <EditProperty />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/biens/:id/candidatures" 
+              element={
+                <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
+                  <PropertyApplications />
                 </ProtectedRoute>
               } 
             />
