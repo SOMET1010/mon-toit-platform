@@ -254,7 +254,7 @@ const Messages = () => {
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 flex items-center gap-3">
             <MessageCircle className="h-10 w-10 text-primary" />
             Messages
           </h1>

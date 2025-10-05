@@ -125,7 +125,7 @@ export default function Leases() {
       <Navbar />
       <main className="container mx-auto px-4 py-8 pt-24">
         <div className="mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-primary bg-clip-text text-transparent">Mes Baux</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-3">Mes Baux</h1>
           <p className="text-muted-foreground">
             Gérez vos contrats de location et effectuez les paiements
           </p>

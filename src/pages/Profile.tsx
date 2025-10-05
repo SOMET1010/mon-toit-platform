@@ -87,7 +87,7 @@ const Profile = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">{fullName}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2">{fullName}</h1>
               <p className="text-muted-foreground">{userTypeLabels[profile.user_type]}</p>
             </div>
           </div>

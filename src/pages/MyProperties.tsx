@@ -88,7 +88,7 @@ const MyProperties = () => {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">Mes Biens Immobiliers</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2">Mes Biens Immobiliers</h1>
               <p className="text-muted-foreground mt-2">
                 {properties.length} {properties.length > 1 ? 'biens' : 'bien'} au total
               </p>
