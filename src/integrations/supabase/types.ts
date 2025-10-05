@@ -94,9 +94,37 @@ export type Database = {
           },
         ]
       }
+      message_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           application_id: string | null
+          attachments: Json | null
           content: string
           created_at: string
           id: string
@@ -106,6 +134,7 @@ export type Database = {
         }
         Insert: {
           application_id?: string | null
+          attachments?: Json | null
           content: string
           created_at?: string
           id?: string
@@ -115,6 +144,7 @@ export type Database = {
         }
         Update: {
           application_id?: string | null
+          attachments?: Json | null
           content?: string
           created_at?: string
           id?: string

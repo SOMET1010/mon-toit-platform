@@ -1,16 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import MessageTemplates from '@/components/messaging/MessageTemplates';
+import AttachmentUpload from '@/components/messaging/AttachmentUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, MessageCircle } from 'lucide-react';
+import { Send, MessageCircle, Paperclip, Download, FileText, Image as ImageIcon, File } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+
+interface Attachment {
+  name: string;
+  url: string;
+  type: string;
+  size: number;
+}
 
 interface Message {
   id: string;
@@ -19,6 +28,7 @@ interface Message {
   content: string;
   is_read: boolean;
   created_at: string;
+  attachments?: Attachment[];
 }
 
 interface Conversation {
@@ -44,8 +54,10 @@ const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(recipientId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Record<string, UserProfile>>({});
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -59,6 +71,13 @@ const Messages = () => {
       markAsRead(selectedConversation);
     }
   }, [selectedConversation]);
+
+  // Scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   // Realtime subscription for new messages
   useEffect(() => {
@@ -190,7 +209,35 @@ const Messages = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Parse attachments from JSON to proper type
+      const parsedMessages: Message[] = (data || []).map(msg => {
+        let parsedAttachments: Attachment[] = [];
+        
+        if (msg.attachments) {
+          try {
+            if (typeof msg.attachments === 'string') {
+              parsedAttachments = JSON.parse(msg.attachments);
+            } else if (Array.isArray(msg.attachments)) {
+              parsedAttachments = msg.attachments as unknown as Attachment[];
+            }
+          } catch (e) {
+            console.error('Error parsing attachments:', e);
+          }
+        }
+        
+        return {
+          id: msg.id,
+          sender_id: msg.sender_id,
+          receiver_id: msg.receiver_id,
+          content: msg.content,
+          is_read: msg.is_read,
+          created_at: msg.created_at,
+          attachments: parsedAttachments
+        };
+      });
+      
+      setMessages(parsedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -212,20 +259,27 @@ const Messages = () => {
   };
 
   const sendMessage = async () => {
-    if (!user || !selectedConversation || !newMessage.trim()) return;
+    if (!user || !selectedConversation || (!newMessage.trim() && attachments.length === 0)) return;
 
     try {
+      const messageData: any = {
+        sender_id: user.id,
+        receiver_id: selectedConversation,
+        content: newMessage.trim() || '(Pièce(s) jointe(s))'
+      };
+      
+      if (attachments.length > 0) {
+        messageData.attachments = JSON.stringify(attachments);
+      }
+
       const { error } = await supabase
         .from('messages')
-        .insert({
-          sender_id: user.id,
-          receiver_id: selectedConversation,
-          content: newMessage.trim()
-        });
+        .insert(messageData);
 
       if (error) throw error;
 
       setNewMessage('');
+      setAttachments([]);
 
       toast({
         title: "Message envoyé",
@@ -239,6 +293,18 @@ const Messages = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <ImageIcon className="h-4 w-4" />;
+    if (type.includes('pdf')) return <FileText className="h-4 w-4" />;
+    return <File className="h-4 w-4" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   if (loading) {
@@ -319,7 +385,7 @@ const Messages = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <ScrollArea className="h-[400px] pr-4">
+                    <ScrollArea className="h-[320px] pr-4">
                       <div className="space-y-4">
                         {messages.map(msg => (
                           <div
@@ -336,6 +402,25 @@ const Messages = () => {
                               }`}
                             >
                               <p className="text-sm">{msg.content}</p>
+                              
+                              {msg.attachments && msg.attachments.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  {msg.attachments.map((file, idx) => (
+                                    <a
+                                      key={idx}
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 text-xs hover:underline p-2 rounded bg-background/10"
+                                    >
+                                      {getFileIcon(file.type)}
+                                      <span className="truncate">{file.name}</span>
+                                      <Download className="h-3 w-3 ml-auto flex-shrink-0" />
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+
                               <p className="text-xs opacity-70 mt-1">
                                 {new Date(msg.created_at).toLocaleTimeString('fr-FR', {
                                   hour: '2-digit',
@@ -345,19 +430,29 @@ const Messages = () => {
                             </div>
                           </div>
                         ))}
+                        <div ref={scrollRef} />
                       </div>
                     </ScrollArea>
 
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Écrivez votre message..."
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    <div className="space-y-3 border-t pt-3">
+                      <MessageTemplates onUseTemplate={(content) => setNewMessage(content)} />
+                      
+                      <AttachmentUpload 
+                        attachments={attachments}
+                        onAttachmentsChange={setAttachments}
                       />
-                      <Button onClick={sendMessage} size="icon">
-                        <Send className="h-4 w-4" />
-                      </Button>
+
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Écrivez votre message..."
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                        />
+                        <Button onClick={sendMessage} size="icon">
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </>
