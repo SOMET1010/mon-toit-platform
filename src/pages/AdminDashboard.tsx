@@ -25,6 +25,7 @@ const AdminDashboard = () => {
   const { hasRole, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [pendingCertifications, setPendingCertifications] = useState(0);
+  const [openDisputes, setOpenDisputes] = useState(0);
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -35,9 +36,18 @@ const AdminDashboard = () => {
       setPendingCertifications(count || 0);
     };
 
-    fetchPendingCount();
+    const fetchOpenDisputes = async () => {
+      const { count } = await supabase
+        .from('disputes')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'open');
+      setOpenDisputes(count || 0);
+    };
 
-    const channel = supabase
+    fetchPendingCount();
+    fetchOpenDisputes();
+
+    const leasesChannel = supabase
       .channel('admin-pending-count')
       .on(
         'postgres_changes',
@@ -51,8 +61,23 @@ const AdminDashboard = () => {
       )
       .subscribe();
 
+    const disputesChannel = supabase
+      .channel('admin-open-disputes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'disputes',
+          filter: 'status=eq.open'
+        },
+        () => fetchOpenDisputes()
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(leasesChannel);
+      supabase.removeChannel(disputesChannel);
     };
   }, []);
 
@@ -99,7 +124,14 @@ const AdminDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="audit">Audit</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="disputes">Litiges</TabsTrigger>
+            <TabsTrigger value="disputes" className="flex items-center gap-2">
+              Litiges
+              {openDisputes > 0 && (
+                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
+                  {openDisputes}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="moderation">Modération</TabsTrigger>
             <TabsTrigger value="reporting">Rapports</TabsTrigger>
             <TabsTrigger value="properties" className="flex items-center gap-2">
