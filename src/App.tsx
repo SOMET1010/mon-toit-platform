@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import OwnerDashboard from "./pages/OwnerDashboard";
 import MyProperties from "./pages/MyProperties";
 import AddProperty from "./pages/AddProperty";
 import EditProperty from "./pages/EditProperty";
@@ -62,6 +63,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedUserTypes={['admin_ansut']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analytics" 
+              element={
+                <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
+                  <OwnerDashboard />
                 </ProtectedRoute>
               } 
             />
