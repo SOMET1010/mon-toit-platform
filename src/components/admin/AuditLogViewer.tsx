@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DataTable, Column } from './DataTable';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTable, Column } from './DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Download, Search, ChevronDown, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { useToast } from '@/hooks/use-toast';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface AuditLog {
   id: string;
@@ -26,8 +25,27 @@ interface AuditLog {
   created_at: string;
   admin?: {
     full_name: string;
+    email: string;
   };
 }
+
+const actionTypeLabels: Record<string, string> = {
+  lease_certified: 'Bail certifié',
+  lease_rejected: 'Bail rejeté',
+  lease_pending: 'Bail en attente',
+  role_assigned: 'Rôle attribué',
+  role_revoked: 'Rôle révoqué',
+  dispute_open: 'Litige ouvert',
+  dispute_resolved: 'Litige résolu',
+  dispute_in_progress: 'Litige en cours',
+};
+
+const getActionBadgeVariant = (actionType: string) => {
+  if (actionType.includes('certified') || actionType.includes('resolved')) return 'default';
+  if (actionType.includes('rejected')) return 'destructive';
+  if (actionType.includes('assigned')) return 'secondary';
+  return 'outline';
+};
 
 export function AuditLogViewer() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -49,6 +67,7 @@ export function AuditLogViewer() {
 
   const fetchAuditLogs = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('admin_audit_logs')
         .select('*')
@@ -56,24 +75,8 @@ export function AuditLogViewer() {
         .limit(500);
 
       if (error) throw error;
-
-      // Fetch admin profiles separately
-      const adminIds = Array.from(new Set(data?.map(log => log.admin_id) || []));
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', adminIds);
-
-      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
-
-      const logsWithProfiles = data?.map(log => ({
-        ...log,
-        admin: profilesMap.get(log.admin_id),
-      })) || [];
-
-      setLogs(logsWithProfiles as AuditLog[]);
-    } catch (error) {
-      console.error('Error fetching audit logs:', error);
+      setLogs(data || []);
+    } catch (error: any) {
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les logs d\'audit',
@@ -89,78 +92,69 @@ export function AuditLogViewer() {
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (log) =>
-          log.target_id.includes(searchTerm) ||
-          log.admin?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log =>
+          log.target_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
           log.notes?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (actionFilter !== 'all') {
-      filtered = filtered.filter((log) => log.action_type.includes(actionFilter));
+      filtered = filtered.filter(log => log.action_type === actionFilter);
     }
 
     if (targetFilter !== 'all') {
-      filtered = filtered.filter((log) => log.target_type === targetFilter);
+      filtered = filtered.filter(log => log.target_type === targetFilter);
     }
 
     setFilteredLogs(filtered);
   };
 
   const exportToCSV = () => {
-    const headers = ['Date', 'Admin', 'Action', 'Type', 'Target ID', 'Notes'];
-    const rows = filteredLogs.map((log) => [
-      format(new Date(log.created_at), 'dd/MM/yyyy HH:mm:ss', { locale: fr }),
-      log.admin?.full_name || 'Système',
-      log.action_type,
+    const headers = ['Date', 'Admin ID', 'Action', 'Type Cible', 'ID Cible', 'Notes'];
+    const csvData = filteredLogs.map(log => [
+      format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr }),
+      log.admin_id,
+      actionTypeLabels[log.action_type] || log.action_type,
       log.target_type,
       log.target_id,
       log.notes || '',
     ]);
 
-    const csvContent = [
+    const csv = [
       headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+      ...csvData.map(row => row.map(cell => `"${cell}"`).join(',')),
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `audit_logs_${format(new Date(), 'yyyy-MM-dd')}.csv`;
-    link.click();
-
-    toast({
-      title: 'Export réussi',
-      description: `${filteredLogs.length} logs exportés`,
-    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit_logs_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.click();
   };
 
   const toggleRowExpansion = (id: string) => {
-    const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id);
-    } else {
-      newExpanded.add(id);
-    }
-    setExpandedRows(newExpanded);
-  };
-
-  const getActionBadgeVariant = (action: string): 'default' | 'destructive' | 'secondary' => {
-    if (action.includes('certified')) return 'default';
-    if (action.includes('rejected') || action.includes('revoked')) return 'destructive';
-    return 'secondary';
+    setExpandedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   const columns: Column<AuditLog>[] = [
     {
       header: '',
-      accessor: (row) => (
+      accessor: (log) => (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => toggleRowExpansion(row.id)}
+          onClick={() => toggleRowExpansion(log.id)}
         >
-          {expandedRows.has(row.id) ? (
+          {expandedRows.has(log.id) ? (
             <ChevronDown className="h-4 w-4" />
           ) : (
             <ChevronRight className="h-4 w-4" />
@@ -171,18 +165,20 @@ export function AuditLogViewer() {
     },
     {
       header: 'Date',
-      accessor: (row) => format(new Date(row.created_at), 'dd/MM/yyyy HH:mm', { locale: fr }),
+      accessor: (log) => format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: fr }),
       className: 'font-medium',
     },
     {
-      header: 'Admin',
-      accessor: (row) => row.admin?.full_name || 'Système',
+      header: 'Admin ID',
+      accessor: (log) => (
+        <span className="font-mono text-xs">{log.admin_id.slice(0, 8)}...</span>
+      ),
     },
     {
       header: 'Action',
-      accessor: (row) => (
-        <Badge variant={getActionBadgeVariant(row.action_type)}>
-          {row.action_type.replace(/_/g, ' ')}
+      accessor: (log) => (
+        <Badge variant={getActionBadgeVariant(log.action_type) as any}>
+          {actionTypeLabels[log.action_type] || log.action_type}
         </Badge>
       ),
     },
@@ -191,135 +187,127 @@ export function AuditLogViewer() {
       accessor: 'target_type',
     },
     {
-      header: 'Target ID',
-      accessor: (row) => (
-        <code className="text-xs bg-muted px-2 py-1 rounded">
-          {row.target_id.slice(0, 8)}...
-        </code>
+      header: 'Notes',
+      accessor: (log) => (
+        <span className="text-sm text-muted-foreground truncate max-w-xs block">
+          {log.notes || '-'}
+        </span>
       ),
     },
   ];
 
-  const uniqueActions = Array.from(new Set(logs.map((log) => log.action_type)));
-  const uniqueTargets = Array.from(new Set(logs.map((log) => log.target_type)));
+  const uniqueActions = Array.from(new Set(logs.map(l => l.action_type)));
+  const uniqueTargets = Array.from(new Set(logs.map(l => l.target_type)));
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Journal d'Audit</CardTitle>
-            <CardDescription>
-              Traçabilité complète des actions administratives
-            </CardDescription>
+        <CardTitle>Journal d'Audit</CardTitle>
+        <CardDescription>
+          Historique de toutes les actions administratives sensibles
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher par ID, notes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
           </div>
-          <Button onClick={exportToCSV} variant="outline" size="sm">
+          <Select value={actionFilter} onValueChange={setActionFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Type d'action" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les actions</SelectItem>
+              {uniqueActions.map(action => (
+                <SelectItem key={action} value={action}>
+                  {actionTypeLabels[action] || action}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={targetFilter} onValueChange={setTargetFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Type de cible" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les cibles</SelectItem>
+              {uniqueTargets.map(target => (
+                <SelectItem key={target} value={target}>
+                  {target}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={exportToCSV} variant="outline">
             <Download className="h-4 w-4 mr-2" />
-            Exporter CSV
+            Exporter
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher par admin, target ID, notes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-            <Select value={actionFilter} onValueChange={setActionFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Type d'action" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les actions</SelectItem>
-                {uniqueActions.map((action) => (
-                  <SelectItem key={action} value={action}>
-                    {action.replace(/_/g, ' ')}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={targetFilter} onValueChange={setTargetFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Type de cible" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les types</SelectItem>
-                {uniqueTargets.map((target) => (
-                  <SelectItem key={target} value={target}>
-                    {target}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
-          <div className="space-y-2">
-            {filteredLogs.map((log) => (
-              <div key={log.id} className="border rounded-lg">
-                <DataTable
-                  data={[log]}
-                  columns={columns}
-                  loading={loading}
-                />
-                {expandedRows.has(log.id) && (
-                  <div className="p-4 bg-muted/50 border-t space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      {log.old_values && (
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Anciennes valeurs</h4>
-                          <pre className="text-xs bg-background p-3 rounded border overflow-auto">
-                            {JSON.stringify(log.old_values, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                      {log.new_values && (
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Nouvelles valeurs</h4>
-                          <pre className="text-xs bg-background p-3 rounded border overflow-auto">
-                            {JSON.stringify(log.new_values, null, 2)}
-                          </pre>
-                        </div>
-                      )}
+        <div className="space-y-2">
+          <DataTable
+            data={filteredLogs}
+            columns={columns}
+            loading={loading}
+            emptyMessage="Aucun log d'audit trouvé"
+          />
+          
+          {filteredLogs.map(log => (
+            expandedRows.has(log.id) && (
+              <Card key={`detail-${log.id}`} className="ml-12 bg-muted/50">
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="font-semibold">ID Cible</p>
+                      <p className="font-mono text-xs">{log.target_id}</p>
                     </div>
-                    {log.notes && (
+                    <div>
+                      <p className="font-semibold">ID Admin</p>
+                      <p className="font-mono text-xs">{log.admin_id}</p>
+                    </div>
+                    {log.ip_address && (
                       <div>
-                        <h4 className="text-sm font-medium mb-2">Notes</h4>
-                        <p className="text-sm text-muted-foreground">{log.notes}</p>
+                        <p className="font-semibold">Adresse IP</p>
+                        <p className="font-mono text-xs">{log.ip_address}</p>
                       </div>
                     )}
-                    {(log.ip_address || log.user_agent) && (
-                      <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
-                        {log.ip_address && (
-                          <div>
-                            <span className="font-medium">IP:</span> {log.ip_address}
-                          </div>
-                        )}
-                        {log.user_agent && (
-                          <div>
-                            <span className="font-medium">User Agent:</span> {log.user_agent}
-                          </div>
-                        )}
+                    {log.user_agent && (
+                      <div className="col-span-2">
+                        <p className="font-semibold">User Agent</p>
+                        <p className="text-xs text-muted-foreground truncate">{log.user_agent}</p>
+                      </div>
+                    )}
+                    {log.old_values && (
+                      <div className="col-span-2">
+                        <p className="font-semibold mb-2">Anciennes valeurs</p>
+                        <pre className="bg-background p-2 rounded text-xs overflow-x-auto">
+                          {JSON.stringify(log.old_values, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                    {log.new_values && (
+                      <div className="col-span-2">
+                        <p className="font-semibold mb-2">Nouvelles valeurs</p>
+                        <pre className="bg-background p-2 rounded text-xs overflow-x-auto">
+                          {JSON.stringify(log.new_values, null, 2)}
+                        </pre>
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                </CardContent>
+              </Card>
+            )
+          ))}
+        </div>
 
-          {filteredLogs.length === 0 && !loading && (
-            <div className="text-center py-8 text-muted-foreground">
-              Aucun log d'audit trouvé
-            </div>
-          )}
+        <div className="text-sm text-muted-foreground">
+          {filteredLogs.length} log(s) affiché(s) sur {logs.length} au total
         </div>
       </CardContent>
     </Card>
