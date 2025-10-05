@@ -131,66 +131,95 @@ const Application = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-4xl">
+        <div className="mb-8">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(`/property/${propertyId}`)}
+            className="mb-4 -ml-2"
+          >
+            ← Retour au bien
+          </Button>
+          <h1 className="text-4xl font-bold text-foreground mb-3">
             Postuler pour {property.title}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             {property.city} • {property.monthly_rent.toLocaleString()} FCFA/mois
           </p>
         </div>
 
         <div className="space-y-6">
           {/* Vérifications */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Votre profil de vérification</CardTitle>
+          <Card className="border-2 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <CheckCircle className="h-5 w-5 text-primary" />
+                Votre profil de vérification
+              </CardTitle>
               <CardDescription>
-                Ces informations renforceront votre candidature
+                Ces informations renforceront votre candidature auprès du propriétaire
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3">
                   {profile?.oneci_verified ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="p-2 rounded-full bg-green-500/10">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
                   ) : (
-                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                    <div className="p-2 rounded-full bg-muted">
+                      <XCircle className="h-5 w-5 text-muted-foreground" />
+                    </div>
                   )}
-                  <span>Vérification ONECI</span>
+                  <div>
+                    <p className="font-medium">Vérification ONECI</p>
+                    <p className="text-xs text-muted-foreground">Carte d'identité nationale</p>
+                  </div>
                 </div>
                 {!profile?.oneci_verified && (
-                  <Button variant="outline" size="sm" onClick={() => navigate('/certification')}>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/certification')} className="rounded-xl">
                     Vérifier
                   </Button>
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3">
                   {profile?.cnam_verified ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="p-2 rounded-full bg-green-500/10">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
                   ) : (
-                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                    <div className="p-2 rounded-full bg-muted">
+                      <XCircle className="h-5 w-5 text-muted-foreground" />
+                    </div>
                   )}
-                  <span>Vérification CNAM (Employeur)</span>
+                  <div>
+                    <p className="font-medium">Vérification CNAM</p>
+                    <p className="text-xs text-muted-foreground">Situation professionnelle</p>
+                  </div>
                 </div>
                 {!profile?.cnam_verified && (
-                  <Button variant="outline" size="sm" onClick={() => navigate('/certification')}>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/certification')} className="rounded-xl">
                     Vérifier
                   </Button>
                 )}
               </div>
 
               {verification && verification.tenant_score > 0 && (
-                <div className="mt-4 p-4 bg-primary/10 rounded-lg">
+                <div className="mt-4 p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">Score locataire</span>
-                    <Badge variant="default">{verification.tenant_score}/100</Badge>
+                    <div>
+                      <p className="font-semibold text-lg">Score locataire</p>
+                      <p className="text-sm text-muted-foreground">Basé sur vos vérifications</p>
+                    </div>
+                    <Badge variant="default" className="text-lg px-4 py-2 rounded-xl">
+                      {verification.tenant_score}/100
+                    </Badge>
                   </div>
                 </div>
               )}
@@ -198,11 +227,14 @@ const Application = () => {
           </Card>
 
           {/* Documents */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Documents justificatifs</CardTitle>
+          <Card className="border-2 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Upload className="h-5 w-5 text-primary" />
+                Documents justificatifs
+              </CardTitle>
               <CardDescription>
-                Ajoutez vos documents pour compléter votre dossier
+                Ajoutez vos documents pour compléter votre dossier (CNI, fiches de paie, etc.)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -215,9 +247,12 @@ const Application = () => {
           </Card>
 
           {/* Lettre de motivation */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Lettre de motivation</CardTitle>
+          <Card className="border-2 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <FileText className="h-5 w-5 text-primary" />
+                Lettre de motivation
+              </CardTitle>
               <CardDescription>
                 Présentez-vous et expliquez pourquoi vous souhaitez louer ce bien
               </CardDescription>
@@ -226,49 +261,64 @@ const Application = () => {
               <Textarea
                 value={coverLetter}
                 onChange={(e) => setCoverLetter(e.target.value)}
-                placeholder="Présentez votre candidature..."
-                className="min-h-[200px]"
+                placeholder="Cher(e) propriétaire,
+
+Je suis vivement intéressé(e) par votre bien car...
+
+Cordialement,"
+                className="min-h-[240px] text-base rounded-xl border-2 focus:border-primary transition-colors"
               />
+              <p className="text-xs text-muted-foreground mt-2">
+                {coverLetter.length} caractères
+              </p>
             </CardContent>
           </Card>
 
           {/* Récapitulatif */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Récapitulatif</CardTitle>
+          <Card className="border-2 shadow-lg bg-gradient-to-br from-background to-muted/20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl">Récapitulatif de votre candidature</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
+            <CardContent className="space-y-3">
+              <div className="flex justify-between items-center p-3 rounded-xl bg-background">
                 <span className="text-muted-foreground">Loyer mensuel</span>
-                <span className="font-medium">{property.monthly_rent.toLocaleString()} FCFA</span>
+                <span className="font-bold text-lg">{property.monthly_rent.toLocaleString()} FCFA</span>
               </div>
               {property.deposit_amount && (
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center p-3 rounded-xl bg-background">
                   <span className="text-muted-foreground">Caution</span>
-                  <span className="font-medium">{property.deposit_amount.toLocaleString()} FCFA</span>
+                  <span className="font-bold text-lg">{property.deposit_amount.toLocaleString()} FCFA</span>
                 </div>
               )}
-              <div className="flex justify-between pt-2 border-t">
-                <span className="text-muted-foreground">Documents</span>
-                <span className="font-medium">{documents.length} fichier(s)</span>
+              <div className="flex justify-between items-center p-3 rounded-xl bg-background">
+                <span className="text-muted-foreground">Documents joints</span>
+                <Badge variant="secondary" className="rounded-xl">
+                  {documents.length} fichier{documents.length > 1 ? 's' : ''}
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-xl bg-background">
+                <span className="text-muted-foreground">Lettre de motivation</span>
+                <Badge variant={coverLetter.trim() ? "default" : "secondary"} className="rounded-xl">
+                  {coverLetter.trim() ? 'Complétée' : 'À compléter'}
+                </Badge>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 pt-4">
             <Button
               variant="outline"
               onClick={() => navigate(`/property/${propertyId}`)}
-              className="flex-1"
+              className="flex-1 h-14 rounded-xl text-base"
             >
               Annuler
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1"
+              className="flex-1 h-14 rounded-xl text-base font-semibold shadow-lg"
             >
-              {submitting ? 'Envoi en cours...' : 'Soumettre ma candidature'}
+              {submitting ? 'Envoi en cours...' : '📤 Soumettre ma candidature'}
             </Button>
           </div>
         </div>

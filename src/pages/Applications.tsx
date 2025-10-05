@@ -166,17 +166,18 @@ const Applications = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
+            <FileText className="h-8 w-8 text-primary" />
             {isOwner ? 'Candidatures reçues' : 'Mes candidatures'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             {isOwner 
-              ? 'Gérez les candidatures pour vos biens' 
+              ? 'Gérez les candidatures pour vos biens immobiliers' 
               : 'Suivez l\'état de vos candidatures locatives'}
           </p>
         </div>
