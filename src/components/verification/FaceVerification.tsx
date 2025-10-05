@@ -153,9 +153,9 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
           <Camera className="h-5 w-5" />
           Vérification Faciale (Optionnel)
         </CardTitle>
-        <CardDescription>
-          Renforcez votre profil avec une vérification biométrique
-        </CardDescription>
+            <CardDescription>
+              Vérification biométrique sécurisée propulsée par Smile ID
+            </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <Alert>
