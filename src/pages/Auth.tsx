@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Shield, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
+import { TwoFactorVerify } from '@/components/auth/TwoFactorVerify';
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -26,7 +28,7 @@ const signInSchema = z.object({
 type ValidationErrors = Partial<Record<'email' | 'password' | 'fullName' | 'userType', string>>;
 
 const Auth = () => {
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, hasRole } = useAuth();
   const navigate = useNavigate();
 
   // Sign Up form
@@ -42,6 +44,8 @@ const Auth = () => {
   const [signInErrors, setSignInErrors] = useState<ValidationErrors>({});
 
   const [loading, setLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -104,9 +108,55 @@ const Auth = () => {
     setLoading(false);
 
     if (!error) {
+      // Check if user is admin and requires 2FA
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (currentUser) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', currentUser.id);
+
+        const isAdmin = roles?.some(r => r.role === 'admin');
+
+        if (isAdmin) {
+          // Check if 2FA is enabled
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          
+          if (factors?.totp && factors.totp.length > 0) {
+            setPendingUserId(currentUser.id);
+            setShow2FA(true);
+            return;
+          }
+        }
+      }
+
       navigate('/');
     }
   };
+
+  const handle2FAVerified = () => {
+    setShow2FA(false);
+    setPendingUserId(null);
+    navigate('/');
+  };
+
+  const handle2FACancel = async () => {
+    await supabase.auth.signOut();
+    setShow2FA(false);
+    setPendingUserId(null);
+  };
+
+  if (show2FA) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+        <TwoFactorVerify 
+          onVerified={handle2FAVerified}
+          onCancel={handle2FACancel}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">

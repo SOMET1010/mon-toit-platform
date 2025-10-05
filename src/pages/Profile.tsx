@@ -17,9 +17,10 @@ import { Shield, CheckCircle2, XCircle, Award, Settings, Home, MapPin, DollarSig
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
+import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 
 const Profile = () => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, hasRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const [tenantScore, setTenantScore] = useState<number | null>(null);
   const [preferencesModalOpen, setPreferencesModalOpen] = useState(false);
@@ -319,6 +320,13 @@ const Profile = () => {
 
               {/* Notification Preferences */}
               <NotificationPreferences />
+
+              {/* 2FA for Admins */}
+              {hasRole('admin') && (
+                <div className="mt-6">
+                  <TwoFactorSetup />
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="preferences" className="space-y-6 mt-6">
