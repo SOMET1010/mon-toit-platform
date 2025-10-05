@@ -11,6 +11,7 @@ import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
 import { TenantScoreBreakdown } from '@/components/application/TenantScoreBreakdown';
 import { logger } from '@/services/logger';
 import type { Application } from '@/types';
+import { useUserPhone } from '@/hooks/useUserPhone';
 
 
 interface ScoringData {
@@ -51,6 +52,7 @@ interface ApplicationDetailProps {
 const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: ApplicationDetailProps) => {
   const [scoring, setScoring] = useState<ScoringData | null>(null);
   const [loadingScore, setLoadingScore] = useState(false);
+  const { phone } = useUserPhone(application.applicant_id);
 
   useEffect(() => {
     if (isOwner && application.status === 'pending') {
@@ -151,10 +153,10 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
                     {new Date(application.created_at).toLocaleDateString('fr-FR')}
                   </p>
                 </div>
-                {application.profiles.phone && (
+                {phone && (
                   <div>
                     <p className="text-sm text-muted-foreground">Téléphone</p>
-                    <p className="font-medium">{application.profiles.phone}</p>
+                    <p className="font-medium">{phone}</p>
                   </div>
                 )}
               </div>

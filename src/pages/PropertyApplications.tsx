@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { ApplicantPhoneDisplay } from '@/components/application/ApplicantPhoneDisplay';
 
 type Application = {
   id: string;
@@ -400,11 +401,7 @@ const PropertyApplications = () => {
                                 {getStatusBadge(application.status)}
                                 {application.recommendation_score && getMatchBadge(application.recommendation_score)}
                               </div>
-                              {application.profiles.phone && (
-                                <p className="text-sm text-muted-foreground mb-2">
-                                  📞 {application.profiles.phone}
-                                </p>
-                              )}
+                              <ApplicantPhoneDisplay applicantId={application.applicant_id} />
                               <p className="text-sm text-muted-foreground">
                                 Candidature du {new Date(application.created_at).toLocaleDateString('fr-FR')}
                               </p>

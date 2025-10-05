@@ -313,6 +313,83 @@ Avant de merger une PR contenant des changements de sécurité :
 - [ ] Les nouvelles permissions sont listées
 - [ ] Les exemples de code sont à jour
 
+## Protection des Données Personnelles (PII)
+
+### Numéros de Téléphone
+
+Les numéros de téléphone des utilisateurs sont protégés et ne sont pas directement accessibles via la table `profiles`.
+
+#### Vue Publique `profiles_public`
+
+Pour l'affichage général des profils, utiliser la vue `profiles_public` qui contient :
+- `id`, `full_name`, `user_type`, `avatar_url`, `bio`, `city`
+- `is_verified`, `oneci_verified`, `cnam_verified`, `face_verified`
+- `created_at`, `updated_at`
+
+**Exclut** : `phone` (numéro de téléphone)
+
+```typescript
+// Utiliser la vue pour afficher des profils
+const { data } = await supabase
+  .from('profiles_public')
+  .select('*')
+  .eq('id', userId);
+```
+
+#### Fonction RPC `get_user_phone()`
+
+Pour accéder au numéro de téléphone, utiliser la fonction RPC sécurisée qui vérifie les permissions :
+
+```typescript
+const { data: phone } = await supabase.rpc('get_user_phone', {
+  target_user_id: userId
+});
+```
+
+**Cas d'accès légitimes** :
+1. ✅ L'utilisateur demande son propre téléphone
+2. ✅ Propriétaire voit le téléphone de ses candidats (via `rental_applications`)
+3. ✅ Candidat voit le téléphone du propriétaire qu'il a contacté
+4. ✅ Parties d'un bail actif (propriétaire ↔ locataire)
+5. ✅ Administrateurs (rôle `admin`)
+
+**Retourne** : `NULL` si aucun accès légitime
+
+#### Hook React `useUserPhone`
+
+Pour utiliser dans les composants React :
+
+```typescript
+import { useUserPhone } from '@/hooks/useUserPhone';
+
+const MyComponent = ({ userId }) => {
+  const { phone, loading } = useUserPhone(userId);
+  
+  if (loading) return <div>Chargement...</div>;
+  if (!phone) return null; // Pas d'accès
+  
+  return <div>📞 {phone}</div>;
+};
+```
+
+#### Composant `ApplicantPhoneDisplay`
+
+Pour afficher le téléphone d'un candidat dans une liste de candidatures :
+
+```typescript
+import { ApplicantPhoneDisplay } from '@/components/application/ApplicantPhoneDisplay';
+
+<ApplicantPhoneDisplay applicantId={application.applicant_id} />
+```
+
+### Index de Performance
+
+Les index suivants optimisent les vérifications d'accès :
+- `idx_rental_applications_applicant`
+- `idx_rental_applications_property`
+- `idx_leases_landlord_tenant`
+- `idx_leases_tenant_landlord`
+
 ## Protection contre l'escalade de privilèges
 
 ### Vérifications essentielles
