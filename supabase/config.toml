@@ -7,7 +7,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.smile-id-verification]
-verify_jwt = false
+verify_jwt = true
 
 [functions.oneci-verification]
 verify_jwt = false
