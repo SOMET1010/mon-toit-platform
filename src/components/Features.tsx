@@ -26,10 +26,10 @@ const features = [
 
 const Features = () => {
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-h2 mb-4">
             Pourquoi choisir Mon Toit ?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -43,7 +43,7 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className="text-center group"
+                className="text-center group bg-card rounded-xl p-6 shadow-sm hover:shadow-md transition-smooth"
               >
                 <div className="relative inline-flex p-4 rounded-xl bg-gradient-primary mb-4 group-hover:shadow-primary transition-smooth">
                   <Icon className="h-8 w-8 text-primary-foreground" />

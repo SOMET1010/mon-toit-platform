@@ -4,7 +4,7 @@ import monToitLogo from "@/assets/mon-toit-logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-foreground text-background py-12">
+    <footer className="bg-gradient-to-br from-secondary-900 to-secondary-700 text-background py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>

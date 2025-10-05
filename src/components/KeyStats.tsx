@@ -20,7 +20,7 @@ const stats = [
 
 const KeyStats = () => {
   return (
-    <section className="py-12 bg-background border-y border-border">
+    <section className="py-16 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {stats.map((stat, index) => {
