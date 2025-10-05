@@ -390,6 +390,50 @@ Les index suivants optimisent les vérifications d'accès :
 - `idx_leases_landlord_tenant`
 - `idx_leases_tenant_landlord`
 
+## Protection des Données de Vérification (user_verifications)
+
+### Accès Restreint aux Super-Admins
+
+Les données de vérification (numéros CNI, numéros CNAM, données biométriques) sont extrêmement sensibles. L'accès est strictement contrôlé :
+
+**Qui peut voir les données de vérification :**
+1. ✅ L'utilisateur voit ses propres données de vérification
+2. ✅ Les **super_admins** peuvent voir toutes les vérifications (pour la gestion de la plateforme)
+3. ✅ Les **tiers de confiance** peuvent voir uniquement les vérifications en attente de validation (`pending_review`)
+4. ❌ Les admins standard **NE PEUVENT PLUS** voir les données de vérification
+
+### Policies RLS sur user_verifications
+
+```sql
+-- Policy 1: Utilisateurs voient leurs propres vérifications
+CREATE POLICY "Utilisateurs peuvent voir leurs propres vérifications"
+ON public.user_verifications FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Policy 2: Super admins uniquement pour toutes les vérifications
+CREATE POLICY "Super admins can view all verifications"
+ON public.user_verifications FOR SELECT
+USING (
+  (auth.uid() = user_id) OR 
+  public.has_role(auth.uid(), 'super_admin'::app_role)
+);
+
+-- Policy 3: Tiers de confiance pour validations en attente
+CREATE POLICY "Trusted third parties can view pending verifications"
+ON public.user_verifications FOR SELECT
+USING (
+  public.is_trusted_third_party(auth.uid()) AND
+  (oneci_status = 'pending_review' OR cnam_status = 'pending_review')
+);
+```
+
+### Bonnes Pratiques
+
+1. **Minimiser les super_admins** : Seules les personnes de confiance absolue doivent avoir le rôle `super_admin`
+2. **Audit logging** : Toutes les actions sur les vérifications sont loggées dans `admin_audit_logs`
+3. **Pas de console.log** : Ne jamais logger les données de vérification dans la console
+4. **Chiffrement futur** : Envisager le chiffrement des champs sensibles (CNI, CNAM) au repos
+
 ## Protection contre l'escalade de privilèges
 
 ### Vérifications essentielles
