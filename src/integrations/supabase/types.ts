@@ -584,6 +584,33 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_access_log: {
+        Row: {
+          access_granted: boolean
+          accessed_at: string
+          id: string
+          payment_id: string
+          relationship_type: string | null
+          requester_id: string
+        }
+        Insert: {
+          access_granted: boolean
+          accessed_at?: string
+          id?: string
+          payment_id: string
+          relationship_type?: string | null
+          requester_id: string
+        }
+        Update: {
+          access_granted?: boolean
+          accessed_at?: string
+          id?: string
+          payment_id?: string
+          relationship_type?: string | null
+          requester_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -1048,6 +1075,39 @@ export type Database = {
           },
         ]
       }
+      sensitive_data_access_log: {
+        Row: {
+          access_granted: boolean
+          accessed_at: string
+          data_type: string
+          id: string
+          metadata: Json | null
+          relationship_type: string | null
+          requester_id: string
+          target_user_id: string
+        }
+        Insert: {
+          access_granted: boolean
+          accessed_at?: string
+          data_type: string
+          id?: string
+          metadata?: Json | null
+          relationship_type?: string | null
+          requester_id: string
+          target_user_id: string
+        }
+        Update: {
+          access_granted?: boolean
+          accessed_at?: string
+          data_type?: string
+          id?: string
+          metadata?: Json | null
+          relationship_type?: string | null
+          requester_id?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       trusted_third_parties: {
         Row: {
           created_at: string | null
@@ -1346,6 +1406,27 @@ export type Database = {
           last_attempt: string
         }[]
       }
+      get_my_disputes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          assigned_to: string
+          attachments: Json
+          created_at: string
+          description: string
+          dispute_type: string
+          id: string
+          is_reporter: boolean
+          lease_id: string
+          priority: string
+          reported_id: string
+          reported_name: string
+          reporter_id: string
+          reporter_name: string
+          resolution_notes: string
+          resolved_at: string
+          status: string
+        }[]
+      }
       get_public_profile: {
         Args: { target_user_id: string }
         Returns: {
@@ -1361,6 +1442,22 @@ export type Database = {
           oneci_verified: boolean
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
+        }[]
+      }
+      get_user_payments: {
+        Args: { target_user_id: string }
+        Returns: {
+          amount: number
+          completed_at: string
+          created_at: string
+          id: string
+          payer_id: string
+          payment_method: string
+          payment_type: string
+          property_id: string
+          receiver_id: string
+          status: string
+          transaction_id: string
         }[]
       }
       get_user_phone: {

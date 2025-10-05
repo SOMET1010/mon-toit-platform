@@ -22,6 +22,7 @@ import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { LeaseTemplateManager } from '@/components/admin/LeaseTemplateManager';
 import { PromoteToSuperAdmin } from '@/components/admin/PromoteToSuperAdmin';
 import PropertyModerationQueue from '@/components/admin/PropertyModerationQueue';
+import SensitiveDataAccessMonitor from '@/components/admin/SensitiveDataAccessMonitor';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -121,7 +122,23 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-11 mb-8">
+          <TabsList className="grid w-full grid-cols-12 mb-8">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Vue d'ensemble
+            </TabsTrigger>
+            <TabsTrigger value="certifications" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Certifications
+              {pendingCertifications > 0 && (
+                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
+                  {pendingCertifications}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="verifications">Vérifications</TabsTrigger>
+            <TabsTrigger value="security">Sécurité</TabsTrigger>
+            <TabsTrigger value="audit">Audit</TabsTrigger>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Vue d'ensemble
@@ -172,6 +189,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="verifications" className="space-y-6">
             <AdminVerificationQueue />
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6">
+            <SensitiveDataAccessMonitor />
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">
