@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       admin_audit_logs: {
         Row: {
+          action_metadata: Json | null
           action_type: string
           admin_id: string
           created_at: string | null
@@ -29,6 +30,7 @@ export type Database = {
           user_agent: string | null
         }
         Insert: {
+          action_metadata?: Json | null
           action_type: string
           admin_id: string
           created_at?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           user_agent?: string | null
         }
         Update: {
+          action_metadata?: Json | null
           action_type?: string
           admin_id?: string
           created_at?: string | null
@@ -455,6 +458,87 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mfa_backup_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mfa_login_attempts: {
+        Row: {
+          attempt_ip: string | null
+          attempt_type: string
+          created_at: string
+          id: string
+          success: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          attempt_ip?: string | null
+          attempt_type: string
+          created_at?: string
+          id?: string
+          success: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          attempt_ip?: string | null
+          attempt_type?: string
+          created_at?: string
+          id?: string
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mfa_policies: {
+        Row: {
+          created_at: string
+          grace_period_days: number | null
+          id: string
+          mfa_required: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          grace_period_days?: number | null
+          id?: string
+          mfa_required?: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          grace_period_days?: number | null
+          id?: string
+          mfa_required?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       mobile_money_transactions: {
         Row: {
@@ -1366,7 +1450,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mfa_metrics: {
+        Row: {
+          admins_with_2fa: number | null
+          percentage_with_2fa: number | null
+          total_admins: number | null
+          unused_backup_codes: number | null
+          used_backup_codes: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       approve_verification: {
@@ -1380,6 +1473,10 @@ export type Database = {
       calculate_reputation_score: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      check_mfa_rate_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       cleanup_expired_recommendations: {
         Args: Record<PropertyKey, never>
@@ -1516,6 +1613,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      log_mfa_attempt: {
+        Args: { _attempt_type?: string; _success: boolean }
+        Returns: undefined
+      }
       pre_validate_lease_for_certification: {
         Args: { p_lease_id: string }
         Returns: Json
@@ -1531,6 +1632,10 @@ export type Database = {
           p_verification_type: string
         }
         Returns: undefined
+      }
+      verify_backup_code: {
+        Args: { _backup_code: string }
+        Returns: boolean
       }
       verify_user_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
