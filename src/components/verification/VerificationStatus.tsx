@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react';
@@ -22,11 +23,11 @@ const VerificationStatus = () => {
   useEffect(() => {
     const fetchVerification = async () => {
       if (!user) {
-        console.log('✅ VerificationStatus - No user yet');
+        logger.info('VerificationStatus - No user yet');
         return;
       }
 
-      console.log('✅ VerificationStatus - Fetching verification for user:', user.id);
+      logger.info('VerificationStatus - Fetching verification', { userId: user.id });
 
       const { data, error } = await supabase
         .from('user_verifications')
@@ -35,9 +36,9 @@ const VerificationStatus = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('✅ VerificationStatus - Error fetching verification:', error);
+        logger.error('VerificationStatus - Error fetching verification', { error, userId: user.id });
       } else {
-        console.log('✅ VerificationStatus - Verification data:', data);
+        logger.info('VerificationStatus - Verification data fetched', { hasData: !!data, userId: user.id });
         setVerification(data);
       }
       setLoading(false);

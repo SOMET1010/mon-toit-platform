@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Property, SearchFilters, GeoLocation } from '@/types';
 import { calculateDistance, getCurrentLocation, hasCoordinates } from '@/lib/geo';
+import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -103,7 +104,7 @@ export const usePropertyFilters = (properties: Property[]) => {
         });
       }
     } catch (error) {
-      console.error('Error getting location:', error);
+      logger.error('Error getting location', { error, userId: user?.id, radiusKm });
     }
   };
 

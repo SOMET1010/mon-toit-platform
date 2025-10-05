@@ -58,7 +58,7 @@ export const useRecommendations = ({
     } catch (err) {
       const errorObj = err instanceof Error ? err : new Error('Failed to fetch recommendations');
       setError(errorObj);
-      console.error('Error fetching recommendations:', err);
+      logger.error('Error fetching recommendations', { error: err, userId: user?.id, type, propertyId, limit });
       toast({
         title: "Erreur",
         description: "Impossible de charger les recommandations",
@@ -97,7 +97,7 @@ export const useRecommendations = ({
 
       return data;
     } catch (err) {
-      console.error('Error updating preferences:', err);
+      logger.error('Error updating preferences', { error: err, userId: user?.id, preferences });
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour vos préférences",
@@ -122,7 +122,7 @@ export const useRecommendations = ({
         },
       });
     } catch (err) {
-      console.error('Error tracking search:', err);
+      logger.error('Error tracking search', { error: err, userId: user?.id, searchFilters, resultCount });
       // Silent fail - don't disrupt user experience
     }
   }, [user]);

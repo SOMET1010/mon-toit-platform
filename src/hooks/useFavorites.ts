@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { useAuth } from './useAuth';
 import { toast } from '@/hooks/use-toast';
 
@@ -35,14 +36,14 @@ export const useFavorites = () => {
         .eq('user_id', user.id) as { data: UserFavorite[] | null; error: any };
 
       if (error) {
-        console.error('Error fetching favorites:', error);
+        logger.error('Error fetching favorites', { error, userId: user.id });
         const localFavorites = localStorage.getItem(`favorites_${user.id}`);
         setFavorites(localFavorites ? JSON.parse(localFavorites) : []);
       } else {
         setFavorites(data?.map(f => f.property_id) || []);
       }
     } catch (err) {
-      console.error('Exception fetching favorites:', err);
+      logger.error('Exception fetching favorites', { error: err, userId: user.id });
       const localFavorites = localStorage.getItem(`favorites_${user.id}`);
       setFavorites(localFavorites ? JSON.parse(localFavorites) : []);
     } finally {
@@ -98,7 +99,7 @@ export const useFavorites = () => {
         isFavorite ? favorites.filter(id => id !== propertyId) : [...favorites, propertyId]
       ));
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      logger.error('Error toggling favorite', { error, propertyId, userId: user.id });
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour vos favoris",

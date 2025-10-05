@@ -167,10 +167,11 @@ export default function Leases() {
         });
         fetchLeases(); // Rafraîchir pour obtenir l'URL mise à jour
       }
-    } catch (error: any) {
+    } catch (error) {
+      logger.error('Error generating PDF', { error, leaseId });
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de générer le PDF",
+        description: error instanceof Error ? error.message : "Impossible de générer le PDF",
         variant: "destructive",
       });
     } finally {

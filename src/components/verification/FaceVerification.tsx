@@ -3,6 +3,7 @@ import { Camera, Upload, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -53,7 +54,7 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
         setIsCapturing(true);
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      logger.error('Error accessing camera', { error });
       toast.error('Impossible d\'accéder à la caméra');
     }
   };
@@ -128,10 +129,10 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
           description: data.message
         });
       }
-    } catch (error: any) {
-      console.error('Face verification error:', error);
+    } catch (error) {
+      logger.error('Face verification error', { error });
       toast.error('Erreur lors de la vérification', {
-        description: error.message || 'Une erreur est survenue'
+        description: error instanceof Error ? error.message : 'Une erreur est survenue'
       });
     } finally {
       setIsVerifying(false);
