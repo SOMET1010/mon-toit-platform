@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { ERROR_MESSAGES } from '@/constants';
+import { AppError, handleError, handleSuccess } from '@/lib/errorHandler';
 import { logger } from '@/services/logger';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
 import { useMediaUpload, type MediaUrls } from './useMediaUpload';
 
 /**
@@ -35,22 +35,12 @@ export const usePropertyDelete = () => {
 
       if (fetchError || !property) {
         logger.error('Property not found', { error: fetchError, propertyId });
-        toast({
-          title: "Erreur",
-          description: ERROR_MESSAGES.PROPERTY_NOT_FOUND,
-          variant: "destructive",
-        });
-        return;
+        throw new AppError('PROPERTY_NOT_FOUND');
       }
 
       if (property.owner_id !== userId) {
         logger.error('Unauthorized delete attempt', { propertyId, userId });
-        toast({
-          title: "Erreur",
-          description: ERROR_MESSAGES.UNAUTHORIZED,
-          variant: "destructive",
-        });
-        return;
+        throw new AppError('OWNER_ONLY');
       }
 
       // 2. Delete all media from storage
@@ -64,27 +54,13 @@ export const usePropertyDelete = () => {
 
       if (deleteError) {
         logger.error('Failed to delete property', { error: deleteError, propertyId });
-        toast({
-          title: "Erreur",
-          description: ERROR_MESSAGES.SERVER_ERROR,
-          variant: "destructive",
-        });
-        return;
+        throw new AppError('PROPERTY_DELETE_FAILED');
       }
 
-      toast({
-        title: "Succès",
-        description: SUCCESS_MESSAGES.PROPERTY_DELETED,
-      });
-
+      handleSuccess('PROPERTY_DELETED');
       navigate('/mes-biens');
     } catch (error) {
-      logger.error('Delete property error', { error, propertyId });
-      toast({
-        title: "Erreur",
-        description: ERROR_MESSAGES.SERVER_ERROR,
-        variant: "destructive",
-      });
+      handleError(error, ERROR_MESSAGES.PROPERTY_DELETE_FAILED);
     } finally {
       setDeleting(false);
     }

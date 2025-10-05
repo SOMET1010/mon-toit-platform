@@ -1,6 +1,9 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, Home, RefreshCw } from 'lucide-react';
+import { logger } from '@/services/logger';
+import { ERROR_MESSAGES } from '@/constants';
 
 interface Props {
   children: ReactNode;
@@ -22,7 +25,10 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    logger.logError(error, {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: true,
+    });
   }
 
   public render() {
@@ -38,19 +44,42 @@ class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Désolé, quelque chose s'est mal passé lors du chargement de cette page.
+                {ERROR_MESSAGES.SERVER_ERROR}
               </p>
-              {this.state.error && (
-                <pre className="text-xs bg-muted p-3 rounded overflow-auto">
-                  {this.state.error.toString()}
-                </pre>
+              <p className="text-sm text-muted-foreground mb-4">
+                Une erreur inattendue s'est produite. Vous pouvez essayer de recharger la page ou retourner à l'accueil.
+              </p>
+              
+              {import.meta.env.DEV && this.state.error && (
+                <details className="mb-4">
+                  <summary className="text-xs cursor-pointer mb-2 text-muted-foreground">
+                    Détails techniques (développement)
+                  </summary>
+                  <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-40">
+                    {this.state.error.toString()}
+                    {this.state.error.stack && `\n\n${this.state.error.stack}`}
+                  </pre>
+                </details>
               )}
-              <button 
-                onClick={() => window.location.reload()} 
-                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
-              >
-                Recharger la page
-              </button>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => window.location.reload()}
+                  variant="default"
+                  className="gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Recharger la page
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = '/'}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  Retour à l'accueil
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

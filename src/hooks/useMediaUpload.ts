@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { FILE_LIMITS, ERROR_MESSAGES, validateImageType, validateVideoType } from '@/constants';
+import { AppError, handleError, handleSuccess } from '@/lib/errorHandler';
 import { logger } from '@/services/logger';
-import { FILE_LIMITS, ERROR_MESSAGES, SUCCESS_MESSAGES, validateImageType, validateVideoType } from '@/constants';
 
 export interface MediaFiles {
   images: File[];
@@ -36,7 +36,7 @@ export const useMediaUpload = () => {
 
     // At least one image is required
     if (files.images.length === 0) {
-      errors.push('Au moins une image est requise');
+      errors.push(ERROR_MESSAGES.FILE_REQUIRED);
     }
 
     // Validate image count
@@ -102,7 +102,7 @@ export const useMediaUpload = () => {
 
       if (error) {
         logger.error(`Failed to upload to ${bucket}`, { error, path });
-        throw error;
+        throw new AppError('UPLOAD_FAILED');
       }
 
       const { data: { publicUrl } } = supabase.storage
@@ -190,10 +190,7 @@ export const useMediaUpload = () => {
         setProgress(Math.round((uploadedCount / totalFiles) * 100));
       }
 
-      toast({
-        title: "Succès",
-        description: SUCCESS_MESSAGES.DOCUMENT_UPLOADED,
-      });
+      handleSuccess('MEDIA_UPLOADED');
 
       return {
         images: imageUrls,
@@ -203,12 +200,7 @@ export const useMediaUpload = () => {
         floorPlans: floorPlanUrls,
       };
     } catch (error) {
-      logger.error('Media upload failed', { error, propertyId });
-      toast({
-        title: "Erreur",
-        description: ERROR_MESSAGES.UPLOAD_FAILED,
-        variant: "destructive",
-      });
+      handleError(error, ERROR_MESSAGES.UPLOAD_FAILED);
       throw error;
     } finally {
       setUploading(false);

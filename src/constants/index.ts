@@ -212,6 +212,26 @@ export const ERROR_MESSAGES = {
   VERIFICATION_FAILED: 'La vérification a échoué',
   GEOCODING_FAILED: 'Impossible de localiser l\'adresse',
   UPLOAD_FAILED: 'Échec du téléchargement du fichier',
+  
+  // Media & Upload
+  FILE_REQUIRED: 'Au moins une image est requise',
+  INVALID_FILE_TYPE: 'Type de fichier non autorisé',
+  DELETE_FAILED: 'Échec de la suppression',
+  MEDIA_LOAD_FAILED: 'Impossible de charger les médias',
+  
+  // Property specific
+  PROPERTY_LOAD_FAILED: 'Impossible de charger la propriété',
+  PROPERTY_CREATE_FAILED: 'Échec de la création de la propriété',
+  PROPERTY_UPDATE_FAILED: 'Échec de la mise à jour',
+  PROPERTY_DELETE_FAILED: 'Échec de la suppression',
+  
+  // Permissions
+  PERMISSION_DENIED: "Vous n'avez pas la permission d'effectuer cette action",
+  OWNER_ONLY: 'Seul le propriétaire peut modifier ce bien',
+  
+  // Network
+  CONNECTION_LOST: 'Connexion perdue. Veuillez vérifier votre connexion internet.',
+  TIMEOUT: 'La requête a expiré. Veuillez réessayer.',
 } as const;
 
 // ============= 6. SUCCESS MESSAGES =============
@@ -267,6 +287,13 @@ export const SUCCESS_MESSAGES = {
   // Documents
   DOCUMENT_UPLOADED: 'Document téléchargé avec succès',
   DOCUMENT_DELETED: 'Document supprimé',
+  
+  // Media
+  MEDIA_UPLOADED: 'Médias téléchargés avec succès',
+  MEDIA_DELETED: 'Médias supprimés avec succès',
+  
+  // Property
+  PROPERTY_SAVED: 'Propriété enregistrée',
 } as const;
 
 // ============= 7. CITIES & LOCALIZATION =============

@@ -54,6 +54,55 @@ class Logger {
       console.debug(formattedMessage, context || '');
     }
   }
+
+  /**
+   * Parse and log any error type with full context
+   */
+  logError(error: unknown, context?: LogContext): void {
+    const errorInfo = this.parseError(error);
+    
+    this.error(errorInfo.message, {
+      ...context,
+      stack: errorInfo.stack,
+      code: errorInfo.code,
+      type: errorInfo.type,
+      url: typeof window !== 'undefined' ? window.location.href : undefined,
+    });
+  }
+
+  /**
+   * Parse error from various formats
+   */
+  private parseError(error: unknown): { 
+    message: string; 
+    stack?: string; 
+    code?: string; 
+    type: string;
+  } {
+    if (error instanceof Error) {
+      return { 
+        message: error.message, 
+        stack: error.stack,
+        code: (error as any).code,
+        type: error.name,
+      };
+    }
+    
+    if (typeof error === 'string') {
+      return { message: error, type: 'string' };
+    }
+    
+    if (error && typeof error === 'object') {
+      const err = error as any;
+      return {
+        message: err.message || err.error_description || JSON.stringify(error),
+        code: err.code || err.error,
+        type: 'object',
+      };
+    }
+    
+    return { message: 'Unknown error', type: 'unknown' };
+  }
 }
 
 export const logger = new Logger();

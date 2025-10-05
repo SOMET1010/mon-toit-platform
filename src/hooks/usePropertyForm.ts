@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { logger } from '@/services/logger';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
+import { ERROR_MESSAGES } from '@/constants';
 import { propertySchema, type PropertyFormData } from '@/components/property/form/PropertyFormSchema';
 import { usePropertyPermissions } from './usePropertyPermissions';
+import { AppError, handleError, handleSuccess } from '@/lib/errorHandler';
+import { logger } from '@/services/logger';
 import type { MediaUrls } from './useMediaUpload';
 
 /**
@@ -59,11 +59,7 @@ export const usePropertyForm = (propertyId?: string) => {
 
       if (error || !property) {
         logger.error('Failed to load property', { error, propertyId });
-        toast({
-          title: "Erreur",
-          description: ERROR_MESSAGES.PROPERTY_NOT_FOUND,
-          variant: "destructive",
-        });
+        handleError(new AppError('PROPERTY_LOAD_FAILED'));
         navigate('/mes-biens');
         return;
       }
@@ -91,12 +87,7 @@ export const usePropertyForm = (propertyId?: string) => {
 
       logger.info('Property loaded successfully', { propertyId });
     } catch (error) {
-      logger.error('Load property error', { error, propertyId });
-      toast({
-        title: "Erreur",
-        description: ERROR_MESSAGES.SERVER_ERROR,
-        variant: "destructive",
-      });
+      handleError(error, ERROR_MESSAGES.PROPERTY_LOAD_FAILED);
     } finally {
       setLoading(false);
     }
@@ -116,10 +107,7 @@ export const usePropertyForm = (propertyId?: string) => {
 
       if (error || !data) {
         logger.error('Geocoding failed', { error, address, city });
-        toast({
-          title: "Avertissement",
-          description: ERROR_MESSAGES.GEOCODING_FAILED,
-        });
+        handleError(new AppError('GEOCODING_FAILED'));
         return null;
       }
 
@@ -138,12 +126,7 @@ export const usePropertyForm = (propertyId?: string) => {
     mediaUrls: MediaUrls
   ): Promise<string> => {
     if (!user || !profile) {
-      toast({
-        title: "Erreur",
-        description: ERROR_MESSAGES.AUTH_REQUIRED,
-        variant: "destructive",
-      });
-      throw new Error(ERROR_MESSAGES.AUTH_REQUIRED);
+      throw new AppError('AUTH_REQUIRED');
     }
 
     setSubmitting(true);
@@ -189,14 +172,10 @@ export const usePropertyForm = (propertyId?: string) => {
 
         if (error) {
           logger.error('Failed to update property', { error, propertyId });
-          throw error;
+          throw new AppError('PROPERTY_UPDATE_FAILED');
         }
 
-        toast({
-          title: "Succès",
-          description: SUCCESS_MESSAGES.PROPERTY_UPDATED,
-        });
-
+        handleSuccess('PROPERTY_UPDATED');
         return propertyId;
       } else {
         // Create new property
@@ -208,23 +187,14 @@ export const usePropertyForm = (propertyId?: string) => {
 
         if (error || !newProperty) {
           logger.error('Failed to create property', { error });
-          throw error;
+          throw new AppError('PROPERTY_CREATE_FAILED');
         }
 
-        toast({
-          title: "Succès",
-          description: SUCCESS_MESSAGES.PROPERTY_CREATED,
-        });
-
+        handleSuccess('PROPERTY_CREATED');
         return newProperty.id;
       }
     } catch (error) {
-      logger.error('Submit property error', { error, propertyId });
-      toast({
-        title: "Erreur",
-        description: ERROR_MESSAGES.SERVER_ERROR,
-        variant: "destructive",
-      });
+      handleError(error, propertyId ? ERROR_MESSAGES.PROPERTY_UPDATE_FAILED : ERROR_MESSAGES.PROPERTY_CREATE_FAILED);
       throw error;
     } finally {
       setSubmitting(false);
