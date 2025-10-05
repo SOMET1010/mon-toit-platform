@@ -205,4 +205,5 @@ const LeaseCertificationQueue = () => {
   );
 };
 
+export { LeaseCertificationQueue };
 export default LeaseCertificationQueue;
