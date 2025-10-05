@@ -11,6 +11,9 @@ interface Notification {
   is_read: boolean;
   created_at: string;
   metadata: any;
+  read_at: string | null;
+  action_url: string | null;
+  category: string;
 }
 
 export const useNotifications = () => {
@@ -117,14 +120,19 @@ export const useNotifications = () => {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ 
+          is_read: true,
+          read_at: new Date().toISOString()
+        })
         .eq('id', notificationId);
 
       if (error) throw error;
 
       setNotifications((prev) =>
         prev.map((notif) =>
-          notif.id === notificationId ? { ...notif, is_read: true } : notif
+          notif.id === notificationId 
+            ? { ...notif, is_read: true, read_at: new Date().toISOString() } 
+            : notif
         )
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
@@ -139,14 +147,18 @@ export const useNotifications = () => {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ 
+          is_read: true,
+          read_at: new Date().toISOString()
+        })
         .eq('user_id', user.id)
         .eq('is_read', false);
 
       if (error) throw error;
 
+      const now = new Date().toISOString();
       setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, is_read: true }))
+        prev.map((notif) => ({ ...notif, is_read: true, read_at: now }))
       );
       setUnreadCount(0);
     } catch (error) {

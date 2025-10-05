@@ -12,6 +12,7 @@ import Footer from '@/components/Footer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Shield, CheckCircle2, XCircle, Award } from 'lucide-react';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
+import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 
 const Profile = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -229,6 +230,9 @@ const Profile = () => {
               </form>
             </CardContent>
           </Card>
+
+          {/* Notification Preferences */}
+          <NotificationPreferences />
         </div>
       </main>
 

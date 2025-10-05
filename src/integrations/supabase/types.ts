@@ -212,36 +212,78 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          category: string
+          created_at: string
+          email_enabled: boolean | null
+          enabled: boolean | null
+          id: string
+          push_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email_enabled?: boolean | null
+          enabled?: boolean | null
+          id?: string
+          push_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email_enabled?: boolean | null
+          enabled?: boolean | null
+          id?: string
+          push_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
+          action_url: string | null
+          category: string | null
           created_at: string
           id: string
           is_read: boolean | null
           link: string | null
           message: string | null
           metadata: Json | null
+          read_at: string | null
           title: string
           type: string
           user_id: string
         }
         Insert: {
+          action_url?: string | null
+          category?: string | null
           created_at?: string
           id?: string
           is_read?: boolean | null
           link?: string | null
           message?: string | null
           metadata?: Json | null
+          read_at?: string | null
           title: string
           type: string
           user_id: string
         }
         Update: {
+          action_url?: string | null
+          category?: string | null
           created_at?: string
           id?: string
           is_read?: boolean | null
           link?: string | null
           message?: string | null
           metadata?: Json | null
+          read_at?: string | null
           title?: string
           type?: string
           user_id?: string
