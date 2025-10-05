@@ -1367,6 +1367,21 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string
       }
+      get_verifications_for_review: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          city: string
+          cnam_status: string
+          cnam_verified_at: string
+          created_at: string
+          full_name: string
+          oneci_status: string
+          oneci_verified_at: string
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
