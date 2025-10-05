@@ -73,30 +73,30 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <main className="flex-1 container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24 border-4 border-primary/20 shadow-xl">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
               <AvatarImage src={profile.avatar_url || ''} />
-              <AvatarFallback className="text-3xl bg-gradient-primary text-primary-foreground">
+              <AvatarFallback className="text-2xl">
                 {fullName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2">{fullName}</h1>
+              <h1 className="text-3xl font-bold">{fullName}</h1>
               <p className="text-muted-foreground">{userTypeLabels[profile.user_type]}</p>
             </div>
           </div>
 
           {/* Verification Status */}
-          <Card className="border-2 shadow-lg rounded-xl">
-            <CardHeader className="p-8">
-              <CardTitle className="flex items-center gap-3 text-2xl">
-                <Shield className="h-6 w-6 text-primary" />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
                 Statut de vérification
               </CardTitle>
               <CardDescription>
@@ -136,13 +136,13 @@ const Profile = () => {
           </Card>
 
           {/* Edit Profile */}
-          <Card className="border-2 shadow-lg rounded-xl">
-            <CardHeader className="p-8">
-              <CardTitle className="text-2xl">Informations personnelles</CardTitle>
-              <CardDescription className="text-base">Mettez à jour vos informations</CardDescription>
+          <Card>
+            <CardHeader>
+              <CardTitle>Informations personnelles</CardTitle>
+              <CardDescription>Mettez à jour vos informations</CardDescription>
             </CardHeader>
-            <CardContent className="p-8 pt-0">
-              <form onSubmit={handleUpdateProfile} className="space-y-6">
+            <CardContent>
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullname">Nom complet</Label>
                   <Input
@@ -181,7 +181,7 @@ const Profile = () => {
                     rows={4}
                   />
                 </div>
-                <Button type="submit" disabled={loading} className="h-14 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all">
+                <Button type="submit" disabled={loading}>
                   {loading ? 'Enregistrement...' : 'Enregistrer les modifications'}
                 </Button>
               </form>

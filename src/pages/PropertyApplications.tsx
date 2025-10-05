@@ -209,7 +209,7 @@ const PropertyApplications = () => {
   const rejectedApps = applications.filter(app => app.status === 'rejected');
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-7xl">

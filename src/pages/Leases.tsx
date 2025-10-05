@@ -121,11 +121,11 @@ export default function Leases() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-8 pt-24">
-        <div className="mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">Mes Baux</h1>
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Mes Baux</h1>
           <p className="text-muted-foreground">
             Gérez vos contrats de location et effectuez les paiements
           </p>
@@ -141,8 +141,8 @@ export default function Leases() {
             </Card>
           ) : (
             leases.map((lease) => (
-              <Card key={lease.id} className="border-2 shadow-lg hover:shadow-xl transition-all rounded-xl">
-                <CardHeader className="p-8">
+              <Card key={lease.id}>
+                <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="mb-2">{lease.properties.title}</CardTitle>

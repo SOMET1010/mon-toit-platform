@@ -4,7 +4,7 @@ import monToitLogo from "@/assets/mon-toit-logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-foreground text-background py-16 mt-auto">
+    <footer className="bg-foreground text-background py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
@@ -24,7 +24,7 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Navigation</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/recherche" className="text-background/80 hover:text-background hover:translate-x-1 transition-all inline-block">
+                <Link to="/recherche" className="text-background/80 hover:text-background transition-smooth">
                   Rechercher un bien
                 </Link>
               </li>

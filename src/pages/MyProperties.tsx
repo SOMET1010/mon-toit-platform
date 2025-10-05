@@ -80,15 +80,15 @@ const MyProperties = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
+      <main className="flex-1 container mx-auto px-4 py-12">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2">Mes Biens Immobiliers</h1>
+              <h1 className="text-4xl font-bold">Mes Biens Immobiliers</h1>
               <p className="text-muted-foreground mt-2">
                 {properties.length} {properties.length > 1 ? 'biens' : 'bien'} au total
               </p>
@@ -117,7 +117,7 @@ const MyProperties = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <Card key={property.id} className="overflow-hidden border-2 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-xl">
+                <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   {/* Property Image */}
                   <div className="aspect-video bg-muted relative">
                     {property.main_image ? (
