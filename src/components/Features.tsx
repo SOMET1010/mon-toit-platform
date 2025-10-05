@@ -1,26 +1,44 @@
-import { Shield, FileCheck, MessageSquare, Wallet, Lock } from "lucide-react";
+import { ShieldCheck, Users, FileSignature, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
 const features = [
   {
-    icon: Shield,
-    title: "Sécurité garantie",
-    description: "Vérification d'identité et transactions sécurisées pour votre tranquillité d'esprit",
-    badge: true,
+    icon: ShieldCheck,
+    title: "Certification Locataire ANSUT",
+    description: "Vérification biométrique + scoring automatique. Démarquez-vous auprès des propriétaires",
+    target: "locataire",
+    targetLabel: "Pour les locataires",
+    ctaText: "En savoir plus",
+    ctaLink: "/certification",
   },
   {
-    icon: FileCheck,
-    title: "Dossier locatif digital",
-    description: "Constituez et gérez votre dossier locatif en ligne simplement",
+    icon: Users,
+    title: "Candidatures Pré-Vérifiées",
+    description: "Ne recevez que des locataires certifiés ANSUT avec dossier complet et score de confiance",
+    target: "proprietaire",
+    targetLabel: "Pour les propriétaires",
+    ctaText: "Publier un bien",
+    ctaLink: "/publier",
   },
   {
-    icon: MessageSquare,
-    title: "Messagerie intégrée",
-    description: "Échangez directement avec les propriétaires en toute sécurité",
+    icon: FileSignature,
+    title: "Contrats Digitaux Sécurisés",
+    description: "Bail électronique conforme à la loi ivoirienne + signature numérique + paiements Mobile Money",
+    target: "all",
+    targetLabel: "Pour tous",
+    ctaText: "Voir l'exemple",
+    ctaLink: "/legal",
   },
   {
-    icon: Wallet,
-    title: "Paiement en ligne",
-    description: "Payez vos loyers via Mobile Money (Orange, MTN, Moov) ou carte bancaire",
+    icon: TrendingUp,
+    title: "Tableau de Bord Agence",
+    description: "Gérez plusieurs propriétés, suivez les paiements et générez des rapports en temps réel",
+    target: "agence",
+    targetLabel: "Pour les agences",
+    ctaText: "Découvrir",
+    ctaLink: "/admin",
   },
 ];
 
@@ -28,12 +46,12 @@ const Features = () => {
   return (
     <section className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+      <div className="text-center mb-12">
           <h2 className="text-h2 mb-4">
-            Pourquoi choisir Mon Toit ?
+            L'avantage ANSUT
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Une plateforme moderne et sécurisée pour simplifier vos démarches immobilières
+            Des fonctionnalités uniques pour simplifier et sécuriser vos démarches immobilières
           </p>
         </div>
 
@@ -43,18 +61,22 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className="text-center group bg-card rounded-xl p-6 shadow-sm hover:shadow-md transition-smooth"
+                className="text-center group bg-card rounded-xl p-6 shadow-sm hover:shadow-md transition-smooth flex flex-col"
               >
-                <div className="relative inline-flex p-4 rounded-xl bg-gradient-primary mb-4 group-hover:shadow-primary transition-smooth">
+                <Badge 
+                  variant="secondary" 
+                  className="mb-4 self-center text-xs"
+                >
+                  {feature.targetLabel}
+                </Badge>
+                <div className="relative inline-flex p-4 rounded-xl bg-gradient-primary mb-4 group-hover:shadow-primary transition-smooth self-center">
                   <Icon className="h-8 w-8 text-primary-foreground" />
-                  {feature.badge && (
-                    <div className="absolute -top-1 -right-1">
-                      <Lock className="h-5 w-5 text-secondary fill-secondary/20" />
-                    </div>
-                  )}
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-muted-foreground mb-6 flex-1">{feature.description}</p>
+                <Button asChild variant="outline" size="sm" className="w-full">
+                  <Link to={feature.ctaLink}>{feature.ctaText}</Link>
+                </Button>
               </div>
             );
           })}
