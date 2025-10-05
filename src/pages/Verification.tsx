@@ -91,7 +91,7 @@ const Verification = () => {
                   <CardHeader>
                     <CardTitle>Vérification Faciale</CardTitle>
                     <CardDescription>
-                      Renforcez votre profil avec une vérification biométrique Azure Face API
+                      Renforcez votre profil avec une vérification biométrique Smile ID
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
