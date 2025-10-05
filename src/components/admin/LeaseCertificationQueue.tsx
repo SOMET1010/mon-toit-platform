@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, FileText, MapPin, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import LeaseCertificationReview from '@/components/leases/LeaseCertificationReview';
+import LeaseCertificationReview from '@/components/admin/LeaseCertificationReview';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface PendingLease {

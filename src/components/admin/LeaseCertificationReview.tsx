@@ -20,7 +20,8 @@ import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 interface LeaseCertificationReviewProps {
   leaseId: string;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
   onStatusUpdated?: () => void;
 }
 
@@ -55,7 +56,11 @@ interface LeaseDetails {
   } | null;
 }
 
-const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated }: LeaseCertificationReviewProps) => {
+const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStatusUpdated }: LeaseCertificationReviewProps) => {
+  const handleClose = () => {
+    if (onClose) onClose();
+    if (onOpenChange) onOpenChange(false);
+  };
   const [lease, setLease] = useState<LeaseDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -141,8 +146,8 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onStatusUpdated
   };
 
   if (loading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange || handleClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
