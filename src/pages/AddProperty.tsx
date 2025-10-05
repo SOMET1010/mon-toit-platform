@@ -4,92 +4,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from '@/hooks/use-toast';
 import { logger } from '@/services/logger';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2 } from 'lucide-react';
 import { MediaUploader } from '@/components/property/MediaUploader';
-import { VALIDATION_LIMITS, PROPERTY_LIMITS, ERROR_MESSAGES, PROPERTY_TYPES } from '@/constants';
-
-const propertySchema = z.object({
-  title: z.string()
-    .trim()
-    .min(VALIDATION_LIMITS.MIN_TITLE_LENGTH, `Le titre doit contenir au moins ${VALIDATION_LIMITS.MIN_TITLE_LENGTH} caractères`)
-    .max(VALIDATION_LIMITS.MAX_TITLE_LENGTH, `Le titre ne peut pas dépasser ${VALIDATION_LIMITS.MAX_TITLE_LENGTH} caractères`),
-  description: z.string()
-    .trim()
-    .max(VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH, `La description ne peut pas dépasser ${VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH} caractères`)
-    .optional(),
-  property_type: z.string().min(1, ERROR_MESSAGES.FIELD_REQUIRED),
-  address: z.string()
-    .trim()
-    .min(5, 'L\'adresse doit contenir au moins 5 caractères')
-    .max(200, 'L\'adresse ne peut pas dépasser 200 caractères'),
-  city: z.string()
-    .trim()
-    .min(VALIDATION_LIMITS.MIN_NAME_LENGTH, `La ville doit contenir au moins ${VALIDATION_LIMITS.MIN_NAME_LENGTH} caractères`)
-    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `La ville ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`),
-  neighborhood: z.string()
-    .trim()
-    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `Le quartier ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`)
-    .optional(),
-  monthly_rent: z.string().refine(
-    (val) => {
-      const num = Number(val);
-      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_RENT && num <= PROPERTY_LIMITS.MAX_RENT;
-    },
-    `Le loyer doit être entre ${PROPERTY_LIMITS.MIN_RENT.toLocaleString()} et ${PROPERTY_LIMITS.MAX_RENT.toLocaleString()} FCFA`
-  ),
-  deposit_amount: z.string().refine(
-    (val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0),
-    'La caution doit être positive'
-  ).optional(),
-  charges_amount: z.string().refine(
-    (val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0),
-    'Les charges doivent être positives'
-  ).optional(),
-  bedrooms: z.string().refine(
-    (val) => {
-      const num = Number(val);
-      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_BEDROOMS && num <= PROPERTY_LIMITS.MAX_BEDROOMS;
-    },
-    `Nombre de chambres invalide (${PROPERTY_LIMITS.MIN_BEDROOMS}-${PROPERTY_LIMITS.MAX_BEDROOMS})`
-  ),
-  bathrooms: z.string().refine(
-    (val) => {
-      const num = Number(val);
-      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_BATHROOMS && num <= PROPERTY_LIMITS.MAX_BATHROOMS;
-    },
-    `Nombre de salles de bain invalide (${PROPERTY_LIMITS.MIN_BATHROOMS}-${PROPERTY_LIMITS.MAX_BATHROOMS})`
-  ),
-  surface_area: z.string().refine(
-    (val) => {
-      if (!val) return true;
-      const num = Number(val);
-      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_SURFACE && num <= PROPERTY_LIMITS.MAX_SURFACE;
-    },
-    `Surface invalide (${PROPERTY_LIMITS.MIN_SURFACE}-${PROPERTY_LIMITS.MAX_SURFACE}m²)`
-  ).optional(),
-  floor_number: z.string().refine(
-    (val) => val === '' || !isNaN(Number(val)),
-    'L\'étage doit être un nombre'
-  ).optional(),
-  is_furnished: z.boolean().default(false),
-  has_ac: z.boolean().default(false),
-  has_parking: z.boolean().default(false),
-  has_garden: z.boolean().default(false),
-});
-
-type PropertyFormData = z.infer<typeof propertySchema>;
+import { propertySchema, PropertyFormData } from '@/components/property/form/PropertyFormSchema';
+import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo';
+import { PropertyLocation } from '@/components/property/form/PropertyLocation';
+import { PropertyCharacteristicsForm } from '@/components/property/form/PropertyCharacteristicsForm';
+import { PropertyPricing } from '@/components/property/form/PropertyPricing';
 
 const AddProperty = () => {
   const navigate = useNavigate();
@@ -112,13 +40,13 @@ const AddProperty = () => {
       address: '',
       city: '',
       neighborhood: '',
-      monthly_rent: '',
-      deposit_amount: '',
-      charges_amount: '',
-      bedrooms: '0',
-      bathrooms: '0',
-      surface_area: '',
-      floor_number: '',
+      monthly_rent: 0,
+      deposit_amount: 0,
+      charges_amount: 0,
+      bedrooms: 0,
+      bathrooms: 0,
+      surface_area: 0,
+      floor_number: 0,
       is_furnished: false,
       has_ac: false,
       has_parking: false,
@@ -253,13 +181,13 @@ const AddProperty = () => {
           address: data.address,
           city: data.city,
           neighborhood: data.neighborhood || null,
-          monthly_rent: Number(data.monthly_rent),
-          deposit_amount: data.deposit_amount ? Number(data.deposit_amount) : null,
-          charges_amount: data.charges_amount ? Number(data.charges_amount) : null,
-          bedrooms: Number(data.bedrooms),
-          bathrooms: Number(data.bathrooms),
-          surface_area: data.surface_area ? Number(data.surface_area) : null,
-          floor_number: data.floor_number ? Number(data.floor_number) : null,
+          monthly_rent: data.monthly_rent,
+          deposit_amount: data.deposit_amount || null,
+          charges_amount: data.charges_amount || null,
+          bedrooms: data.bedrooms,
+          bathrooms: data.bathrooms,
+          surface_area: data.surface_area || null,
+          floor_number: data.floor_number || null,
           is_furnished: data.is_furnished,
           has_ac: data.has_ac,
           has_parking: data.has_parking,
@@ -340,314 +268,10 @@ const AddProperty = () => {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              {/* Informations générales */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informations générales</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Titre *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Bel appartement F3 au cœur de Cocody" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Décrivez votre bien en détail..."
-                            className="min-h-32"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="property_type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type de bien *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {PROPERTY_TYPES.map((type) => (
-                              <SelectItem key={type.toLowerCase()} value={type.toLowerCase()}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Localisation */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Localisation</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Adresse *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Rue principale" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ville *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Abidjan" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="neighborhood"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Quartier</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Cocody" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Caractéristiques */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Caractéristiques</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="bedrooms"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Chambres *</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="0" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="bathrooms"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Salles de bain *</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="0" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="surface_area"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Surface (m²)</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="0" placeholder="80" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="floor_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Étage</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="2" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name="is_furnished"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Meublé</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="has_ac"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Climatisation</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="has_parking"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Parking</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="has_garden"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Jardin</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Tarifs */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tarifs</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="monthly_rent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Loyer mensuel (FCFA) *</FormLabel>
-                        <FormControl>
-                          <Input type="number" min="0" placeholder="150000" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="deposit_amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Caution (FCFA)</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="0" placeholder="300000" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="charges_amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Charges (FCFA)</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="0" placeholder="25000" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <PropertyBasicInfo form={form} />
+              <PropertyLocation form={form} />
+              <PropertyCharacteristicsForm form={form} />
+              <PropertyPricing form={form} />
 
               {/* Multimedia */}
               <Card>

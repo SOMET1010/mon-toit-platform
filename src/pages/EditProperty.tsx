@@ -2,66 +2,30 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Loader2, Trash2 } from 'lucide-react';
 import { MediaUploader } from '@/components/property/MediaUploader';
-import { VALIDATION_LIMITS, PROPERTY_LIMITS, ERROR_MESSAGES, PROPERTY_TYPES } from '@/constants';
+import { propertySchema, PropertyFormData } from '@/components/property/form/PropertyFormSchema';
+import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo';
+import { PropertyLocation } from '@/components/property/form/PropertyLocation';
+import { PropertyCharacteristicsForm } from '@/components/property/form/PropertyCharacteristicsForm';
+import { PropertyPricing } from '@/components/property/form/PropertyPricing';
+import { z } from 'zod';
 
-const propertySchema = z.object({
-  title: z.string()
-    .min(VALIDATION_LIMITS.MIN_TITLE_LENGTH, `Le titre doit contenir au moins ${VALIDATION_LIMITS.MIN_TITLE_LENGTH} caractères`)
-    .max(VALIDATION_LIMITS.MAX_TITLE_LENGTH, `Le titre ne peut pas dépasser ${VALIDATION_LIMITS.MAX_TITLE_LENGTH} caractères`),
-  description: z.string()
-    .min(VALIDATION_LIMITS.MIN_DESCRIPTION_LENGTH, `La description doit contenir au moins ${VALIDATION_LIMITS.MIN_DESCRIPTION_LENGTH} caractères`)
-    .max(VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH, `La description ne peut pas dépasser ${VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH} caractères`),
-  property_type: z.string().min(1, ERROR_MESSAGES.FIELD_REQUIRED),
-  address: z.string().min(5, 'L\'adresse est requise'),
-  city: z.string()
-    .min(VALIDATION_LIMITS.MIN_NAME_LENGTH, `La ville doit contenir au moins ${VALIDATION_LIMITS.MIN_NAME_LENGTH} caractères`)
-    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `La ville ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`),
-  neighborhood: z.string().optional(),
-  monthly_rent: z.number()
-    .min(PROPERTY_LIMITS.MIN_RENT, `Le loyer minimum est ${PROPERTY_LIMITS.MIN_RENT.toLocaleString()} FCFA`)
-    .max(PROPERTY_LIMITS.MAX_RENT, `Le loyer maximum est ${PROPERTY_LIMITS.MAX_RENT.toLocaleString()} FCFA`),
-  deposit_amount: z.number().nonnegative('La caution ne peut être négative').optional(),
-  charges_amount: z.number().nonnegative('Les charges ne peuvent être négatives').optional(),
-  bedrooms: z.number()
-    .int()
-    .min(PROPERTY_LIMITS.MIN_BEDROOMS, `Minimum ${PROPERTY_LIMITS.MIN_BEDROOMS} chambre`)
-    .max(PROPERTY_LIMITS.MAX_BEDROOMS, `Maximum ${PROPERTY_LIMITS.MAX_BEDROOMS} chambres`)
-    .optional(),
-  bathrooms: z.number()
-    .int()
-    .min(PROPERTY_LIMITS.MIN_BATHROOMS, `Minimum ${PROPERTY_LIMITS.MIN_BATHROOMS} salle de bain`)
-    .max(PROPERTY_LIMITS.MAX_BATHROOMS, `Maximum ${PROPERTY_LIMITS.MAX_BATHROOMS} salles de bain`)
-    .optional(),
-  surface_area: z.number()
-    .min(PROPERTY_LIMITS.MIN_SURFACE, `Surface minimum ${PROPERTY_LIMITS.MIN_SURFACE}m²`)
-    .max(PROPERTY_LIMITS.MAX_SURFACE, `Surface maximum ${PROPERTY_LIMITS.MAX_SURFACE}m²`)
-    .optional(),
-  floor_number: z.number().int().optional(),
-  is_furnished: z.boolean().default(false),
-  has_ac: z.boolean().default(false),
-  has_parking: z.boolean().default(false),
-  has_garden: z.boolean().default(false),
+const editPropertySchema = propertySchema.extend({
   status: z.string(),
 });
 
-type PropertyFormData = z.infer<typeof propertySchema>;
+type EditPropertyFormData = z.infer<typeof editPropertySchema>;
 
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
@@ -85,8 +49,8 @@ const EditProperty = () => {
     virtualTourUrl: ''
   });
 
-  const form = useForm<PropertyFormData>({
-    resolver: zodResolver(propertySchema),
+  const form = useForm<EditPropertyFormData>({
+    resolver: zodResolver(editPropertySchema),
     defaultValues: {
       is_furnished: false,
       has_ac: false,
@@ -275,7 +239,7 @@ const EditProperty = () => {
     }
   };
 
-  const onSubmit = async (data: PropertyFormData) => {
+  const onSubmit = async (data: EditPropertyFormData) => {
     if (!id) return;
 
     setUploading(true);
@@ -357,64 +321,13 @@ const EditProperty = () => {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <PropertyBasicInfo form={form} />
+
               <Card>
                 <CardHeader>
-                  <CardTitle>Informations générales</CardTitle>
+                  <CardTitle>Statut du bien</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Titre de l'annonce</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="ex: Appartement moderne 2 pièces" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} rows={5} placeholder="Décrivez votre bien..." />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="property_type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type de bien</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionner un type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {PROPERTY_TYPES.map((type) => (
-                              <SelectItem key={type.toLowerCase()} value={type.toLowerCase()}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+                <CardContent>
                   <FormField
                     control={form.control}
                     name="status"
@@ -440,229 +353,14 @@ const EditProperty = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Localisation</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Adresse</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="ex: 123 Rue des Jardins" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ville</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="ex: Abidjan" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="neighborhood"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Quartier</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="ex: Cocody" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Caractéristiques</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="bedrooms"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Chambres</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="bathrooms"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Salles de bain</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="surface_area"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Surface (m²)</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="floor_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Étage</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="is_furnished"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                          <FormLabel className="!mt-0">Meublé</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="has_ac"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                          <FormLabel className="!mt-0">Climatisation</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="has_parking"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                          <FormLabel className="!mt-0">Parking</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="has_garden"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                          <FormLabel className="!mt-0">Jardin</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tarifs</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="monthly_rent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Loyer mensuel (FCFA)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="deposit_amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Caution (FCFA)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="charges_amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Charges mensuelles (FCFA)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+              <PropertyLocation form={form} />
+              <PropertyCharacteristicsForm form={form} />
+              <PropertyPricing form={form} />
 
               <Card>
                 <CardHeader>
                   <CardTitle>Médias</CardTitle>
-                  <CardDescription>Gérez vos photos, vidéos, vues 360° et plans</CardDescription>
+                  <CardDescription>Ajoutez ou modifiez les photos, vidéos et plans</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <MediaUploader
@@ -671,23 +369,35 @@ const EditProperty = () => {
                     onPanoramaChange={(files) => setMediaFiles(prev => ({ ...prev, panoramas: files }))}
                     onFloorPlanChange={(files) => setMediaFiles(prev => ({ ...prev, floorPlans: files }))}
                     onVirtualTourUrlChange={(url) => setMediaFiles(prev => ({ ...prev, virtualTourUrl: url }))}
+                    uploading={uploading}
                     existingImages={existingMedia.images}
                     existingVideo={existingMedia.video}
                     existingVirtualTourUrl={existingMedia.virtualTourUrl}
                     existingPanoramas={existingMedia.panoramas}
                     existingFloorPlans={existingMedia.floorPlans}
-                    uploading={uploading}
                   />
                 </CardContent>
               </Card>
 
               <div className="flex gap-4">
-                <Button type="submit" disabled={uploading} className="flex-1">
-                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Enregistrer les modifications
-                </Button>
-                <Button type="button" variant="outline" onClick={() => navigate('/mes-biens')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/mes-biens')}
+                  disabled={uploading}
+                  className="flex-1"
+                >
                   Annuler
+                </Button>
+                <Button type="submit" disabled={uploading} className="flex-1">
+                  {uploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Mise à jour en cours...
+                    </>
+                  ) : (
+                    'Enregistrer les modifications'
+                  )}
                 </Button>
               </div>
             </form>
