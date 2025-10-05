@@ -7,17 +7,18 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
 interface MediaUploaderProps {
-  propertyId: string;
+  propertyId?: string;
   onImagesChange: (files: File[]) => void;
   onVideoChange: (file: File | null) => void;
-  onPanoramaChange: (files: File[]) => void;
-  onFloorPlanChange: (files: File[]) => void;
+  onPanoramaChange?: (files: File[]) => void;
+  onFloorPlanChange?: (files: File[]) => void;
   onVirtualTourUrlChange: (url: string) => void;
   existingImages?: string[];
-  existingVideo?: string;
-  existingPanoramas?: any[];
-  existingPlans?: any[];
-  virtualTourUrl?: string;
+  existingVideo?: string | null;
+  existingPanoramas?: { url: string; title: string }[];
+  existingFloorPlans?: { url: string; title: string }[];
+  existingVirtualTourUrl?: string;
+  uploading?: boolean;
 }
 
 export const MediaUploader = ({
@@ -27,13 +28,18 @@ export const MediaUploader = ({
   onFloorPlanChange,
   onVirtualTourUrlChange,
   existingImages = [],
-  virtualTourUrl = "",
+  existingVideo = null,
+  existingPanoramas = [],
+  existingFloorPlans = [],
+  existingVirtualTourUrl = "",
+  uploading = false,
 }: MediaUploaderProps) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>(existingImages);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(existingVideo);
   const [panoramaPreviews, setPanoramaPreviews] = useState<string[]>([]);
   const [planPreviews, setPlanPreviews] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [virtualTour, setVirtualTour] = useState(existingVirtualTourUrl);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -276,8 +282,11 @@ export const MediaUploader = ({
           id="virtualTour"
           type="url"
           placeholder="https://my.matterport.com/show/..."
-          value={virtualTourUrl}
-          onChange={(e) => onVirtualTourUrlChange(e.target.value)}
+          value={virtualTour}
+          onChange={(e) => {
+            setVirtualTour(e.target.value);
+            onVirtualTourUrlChange(e.target.value);
+          }}
         />
       </div>
 

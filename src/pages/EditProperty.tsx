@@ -12,12 +12,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Loader2, X, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
+import { MediaUploader } from '@/components/property/MediaUploader';
 
 const propertySchema = z.object({
   title: z.string().min(5, 'Le titre doit contenir au moins 5 caractères').max(100),
@@ -49,10 +50,20 @@ const EditProperty = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+  const [existingMedia, setExistingMedia] = useState({
+    images: [] as string[],
+    video: null as string | null,
+    virtualTourUrl: '',
+    panoramas: [] as { url: string; title: string }[],
+    floorPlans: [] as { url: string; title: string }[]
+  });
+  const [mediaFiles, setMediaFiles] = useState({
+    images: [] as File[],
+    video: null as File | null,
+    panoramas: [] as File[],
+    floorPlans: [] as File[],
+    virtualTourUrl: ''
+  });
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -112,80 +123,111 @@ const EditProperty = () => {
         status: property.status,
       });
 
-      setExistingImages(property.images || []);
+      setExistingMedia({
+        images: property.images || [],
+        video: property.video_url || null,
+        virtualTourUrl: property.virtual_tour_url || '',
+        panoramas: (property.panoramic_images as any) || [],
+        floorPlans: (property.floor_plans as any) || []
+      });
       setLoading(false);
     };
 
     loadProperty();
   }, [id, user, navigate, form]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const totalImages = existingImages.length - imagesToDelete.length + imageFiles.length + files.length;
-    
-    if (totalImages > 10) {
-      toast({ title: 'Limite atteinte', description: 'Maximum 10 images par bien', variant: 'destructive' });
-      return;
-    }
+  const uploadAllMedia = async (propertyId: string) => {
+    const uploadedData: {
+      images: string[];
+      videoUrl: string | null;
+      panoramas: { url: string; title: string }[];
+      floorPlans: { url: string; title: string }[];
+    } = {
+      images: [...existingMedia.images],
+      videoUrl: existingMedia.video,
+      panoramas: [...existingMedia.panoramas],
+      floorPlans: [...existingMedia.floorPlans]
+    };
 
-    setImageFiles(prev => [...prev, ...files]);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const removeNewImage = (index: number) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const markExistingImageForDeletion = (imageUrl: string) => {
-    setImagesToDelete(prev => [...prev, imageUrl]);
-  };
-
-  const unmarkImageForDeletion = (imageUrl: string) => {
-    setImagesToDelete(prev => prev.filter(url => url !== imageUrl));
-  };
-
-  const uploadImages = async (): Promise<string[]> => {
-    if (imageFiles.length === 0) return [];
-
-    const uploadedUrls: string[] = [];
-    
-    for (const file of imageFiles) {
+    // Upload new images
+    for (const file of mediaFiles.images) {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
         .from('property-images')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
-
+        .upload(fileName, file);
+      if (error) throw error;
       const { data: { publicUrl } } = supabase.storage
         .from('property-images')
-        .getPublicUrl(filePath);
-
-      uploadedUrls.push(publicUrl);
+        .getPublicUrl(fileName);
+      uploadedData.images.push(publicUrl);
     }
 
-    return uploadedUrls;
+    // Upload new video
+    if (mediaFiles.video) {
+      const fileExt = mediaFiles.video.name.split('.').pop();
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
+        .from('property-videos')
+        .upload(fileName, mediaFiles.video);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-videos')
+        .getPublicUrl(fileName);
+      uploadedData.videoUrl = publicUrl;
+    }
+
+    // Upload new panoramas
+    for (const file of mediaFiles.panoramas) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
+        .from('property-360')
+        .upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-360')
+        .getPublicUrl(fileName);
+      uploadedData.panoramas.push({ url: publicUrl, title: file.name });
+    }
+
+    // Upload new floor plans
+    for (const file of mediaFiles.floorPlans) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
+        .from('property-plans')
+        .upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-plans')
+        .getPublicUrl(fileName);
+      uploadedData.floorPlans.push({ url: publicUrl, title: file.name });
+    }
+
+    return uploadedData;
   };
 
-  const deleteImages = async (imageUrls: string[]) => {
-    for (const url of imageUrls) {
+  const deleteAllMedia = async () => {
+    // Delete images
+    for (const url of existingMedia.images) {
       const path = url.split('/property-images/').pop();
-      if (path) {
-        await supabase.storage.from('property-images').remove([path]);
-      }
+      if (path) await supabase.storage.from('property-images').remove([path]);
+    }
+    // Delete video
+    if (existingMedia.video) {
+      const path = existingMedia.video.split('/property-videos/').pop();
+      if (path) await supabase.storage.from('property-videos').remove([path]);
+    }
+    // Delete panoramas
+    for (const pano of existingMedia.panoramas) {
+      const path = pano.url.split('/property-360/').pop();
+      if (path) await supabase.storage.from('property-360').remove([path]);
+    }
+    // Delete floor plans
+    for (const plan of existingMedia.floorPlans) {
+      const path = plan.url.split('/property-plans/').pop();
+      if (path) await supabase.storage.from('property-plans').remove([path]);
     }
   };
 
@@ -194,8 +236,7 @@ const EditProperty = () => {
     
     setDeleting(true);
     try {
-      // Delete all images
-      await deleteImages(existingImages);
+      await deleteAllMedia();
 
       const { error } = await supabase
         .from('properties')
@@ -219,24 +260,18 @@ const EditProperty = () => {
 
     setUploading(true);
     try {
-      // Upload new images
-      const newImageUrls = await uploadImages();
-
-      // Delete marked images
-      await deleteImages(imagesToDelete);
-
-      // Combine existing (not deleted) and new images
-      const finalImages = [
-        ...existingImages.filter(url => !imagesToDelete.includes(url)),
-        ...newImageUrls
-      ];
+      const uploadedMedia = await uploadAllMedia(id);
 
       const { error } = await supabase
         .from('properties')
         .update({
           ...data,
-          images: finalImages,
-          main_image: finalImages[0] || null,
+          images: uploadedMedia.images,
+          main_image: uploadedMedia.images[0] || null,
+          video_url: uploadedMedia.videoUrl,
+          virtual_tour_url: mediaFiles.virtualTourUrl || existingMedia.virtualTourUrl || null,
+          panoramic_images: uploadedMedia.panoramas,
+          floor_plans: uploadedMedia.floorPlans,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id);
@@ -607,71 +642,23 @@ const EditProperty = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Photos</CardTitle>
+                  <CardTitle>Médias</CardTitle>
+                  <CardDescription>Gérez vos photos, vidéos, vues 360° et plans</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Images actuelles</Label>
-                    <div className="grid grid-cols-3 gap-4 mt-2">
-                      {existingImages.map((url, index) => (
-                        <div key={index} className="relative">
-                          <img src={url} alt={`Image ${index + 1}`} className="w-full h-32 object-cover rounded" />
-                          {imagesToDelete.includes(url) ? (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded">
-                              <Button type="button" size="sm" variant="secondary" onClick={() => unmarkImageForDeletion(url)}>
-                                Annuler
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2"
-                              onClick={() => markExistingImageForDeletion(url)}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {imagePreviews.length > 0 && (
-                    <div>
-                      <Label>Nouvelles images</Label>
-                      <div className="grid grid-cols-3 gap-4 mt-2">
-                        {imagePreviews.map((preview, index) => (
-                          <div key={index} className="relative">
-                            <img src={preview} alt={`Nouvelle ${index + 1}`} className="w-full h-32 object-cover rounded" />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2"
-                              onClick={() => removeNewImage(index)}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageSelect}
-                      disabled={uploading}
-                    />
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Maximum 10 images au total
-                    </p>
-                  </div>
+                <CardContent>
+                  <MediaUploader
+                    onImagesChange={(files) => setMediaFiles(prev => ({ ...prev, images: files }))}
+                    onVideoChange={(file) => setMediaFiles(prev => ({ ...prev, video: file }))}
+                    onPanoramaChange={(files) => setMediaFiles(prev => ({ ...prev, panoramas: files }))}
+                    onFloorPlanChange={(files) => setMediaFiles(prev => ({ ...prev, floorPlans: files }))}
+                    onVirtualTourUrlChange={(url) => setMediaFiles(prev => ({ ...prev, virtualTourUrl: url }))}
+                    existingImages={existingMedia.images}
+                    existingVideo={existingMedia.video}
+                    existingVirtualTourUrl={existingMedia.virtualTourUrl}
+                    existingPanoramas={existingMedia.panoramas}
+                    existingFloorPlans={existingMedia.floorPlans}
+                    uploading={uploading}
+                  />
                 </CardContent>
               </Card>
 

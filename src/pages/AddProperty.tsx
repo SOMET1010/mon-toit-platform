@@ -15,7 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { MediaUploader } from '@/components/property/MediaUploader';
 
 const propertySchema = z.object({
   title: z.string().trim().min(5, 'Le titre doit contenir au moins 5 caractères').max(100, 'Le titre ne peut pas dépasser 100 caractères'),
@@ -43,8 +44,13 @@ const AddProperty = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [uploading, setUploading] = useState(false);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [mediaFiles, setMediaFiles] = useState({
+    images: [] as File[],
+    video: null as File | null,
+    panoramas: [] as File[],
+    floorPlans: [] as File[],
+    virtualTourUrl: ''
+  });
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -69,54 +75,76 @@ const AddProperty = () => {
     },
   });
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length + imageFiles.length > 10) {
-      toast({
-        title: 'Limite atteinte',
-        description: 'Vous ne pouvez ajouter que 10 images maximum',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const uploadAllMedia = async (propertyId: string) => {
+    const uploadedData: {
+      images: string[];
+      videoUrl: string | null;
+      panoramas: { url: string; title: string }[];
+      floorPlans: { url: string; title: string }[];
+    } = {
+      images: [],
+      videoUrl: null,
+      panoramas: [],
+      floorPlans: []
+    };
 
-    setImageFiles((prev) => [...prev, ...files]);
-    
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const removeImage = (index: number) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const uploadImages = async (propertyId: string): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
-
-    for (const file of imageFiles) {
+    // Upload images
+    for (const file of mediaFiles.images) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
-
-      const { error: uploadError, data } = await supabase.storage
+      const { error, data } = await supabase.storage
         .from('property-images')
         .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
+      if (error) throw error;
       const { data: { publicUrl } } = supabase.storage
         .from('property-images')
         .getPublicUrl(fileName);
-
-      uploadedUrls.push(publicUrl);
+      uploadedData.images.push(publicUrl);
     }
 
-    return uploadedUrls;
+    // Upload video
+    if (mediaFiles.video) {
+      const fileExt = mediaFiles.video.name.split('.').pop();
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
+        .from('property-videos')
+        .upload(fileName, mediaFiles.video);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-videos')
+        .getPublicUrl(fileName);
+      uploadedData.videoUrl = publicUrl;
+    }
+
+    // Upload panoramas
+    for (const file of mediaFiles.panoramas) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
+        .from('property-360')
+        .upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-360')
+        .getPublicUrl(fileName);
+      uploadedData.panoramas.push({ url: publicUrl, title: file.name });
+    }
+
+    // Upload floor plans
+    for (const file of mediaFiles.floorPlans) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${propertyId}/${Math.random()}.${fileExt}`;
+      const { error } = await supabase.storage
+        .from('property-plans')
+        .upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-plans')
+        .getPublicUrl(fileName);
+      uploadedData.floorPlans.push({ url: publicUrl, title: file.name });
+    }
+
+    return uploadedData;
   };
 
   const onSubmit = async (data: PropertyFormData) => {
@@ -194,18 +222,20 @@ const AddProperty = () => {
 
       if (propertyError) throw propertyError;
 
-      // Upload des images
-      if (imageFiles.length > 0) {
-        const imageUrls = await uploadImages(property.id);
-        
-        await supabase
-          .from('properties')
-          .update({
-            main_image: imageUrls[0],
-            images: imageUrls,
-          })
-          .eq('id', property.id);
-      }
+      // Upload all media
+      const uploadedMedia = await uploadAllMedia(property.id);
+      
+      await supabase
+        .from('properties')
+        .update({
+          main_image: uploadedMedia.images[0] || null,
+          images: uploadedMedia.images,
+          video_url: uploadedMedia.videoUrl,
+          virtual_tour_url: mediaFiles.virtualTourUrl || null,
+          panoramic_images: uploadedMedia.panoramas,
+          floor_plans: uploadedMedia.floorPlans,
+        })
+        .eq('id', property.id);
 
       toast({
         title: 'Bien créé avec succès',
@@ -570,63 +600,21 @@ const AddProperty = () => {
                 </CardContent>
               </Card>
 
-              {/* Images */}
+              {/* Multimedia */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Photos</CardTitle>
-                  <CardDescription>
-                    Ajoutez jusqu'à 10 photos de votre bien (max 10 Mo par image)
-                  </CardDescription>
+                  <CardTitle>Médias</CardTitle>
+                  <CardDescription>Ajoutez des photos, vidéos, vues 360° et plans</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageSelect}
-                        className="hidden"
-                        id="image-upload"
-                      />
-                      <label htmlFor="image-upload">
-                        <Button type="button" variant="outline" className="w-full" asChild>
-                          <span>
-                            <Upload className="mr-2 h-4 w-4" />
-                            Sélectionner des images
-                          </span>
-                        </Button>
-                      </label>
-                    </div>
-
-                    {imagePreviews.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {imagePreviews.map((preview, index) => (
-                          <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
-                            <img
-                              src={preview}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2"
-                              onClick={() => removeImage(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                            {index === 0 && (
-                              <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                                Image principale
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <MediaUploader
+                    onImagesChange={(files) => setMediaFiles(prev => ({ ...prev, images: files }))}
+                    onVideoChange={(file) => setMediaFiles(prev => ({ ...prev, video: file }))}
+                    onPanoramaChange={(files) => setMediaFiles(prev => ({ ...prev, panoramas: files }))}
+                    onFloorPlanChange={(files) => setMediaFiles(prev => ({ ...prev, floorPlans: files }))}
+                    onVirtualTourUrlChange={(url) => setMediaFiles(prev => ({ ...prev, virtualTourUrl: url }))}
+                    uploading={uploading}
+                  />
                 </CardContent>
               </Card>
 
