@@ -59,33 +59,66 @@ export type Database = {
         }
         Relationships: []
       }
-      admin_login_attempts: {
+      api_rate_limits: {
         Row: {
           created_at: string
-          email: string
+          endpoint: string
           id: string
           ip_address: string | null
-          success: boolean
-          user_agent: string | null
+          request_count: number
           user_id: string | null
+          window_start: string
         }
         Insert: {
           created_at?: string
-          email: string
+          endpoint: string
           id?: string
           ip_address?: string | null
-          success?: boolean
-          user_agent?: string | null
+          request_count?: number
           user_id?: string | null
+          window_start?: string
         }
         Update: {
           created_at?: string
-          email?: string
+          endpoint?: string
           id?: string
           ip_address?: string | null
-          success?: boolean
-          user_agent?: string | null
+          request_count?: number
           user_id?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
+      blocked_ips: {
+        Row: {
+          blocked_at: string
+          blocked_by: string | null
+          blocked_until: string | null
+          created_at: string
+          id: string
+          ip_address: string
+          notes: string | null
+          reason: string
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by?: string | null
+          blocked_until?: string | null
+          created_at?: string
+          id?: string
+          ip_address: string
+          notes?: string | null
+          reason: string
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string | null
+          blocked_until?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string
+          notes?: string | null
+          reason?: string
         }
         Relationships: []
       }
@@ -390,6 +423,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      login_attempts: {
+        Row: {
+          blocked_until: string | null
+          created_at: string
+          email: string
+          fingerprint: string | null
+          id: string
+          ip_address: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string
+          email: string
+          fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string
+          email?: string
+          fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       message_templates: {
         Row: {
@@ -1461,13 +1530,40 @@ export type Database = {
         }
         Returns: undefined
       }
+      block_ip: {
+        Args: {
+          _duration_hours?: number
+          _ip_address: string
+          _notes?: string
+          _reason: string
+        }
+        Returns: string
+      }
       calculate_reputation_score: {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      check_api_rate_limit: {
+        Args: {
+          _endpoint: string
+          _ip_address: string
+          _max_requests: number
+          _user_id: string
+          _window_minutes: number
+        }
+        Returns: boolean
+      }
+      check_login_rate_limit: {
+        Args: { _email: string; _ip_address: string }
+        Returns: Json
+      }
       check_mfa_rate_limit: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      cleanup_expired_rate_limits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_expired_recommendations: {
         Args: Record<PropertyKey, never>
@@ -1476,6 +1572,17 @@ export type Database = {
       cleanup_old_audit_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      detect_ddos_pattern: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          endpoints_targeted: string[]
+          first_request: string
+          ip_address: string
+          last_request: string
+          request_count: number
+          time_window: string
+        }[]
       }
       detect_mass_actions: {
         Args: Record<PropertyKey, never>
@@ -1633,6 +1740,10 @@ export type Database = {
           p_verification_type: string
         }
         Returns: undefined
+      }
+      unblock_ip: {
+        Args: { _ip_address: string }
+        Returns: boolean
       }
       verify_backup_code: {
         Args: { _backup_code: string }
