@@ -50,9 +50,9 @@ const ONECIForm = () => {
         .upsert({
           user_id: user.id,
           oneci_cni_number: formData.cniNumber,
-          oneci_status: verificationResult.verified ? 'verified' : 'rejected',
-          oneci_data: verificationResult.verified ? verificationResult.holderInfo : null,
-          oneci_verified_at: verificationResult.verified ? new Date().toISOString() : null,
+          oneci_status: verificationResult.valid ? 'verified' : 'failed',
+          oneci_data: verificationResult.valid ? verificationResult.holder : null,
+          oneci_verified_at: verificationResult.valid ? new Date().toISOString() : null,
         }, {
           onConflict: 'user_id'
         });
@@ -60,7 +60,7 @@ const ONECIForm = () => {
       if (upsertError) throw upsertError;
 
       // Update profile
-      if (verificationResult.verified) {
+      if (verificationResult.valid) {
         await supabase
           .from('profiles')
           .update({ oneci_verified: true })
@@ -68,14 +68,14 @@ const ONECIForm = () => {
       }
 
       toast({
-        title: verificationResult.verified ? 'Vérification ONECI réussie' : 'Vérification échouée',
-        description: verificationResult.verified 
+        title: verificationResult.valid ? 'Vérification ONECI réussie' : 'Vérification échouée',
+        description: verificationResult.valid 
           ? 'Vous pouvez maintenant effectuer la vérification faciale (optionnelle)'
-          : verificationResult.message,
-        variant: verificationResult.verified ? 'default' : 'destructive',
+          : verificationResult.error || verificationResult.message,
+        variant: verificationResult.valid ? 'default' : 'destructive',
       });
 
-      if (verificationResult.verified) {
+      if (verificationResult.valid) {
         setFormData({ cniNumber: '', lastName: '', firstName: '', birthDate: '' });
         setOneciVerified(true);
         setShowFaceVerification(true);
