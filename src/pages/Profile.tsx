@@ -6,18 +6,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Shield, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, Award, Settings, Home, MapPin, DollarSign, Bed, Bath } from 'lucide-react';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
+import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 
 const Profile = () => {
   const { user, profile, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [tenantScore, setTenantScore] = useState<number | null>(null);
+  const [preferencesModalOpen, setPreferencesModalOpen] = useState(false);
+  const [preferences, setPreferences] = useState<any>(null);
+  const [matchingPropertiesCount, setMatchingPropertiesCount] = useState(0);
+  const [notifyNewMatches, setNotifyNewMatches] = useState(false);
   
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -31,22 +39,92 @@ const Profile = () => {
       setCity(profile.city || '');
       setBio(profile.bio || '');
       
-      // Fetch tenant score
-      const fetchScore = async () => {
-        const { data } = await supabase
+      // Fetch tenant score and preferences
+      const fetchData = async () => {
+        const { data: scoreData } = await supabase
           .from('user_verifications')
           .select('tenant_score')
           .eq('user_id', profile.id)
           .maybeSingle();
         
-        if (data?.tenant_score) {
-          setTenantScore(data.tenant_score);
+        if (scoreData?.tenant_score) {
+          setTenantScore(scoreData.tenant_score);
         }
+
+        // Fetch user preferences
+        const { data: prefsData } = await supabase
+          .from('user_preferences')
+          .select('*')
+          .eq('user_id', profile.id)
+          .maybeSingle();
+
+        if (prefsData) {
+          setPreferences(prefsData);
+
+          // Count matching properties
+          let query = supabase.from('properties').select('id', { count: 'exact', head: true });
+
+          if (prefsData.preferred_cities?.length > 0) {
+            query = query.in('city', prefsData.preferred_cities);
+          }
+          if (prefsData.min_budget) {
+            query = query.gte('monthly_rent', prefsData.min_budget);
+          }
+          if (prefsData.max_budget) {
+            query = query.lte('monthly_rent', prefsData.max_budget);
+          }
+
+          const { count } = await query;
+          setMatchingPropertiesCount(count || 0);
+        }
+
+        // Check notification preferences
+        const { data: notifPrefs } = await supabase
+          .from('notification_preferences')
+          .select('enabled')
+          .eq('user_id', profile.id)
+          .eq('category', 'recommendations')
+          .maybeSingle();
+
+        setNotifyNewMatches(notifPrefs?.enabled || false);
       };
       
-      fetchScore();
+      fetchData();
     }
   }, [profile]);
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('notification_preferences')
+        .upsert({
+          user_id: user.id,
+          category: 'recommendations',
+          enabled,
+          email_enabled: enabled,
+          push_enabled: enabled,
+        });
+
+      if (error) throw error;
+
+      setNotifyNewMatches(enabled);
+      toast({
+        title: 'Préférences mises à jour',
+        description: enabled 
+          ? 'Vous serez notifié des nouvelles recommandations'
+          : 'Les notifications de recommandations sont désactivées',
+      });
+    } catch (error) {
+      console.error('Error updating notification preferences:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour les préférences',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +172,7 @@ const Profile = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center gap-4">
@@ -109,6 +187,14 @@ const Profile = () => {
               <p className="text-muted-foreground">{userTypeLabels[profile.user_type]}</p>
             </div>
           </div>
+
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="profile">Profil</TabsTrigger>
+              <TabsTrigger value="preferences">Préférences de recherche</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="profile" className="space-y-6 mt-6">
 
           {/* Tenant Score */}
           {tenantScore && tenantScore > 0 && (
@@ -231,10 +317,153 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {/* Notification Preferences */}
-          <NotificationPreferences />
+              {/* Notification Preferences */}
+              <NotificationPreferences />
+            </TabsContent>
+
+            <TabsContent value="preferences" className="space-y-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Mes Préférences de recherche
+                  </CardTitle>
+                  <CardDescription>
+                    Configurez vos critères pour recevoir des recommandations personnalisées
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {preferences ? (
+                    <>
+                      {/* Current preferences display */}
+                      <div className="space-y-4">
+                        {preferences.preferred_cities && preferences.preferred_cities.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                              <MapPin className="h-4 w-4 text-primary" />
+                              Villes préférées
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {preferences.preferred_cities.map((city: string) => (
+                                <Badge key={city} variant="secondary">{city}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {preferences.preferred_property_types && preferences.preferred_property_types.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                              <Home className="h-4 w-4 text-primary" />
+                              Types de biens
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {preferences.preferred_property_types.map((type: string) => (
+                                <Badge key={type} variant="secondary">{type}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {(preferences.min_budget || preferences.max_budget) && (
+                          <div>
+                            <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                              <DollarSign className="h-4 w-4 text-primary" />
+                              Budget
+                            </div>
+                            <Badge variant="secondary">
+                              {preferences.min_budget?.toLocaleString() || '0'} - {preferences.max_budget?.toLocaleString() || '∞'} FCFA/mois
+                            </Badge>
+                          </div>
+                        )}
+
+                        {(preferences.min_bedrooms > 0 || preferences.min_bathrooms > 0) && (
+                          <div className="flex gap-4">
+                            {preferences.min_bedrooms > 0 && (
+                              <div>
+                                <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                                  <Bed className="h-4 w-4 text-primary" />
+                                  Chambres min.
+                                </div>
+                                <Badge variant="secondary">{preferences.min_bedrooms}+</Badge>
+                              </div>
+                            )}
+                            {preferences.min_bathrooms > 0 && (
+                              <div>
+                                <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                                  <Bath className="h-4 w-4 text-primary" />
+                                  Salles de bain min.
+                                </div>
+                                <Badge variant="secondary">{preferences.min_bathrooms}+</Badge>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-2">
+                          {preferences.requires_parking && <Badge variant="outline">Parking requis</Badge>}
+                          {preferences.requires_garden && <Badge variant="outline">Jardin requis</Badge>}
+                          {preferences.requires_ac && <Badge variant="outline">Climatisation requise</Badge>}
+                          {preferences.requires_furnished && <Badge variant="outline">Meublé requis</Badge>}
+                        </div>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Biens correspondants actuellement</p>
+                            <p className="text-2xl font-bold text-primary">{matchingPropertiesCount}</p>
+                          </div>
+                          <Home className="h-12 w-12 text-primary/20" />
+                        </div>
+                      </div>
+
+                      {/* Notification toggle */}
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium">Notifications pour nouvelles recommandations</p>
+                          <p className="text-sm text-muted-foreground">
+                            Recevez une notification quotidienne quand de nouveaux biens matchent vos critères
+                          </p>
+                        </div>
+                        <Switch
+                          checked={notifyNewMatches}
+                          onCheckedChange={handleNotificationToggle}
+                        />
+                      </div>
+
+                      <Button 
+                        onClick={() => setPreferencesModalOpen(true)}
+                        className="w-full"
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Modifier mes préférences
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                      <p className="text-muted-foreground mb-4">
+                        Vous n'avez pas encore configuré vos préférences de recherche
+                      </p>
+                      <Button onClick={() => setPreferencesModalOpen(true)}>
+                        <Settings className="h-4 w-4 mr-2" />
+                        Configurer mes préférences
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
+
+      <PreferencesModal 
+        open={preferencesModalOpen}
+        onOpenChange={setPreferencesModalOpen}
+      />
 
       <Footer />
     </div>

@@ -18,6 +18,7 @@ import {
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 
 interface Property {
   id: string;
@@ -674,6 +675,18 @@ const PropertyDetail = () => {
               </Card>
             </div>
           </div>
+
+          {/* Similar Properties Section */}
+          {!isOwner && user && (
+            <div className="mt-12">
+              <RecommendationsSection
+                userId={user.id}
+                type="properties"
+                limit={4}
+                title="Biens similaires"
+              />
+            </div>
+          )}
         </div>
       </main>
       <Footer />

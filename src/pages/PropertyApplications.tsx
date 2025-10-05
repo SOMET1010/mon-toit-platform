@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useRecommendations } from '@/hooks/useRecommendations';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, CheckCircle2, XCircle, Clock, UserCircle, 
-  FileText, TrendingUp, Eye
+  FileText, TrendingUp, Eye, Award, Sparkles
 } from 'lucide-react';
 import {
   Dialog,
@@ -33,6 +35,8 @@ type Application = {
   documents: any;
   created_at: string;
   application_score: number;
+  recommendation_score?: number;
+  recommendation_reasons?: string[];
   profiles: {
     full_name: string;
     phone: string | null;
@@ -62,6 +66,14 @@ const PropertyApplications = () => {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [rejectionNote, setRejectionNote] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'score'>('score');
+  const [filterMatch, setFilterMatch] = useState<'all' | 'high' | 'good'>('all');
+
+  const { recommendations, loading: recsLoading } = useRecommendations({
+    type: 'tenants',
+    propertyId: propertyId || undefined,
+    autoFetch: true,
+  });
 
   useEffect(() => {
     if (propertyId) {
@@ -108,7 +120,18 @@ const PropertyApplications = () => {
         .order('created_at', { ascending: false });
 
       if (appError) throw appError;
-      setApplications(applicationsData as any || []);
+
+      // Merge applications with recommendation scores
+      const enrichedApplications = (applicationsData as any || []).map((app: Application) => {
+        const rec = recommendations.find(r => r.id === app.applicant_id);
+        return {
+          ...app,
+          recommendation_score: rec?.score || 0,
+          recommendation_reasons: rec?.reasons || [],
+        };
+      });
+
+      setApplications(enrichedApplications);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -192,6 +215,41 @@ const PropertyApplications = () => {
     return <Badge variant="destructive">Faible</Badge>;
   };
 
+  const getMatchBadge = (score: number) => {
+    if (score >= 80) {
+      return (
+        <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white gap-1">
+          <Sparkles className="h-3 w-3" />
+          Highly Recommended
+        </Badge>
+      );
+    }
+    if (score >= 60) {
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <CheckCircle2 className="h-3 w-3" />
+          Good Match
+        </Badge>
+      );
+    }
+    return null;
+  };
+
+  // Sort and filter applications
+  const processedApps = [...applications]
+    .filter(app => {
+      if (filterMatch === 'all') return true;
+      if (filterMatch === 'high') return (app.recommendation_score || 0) >= 80;
+      if (filterMatch === 'good') return (app.recommendation_score || 0) >= 60;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'score') {
+        return (b.recommendation_score || 0) - (a.recommendation_score || 0);
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -204,9 +262,9 @@ const PropertyApplications = () => {
     return <div>Bien non trouvé</div>;
   }
 
-  const pendingApps = applications.filter(app => app.status === 'pending');
-  const approvedApps = applications.filter(app => app.status === 'approved');
-  const rejectedApps = applications.filter(app => app.status === 'rejected');
+  const pendingApps = processedApps.filter(app => app.status === 'pending');
+  const approvedApps = processedApps.filter(app => app.status === 'approved');
+  const rejectedApps = processedApps.filter(app => app.status === 'rejected');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -269,9 +327,42 @@ const PropertyApplications = () => {
           </Card>
         </div>
 
+        {/* Filters and Sort */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Trier par</label>
+                <Select value={sortBy} onValueChange={(v: 'date' | 'score') => setSortBy(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="score">Score de compatibilité</SelectItem>
+                    <SelectItem value="date">Date de candidature</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Filtrer par matching</label>
+                <Select value={filterMatch} onValueChange={(v: 'all' | 'high' | 'good') => setFilterMatch(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les candidats</SelectItem>
+                    <SelectItem value="high">Highly Recommended (80%+)</SelectItem>
+                    <SelectItem value="good">Good Match (60%+)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="all">Toutes ({applications.length})</TabsTrigger>
+            <TabsTrigger value="all">Toutes ({processedApps.length})</TabsTrigger>
             <TabsTrigger value="pending">En attente ({pendingApps.length})</TabsTrigger>
             <TabsTrigger value="approved">Approuvées ({approvedApps.length})</TabsTrigger>
             <TabsTrigger value="rejected">Rejetées ({rejectedApps.length})</TabsTrigger>
@@ -302,11 +393,12 @@ const PropertyApplications = () => {
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-center gap-3 mb-2 flex-wrap">
                                 <h3 className="text-xl font-semibold">
                                   {application.profiles.full_name}
                                 </h3>
                                 {getStatusBadge(application.status)}
+                                {application.recommendation_score && getMatchBadge(application.recommendation_score)}
                               </div>
                               {application.profiles.phone && (
                                 <p className="text-sm text-muted-foreground mb-2">
@@ -340,16 +432,42 @@ const PropertyApplications = () => {
                             )}
                           </div>
 
-                          {application.application_score > 0 && (
-                            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
-                              <TrendingUp className="h-5 w-5 text-primary" />
-                              <span className="text-sm font-medium">Score:</span>
-                              <Badge variant="default" className="rounded-xl">
-                                {application.application_score}/100
-                              </Badge>
-                              {getScoreBadge(application.application_score)}
-                            </div>
-                          )}
+                          <div className="space-y-2">
+                            {application.application_score > 0 && (
+                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+                                <TrendingUp className="h-5 w-5 text-primary" />
+                                <span className="text-sm font-medium">Score locataire:</span>
+                                <Badge variant="default" className="rounded-xl">
+                                  {application.application_score}/100
+                                </Badge>
+                                {getScoreBadge(application.application_score)}
+                              </div>
+                            )}
+
+                            {application.recommendation_score && application.recommendation_score > 0 && (
+                              <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+                                <Award className="h-5 w-5 text-primary" />
+                                <span className="text-sm font-medium">Compatibilité:</span>
+                                <Badge variant="default" className="rounded-xl bg-primary">
+                                  {Math.round(application.recommendation_score)}%
+                                </Badge>
+                              </div>
+                            )}
+
+                            {application.recommendation_reasons && application.recommendation_reasons.length > 0 && (
+                              <div className="p-3 bg-primary/5 rounded-xl border border-primary/10">
+                                <p className="text-xs font-medium text-primary mb-2">POURQUOI CE CANDIDAT ?</p>
+                                <ul className="text-sm space-y-1">
+                                  {application.recommendation_reasons.map((reason, idx) => (
+                                    <li key={idx} className="flex items-start gap-2">
+                                      <CheckCircle2 className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
+                                      <span>{reason}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
 
                           {application.cover_letter && (
                             <div className="p-4 bg-muted/30 rounded-xl">
