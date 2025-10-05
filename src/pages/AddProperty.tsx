@@ -18,21 +18,71 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2 } from 'lucide-react';
 import { MediaUploader } from '@/components/property/MediaUploader';
+import { VALIDATION_LIMITS, PROPERTY_LIMITS, ERROR_MESSAGES, PROPERTY_TYPES } from '@/constants';
 
 const propertySchema = z.object({
-  title: z.string().trim().min(5, 'Le titre doit contenir au moins 5 caractères').max(100, 'Le titre ne peut pas dépasser 100 caractères'),
-  description: z.string().trim().max(2000, 'La description ne peut pas dépasser 2000 caractères').optional(),
-  property_type: z.string().min(1, 'Veuillez sélectionner un type de bien'),
-  address: z.string().trim().min(5, 'L\'adresse doit contenir au moins 5 caractères').max(200, 'L\'adresse ne peut pas dépasser 200 caractères'),
-  city: z.string().trim().min(2, 'La ville doit contenir au moins 2 caractères').max(100, 'La ville ne peut pas dépasser 100 caractères'),
-  neighborhood: z.string().trim().max(100, 'Le quartier ne peut pas dépasser 100 caractères').optional(),
-  monthly_rent: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, 'Le loyer doit être supérieur à 0'),
-  deposit_amount: z.string().refine((val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0), 'La caution doit être positive').optional(),
-  charges_amount: z.string().refine((val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0), 'Les charges doivent être positives').optional(),
-  bedrooms: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'Le nombre de chambres doit être positif'),
-  bathrooms: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'Le nombre de salles de bain doit être positif'),
-  surface_area: z.string().refine((val) => val === '' || (!isNaN(Number(val)) && Number(val) > 0), 'La surface doit être positive').optional(),
-  floor_number: z.string().refine((val) => val === '' || !isNaN(Number(val)), 'L\'étage doit être un nombre').optional(),
+  title: z.string()
+    .trim()
+    .min(VALIDATION_LIMITS.MIN_TITLE_LENGTH, `Le titre doit contenir au moins ${VALIDATION_LIMITS.MIN_TITLE_LENGTH} caractères`)
+    .max(VALIDATION_LIMITS.MAX_TITLE_LENGTH, `Le titre ne peut pas dépasser ${VALIDATION_LIMITS.MAX_TITLE_LENGTH} caractères`),
+  description: z.string()
+    .trim()
+    .max(VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH, `La description ne peut pas dépasser ${VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH} caractères`)
+    .optional(),
+  property_type: z.string().min(1, ERROR_MESSAGES.FIELD_REQUIRED),
+  address: z.string()
+    .trim()
+    .min(5, 'L\'adresse doit contenir au moins 5 caractères')
+    .max(200, 'L\'adresse ne peut pas dépasser 200 caractères'),
+  city: z.string()
+    .trim()
+    .min(VALIDATION_LIMITS.MIN_NAME_LENGTH, `La ville doit contenir au moins ${VALIDATION_LIMITS.MIN_NAME_LENGTH} caractères`)
+    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `La ville ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`),
+  neighborhood: z.string()
+    .trim()
+    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `Le quartier ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`)
+    .optional(),
+  monthly_rent: z.string().refine(
+    (val) => {
+      const num = Number(val);
+      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_RENT && num <= PROPERTY_LIMITS.MAX_RENT;
+    },
+    `Le loyer doit être entre ${PROPERTY_LIMITS.MIN_RENT.toLocaleString()} et ${PROPERTY_LIMITS.MAX_RENT.toLocaleString()} FCFA`
+  ),
+  deposit_amount: z.string().refine(
+    (val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0),
+    'La caution doit être positive'
+  ).optional(),
+  charges_amount: z.string().refine(
+    (val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0),
+    'Les charges doivent être positives'
+  ).optional(),
+  bedrooms: z.string().refine(
+    (val) => {
+      const num = Number(val);
+      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_BEDROOMS && num <= PROPERTY_LIMITS.MAX_BEDROOMS;
+    },
+    `Nombre de chambres invalide (${PROPERTY_LIMITS.MIN_BEDROOMS}-${PROPERTY_LIMITS.MAX_BEDROOMS})`
+  ),
+  bathrooms: z.string().refine(
+    (val) => {
+      const num = Number(val);
+      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_BATHROOMS && num <= PROPERTY_LIMITS.MAX_BATHROOMS;
+    },
+    `Nombre de salles de bain invalide (${PROPERTY_LIMITS.MIN_BATHROOMS}-${PROPERTY_LIMITS.MAX_BATHROOMS})`
+  ),
+  surface_area: z.string().refine(
+    (val) => {
+      if (!val) return true;
+      const num = Number(val);
+      return !isNaN(num) && num >= PROPERTY_LIMITS.MIN_SURFACE && num <= PROPERTY_LIMITS.MAX_SURFACE;
+    },
+    `Surface invalide (${PROPERTY_LIMITS.MIN_SURFACE}-${PROPERTY_LIMITS.MAX_SURFACE}m²)`
+  ).optional(),
+  floor_number: z.string().refine(
+    (val) => val === '' || !isNaN(Number(val)),
+    'L\'étage doit être un nombre'
+  ).optional(),
   is_furnished: z.boolean().default(false),
   has_ac: z.boolean().default(false),
   has_parking: z.boolean().default(false),
@@ -341,13 +391,11 @@ const AddProperty = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="appartement">Appartement</SelectItem>
-                            <SelectItem value="villa">Villa</SelectItem>
-                            <SelectItem value="studio">Studio</SelectItem>
-                            <SelectItem value="duplex">Duplex</SelectItem>
-                            <SelectItem value="maison">Maison</SelectItem>
-                            <SelectItem value="bureau">Bureau</SelectItem>
-                            <SelectItem value="commerce">Commerce</SelectItem>
+                            {PROPERTY_TYPES.map((type) => (
+                              <SelectItem key={type.toLowerCase()} value={type.toLowerCase()}>
+                                {type}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />

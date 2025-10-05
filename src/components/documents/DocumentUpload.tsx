@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Upload, X, FileText, Image, File } from 'lucide-react';
 import { z } from 'zod';
+import { FILE_LIMITS, ERROR_MESSAGES, VALIDATION_LIMITS } from '@/constants';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_FILE_TYPES = [
   'application/pdf',
   'image/jpeg',
@@ -21,15 +21,17 @@ const ALLOWED_FILE_TYPES = [
 ];
 
 const fileSchema = z.custom<File>((val) => val instanceof File, {
-  message: 'Le fichier est requis',
+  message: ERROR_MESSAGES.FIELD_REQUIRED,
 })
-.refine((file) => file.size <= MAX_FILE_SIZE, 'Le fichier ne doit pas dépasser 10MB')
-.refine((file) => ALLOWED_FILE_TYPES.includes(file.type), 'Type de fichier non supporté');
+.refine((file) => file.size <= FILE_LIMITS.MAX_DOCUMENT_SIZE, ERROR_MESSAGES.DOCUMENT_TOO_LARGE)
+.refine((file) => ALLOWED_FILE_TYPES.includes(file.type), ERROR_MESSAGES.FILE_TYPE_INVALID);
 
 const documentSchema = z.object({
   file: fileSchema,
-  documentType: z.string().min(1, 'Le type de document est requis'),
-  name: z.string().min(3, 'Le nom doit contenir au moins 3 caractères').max(255),
+  documentType: z.string().min(1, ERROR_MESSAGES.FIELD_REQUIRED),
+  name: z.string()
+    .min(VALIDATION_LIMITS.MIN_NAME_LENGTH, `Le nom doit contenir au moins ${VALIDATION_LIMITS.MIN_NAME_LENGTH} caractères`)
+    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `Le nom ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`),
 });
 
 interface DocumentUploadProps {

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Home, DollarSign, CheckCircle2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import heroImage from "@/assets/hero-family-home.jpg";
+import { PROPERTY_TYPES } from "@/constants";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -113,11 +114,11 @@ const Hero = () => {
                       <SelectValue placeholder="Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="appartement">Appartement</SelectItem>
-                      <SelectItem value="villa">Villa</SelectItem>
-                      <SelectItem value="studio">Studio</SelectItem>
-                      <SelectItem value="duplex">Duplex</SelectItem>
-                      <SelectItem value="maison">Maison</SelectItem>
+                      {PROPERTY_TYPES.map((type) => (
+                        <SelectItem key={type.toLowerCase()} value={type.toLowerCase()}>
+                          {type}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

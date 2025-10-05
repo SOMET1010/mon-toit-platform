@@ -19,20 +19,40 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Loader2, Trash2 } from 'lucide-react';
 import { MediaUploader } from '@/components/property/MediaUploader';
+import { VALIDATION_LIMITS, PROPERTY_LIMITS, ERROR_MESSAGES, PROPERTY_TYPES } from '@/constants';
 
 const propertySchema = z.object({
-  title: z.string().min(5, 'Le titre doit contenir au moins 5 caractères').max(100),
-  description: z.string().min(20, 'La description doit contenir au moins 20 caractères'),
-  property_type: z.string().min(1, 'Veuillez sélectionner un type de bien'),
+  title: z.string()
+    .min(VALIDATION_LIMITS.MIN_TITLE_LENGTH, `Le titre doit contenir au moins ${VALIDATION_LIMITS.MIN_TITLE_LENGTH} caractères`)
+    .max(VALIDATION_LIMITS.MAX_TITLE_LENGTH, `Le titre ne peut pas dépasser ${VALIDATION_LIMITS.MAX_TITLE_LENGTH} caractères`),
+  description: z.string()
+    .min(VALIDATION_LIMITS.MIN_DESCRIPTION_LENGTH, `La description doit contenir au moins ${VALIDATION_LIMITS.MIN_DESCRIPTION_LENGTH} caractères`)
+    .max(VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH, `La description ne peut pas dépasser ${VALIDATION_LIMITS.MAX_DESCRIPTION_LENGTH} caractères`),
+  property_type: z.string().min(1, ERROR_MESSAGES.FIELD_REQUIRED),
   address: z.string().min(5, 'L\'adresse est requise'),
-  city: z.string().min(2, 'La ville est requise'),
+  city: z.string()
+    .min(VALIDATION_LIMITS.MIN_NAME_LENGTH, `La ville doit contenir au moins ${VALIDATION_LIMITS.MIN_NAME_LENGTH} caractères`)
+    .max(VALIDATION_LIMITS.MAX_NAME_LENGTH, `La ville ne peut pas dépasser ${VALIDATION_LIMITS.MAX_NAME_LENGTH} caractères`),
   neighborhood: z.string().optional(),
-  monthly_rent: z.number().positive('Le loyer doit être positif'),
+  monthly_rent: z.number()
+    .min(PROPERTY_LIMITS.MIN_RENT, `Le loyer minimum est ${PROPERTY_LIMITS.MIN_RENT.toLocaleString()} FCFA`)
+    .max(PROPERTY_LIMITS.MAX_RENT, `Le loyer maximum est ${PROPERTY_LIMITS.MAX_RENT.toLocaleString()} FCFA`),
   deposit_amount: z.number().nonnegative('La caution ne peut être négative').optional(),
   charges_amount: z.number().nonnegative('Les charges ne peuvent être négatives').optional(),
-  bedrooms: z.number().int().nonnegative().optional(),
-  bathrooms: z.number().int().nonnegative().optional(),
-  surface_area: z.number().positive('La surface doit être positive').optional(),
+  bedrooms: z.number()
+    .int()
+    .min(PROPERTY_LIMITS.MIN_BEDROOMS, `Minimum ${PROPERTY_LIMITS.MIN_BEDROOMS} chambre`)
+    .max(PROPERTY_LIMITS.MAX_BEDROOMS, `Maximum ${PROPERTY_LIMITS.MAX_BEDROOMS} chambres`)
+    .optional(),
+  bathrooms: z.number()
+    .int()
+    .min(PROPERTY_LIMITS.MIN_BATHROOMS, `Minimum ${PROPERTY_LIMITS.MIN_BATHROOMS} salle de bain`)
+    .max(PROPERTY_LIMITS.MAX_BATHROOMS, `Maximum ${PROPERTY_LIMITS.MAX_BATHROOMS} salles de bain`)
+    .optional(),
+  surface_area: z.number()
+    .min(PROPERTY_LIMITS.MIN_SURFACE, `Surface minimum ${PROPERTY_LIMITS.MIN_SURFACE}m²`)
+    .max(PROPERTY_LIMITS.MAX_SURFACE, `Surface maximum ${PROPERTY_LIMITS.MAX_SURFACE}m²`)
+    .optional(),
   floor_number: z.number().int().optional(),
   is_furnished: z.boolean().default(false),
   has_ac: z.boolean().default(false),
@@ -383,12 +403,11 @@ const EditProperty = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="appartement">Appartement</SelectItem>
-                            <SelectItem value="maison">Maison</SelectItem>
-                            <SelectItem value="studio">Studio</SelectItem>
-                            <SelectItem value="villa">Villa</SelectItem>
-                            <SelectItem value="bureau">Bureau</SelectItem>
-                            <SelectItem value="commerce">Commerce</SelectItem>
+                            {PROPERTY_TYPES.map((type) => (
+                              <SelectItem key={type.toLowerCase()} value={type.toLowerCase()}>
+                                {type}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />

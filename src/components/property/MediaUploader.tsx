@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { FILE_LIMITS, ERROR_MESSAGES } from "@/constants";
 
 interface MediaUploaderProps {
   propertyId?: string;
@@ -43,8 +44,14 @@ export const MediaUploader = ({
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + imagePreviews.length > 10) {
-      toast.error("Maximum 10 images autorisées");
+    if (files.length + imagePreviews.length > FILE_LIMITS.MAX_IMAGES_PER_PROPERTY) {
+      toast.error(`Maximum ${FILE_LIMITS.MAX_IMAGES_PER_PROPERTY} images autorisées`);
+      return;
+    }
+
+    const oversizedFiles = files.filter(f => f.size > FILE_LIMITS.MAX_IMAGE_SIZE);
+    if (oversizedFiles.length > 0) {
+      toast.error(ERROR_MESSAGES.IMAGE_TOO_LARGE);
       return;
     }
 
@@ -57,9 +64,8 @@ export const MediaUploader = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const maxSize = 100 * 1024 * 1024; // 100MB
-    if (file.size > maxSize) {
-      toast.error("La vidéo ne doit pas dépasser 100MB");
+    if (file.size > FILE_LIMITS.MAX_VIDEO_SIZE) {
+      toast.error(ERROR_MESSAGES.VIDEO_TOO_LARGE);
       return;
     }
 
