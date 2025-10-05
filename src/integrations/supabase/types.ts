@@ -564,6 +564,41 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendation_cache: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          recommendation_type: string
+          recommended_items: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          recommendation_type: string
+          recommended_items?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          recommendation_type?: string
+          recommended_items?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendation_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rental_applications: {
         Row: {
           applicant_id: string
@@ -697,6 +732,41 @@ export type Database = {
           },
         ]
       }
+      search_history: {
+        Row: {
+          clicked_properties: string[] | null
+          created_at: string
+          id: string
+          result_count: number | null
+          search_filters: Json
+          user_id: string
+        }
+        Insert: {
+          clicked_properties?: string[] | null
+          created_at?: string
+          id?: string
+          result_count?: number | null
+          search_filters?: Json
+          user_id: string
+        }
+        Update: {
+          clicked_properties?: string[] | null
+          created_at?: string
+          id?: string
+          result_count?: number | null
+          search_filters?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorites: {
         Row: {
           created_at: string
@@ -722,6 +792,65 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          max_budget: number | null
+          min_bathrooms: number | null
+          min_bedrooms: number | null
+          min_budget: number | null
+          preferred_cities: string[] | null
+          preferred_property_types: string[] | null
+          requires_ac: boolean | null
+          requires_furnished: boolean | null
+          requires_garden: boolean | null
+          requires_parking: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_budget?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          min_budget?: number | null
+          preferred_cities?: string[] | null
+          preferred_property_types?: string[] | null
+          requires_ac?: boolean | null
+          requires_furnished?: boolean | null
+          requires_garden?: boolean | null
+          requires_parking?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_budget?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          min_budget?: number | null
+          preferred_cities?: string[] | null
+          preferred_property_types?: string[] | null
+          requires_ac?: boolean | null
+          requires_furnished?: boolean | null
+          requires_garden?: boolean | null
+          requires_parking?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -820,6 +949,10 @@ export type Database = {
     Functions: {
       calculate_reputation_score: {
         Args: { target_user_id: string }
+        Returns: undefined
+      }
+      cleanup_expired_recommendations: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       has_role: {
