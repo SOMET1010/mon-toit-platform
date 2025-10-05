@@ -17,6 +17,7 @@ import DisputeManager from '@/components/admin/DisputeManager';
 import ReviewModeration from '@/components/admin/ReviewModeration';
 import AdvancedReporting from '@/components/admin/AdvancedReporting';
 import LeaseCertificationQueue from '@/components/admin/LeaseCertificationQueue';
+import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -81,7 +82,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-9 mb-8">
+          <TabsList className="grid w-full grid-cols-10 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Vue d'ensemble
@@ -95,6 +96,7 @@ const AdminDashboard = () => {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="audit">Audit</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="disputes">Litiges</TabsTrigger>
             <TabsTrigger value="moderation">Modération</TabsTrigger>
@@ -119,6 +121,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="certifications" className="space-y-6">
             <LeaseCertificationQueue />
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <AuditLogViewer />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
