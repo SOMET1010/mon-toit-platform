@@ -26,12 +26,3 @@ verify_jwt = false
 
 [functions.tenant-scoring]
 verify_jwt = false
-
-[functions.generate-recommendations]
-verify_jwt = false
-
-[functions.track-search]
-verify_jwt = false
-
-[functions.update-preferences]
-verify_jwt = false

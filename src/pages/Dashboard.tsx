@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Home, Building2, Users, BarChart3, Plus, FileText } from 'lucide-react';
+import { Home, Building2, Users, BarChart3, Plus, FileText, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
+import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 
 const Dashboard = () => {
-  const { profile, loading } = useAuth();
+  const { profile, loading, user } = useAuth();
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
 
   if (loading) {
     return (
@@ -71,15 +75,53 @@ const Dashboard = () => {
               <h1 className="text-4xl font-bold">{content.title}</h1>
               <p className="text-muted-foreground mt-2">Bienvenue, {profile.full_name}</p>
             </div>
-            {profile.user_type === 'proprietaire' && (
-              <Button asChild>
-                <Link to="/ajouter-bien">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Ajouter un bien
-                </Link>
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {profile.user_type === 'locataire' && (
+                <Button variant="outline" onClick={() => setPreferencesOpen(true)}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Mes préférences
+                </Button>
+              )}
+              {profile.user_type === 'proprietaire' && (
+                <Button asChild>
+                  <Link to="/ajouter-bien">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Ajouter un bien
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
+
+          {/* Recommendations Section */}
+          {user && profile.user_type === 'locataire' && (
+            <div className="mb-8">
+              <RecommendationsSection
+                userId={user.id}
+                type="properties"
+                limit={5}
+              />
+            </div>
+          )}
+
+          {user && profile.user_type === 'proprietaire' && (
+            <Card className="mb-8">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <CardTitle>Locataires recommandés</CardTitle>
+                </div>
+                <CardDescription>
+                  Consultez vos candidatures pour voir les locataires les mieux notés pour chaque bien
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild>
+                  <Link to="/mes-biens">Voir mes biens et candidatures</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Dashboard Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -104,6 +146,7 @@ const Dashboard = () => {
       </main>
 
       <Footer />
+      <PreferencesModal open={preferencesOpen} onOpenChange={setPreferencesOpen} />
     </div>
   );
 };
