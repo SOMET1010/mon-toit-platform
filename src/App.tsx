@@ -26,6 +26,7 @@ import Leases from "./pages/Leases";
 import Payments from "./pages/Payments";
 import Verification from "./pages/Verification";
 import NotFound from "./pages/NotFound";
+import UserReviews from "./pages/UserReviews";
 
 const queryClient = new QueryClient();
 
@@ -162,6 +163,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/user/:userId/reviews" element={<UserReviews />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

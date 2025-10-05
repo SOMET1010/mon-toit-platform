@@ -525,6 +525,92 @@ export type Database = {
           },
         ]
       }
+      reputation_scores: {
+        Row: {
+          as_landlord_reviews: number | null
+          as_landlord_score: number | null
+          as_tenant_reviews: number | null
+          as_tenant_score: number | null
+          avg_rating: number | null
+          created_at: string
+          id: string
+          overall_score: number | null
+          total_reviews: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          as_landlord_reviews?: number | null
+          as_landlord_score?: number | null
+          as_tenant_reviews?: number | null
+          as_tenant_score?: number | null
+          avg_rating?: number | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          as_landlord_reviews?: number | null
+          as_landlord_score?: number | null
+          as_tenant_reviews?: number | null
+          as_tenant_score?: number | null
+          avg_rating?: number | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          lease_id: string | null
+          rating: number
+          review_type: string
+          reviewee_id: string
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          lease_id?: string | null
+          rating: number
+          review_type: string
+          reviewee_id: string
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          lease_id?: string | null
+          rating?: number
+          review_type?: string
+          reviewee_id?: string
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorites: {
         Row: {
           created_at: string
@@ -646,6 +732,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_reputation_score: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

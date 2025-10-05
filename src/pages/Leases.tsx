@@ -11,7 +11,16 @@ import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock } from "luci
 import { useToast } from "@/hooks/use-toast";
 import CertificationRequest from "@/components/leases/CertificationRequest";
 import ANSUTCertifiedBadge from "@/components/ui/ansut-certified-badge";
-import { Download, FileText as FileTextIcon, Loader2 } from "lucide-react";
+import { Download, FileText as FileTextIcon, Loader2, Star } from "lucide-react";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Lease {
   id: string;
@@ -35,6 +44,14 @@ interface Lease {
     city: string;
     main_image: string;
   };
+  tenant_id: string;
+  landlord_id: string;
+  tenant?: {
+    full_name: string;
+  } | null;
+  landlord?: {
+    full_name: string;
+  } | null;
 }
 
 export default function Leases() {
@@ -53,6 +70,7 @@ export default function Leases() {
 
   const fetchLeases = async () => {
     try {
+      // Fetch leases with profiles data
       const { data, error } = await supabase
         .from("leases")
         .select(`
@@ -63,7 +81,31 @@ export default function Leases() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setLeases(data || []);
+      
+      // Fetch profiles for each lease
+      const leasesWithProfiles = await Promise.all(
+        (data || []).map(async (lease) => {
+          const { data: tenantData } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', lease.tenant_id)
+            .single();
+          
+          const { data: landlordData } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', lease.landlord_id)
+            .single();
+          
+          return {
+            ...lease,
+            tenant: tenantData,
+            landlord: landlordData,
+          };
+        })
+      );
+
+      setLeases(leasesWithProfiles);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -320,6 +362,45 @@ export default function Leases() {
                       <DollarSign className="h-4 w-4 mr-2" />
                       Paiements
                     </Button>
+
+                    {/* Review button for completed leases */}
+                    {lease.status === 'signed' && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">
+                            <Star className="h-4 w-4 mr-2" />
+                            Laisser un avis
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Laisser un avis</DialogTitle>
+                            <DialogDescription>
+                              Partagez votre expérience pour cette location
+                            </DialogDescription>
+                          </DialogHeader>
+                          <ReviewForm
+                            revieweeId={
+                              profile?.user_type === 'locataire' 
+                                ? lease.landlord_id 
+                                : lease.tenant_id
+                            }
+                            revieweeName={
+                              profile?.user_type === 'locataire'
+                                ? lease.landlord?.full_name || 'Propriétaire'
+                                : lease.tenant?.full_name || 'Locataire'
+                            }
+                            leaseId={lease.id}
+                            reviewType={
+                              profile?.user_type === 'locataire'
+                                ? 'tenant_to_landlord'
+                                : 'landlord_to_tenant'
+                            }
+                            onSuccess={fetchLeases}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                 </CardContent>
               </Card>
