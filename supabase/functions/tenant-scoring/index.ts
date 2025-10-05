@@ -107,20 +107,33 @@ serve(async (req) => {
       recommendation = 'conditional';
     }
 
+    const breakdown = {
+      identity_verification: verification?.oneci_status === 'verified' ? 25 : 0,
+      employment_verification: verification?.cnam_status === 'verified' ? 20 : 0,
+      payment_history: criteria.payment_history === 'excellent' ? 20 : (criteria.payment_history === 'good' ? 15 : 10),
+      income_ratio: score >= 90 ? 15 : (score >= 75 ? 10 : 5),
+      documents: 8,
+      profile_completeness: criteria.profile_complete ? 10 : 0
+    };
+
+    // Stocker le score dans user_verifications
+    await supabase
+      .from('user_verifications')
+      .update({
+        tenant_score: score,
+        score_updated_at: new Date().toISOString()
+      })
+      .eq('user_id', applicantId);
+
+    console.log('Score updated for user:', applicantId, 'Score:', score);
+
     return new Response(
       JSON.stringify({
         score,
         maxScore: 100,
         recommendation,
         criteria,
-        breakdown: {
-          identity_verification: verification?.oneci_status === 'verified' ? 25 : 0,
-          employment_verification: verification?.cnam_status === 'verified' ? 20 : 0,
-          payment_history: criteria.payment_history === 'excellent' ? 20 : 10,
-          income_ratio: score >= 90 ? 15 : 5,
-          documents: 8,
-          profile_completeness: criteria.profile_complete ? 10 : 0
-        }
+        breakdown
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -10,11 +10,13 @@ import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Shield, CheckCircle2, XCircle } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
 
 const Profile = () => {
   const { user, profile, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [tenantScore, setTenantScore] = useState<number | null>(null);
   
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -27,6 +29,21 @@ const Profile = () => {
       setPhone(profile.phone || '');
       setCity(profile.city || '');
       setBio(profile.bio || '');
+      
+      // Fetch tenant score
+      const fetchScore = async () => {
+        const { data } = await supabase
+          .from('user_verifications')
+          .select('tenant_score')
+          .eq('user_id', profile.id)
+          .maybeSingle();
+        
+        if (data?.tenant_score) {
+          setTenantScore(data.tenant_score);
+        }
+      };
+      
+      fetchScore();
     }
   }, [profile]);
 
@@ -92,6 +109,31 @@ const Profile = () => {
             </div>
           </div>
 
+          {/* Tenant Score */}
+          {tenantScore && tenantScore > 0 && (
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-primary" />
+                  Score de Fiabilité
+                </CardTitle>
+                <CardDescription>
+                  Votre évaluation en tant que locataire
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Ce score est calculé automatiquement selon vos vérifications et votre profil
+                    </p>
+                  </div>
+                  <TenantScoreBadge score={tenantScore} size="lg" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Verification Status */}
           <Card>
             <CardHeader>
@@ -100,7 +142,7 @@ const Profile = () => {
                 Statut de vérification
               </CardTitle>
               <CardDescription>
-                Vérifiez votre identité pour accéder à toutes les fonctionnalités
+                Vérifiez votre identité pour améliorer votre score
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">

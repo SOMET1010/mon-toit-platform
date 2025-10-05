@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
 
 interface VerificationData {
   oneci_status: string;
@@ -108,10 +109,11 @@ const VerificationStatus = () => {
           {verification?.tenant_score !== undefined && verification.tenant_score > 0 && (
             <div className="mt-6 pt-4 border-t">
               <div className="flex items-center justify-between">
-                <span className="font-semibold">Score Locataire</span>
-                <span className="text-2xl font-bold text-primary">
-                  {verification.tenant_score}/100
-                </span>
+                <div>
+                  <h3 className="font-semibold">Score de Fiabilité</h3>
+                  <p className="text-sm text-muted-foreground">Évaluation automatique</p>
+                </div>
+                <TenantScoreBadge score={verification.tenant_score} size="lg" />
               </div>
             </div>
           )}
