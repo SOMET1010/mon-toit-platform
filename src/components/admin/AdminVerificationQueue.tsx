@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { AdminVerificationStats } from '@/components/admin/AdminVerificationStats';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -145,7 +146,10 @@ export default function AdminVerificationQueue() {
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Statistics Dashboard */}
+        <AdminVerificationStats />
+        
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">File d'attente des vérifications</h2>

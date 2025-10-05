@@ -100,6 +100,27 @@ const Application = () => {
 
       if (error) throw error;
 
+      // Calculate tenant score automatically
+      try {
+        const { data: scoringData } = await supabase.functions.invoke('tenant-scoring', {
+          body: {
+            applicantId: user.id,
+            propertyId: propertyId,
+            monthlyRent: property.monthly_rent,
+          },
+        });
+
+        if (scoringData?.score) {
+          await supabase
+            .from('rental_applications')
+            .update({ application_score: scoringData.score })
+            .eq('id', data.id);
+        }
+      } catch (scoringError) {
+        console.error('Error calculating score:', scoringError);
+        // Don't block application if scoring fails
+      }
+
       toast({
         title: 'Candidature soumise',
         description: 'Votre dossier a été envoyé au propriétaire',

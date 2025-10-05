@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, FileText, Download, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
+import { TenantScoreBreakdown } from '@/components/application/TenantScoreBreakdown';
 import { logger } from '@/services/logger';
 import type { Application } from '@/types';
 
@@ -197,53 +198,11 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
 
           {/* Score et recommandation */}
           {isOwner && (scoring || application.application_score > 0) && (
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardHeader>
-                <CardTitle>Évaluation automatique</CardTitle>
-                <CardDescription>Score de fiabilité calculé automatiquement</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-background rounded-lg border">
-                  <span className="font-medium">Score du candidat</span>
-                  <TenantScoreBadge score={scoring?.score || application.application_score} size="lg" />
-                </div>
-                {scoring?.recommendation && (
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Recommandation</span>
-                    {getRecommendationBadge(scoring.recommendation)}
-                  </div>
-                )}
-                {scoring?.breakdown && (
-                  <div className="space-y-2 mt-4 p-4 bg-background rounded-lg border">
-                    <p className="text-sm font-semibold mb-3">Détails de l'évaluation:</p>
-                    <div className="flex justify-between text-sm py-2 border-b">
-                      <span className="text-muted-foreground">Vérification identité ONECI</span>
-                      <span className="font-medium">{scoring.breakdown.identity_verification}/25 pts</span>
-                    </div>
-                    <div className="flex justify-between text-sm py-2 border-b">
-                      <span className="text-muted-foreground">Vérification emploi CNAM</span>
-                      <span className="font-medium">{scoring.breakdown.employment_verification}/20 pts</span>
-                    </div>
-                    <div className="flex justify-between text-sm py-2 border-b">
-                      <span className="text-muted-foreground">Historique de paiements</span>
-                      <span className="font-medium">{scoring.breakdown.payment_history}/20 pts</span>
-                    </div>
-                    <div className="flex justify-between text-sm py-2 border-b">
-                      <span className="text-muted-foreground">Ratio revenus/loyer</span>
-                      <span className="font-medium">{scoring.breakdown.income_ratio}/15 pts</span>
-                    </div>
-                    <div className="flex justify-between text-sm py-2 border-b">
-                      <span className="text-muted-foreground">Documents fournis</span>
-                      <span className="font-medium">{scoring.breakdown.documents}/10 pts</span>
-                    </div>
-                    <div className="flex justify-between text-sm py-2">
-                      <span className="text-muted-foreground">Profil complet</span>
-                      <span className="font-medium">{scoring.breakdown.profile_completeness}/10 pts</span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <TenantScoreBreakdown 
+              score={scoring?.score || application.application_score}
+              breakdown={scoring?.breakdown}
+              recommendation={scoring?.recommendation}
+            />
           )}
 
           {/* Lettre de motivation */}
