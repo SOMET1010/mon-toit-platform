@@ -9,7 +9,6 @@ import CNAMForm from '@/components/verification/CNAMForm';
 import VerificationStatus from '@/components/verification/VerificationStatus';
 import { Shield } from 'lucide-react';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { useEffect } from 'react';
 
 const Verification = () => {
   const { user, profile, loading } = useAuth();
@@ -28,7 +27,7 @@ const Verification = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-background" translate="no">
         <Navbar />
       
         <main className="flex-grow container mx-auto px-4 py-8">
