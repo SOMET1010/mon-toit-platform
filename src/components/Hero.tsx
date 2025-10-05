@@ -15,27 +15,27 @@ import { PROPERTY_TYPES } from "@/constants";
 const heroSlides = [
   {
     image: heroSlide1,
-    title: "Immobilier en",
-    highlight: "Côte d'Ivoire",
-    description: "Trouvez votre logement idéal en Côte d'Ivoire. Appartements, villas, studios : des milliers de biens vérifiés par ANSUT."
+    title: "Logement pour",
+    highlight: "Tous",
+    description: "Studios, appartements, villas : ANSUT sécurise la location pour tous les budgets en Côte d'Ivoire."
   },
   {
     image: heroSlide2,
-    title: "Villas de",
-    highlight: "Prestige",
-    description: "Découvrez nos villas d'exception avec piscine, dans les quartiers les plus prisés d'Abidjan."
+    title: "Familles et",
+    highlight: "Foyers",
+    description: "Des logements familiaux accessibles et vérifiés dans tous les quartiers d'Abidjan."
   },
   {
     image: heroSlide3,
-    title: "Concrétisez votre",
-    highlight: "Rêve",
-    description: "Des milliers de familles ont trouvé leur chez-soi avec Mon Toit. Pourquoi pas vous ?"
+    title: "Service",
+    highlight: "Universel",
+    description: "ANSUT rend la location sécurisée accessible à tous, peu importe votre budget ou situation."
   },
   {
     image: heroSlide4,
-    title: "Studios",
-    highlight: "Modernes",
-    description: "Pour jeunes professionnels : studios tout équipés dans les zones dynamiques d'Abidjan."
+    title: "Quartiers",
+    highlight: "Vivants",
+    description: "Trouvez votre chez-vous dans des quartiers dynamiques et accessibles partout en Côte d'Ivoire."
   }
 ];
 
