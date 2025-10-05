@@ -32,6 +32,7 @@ import APropos from "./pages/APropos";
 import Conditions from "./pages/Conditions";
 import Confidentialite from "./pages/Confidentialite";
 import MentionsLegales from "./pages/MentionsLegales";
+import TiersDeConfianceDashboard from "./pages/TiersDeConfianceDashboard";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
                   <OwnerDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/tiers-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <TiersDeConfianceDashboard />
                 </ProtectedRoute>
               } 
             />

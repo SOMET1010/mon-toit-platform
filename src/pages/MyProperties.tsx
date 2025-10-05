@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Plus, MapPin, BedDouble, Bath, Square, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { logger } from '@/services/logger';
 import type { Property as PropertyType, STATUS_LABELS, STATUS_COLORS } from '@/types';
 import { STATUS_LABELS as statusLabels, STATUS_COLORS as statusColors } from '@/types';
@@ -17,7 +19,10 @@ type Property = Pick<PropertyType,
   'id' | 'title' | 'description' | 'property_type' | 'status' | 
   'address' | 'city' | 'bedrooms' | 'bathrooms' | 'surface_area' | 
   'monthly_rent' | 'main_image' | 'view_count' | 'created_at'
->;
+> & {
+  moderation_status?: string;
+  moderation_notes?: string;
+};
 
 const MyProperties = () => {
   const { user, profile, loading: authLoading } = useAuth();
@@ -97,6 +102,32 @@ const MyProperties = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
                 <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  {/* Moderation Status Alert */}
+                  {property.moderation_status === 'pending' && (
+                    <Alert className="m-4 mb-0">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Cette annonce est en attente de modération par un administrateur.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {property.moderation_status === 'rejected' && (
+                    <Alert variant="destructive" className="m-4 mb-0">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Cette annonce a été rejetée. Raison: {property.moderation_notes || 'Non spécifiée'}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {property.moderation_status === 'changes_requested' && (
+                    <Alert className="m-4 mb-0">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Modifications demandées: {property.moderation_notes || 'Non spécifiée'}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   {/* Property Image */}
                   <div className="aspect-video bg-muted relative">
                     {property.main_image ? (

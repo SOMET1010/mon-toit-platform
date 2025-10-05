@@ -21,6 +21,7 @@ import LeaseCertificationQueue from '@/components/admin/LeaseCertificationQueue'
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { LeaseTemplateManager } from '@/components/admin/LeaseTemplateManager';
 import { PromoteToSuperAdmin } from '@/components/admin/PromoteToSuperAdmin';
+import PropertyModerationQueue from '@/components/admin/PropertyModerationQueue';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -28,6 +29,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [pendingCertifications, setPendingCertifications] = useState(0);
   const [openDisputes, setOpenDisputes] = useState(0);
+  const [pendingProperties, setPendingProperties] = useState(0);
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -46,8 +48,17 @@ const AdminDashboard = () => {
       setOpenDisputes(count || 0);
     };
 
+    const fetchPendingProperties = async () => {
+      const { count } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true })
+        .eq('moderation_status', 'pending');
+      setPendingProperties(count || 0);
+    };
+
     fetchPendingCount();
     fetchOpenDisputes();
+    fetchPendingProperties();
 
     const leasesChannel = supabase
       .channel('admin-pending-count')
