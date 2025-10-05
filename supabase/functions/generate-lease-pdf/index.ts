@@ -36,10 +36,12 @@ interface LeaseData {
   landlord: {
     full_name: string;
     phone: string;
+    id: string;
   };
   tenant: {
     full_name: string;
     phone: string;
+    id: string;
   };
 }
 
@@ -80,18 +82,25 @@ serve(async (req) => {
 
     if (leaseError) throw leaseError;
 
-    // Récupérer les profils du propriétaire et locataire
+    // Récupérer les profils du propriétaire et locataire avec leurs emails
     const { data: landlord } = await supabaseClient
       .from('profiles')
-      .select('full_name, phone')
+      .select('id, full_name, phone')
       .eq('id', lease.landlord_id)
       .single();
 
     const { data: tenant } = await supabaseClient
       .from('profiles')
-      .select('full_name, phone')
+      .select('id, full_name, phone')
       .eq('id', lease.tenant_id)
       .single();
+      
+    // Récupérer les emails depuis auth.users
+    const { data: { users: landlordUser } } = await supabaseClient.auth.admin.listUsers();
+    const { data: { users: tenantUser } } = await supabaseClient.auth.admin.listUsers();
+    
+    const landlordEmail = landlordUser?.find(u => u.id === lease.landlord_id)?.email || '';
+    const tenantEmail = tenantUser?.find(u => u.id === lease.tenant_id)?.email || '';
 
     const leaseData: LeaseData = {
       ...lease,
@@ -264,6 +273,44 @@ serve(async (req) => {
     if (updateError) throw updateError;
 
     console.log(`PDF généré avec succès pour le bail ${leaseId}`);
+
+    // Envoyer les emails aux deux parties
+    try {
+      // Email au propriétaire
+      await supabaseClient.functions.invoke('send-email', {
+        body: {
+          to: landlordEmail,
+          subject: 'Votre contrat de bail est disponible',
+          template: 'lease-contract-generated',
+          data: {
+            recipientName: leaseData.landlord.full_name,
+            propertyTitle: leaseData.properties.title,
+            documentUrl: urlData.publicUrl,
+            recipientType: 'landlord'
+          }
+        }
+      });
+
+      // Email au locataire
+      await supabaseClient.functions.invoke('send-email', {
+        body: {
+          to: tenantEmail,
+          subject: 'Votre contrat de bail est disponible',
+          template: 'lease-contract-generated',
+          data: {
+            recipientName: leaseData.tenant.full_name,
+            propertyTitle: leaseData.properties.title,
+            documentUrl: urlData.publicUrl,
+            recipientType: 'tenant'
+          }
+        }
+      });
+      
+      console.log('Emails envoyés aux deux parties');
+    } catch (emailError) {
+      console.error('Erreur lors de l\'envoi des emails:', emailError);
+      // Ne pas faire échouer la génération si l'envoi d'email échoue
+    }
 
     return new Response(
       JSON.stringify({ 

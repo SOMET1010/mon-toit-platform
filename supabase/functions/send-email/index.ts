@@ -9,6 +9,7 @@ import { newMessageTemplate } from "./_templates/new-message.ts";
 import { leaseSignedTemplate } from "./_templates/lease-signed.ts";
 import { verificationSuccessTemplate } from "./_templates/verification-success.ts";
 import { faceVerificationSuccessTemplate } from "./_templates/face-verification-success.ts";
+import { leaseContractGeneratedTemplate } from "./_templates/lease-contract-generated.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -69,6 +70,9 @@ const handler = async (req: Request): Promise<Response> => {
         break;
       case "face-verification-success":
         html = faceVerificationSuccessTemplate(data);
+        break;
+      case "lease-contract-generated":
+        html = leaseContractGeneratedTemplate(data);
         break;
       default:
         throw new Error(`Unknown template: ${template}`);
