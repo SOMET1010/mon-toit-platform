@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyProperties from "./pages/MyProperties";
+import AddProperty from "./pages/AddProperty";
 import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
 import PropertyDetail from "./pages/PropertyDetail";
@@ -83,6 +84,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
                   <MyProperties />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ajouter-bien" 
+              element={
+                <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
+                  <AddProperty />
                 </ProtectedRoute>
               } 
             />
