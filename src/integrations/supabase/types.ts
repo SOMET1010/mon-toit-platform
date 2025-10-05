@@ -859,13 +859,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "recommendation_cache_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rental_applications: {
@@ -911,13 +904,6 @@ export type Database = {
             columns: ["applicant_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rental_applications_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -1060,13 +1046,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "search_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       trusted_third_parties: {
@@ -1186,13 +1165,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1334,51 +1306,7 @@ export type Database = {
       }
     }
     Views: {
-      profiles_public: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          city: string | null
-          cnam_verified: boolean | null
-          created_at: string | null
-          face_verified: boolean | null
-          full_name: string | null
-          id: string | null
-          is_verified: boolean | null
-          oneci_verified: boolean | null
-          updated_at: string | null
-          user_type: Database["public"]["Enums"]["user_type"] | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          city?: string | null
-          cnam_verified?: boolean | null
-          created_at?: string | null
-          face_verified?: boolean | null
-          full_name?: string | null
-          id?: string | null
-          is_verified?: boolean | null
-          oneci_verified?: boolean | null
-          updated_at?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"] | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          city?: string | null
-          cnam_verified?: boolean | null
-          created_at?: string | null
-          face_verified?: boolean | null
-          full_name?: string | null
-          id?: string | null
-          is_verified?: boolean | null
-          oneci_verified?: boolean | null
-          updated_at?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"] | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       approve_verification: {
