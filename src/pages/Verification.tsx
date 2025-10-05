@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import ONECIForm from '@/components/verification/ONECIForm';
 import CNAMForm from '@/components/verification/CNAMForm';
 import VerificationStatus from '@/components/verification/VerificationStatus';
+import FaceVerification from '@/components/verification/FaceVerification';
 import { Shield } from 'lucide-react';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -38,19 +39,22 @@ const Verification = () => {
                 <h1 className="text-3xl font-bold">Vérification d'Identité</h1>
               </div>
               <p className="text-muted-foreground">
-                Complétez vos vérifications ONECI et CNAM pour augmenter votre crédibilité
+                Complétez vos vérifications ONECI, CNAM et Face ID pour augmenter votre crédibilité
               </p>
             </div>
 
             <VerificationStatus />
 
             <Tabs defaultValue="oneci" className="mt-8">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="oneci">
                   Vérification ONECI
                 </TabsTrigger>
                 <TabsTrigger value="cnam">
                   Vérification CNAM
+                </TabsTrigger>
+                <TabsTrigger value="face">
+                  Vérification Faciale
                 </TabsTrigger>
               </TabsList>
 
@@ -78,6 +82,20 @@ const Verification = () => {
                   </CardHeader>
                   <CardContent>
                     <CNAMForm />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="face">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Vérification Faciale</CardTitle>
+                    <CardDescription>
+                      Renforcez votre profil avec une vérification biométrique Azure Face API
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <FaceVerification />
                   </CardContent>
                 </Card>
               </TabsContent>
