@@ -20,7 +20,12 @@ const VerificationStatus = () => {
 
   useEffect(() => {
     const fetchVerification = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('✅ VerificationStatus - No user yet');
+        return;
+      }
+
+      console.log('✅ VerificationStatus - Fetching verification for user:', user.id);
 
       const { data, error } = await supabase
         .from('user_verifications')
@@ -29,8 +34,9 @@ const VerificationStatus = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching verification:', error);
+        console.error('✅ VerificationStatus - Error fetching verification:', error);
       } else {
+        console.log('✅ VerificationStatus - Verification data:', data);
         setVerification(data);
       }
       setLoading(false);
