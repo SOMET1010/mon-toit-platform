@@ -11,6 +11,7 @@ import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock } from "luci
 import { useToast } from "@/hooks/use-toast";
 import CertificationRequest from "@/components/leases/CertificationRequest";
 import ANSUTCertifiedBadge from "@/components/ui/ansut-certified-badge";
+import { Download, FileText as FileTextIcon, Loader2 } from "lucide-react";
 
 interface Lease {
   id: string;
@@ -27,6 +28,7 @@ interface Lease {
   ansut_certified_at: string | null;
   certification_status: string;
   certification_requested_at: string | null;
+  document_url: string | null;
   properties: {
     title: string;
     address: string;
@@ -41,6 +43,7 @@ export default function Leases() {
   const { toast } = useToast();
   const [leases, setLeases] = useState<Lease[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -95,6 +98,36 @@ export default function Leases() {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleGeneratePdf = async (leaseId: string) => {
+    try {
+      setGeneratingPdf(leaseId);
+      
+      const { data, error } = await supabase.functions.invoke('generate-lease-pdf', {
+        body: { leaseId }
+      });
+
+      if (error) throw error;
+
+      // Ouvrir le PDF dans un nouvel onglet
+      if (data?.documentUrl) {
+        window.open(data.documentUrl, '_blank');
+        toast({
+          title: "Contrat généré",
+          description: "Le contrat PDF a été généré avec succès",
+        });
+        fetchLeases(); // Rafraîchir pour obtenir l'URL mise à jour
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de générer le PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingPdf(null);
     }
   };
 
@@ -245,13 +278,39 @@ export default function Leases() {
                       </Button>
                     )}
                     
-                    {/* Certification request button - shown after both parties signed */}
+                    {/* PDF Download button - shown after both parties signed */}
                     {lease.tenant_signed_at && lease.landlord_signed_at && (
-                      <CertificationRequest
-                        leaseId={lease.id}
-                        certificationStatus={lease.certification_status}
-                        onRequestSubmitted={fetchLeases}
-                      />
+                      <>
+                        {lease.document_url ? (
+                          <Button
+                            variant="outline"
+                            onClick={() => window.open(lease.document_url!, '_blank')}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Télécharger le contrat
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            onClick={() => handleGeneratePdf(lease.id)}
+                            disabled={generatingPdf === lease.id}
+                          >
+                            {generatingPdf === lease.id ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <FileTextIcon className="h-4 w-4 mr-2" />
+                            )}
+                            {generatingPdf === lease.id ? 'Génération...' : 'Générer le contrat'}
+                          </Button>
+                        )}
+                        
+                        {/* Certification request button */}
+                        <CertificationRequest
+                          leaseId={lease.id}
+                          certificationStatus={lease.certification_status}
+                          onRequestSubmitted={fetchLeases}
+                        />
+                      </>
                     )}
                     
                     <Button
