@@ -138,7 +138,7 @@ export interface Message {
   receiver_id: string;
   content: string;
   application_id: string | null;
-  attachments: any[];
+  attachments?: unknown;
   is_read: boolean;
   created_at: string;
 }
@@ -260,3 +260,32 @@ export interface GeoLocation {
   latitude: number;
   longitude: number;
 }
+
+// =========== STATUS & LABELS ===========
+export const STATUS_LABELS: Record<string, string> = {
+  disponible: 'Disponible',
+  loue: 'Loué',
+  loué: 'Loué',
+  en_attente: 'En attente',
+  retire: 'Retiré',
+  retiré: 'Retiré',
+  refuse: 'Refusé',
+} as const;
+
+export const STATUS_COLORS: Record<string, string> = {
+  disponible: 'bg-green-500',
+  loue: 'bg-blue-500',
+  loué: 'bg-blue-500',
+  en_attente: 'bg-yellow-500',
+  retire: 'bg-gray-500',
+  retiré: 'bg-gray-500',
+  refuse: 'bg-red-500',
+} as const;
+
+export const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  disponible: 'default',
+  en_attente: 'secondary',
+  loue: 'outline',
+  loué: 'outline',
+  refuse: 'destructive',
+} as const;

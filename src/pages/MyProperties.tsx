@@ -8,23 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Plus, MapPin, BedDouble, Bath, Square, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/services/logger';
+import type { Property as PropertyType, STATUS_LABELS, STATUS_COLORS } from '@/types';
+import { STATUS_LABELS as statusLabels, STATUS_COLORS as statusColors } from '@/types';
 
-interface Property {
-  id: string;
-  title: string;
-  description: string;
-  property_type: string;
-  status: string;
-  address: string;
-  city: string;
-  bedrooms: number;
-  bathrooms: number;
-  surface_area: number;
-  monthly_rent: number;
-  main_image: string | null;
-  view_count: number;
-  created_at: string;
-}
+// Use centralized Property type from types/index.ts
+type Property = Pick<PropertyType, 
+  'id' | 'title' | 'description' | 'property_type' | 'status' | 
+  'address' | 'city' | 'bedrooms' | 'bathrooms' | 'surface_area' | 
+  'monthly_rent' | 'main_image' | 'view_count' | 'created_at'
+>;
 
 const MyProperties = () => {
   const { user, profile, loading: authLoading } = useAuth();
@@ -46,7 +39,7 @@ const MyProperties = () => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching properties:', error);
+      logger.error('Failed to fetch user properties', { error, userId: user?.id });
     } else {
       setProperties(data || []);
     }
@@ -64,20 +57,6 @@ const MyProperties = () => {
   if (!user || (profile && profile.user_type === 'locataire')) {
     return <Navigate to="/" replace />;
   }
-
-  const statusLabels: Record<string, string> = {
-    disponible: 'Disponible',
-    loue: 'Loué',
-    en_attente: 'En attente',
-    retire: 'Retiré',
-  };
-
-  const statusColors: Record<string, string> = {
-    disponible: 'bg-green-500',
-    loue: 'bg-blue-500',
-    en_attente: 'bg-yellow-500',
-    retire: 'bg-gray-500',
-  };
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -1,103 +1,58 @@
 /**
  * Centralized logging service
  * Replaces console.error with structured logging
- * Production-ready with future integration support (Sentry, LogRocket, etc.)
+ * Can be extended to send logs to external services (Sentry, LogRocket, etc.)
  */
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 interface LogContext {
-  component?: string;
-  action?: string;
-  userId?: string;
   [key: string]: unknown;
 }
 
 class Logger {
   private isDevelopment = import.meta.env.DEV;
 
-  /**
-   * Log an error with structured context
-   */
-  error(message: string, error?: unknown, context?: LogContext): void {
-    const errorDetails = this.formatError(error);
-    const logData = {
-      level: 'error' as LogLevel,
-      message,
-      error: errorDetails,
-      context,
-      timestamp: new Date().toISOString(),
-    };
+  private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
+    const timestamp = new Date().toISOString();
+    return `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+  }
 
+  error(message: string, context?: LogContext): void {
+    const formattedMessage = this.formatMessage('error', message, context);
+    
     if (this.isDevelopment) {
-      console.error(`[ERROR] ${message}`, errorDetails, context);
+      console.error(formattedMessage, context || '');
     } else {
-      // Production: Send to monitoring service
-      // TODO: Integrate Sentry or similar
-      console.error(JSON.stringify(logData));
+      // In production, send to monitoring service
+      // Example: Sentry.captureException(new Error(message), { extra: context });
+      console.error(formattedMessage, context || '');
     }
   }
 
-  /**
-   * Log a warning
-   */
   warn(message: string, context?: LogContext): void {
-    const logData = {
-      level: 'warn' as LogLevel,
-      message,
-      context,
-      timestamp: new Date().toISOString(),
-    };
-
+    const formattedMessage = this.formatMessage('warn', message, context);
+    
     if (this.isDevelopment) {
-      console.warn(`[WARN] ${message}`, context);
+      console.warn(formattedMessage, context || '');
     } else {
-      console.warn(JSON.stringify(logData));
+      console.warn(formattedMessage, context || '');
     }
   }
 
-  /**
-   * Log informational message
-   */
   info(message: string, context?: LogContext): void {
-    const logData = {
-      level: 'info' as LogLevel,
-      message,
-      context,
-      timestamp: new Date().toISOString(),
-    };
-
+    const formattedMessage = this.formatMessage('info', message, context);
+    
     if (this.isDevelopment) {
-      console.log(`[INFO] ${message}`, context);
+      console.info(formattedMessage, context || '');
     }
   }
 
-  /**
-   * Log debug information (dev only)
-   */
   debug(message: string, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.log(`[DEBUG] ${message}`, context);
+      const formattedMessage = this.formatMessage('debug', message, context);
+      console.debug(formattedMessage, context || '');
     }
-  }
-
-  /**
-   * Format error object for logging
-   */
-  private formatError(error: unknown): Record<string, unknown> {
-    if (error instanceof Error) {
-      return {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      };
-    }
-
-    if (typeof error === 'object' && error !== null) {
-      return error as Record<string, unknown>;
-    }
-
-    return { value: String(error) };
   }
 }
 

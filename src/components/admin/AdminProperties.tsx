@@ -7,15 +7,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { CheckCircle, XCircle, Eye } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { logger } from '@/services/logger';
+import type { Property as PropertyType, STATUS_VARIANTS } from '@/types';
+import { STATUS_VARIANTS as statusVariants, STATUS_LABELS as statusLabels } from '@/types';
 
-type Property = {
-  id: string;
-  title: string;
-  city: string;
-  monthly_rent: number;
-  status: string;
-  created_at: string;
-  owner_id: string;
+type Property = Pick<PropertyType, 
+  'id' | 'title' | 'city' | 'monthly_rent' | 'status' | 'created_at' | 'owner_id'
+> & {
   profiles: {
     full_name: string;
   };
@@ -40,15 +38,33 @@ const AdminProperties = () => {
           monthly_rent,
           status,
           created_at,
-          owner_id,
-          profiles:owner_id (full_name)
+          owner_id
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProperties(data as any || []);
+
+      // Fetch profiles separately
+      if (data && data.length > 0) {
+        const ownerIds = [...new Set(data.map(p => p.owner_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', ownerIds);
+
+        const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+        
+        const propertiesWithProfiles = data.map(property => ({
+          ...property,
+          profiles: profilesMap.get(property.owner_id) || { full_name: 'Inconnu' }
+        }));
+
+        setProperties(propertiesWithProfiles);
+      } else {
+        setProperties([]);
+      }
     } catch (error) {
-      console.error('Error fetching properties:', error);
+      logger.error('Failed to fetch properties for admin', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les biens',
@@ -75,7 +91,7 @@ const AdminProperties = () => {
 
       fetchProperties();
     } catch (error) {
-      console.error('Error updating property:', error);
+      logger.error('Failed to update property status', { error, propertyId, newStatus });
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour le bien',
@@ -85,21 +101,7 @@ const AdminProperties = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      'disponible': 'default',
-      'en_attente': 'secondary',
-      'loue': 'outline',
-      'refuse': 'destructive',
-    };
-
-    const labels: Record<string, string> = {
-      'disponible': 'Disponible',
-      'en_attente': 'En attente',
-      'loue': 'Loué',
-      'refuse': 'Refusé',
-    };
-
-    return <Badge variant={variants[status] || 'outline'}>{labels[status] || status}</Badge>;
+    return <Badge variant={statusVariants[status] || 'outline'}>{statusLabels[status] || status}</Badge>;
   };
 
   if (loading) {

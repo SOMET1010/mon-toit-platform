@@ -13,6 +13,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, MessageCircle, Paperclip, Download, FileText, Image as ImageIcon, File } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
+import type { Message as MessageType } from '@/types';
 
 interface Attachment {
   name: string;
@@ -21,7 +23,7 @@ interface Attachment {
   size: number;
 }
 
-interface Message {
+interface MessageDisplay {
   id: string;
   sender_id: string;
   receiver_id: string;
@@ -52,7 +54,7 @@ const Messages = () => {
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(recipientId);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageDisplay[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,15 +96,14 @@ const Messages = () => {
           filter: `receiver_id=eq.${user.id}`,
         },
         (payload) => {
-          const newMessage = payload.new as Message;
+          const newMessage = payload.new as MessageType;
           
           // Update conversations list
           fetchConversations();
           
-          // If message is from selected conversation, add to messages
+          // If message is from selected conversation, refresh messages
           if (newMessage.sender_id === selectedConversation) {
-            setMessages((prev) => [...prev, newMessage]);
-            markAsRead(selectedConversation);
+            fetchMessages(selectedConversation);
           }
         }
       )
@@ -115,14 +116,14 @@ const Messages = () => {
           filter: `sender_id=eq.${user.id}`,
         },
         (payload) => {
-          const newMessage = payload.new as Message;
+          const newMessage = payload.new as MessageType;
           
           // Update conversations list
           fetchConversations();
           
-          // If message is to selected conversation, add to messages
+          // If message is to selected conversation, refresh messages
           if (newMessage.receiver_id === selectedConversation) {
-            setMessages((prev) => [...prev, newMessage]);
+            fetchMessages(selectedConversation);
           }
         }
       )
@@ -192,7 +193,7 @@ const Messages = () => {
 
       setConversations(Array.from(conversationMap.values()));
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      logger.error('Failed to fetch conversations', { error, userId: user?.id });
     } finally {
       setLoading(false);
     }
@@ -211,7 +212,7 @@ const Messages = () => {
       if (error) throw error;
       
       // Parse attachments from JSON to proper type
-      const parsedMessages: Message[] = (data || []).map(msg => {
+      const parsedMessages: MessageDisplay[] = (data || []).map(msg => {
         let parsedAttachments: Attachment[] = [];
         
         if (msg.attachments) {
@@ -222,7 +223,7 @@ const Messages = () => {
               parsedAttachments = msg.attachments as unknown as Attachment[];
             }
           } catch (e) {
-            console.error('Error parsing attachments:', e);
+            logger.error('Failed to parse message attachments', { error: e, messageId: msg.id });
           }
         }
         
@@ -239,7 +240,7 @@ const Messages = () => {
       
       setMessages(parsedMessages);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      logger.error('Failed to fetch messages', { error, partnerId });
     }
   };
 
@@ -254,7 +255,7 @@ const Messages = () => {
         .eq('receiver_id', user.id)
         .eq('is_read', false);
     } catch (error) {
-      console.error('Error marking as read:', error);
+      logger.error('Failed to mark messages as read', { error, partnerId });
     }
   };
 
@@ -262,7 +263,12 @@ const Messages = () => {
     if (!user || !selectedConversation || (!newMessage.trim() && attachments.length === 0)) return;
 
     try {
-      const messageData: any = {
+      const messageData: {
+        sender_id: string;
+        receiver_id: string;
+        content: string;
+        attachments?: string;
+      } = {
         sender_id: user.id,
         receiver_id: selectedConversation,
         content: newMessage.trim() || '(Pièce(s) jointe(s))'
@@ -274,7 +280,7 @@ const Messages = () => {
 
       const { error } = await supabase
         .from('messages')
-        .insert(messageData);
+        .insert([messageData]);
 
       if (error) throw error;
 
@@ -286,7 +292,7 @@ const Messages = () => {
         description: "Votre message a été envoyé avec succès"
       });
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Failed to send message', { error, receiverId: selectedConversation });
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer le message",
