@@ -11,8 +11,10 @@ import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock } from "luci
 import { useToast } from "@/hooks/use-toast";
 import CertificationRequest from "@/components/leases/CertificationRequest";
 import ANSUTCertifiedBadge from "@/components/ui/ansut-certified-badge";
-import { Download, FileText as FileTextIcon, Loader2, Star } from "lucide-react";
+import { Download, FileText as FileTextIcon, Loader2, Star, Folder } from "lucide-react";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { DocumentManager } from "@/components/documents/DocumentManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -217,28 +219,36 @@ export default function Leases() {
           ) : (
             leases.map((lease) => (
               <Card key={lease.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="mb-2">{lease.properties.title}</CardTitle>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <MapPin className="h-4 w-4" />
-                        {lease.properties.address}, {lease.properties.city}
+                <Tabs defaultValue="details" className="w-full">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="mb-2">{lease.properties.title}</CardTitle>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <MapPin className="h-4 w-4" />
+                          {lease.properties.address}, {lease.properties.city}
+                        </div>
+                        <div className="flex gap-2 mb-4">
+                          {getStatusBadge(lease)}
+                          <Badge variant="outline">{lease.lease_type}</Badge>
+                        </div>
                       </div>
-                      <div className="flex gap-2 mb-4">
-                        {getStatusBadge(lease)}
-                        <Badge variant="outline">{lease.lease_type}</Badge>
-                      </div>
+                      {lease.properties.main_image && (
+                        <img
+                          src={lease.properties.main_image}
+                          alt={lease.properties.title}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      )}
                     </div>
-                    {lease.properties.main_image && (
-                      <img
-                        src={lease.properties.main_image}
-                        alt={lease.properties.title}
-                        className="w-24 h-24 object-cover rounded-lg"
-                      />
-                    )}
-                  </div>
-                </CardHeader>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="details">Détails</TabsTrigger>
+                      <TabsTrigger value="documents">
+                        <Folder className="h-4 w-4 mr-2" />
+                        Documents
+                      </TabsTrigger>
+                    </TabsList>
+                  </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div>
@@ -403,7 +413,19 @@ export default function Leases() {
                     )}
                   </div>
                 </CardContent>
-              </Card>
+              </TabsContent>
+
+              <TabsContent value="documents">
+                <CardContent>
+                  <DocumentManager
+                    leaseId={lease.id}
+                    landlordId={lease.landlord_id}
+                    tenantId={lease.tenant_id}
+                  />
+                </CardContent>
+              </TabsContent>
+            </Tabs>
+          </Card>
             ))
           )}
         </div>

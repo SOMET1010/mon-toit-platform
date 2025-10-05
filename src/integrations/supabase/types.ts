@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      document_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_type: string
+          id: string
+          is_active: boolean | null
+          name: string
+          template_content: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_type: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          template_content: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_type?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          template_content?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lease_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          lease_id: string
+          name: string
+          notes: string | null
+          status: string | null
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          lease_id: string
+          name: string
+          notes?: string | null
+          status?: string | null
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          lease_id?: string
+          name?: string
+          notes?: string | null
+          status?: string | null
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lease_documents_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leases: {
         Row: {
           ansut_certified_at: string | null
