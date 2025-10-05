@@ -2,8 +2,8 @@ import { useRecommendations } from '@/hooks/useRecommendations';
 import { RecommendationCard } from './RecommendationCard';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 interface RecommendationsSectionProps {
   userId: string;
@@ -25,20 +25,6 @@ export const RecommendationsSection = ({
     propertyId,
     limit,
   });
-
-  const [scrollPosition, setScrollPosition] = useState(0);
-
-  const scroll = (direction: 'left' | 'right') => {
-    const container = document.getElementById('recommendations-scroll');
-    if (container) {
-      const scrollAmount = 320;
-      const newPosition = direction === 'left' 
-        ? scrollPosition - scrollAmount 
-        : scrollPosition + scrollAmount;
-      container.scrollTo({ left: newPosition, behavior: 'smooth' });
-      setScrollPosition(newPosition);
-    }
-  };
 
   if (loading) {
     return (
@@ -66,49 +52,38 @@ export const RecommendationsSection = ({
         <h2 className="text-2xl font-bold">
           {title || (type === 'properties' ? '🎯 Recommandations pour vous' : '⭐ Locataires recommandés')}
         </h2>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scroll('left')}
-            disabled={scrollPosition <= 0}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scroll('right')}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={refetch}
-            disabled={loading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={refetch}
+          disabled={loading}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Actualiser
+        </Button>
       </div>
 
-      <div 
-        id="recommendations-scroll"
-        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      <Carousel
+        opts={{
+          align: "start",
+          loop: false,
+        }}
+        className="w-full"
       >
-        {recommendations.map((rec) => (
-          <div key={rec.id} className="flex-none w-80">
-            <RecommendationCard
-              item={rec}
-              type={type === 'properties' ? 'property' : 'tenant'}
-              score={rec.score}
-              reasons={rec.reasons}
-            />
-          </div>
-        ))}
-      </div>
+        <CarouselContent className="-ml-4">
+          {recommendations.map((rec) => (
+            <CarouselItem key={rec.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+              <RecommendationCard
+                item={rec}
+                type={type === 'properties' ? 'property' : 'tenant'}
+                score={rec.score}
+                reasons={rec.reasons}
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="hidden md:flex" />
+        <CarouselNext className="hidden md:flex" />
+      </Carousel>
     </div>
   );
 };

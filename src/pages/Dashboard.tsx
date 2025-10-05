@@ -6,12 +6,15 @@ import Footer from '@/components/Footer';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Home, Building2, Users, BarChart3, Plus, FileText, Settings } from 'lucide-react';
+import { Home, Building2, Users, BarChart3, Plus, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 import SearchHistory from '@/components/dashboard/SearchHistory';
 import SmartReminders from '@/components/dashboard/SmartReminders';
+import { ProfileScoreCard } from '@/components/dashboard/ProfileScoreCard';
+import { QuickActionsGrid } from '@/components/dashboard/QuickActionsGrid';
+import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
 
 const Dashboard = () => {
   const { profile, loading, user } = useAuth();
@@ -98,16 +101,32 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Recommendations Section */}
+          {/* Tenant Dashboard - Enhanced Layout */}
           {user && profile.user_type === 'locataire' && (
-            <div className="space-y-6 mb-8">
+            <div className="space-y-8">
+              {/* Hero Section - Profile Score & Quick Actions */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <ProfileScoreCard />
+                <div className="lg:col-span-2">
+                  <QuickActionsGrid />
+                </div>
+              </div>
+
+              {/* Smart Reminders */}
               <SmartReminders />
+
+              {/* Recommendations Carousel */}
               <RecommendationsSection
                 userId={user.id}
                 type="properties"
-                limit={5}
+                limit={8}
               />
-              <SearchHistory />
+
+              {/* Bottom Section - Activity & Search History */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ActivityTimeline />
+                <SearchHistory />
+              </div>
             </div>
           )}
 
