@@ -1367,6 +1367,32 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string
       }
+      get_verifications_for_admin_review: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admin_review_notes: string
+          admin_reviewed_at: string
+          admin_reviewed_by: string
+          city: string
+          cnam_data: Json
+          cnam_employer: string
+          cnam_social_security_number: string
+          cnam_status: string
+          cnam_verified_at: string
+          created_at: string
+          face_similarity_score: number
+          face_verification_status: string
+          face_verified_at: string
+          full_name: string
+          oneci_cni_number: string
+          oneci_data: Json
+          oneci_status: string
+          oneci_verified_at: string
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }[]
+      }
       get_verifications_for_review: {
         Args: Record<PropertyKey, never>
         Returns: {

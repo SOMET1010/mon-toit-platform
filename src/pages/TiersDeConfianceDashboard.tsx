@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, Clock, FileText } from 'lucide-react';
 import DossierValidationQueue from '@/components/tiers/DossierValidationQueue';
+import TiersVerificationQueue from '@/components/tiers/TiersVerificationQueue';
 
 const TiersDeConfianceDashboard = () => {
   const { user, hasRole, loading } = useAuth();
@@ -99,14 +100,33 @@ const TiersDeConfianceDashboard = () => {
         </div>
 
         {/* Validation Queue */}
-        <Tabs defaultValue="queue" className="space-y-4">
+        <Tabs defaultValue="verifications" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="queue">File d'attente</TabsTrigger>
+            <TabsTrigger value="verifications">Vérifications d'identité</TabsTrigger>
+            <TabsTrigger value="dossiers">Dossiers de location</TabsTrigger>
             <TabsTrigger value="history">Historique</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="queue">
-            <DossierValidationQueue onUpdate={fetchStats} />
+          <TabsContent value="verifications">
+            <Card>
+              <CardHeader>
+                <CardTitle>Vérifications ONECI et CNAM en attente</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TiersVerificationQueue onUpdate={fetchStats} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="dossiers">
+            <Card>
+              <CardHeader>
+                <CardTitle>Validation des dossiers de location</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DossierValidationQueue onUpdate={fetchStats} />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="history">

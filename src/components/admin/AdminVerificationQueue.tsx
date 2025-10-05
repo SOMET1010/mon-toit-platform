@@ -42,32 +42,26 @@ export default function AdminVerificationQueue() {
 
   const fetchPendingVerifications = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_verifications')
-        .select('user_id, oneci_status, cnam_status, oneci_data, cnam_data, oneci_cni_number, cnam_employer, created_at')
-        .or('oneci_status.eq.pending_review,cnam_status.eq.pending_review')
-        .order('created_at', { ascending: false });
+      // EPIC 2: Use secure RPC with audit logging instead of direct SELECT
+      const { data, error } = await supabase.rpc('get_verifications_for_admin_review');
 
       if (error) throw error;
 
-      // Récupérer les profils séparément
-      const userIds = data.map(v => v.user_id);
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url')
-        .in('id', userIds);
-
-      const enrichedData = data.map(verification => {
-        const profile = profilesData?.find(p => p.id === verification.user_id);
-        return {
-          ...verification,
-          profiles: {
-            full_name: profile?.full_name || 'N/A',
-            avatar_url: profile?.avatar_url || null,
-            email: 'user@example.com' // Placeholder
-          }
-        };
-      });
+      const enrichedData = (data || []).map((verification: any) => ({
+        user_id: verification.user_id,
+        oneci_status: verification.oneci_status,
+        cnam_status: verification.cnam_status,
+        oneci_data: verification.oneci_data,
+        cnam_data: verification.cnam_data,
+        oneci_cni_number: verification.oneci_cni_number,
+        cnam_employer: verification.cnam_employer,
+        created_at: verification.created_at,
+        profiles: {
+          full_name: verification.full_name || 'N/A',
+          avatar_url: null,
+          email: 'user@example.com' // Placeholder
+        }
+      }));
 
       setVerifications(enrichedData as VerificationWithUser[]);
     } catch (error: any) {
