@@ -1,29 +1,18 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-
-interface Profile {
-  id: string;
-  user_type: 'locataire' | 'proprietaire' | 'agence' | 'admin_ansut';
-  full_name: string;
-  phone?: string;
-  avatar_url?: string;
-  bio?: string;
-  city?: string;
-  is_verified: boolean;
-  oneci_verified: boolean;
-  cnam_verified: boolean;
-}
+import { logger } from '@/services/logger';
+import type { Profile } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, userType: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, userType: string) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -37,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    console.log('🔐 useAuth - Fetching profile for user:', userId);
+    logger.info('Fetching profile for user', { userId });
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -45,10 +34,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .single();
 
     if (error) {
-      console.error('🔐 useAuth - Error fetching profile:', error);
+      logger.error('Error fetching profile', { error, userId });
       return null;
     }
-    console.log('🔐 useAuth - Profile fetched:', data);
+    logger.info('Profile fetched successfully', { userId });
     return data;
   };
 
@@ -60,11 +49,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    console.log('🔐 useAuth - Setting up auth listener');
+    logger.info('Setting up auth listener');
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔐 useAuth - Auth state changed:', event, !!session);
+        logger.info('Auth state changed', { event, hasSession: !!session });
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -82,7 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('🔐 useAuth - Initial session check:', !!session);
+      logger.info('Initial session check', { hasSession: !!session });
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -91,11 +80,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
           setLoading(false);
-          console.log('🔐 useAuth - Loading complete');
+          logger.info('Auth loading complete');
         }, 0);
       } else {
         setLoading(false);
-        console.log('🔐 useAuth - No session, loading complete');
+        logger.info('No session, loading complete');
       }
     });
 

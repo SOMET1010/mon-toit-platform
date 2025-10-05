@@ -20,36 +20,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { MediaGallery } from '@/components/property/MediaGallery';
-
-interface Property {
-  id: string;
-  title: string;
-  description: string | null;
-  property_type: string;
-  city: string;
-  neighborhood: string | null;
-  address: string;
-  monthly_rent: number;
-  deposit_amount: number | null;
-  charges_amount: number | null;
-  surface_area: number | null;
-  bedrooms: number;
-  bathrooms: number;
-  floor_number: number | null;
-  is_furnished: boolean;
-  has_ac: boolean;
-  has_parking: boolean;
-  has_garden: boolean;
-  main_image: string | null;
-  images: string[] | null;
-  video_url?: string | null;
-  virtual_tour_url?: string | null;
-  panoramic_images?: any;
-  floor_plans?: any;
-  status: string;
-  created_at: string;
-  owner_id: string;
-}
+import { logger } from '@/services/logger';
+import type { Property, Application, PropertyStats } from '@/types';
 
 interface PropertyOwner {
   id: string;
@@ -58,12 +30,7 @@ interface PropertyOwner {
   phone: string | null;
 }
 
-interface Application {
-  id: string;
-  applicant_id: string;
-  status: string;
-  created_at: string;
-  application_score: number | null;
+interface ApplicationDisplay extends Application {
   profiles: {
     full_name: string;
     phone: string | null;
@@ -75,12 +42,6 @@ interface Application {
   }[];
 }
 
-interface PropertyStats {
-  view_count: number;
-  favorites_count: number;
-  applications_count: number;
-}
-
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -90,7 +51,7 @@ const PropertyDetail = () => {
   const [owner, setOwner] = useState<PropertyOwner | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState<ApplicationDisplay[]>([]);
   const [stats, setStats] = useState<PropertyStats | null>(null);
   const [newStatus, setNewStatus] = useState<string>('');
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
@@ -129,7 +90,7 @@ const PropertyDetail = () => {
       if (ownerError) throw ownerError;
       setOwner(ownerData);
     } catch (error) {
-      console.error('Error fetching property:', error);
+      logger.error('Error fetching property details', { error, propertyId: id });
       toast({
         title: "Erreur",
         description: "Impossible de charger les détails du bien",
@@ -173,10 +134,10 @@ const PropertyDetail = () => {
             };
           })
         );
-        setApplications(applicationsWithVerifications as Application[]);
+        setApplications(applicationsWithVerifications as ApplicationDisplay[]);
       }
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      logger.error('Error fetching applications', { error, propertyId: id });
     }
   };
 
@@ -202,12 +163,16 @@ const PropertyDetail = () => {
         .single();
 
       setStats({
+        views: propertyData?.view_count || 0,
+        favorites: favCount || 0,
+        applications: appCount || 0,
+        conversionRate: 0,
         view_count: propertyData?.view_count || 0,
         favorites_count: favCount || 0,
         applications_count: appCount || 0,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      logger.error('Error fetching property stats', { error, propertyId: id });
     }
   };
 
@@ -229,7 +194,7 @@ const PropertyDetail = () => {
         description: 'Statut mis à jour avec succès',
       });
     } catch (error) {
-      console.error('Error updating status:', error);
+      logger.error('Error updating property status', { error, propertyId: property.id, newStatus });
       toast({
         title: 'Erreur',
         description: 'Erreur lors de la mise à jour du statut',

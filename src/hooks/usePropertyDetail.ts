@@ -115,7 +115,12 @@ export const usePropertyDetail = (propertyId: string | undefined) => {
 
     try {
       const statsData = await propertyService.getStats(propertyId);
-      setStats(statsData);
+      setStats({
+        ...statsData,
+        view_count: statsData.views,
+        favorites_count: statsData.favorites,
+        applications_count: statsData.applications,
+      });
     } catch (error) {
       console.error('Error fetching stats:', error);
     }

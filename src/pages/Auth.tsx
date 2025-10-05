@@ -23,6 +23,8 @@ const signInSchema = z.object({
   password: z.string().min(6, { message: "Le mot de passe doit contenir au moins 6 caractères" }),
 });
 
+type ValidationErrors = Partial<Record<'email' | 'password' | 'fullName' | 'userType', string>>;
+
 const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
@@ -32,12 +34,12 @@ const Auth = () => {
   const [signUpPassword, setSignUpPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [userType, setUserType] = useState<'locataire' | 'proprietaire' | 'agence'>('locataire');
-  const [signUpErrors, setSignUpErrors] = useState<any>({});
+  const [signUpErrors, setSignUpErrors] = useState<ValidationErrors>({});
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
-  const [signInErrors, setSignInErrors] = useState<any>({});
+  const [signInErrors, setSignInErrors] = useState<ValidationErrors>({});
 
   const [loading, setLoading] = useState(false);
 
@@ -59,9 +61,10 @@ const Auth = () => {
     });
 
     if (!validation.success) {
-      const errors: any = {};
+      const errors: ValidationErrors = {};
       validation.error.errors.forEach((err) => {
-        errors[err.path[0]] = err.message;
+        const field = err.path[0] as keyof ValidationErrors;
+        errors[field] = err.message;
       });
       setSignUpErrors(errors);
       return;
@@ -86,9 +89,10 @@ const Auth = () => {
     });
 
     if (!validation.success) {
-      const errors: any = {};
+      const errors: ValidationErrors = {};
       validation.error.errors.forEach((err) => {
-        errors[err.path[0]] = err.message;
+        const field = err.path[0] as keyof ValidationErrors;
+        errors[field] = err.message;
       });
       setSignInErrors(errors);
       return;
@@ -222,7 +226,7 @@ const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="usertype">Type de compte</Label>
-                    <Select value={userType} onValueChange={(value: any) => setUserType(value)}>
+                    <Select value={userType} onValueChange={(value: 'locataire' | 'proprietaire' | 'agence') => setUserType(value)}>
                       <SelectTrigger id="usertype">
                         <SelectValue />
                       </SelectTrigger>

@@ -17,6 +17,19 @@ import { fr } from 'date-fns/locale';
 import { useEffect, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+// Local type matching useNotifications hook
+interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  message: string | null;
+  link: string | null;
+  action_url: string | null;
+  category: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 const getCategoryIcon = (category: string) => {
   switch (category) {
     case 'messages':
@@ -57,7 +70,7 @@ const NotificationBell = () => {
     requestPermission();
   }, []);
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: NotificationItem) => {
     markAsRead(notification.id);
     const url = notification.action_url || notification.link;
     if (url) {
@@ -66,7 +79,7 @@ const NotificationBell = () => {
   };
 
   const groupedNotifications = useMemo(() => {
-    const groups: Record<string, any[]> = {
+    const groups: Record<string, NotificationItem[]> = {
       all: notifications,
       messages: [],
       applications: [],
@@ -93,7 +106,7 @@ const NotificationBell = () => {
     return counts;
   }, [groupedNotifications]);
 
-  const renderNotificationItem = (notification: any) => {
+  const renderNotificationItem = (notification: NotificationItem) => {
     const CategoryIcon = getCategoryIcon(notification.category || 'system');
     
     return (
