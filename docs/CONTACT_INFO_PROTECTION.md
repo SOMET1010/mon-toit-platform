@@ -33,18 +33,26 @@ Phone numbers and other contact information are sensitive PII that must be prote
 
 ### 2. RLS Policies
 
-The `profiles` table has RLS policies that appear to grant access to landlords/applicants/lease parties. **IMPORTANT**: While these policies allow SELECT on the table, frontend code MUST use the RPC functions instead:
+The `profiles` table has STRICT RLS policies that prevent cross-user access:
+- ✅ Users can view their own complete profile (including phone)
+- ✅ Admins can view all profiles
+- ❌ All other access is DENIED at the database level
+
+**Cross-user access MUST use RPC functions:**
 
 ```sql
--- ❌ WRONG: Direct SELECT exposes phone numbers
+-- ❌ WRONG: Direct SELECT is blocked by RLS (unless you're viewing your own profile)
 SELECT * FROM profiles WHERE id = 'some-user-id';
+-- ERROR: RLS policy violation
 
--- ✅ CORRECT: Use RPC function for public info
+-- ✅ CORRECT: Use RPC function for public info (no phone)
 SELECT * FROM get_public_profile('some-user-id');
 
--- ✅ CORRECT: Use RPC function for phone (if legitimate access)
+-- ✅ CORRECT: Use RPC function for phone (logged access with relationship checks)
 SELECT get_user_phone('some-user-id');
 ```
+
+This architecture prevents contact information harvesting by blocking direct queries at the database level.
 
 ### 3. Frontend Implementation
 
@@ -118,7 +126,13 @@ Consider implementing rate limiting on `get_user_phone()` calls:
 
 - **2025-10-05**: Added `phone_access_log` table and updated `get_user_phone()` to log all access attempts
 - **2025-10-05**: Created `get_public_profile()` RPC for accessing non-sensitive profile data
-- **2025-10-05**: Updated RLS policy names to clarify they grant access to "public profiles"
+- **2025-10-05**: **SECURITY FIX** - Removed overly permissive RLS policies on `profiles` table
+  - Dropped: "Applicants can view landlord public profiles"
+  - Dropped: "Landlords can view applicant public profiles"
+  - Dropped: "Lease parties can view each other public profiles"
+  - Result: Cross-user access now MUST use `get_public_profile()` or `get_user_phone()` RPCs
+  - This prevents contact information harvesting by scammers creating fake applications/listings
+- **2025-10-05**: Removed `profiles_public` view entirely (redundant with `get_public_profile()` RPC)
 
 ## Best Practices
 
