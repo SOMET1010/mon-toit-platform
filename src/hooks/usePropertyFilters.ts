@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Property, SearchFilters, GeoLocation } from '@/types';
-import { calculateDistance, getCurrentLocation } from '@/lib/geo';
+import { calculateDistance, getCurrentLocation, hasCoordinates } from '@/lib/geo';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -77,18 +77,18 @@ export const usePropertyFilters = (properties: Property[]) => {
       const location = await getCurrentLocation();
       setUserLocation(location);
 
-      const filtered = properties.filter(property => {
-        if (!property.latitude || !property.longitude) return false;
-        
-        const distance = calculateDistance(
-          location.latitude,
-          location.longitude,
-          property.latitude,
-          property.longitude
-        );
-        
-        return distance <= radiusKm;
-      });
+      const filtered = properties
+        .filter(hasCoordinates)
+        .filter(property => {
+          const distance = calculateDistance(
+            location.latitude,
+            location.longitude,
+            property.latitude,
+            property.longitude
+          );
+
+          return distance <= radiusKm;
+        });
 
       setFilteredProperties(filtered);
 

@@ -2,6 +2,17 @@
  * Geographic utility functions
  */
 
+import type { Property } from '@/types';
+
+/**
+ * Type guard to check if a property has valid coordinates
+ */
+export const hasCoordinates = (
+  property: Property
+): property is Property & { latitude: number; longitude: number } => {
+  return property.latitude != null && property.longitude != null;
+};
+
 /**
  * Calculate distance between two coordinates using Haversine formula
  * @param lat1 - Latitude of first point

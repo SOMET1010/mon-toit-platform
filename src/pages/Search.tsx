@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Grid, List, Map } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
-import { propertyService } from '@/services/propertyService';
+import { useProperties } from '@/hooks/useProperties';
 import { usePropertyFilters } from '@/hooks/usePropertyFilters';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
-import { Property } from '@/types';
+import { hasCoordinates } from '@/lib/geo';
 
 type ViewMode = 'grid' | 'list' | 'map';
 
@@ -22,16 +22,11 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: properties = [], isLoading } = useProperties();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   
   const { filteredProperties, handleFilterChange, handleLocationSearch, handleReset } = 
     usePropertyFilters(properties);
-
-  useEffect(() => {
-    fetchProperties();
-  }, []);
 
   useEffect(() => {
     if (properties.length > 0) {
@@ -49,18 +44,7 @@ const Search = () => {
     }
   }, [properties, searchParams]);
 
-  const fetchProperties = async () => {
-    try {
-      const data = await propertyService.fetchAll();
-      setProperties(data);
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -116,7 +100,7 @@ const Search = () => {
           {viewMode === 'map' ? (
             <div className="mt-6 h-[600px] rounded-lg overflow-hidden border">
               <PropertyMap 
-                properties={filteredProperties}
+                properties={filteredProperties.filter(hasCoordinates)}
                 onPropertyClick={(id) => navigate(`/property/${id}`)}
                 onLocationSearch={(lat, lng) => handleLocationSearch(5)}
                 showLocationButton={true}
