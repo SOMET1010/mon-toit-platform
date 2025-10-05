@@ -78,6 +78,18 @@ $$;
 
 **IMPORTANT** : Toujours utiliser `SECURITY DEFINER` pour éviter les problèmes de récursion RLS.
 
+### Audit des accès aux données sensibles
+
+Les accès aux données de vérification (numéros ID, sécurité sociale) sont loggés automatiquement :
+
+```typescript
+// Utiliser la fonction RPC sécurisée pour voir les vérifications
+const { data } = await supabase.rpc('view_user_verification', {
+  target_user_id: userId
+});
+// Cet appel est automatiquement loggé dans admin_audit_logs
+```
+
 ### Vérification côté client
 
 Utiliser le hook `useAuth()` :
@@ -384,18 +396,51 @@ import { ApplicantPhoneDisplay } from '@/components/application/ApplicantPhoneDi
 
 ### Données de Vérification Sensibles
 
-La table `user_verifications` contient des données très sensibles (numéros CNI ONECI, numéros de sécurité sociale CNAM, scores biométriques).
+Les données de vérification (numéros CNI, sécurité sociale) sont strictement protégées.
 
 #### Accès Restreint
 
-**Seuls les SUPER ADMINS** peuvent accéder aux données de vérification via la policy RLS :
+**Seuls les super_admins** peuvent accéder aux données de vérification complètes.
+
+#### Fonction RPC avec Audit
+
+```typescript
+// ✅ CORRECT : Utiliser la fonction RPC (super_admins uniquement)
+const { data } = await supabase.rpc('view_user_verification', {
+  target_user_id: userId
+});
+// Cet appel est automatiquement loggé dans admin_audit_logs
+```
+
+#### Vérifier les accès
 
 ```sql
-CREATE POLICY "Super admins can view all verifications"
-ON public.user_verifications
-FOR SELECT
-USING (public.has_role(auth.uid(), 'super_admin'::app_role));
+-- Consulter qui a accédé aux données de vérification
+SELECT admin_id, target_id, created_at, notes
+FROM admin_audit_logs
+WHERE action_type = 'verification_viewed'
+ORDER BY created_at DESC;
 ```
+
+### Policies RLS sur `profiles`
+
+**5 policies** contrôlent l'accès contextuel aux profils :
+
+1. ✅ **Users can view their own complete profile** : Accès complet à son propre profil (avec téléphone)
+2. ✅ **Landlords can view applicant profiles** : Propriétaires voient profils de leurs candidats
+3. ✅ **Applicants can view landlord profiles** : Candidats voient profils des propriétaires contactés
+4. ✅ **Lease parties can view each other** : Parties d'un bail se voient mutuellement
+5. ✅ **Admins can view all profiles** : Admins voient tous les profils (modération)
+
+**RAPPEL** : Utiliser `profiles_public` (vue) au lieu de `profiles` (table) pour l'affichage général sans téléphones.
+
+### Index de Performance
+
+Optimisent les vérifications d'accès contextuel :
+- `idx_rental_applications_applicant`
+- `idx_rental_applications_property`
+- `idx_leases_landlord_tenant`
+- `idx_leases_tenant_landlord`
 
 #### Fonction RPC avec Audit `view_user_verification()`
 
