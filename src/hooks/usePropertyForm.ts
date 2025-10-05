@@ -123,7 +123,8 @@ export const usePropertyForm = (propertyId?: string) => {
    */
   const submitProperty = async (
     data: PropertyFormData,
-    mediaUrls: MediaUrls
+    mediaUrls: MediaUrls,
+    overridePropertyId?: string
   ): Promise<string> => {
     if (!user || !profile) {
       throw new AppError('AUTH_REQUIRED');
@@ -163,20 +164,22 @@ export const usePropertyForm = (propertyId?: string) => {
         floor_plans: mediaUrls.floorPlans,
       };
 
-      if (propertyId) {
+      const targetId = overridePropertyId || propertyId;
+
+      if (targetId) {
         // Update existing property
         const { error } = await supabase
           .from('properties')
           .update(propertyData)
-          .eq('id', propertyId);
+          .eq('id', targetId);
 
         if (error) {
-          logger.error('Failed to update property', { error, propertyId });
+          logger.error('Failed to update property', { error, targetId });
           throw new AppError('PROPERTY_UPDATE_FAILED');
         }
 
         handleSuccess('PROPERTY_UPDATED');
-        return propertyId;
+        return targetId;
       } else {
         // Create new property
         const { data: newProperty, error } = await supabase

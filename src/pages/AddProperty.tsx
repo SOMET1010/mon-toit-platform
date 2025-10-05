@@ -59,7 +59,7 @@ const AddProperty = () => {
       const mediaUrls = await uploadMedia(propertyId, mediaFiles);
 
       // 3. Update property with media URLs
-      await submitProperty(data, mediaUrls);
+      await submitProperty(data, mediaUrls, propertyId);
 
       navigate('/mes-biens');
     } catch (error) {

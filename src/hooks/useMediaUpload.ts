@@ -192,13 +192,13 @@ export const useMediaUpload = () => {
 
       handleSuccess('MEDIA_UPLOADED');
 
-      return {
-        images: imageUrls,
-        mainImage: imageUrls[0] || null,
-        videoUrl,
-        panoramas: panoramaUrls,
-        floorPlans: floorPlanUrls,
-      };
+    return {
+      images: imageUrls,
+      mainImage: imageUrls.length > 0 ? imageUrls[0] : (existingMedia?.mainImage || null),
+      videoUrl,
+      panoramas: panoramaUrls,
+      floorPlans: floorPlanUrls,
+    };
     } catch (error) {
       handleError(error, ERROR_MESSAGES.UPLOAD_FAILED);
       throw error;

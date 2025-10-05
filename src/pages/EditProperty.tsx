@@ -16,17 +16,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Loader2, Trash2 } from 'lucide-react';
 import { MediaUploader } from '@/components/property/MediaUploader';
-import { propertySchema } from '@/components/property/form/PropertyFormSchema';
+import { type PropertyFormData } from '@/components/property/form/PropertyFormSchema';
 import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo';
 import { PropertyLocation } from '@/components/property/form/PropertyLocation';
 import { PropertyCharacteristicsForm } from '@/components/property/form/PropertyCharacteristicsForm';
 import { PropertyPricing } from '@/components/property/form/PropertyPricing';
-
-const editPropertySchema = propertySchema.extend({
-  status: z.string(),
-});
-
-type EditPropertyFormData = z.infer<typeof editPropertySchema>;
 
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
@@ -102,7 +96,7 @@ const EditProperty = () => {
     loadPropertyMedia();
   }, [id, canEditProperty, navigate]);
 
-  const onSubmit = async (data: EditPropertyFormData) => {
+  const onSubmit = async (data: PropertyFormData) => {
     if (!id || !user) return;
 
     try {
