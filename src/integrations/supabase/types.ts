@@ -1426,6 +1426,19 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
+      view_user_verification: {
+        Args: { target_user_id: string }
+        Returns: {
+          admin_review_notes: string
+          admin_reviewed_at: string
+          cnam_status: string
+          cnam_verified_at: string
+          oneci_status: string
+          oneci_verified_at: string
+          tenant_score: number
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       app_role:

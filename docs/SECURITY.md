@@ -382,6 +382,77 @@ import { ApplicantPhoneDisplay } from '@/components/application/ApplicantPhoneDi
 <ApplicantPhoneDisplay applicantId={application.applicant_id} />
 ```
 
+### Données de Vérification Sensibles
+
+La table `user_verifications` contient des données très sensibles (numéros CNI ONECI, numéros de sécurité sociale CNAM, scores biométriques).
+
+#### Accès Restreint
+
+**Seuls les SUPER ADMINS** peuvent accéder aux données de vérification via la policy RLS :
+
+```sql
+CREATE POLICY "Super admins can view all verifications"
+ON public.user_verifications
+FOR SELECT
+USING (public.has_role(auth.uid(), 'super_admin'::app_role));
+```
+
+#### Fonction RPC avec Audit `view_user_verification()`
+
+Pour accéder aux données de vérification de manière auditée :
+
+```typescript
+const { data } = await supabase.rpc('view_user_verification', {
+  target_user_id: userId
+});
+```
+
+**Restrictions** :
+- ✅ Accessible uniquement aux **super admins**
+- ✅ Tous les accès sont **loggés** dans `admin_audit_logs`
+- ✅ Retourne uniquement les statuts et dates (pas les données brutes ONECI/CNAM)
+
+**Données retournées** (sans informations sensibles complètes) :
+- `oneci_status`, `cnam_status`
+- `oneci_verified_at`, `cnam_verified_at`
+- `tenant_score`, `admin_review_notes`, `admin_reviewed_at`
+
+**Exclut** : `oneci_data`, `cnam_data`, `oneci_cni_number`, `cnam_social_security_number`
+
+### Policies RLS sur `profiles`
+
+La table `profiles` utilise maintenant des policies contextuelles :
+
+1. **Accès complet à son propre profil** :
+   ```sql
+   CREATE POLICY "Users can view their own complete profile"
+   USING (auth.uid() = id);
+   ```
+
+2. **Propriétaires voient les profils de leurs candidats** :
+   ```sql
+   CREATE POLICY "Landlords can view applicant profiles via view"
+   USING (id IN (SELECT applicant_id FROM rental_applications...));
+   ```
+
+3. **Candidats voient les profils des propriétaires contactés** :
+   ```sql
+   CREATE POLICY "Applicants can view landlord profiles via view"
+   USING (id IN (SELECT owner_id FROM properties...));
+   ```
+
+4. **Parties d'un bail se voient mutuellement** :
+   ```sql
+   CREATE POLICY "Lease parties can view each other profiles"
+   USING (id IN (SELECT landlord_id/tenant_id FROM leases...));
+   ```
+
+5. **Admins voient tous les profils** :
+   ```sql
+   CREATE POLICY "Admins can view all profiles"
+   USING (has_role(auth.uid(), 'admin'));
+   ```
+
 ### Index de Performance
 
 Les index suivants optimisent les vérifications d'accès :
