@@ -27,6 +27,11 @@ import Payments from "./pages/Payments";
 import Verification from "./pages/Verification";
 import NotFound from "./pages/NotFound";
 import UserReviews from "./pages/UserReviews";
+import Publier from "./pages/Publier";
+import APropos from "./pages/APropos";
+import Conditions from "./pages/Conditions";
+import Confidentialite from "./pages/Confidentialite";
+import MentionsLegales from "./pages/MentionsLegales";
 
 const queryClient = new QueryClient();
 
@@ -164,6 +169,11 @@ const App = () => (
               } 
             />
             <Route path="/user/:userId/reviews" element={<UserReviews />} />
+            <Route path="/publier" element={<Publier />} />
+            <Route path="/a-propos" element={<APropos />} />
+            <Route path="/conditions" element={<Conditions />} />
+            <Route path="/confidentialite" element={<Confidentialite />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
