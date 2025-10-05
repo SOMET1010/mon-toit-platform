@@ -49,14 +49,14 @@ const Hero = () => {
             </span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-background leading-tight">
+          <h1 className="text-h1 mb-6 text-background">
             Immobilier en{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
               Côte d'Ivoire
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-background/95 mb-8 leading-relaxed max-w-3xl">
-            Confiez-nous et obtenez tous les bénéfices. Mon Toit vous offre un service complet de distribution des biens immobiliers. Des appartements modernes d'Abidjan aux villas luxueuses d'Assinie, vous trouverez votre chez-vous idéal.
+          <p className="text-body-lg text-background/95 mb-8 max-w-3xl">
+            Trouvez votre logement idéal en Côte d'Ivoire. Appartements, villas, studios : des milliers de biens vérifiés par ANSUT.
           </p>
 
           {/* Search Bar */}
@@ -124,25 +124,15 @@ const Hero = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
-                  size="xl" 
-                  variant="default" 
-                  className="flex-1 gap-2 h-14 rounded-xl text-base font-semibold shadow-primary hover:shadow-primary" 
-                  onClick={handleSearch}
-                >
-                  <Search className="h-5 w-5" />
-                  Rechercher un logement
-                </Button>
-                <Button 
-                  size="xl" 
-                  variant="outline" 
-                  className="flex-1 gap-2 h-14 rounded-xl text-base font-semibold border-2 hover:bg-accent" 
-                  onClick={handleFreeSearch}
-                >
-                  Rechercher gratuitement
-                </Button>
-              </div>
+              <Button 
+                size="xl" 
+                variant="default" 
+                className="w-full gap-2 h-14 rounded-xl text-base font-semibold shadow-primary hover:shadow-primary hover:scale-105 transition-transform" 
+                onClick={handleSearch}
+              >
+                <Search className="h-5 w-5" />
+                Lancer la recherche
+              </Button>
             </div>
             
             <div className="flex flex-wrap gap-2 mt-6 items-center">

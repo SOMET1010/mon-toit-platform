@@ -20,13 +20,31 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
+          50: "hsl(var(--primary-50))",
+          100: "hsl(var(--primary-100))",
           DEFAULT: "hsl(var(--primary))",
+          500: "hsl(var(--primary-500))",
+          700: "hsl(var(--primary-700))",
+          900: "hsl(var(--primary-900))",
           foreground: "hsl(var(--primary-foreground))",
           glow: "hsl(var(--primary-glow))",
         },
         secondary: {
+          50: "hsl(var(--secondary-50))",
+          100: "hsl(var(--secondary-100))",
           DEFAULT: "hsl(var(--secondary))",
+          500: "hsl(var(--secondary-500))",
+          700: "hsl(var(--secondary-700))",
+          900: "hsl(var(--secondary-900))",
           foreground: "hsl(var(--secondary-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

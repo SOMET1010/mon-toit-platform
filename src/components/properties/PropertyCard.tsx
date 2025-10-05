@@ -24,13 +24,13 @@ export const PropertyCard = ({
   showRemoveButton = false
 }: PropertyCardProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2">
-      <div className="relative h-56 bg-muted">
+    <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-primary/50 border-2">
+      <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
           <img
             src={property.main_image}
             alt={property.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-br from-muted to-muted/50">
@@ -45,17 +45,17 @@ export const PropertyCard = ({
           <Button
             size="icon"
             variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
-            className="absolute top-3 right-3 rounded-xl shadow-lg hover:scale-110 transition-transform"
+            className="absolute top-3 right-3 rounded-xl shadow-lg hover:scale-125 transition-all duration-300 hover:rotate-12"
             onClick={() => onFavoriteClick(property.id)}
           >
-            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+            <Heart className={`h-4 w-4 transition-all ${isFavorite ? 'fill-current scale-110' : ''}`} />
           </Button>
         )}
         
         {showStatus && (
           <Badge className={`absolute top-3 left-3 rounded-xl font-semibold ${
             property.status === 'disponible' 
-              ? 'bg-green-500 text-white' 
+              ? 'bg-green-500 text-white animate-pulse' 
               : 'bg-gray-500 text-white'
           }`}>
             {getPropertyStatusLabel(property.status)}

@@ -17,12 +17,32 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 20 14% 10%;
 
+    /* Primary palette */
+    --primary-50: 22 95% 95%;
+    --primary-100: 22 95% 85%;
     --primary: 22 95% 63%;
+    --primary-500: 22 95% 63%;
+    --primary-700: 22 95% 45%;
+    --primary-900: 22 95% 25%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 22 95% 73%;
 
+    /* Secondary palette */
+    --secondary-50: 145 100% 95%;
+    --secondary-100: 145 100% 85%;
     --secondary: 145 100% 33%;
+    --secondary-500: 145 100% 33%;
+    --secondary-700: 145 100% 25%;
+    --secondary-900: 145 100% 15%;
     --secondary-foreground: 0 0% 100%;
+    
+    /* Success */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
     --muted: 20 20% 96%;
     --muted-foreground: 20 10% 45%;
@@ -71,12 +91,32 @@ All colors MUST be HSL.
     --popover: 20 15% 10%;
     --popover-foreground: 0 0% 98%;
 
+    /* Primary palette */
+    --primary-50: 22 95% 95%;
+    --primary-100: 22 95% 85%;
     --primary: 22 95% 63%;
+    --primary-500: 22 95% 63%;
+    --primary-700: 22 95% 45%;
+    --primary-900: 22 95% 25%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 22 95% 73%;
 
+    /* Secondary palette */
+    --secondary-50: 145 100% 95%;
+    --secondary-100: 145 100% 85%;
     --secondary: 145 100% 33%;
+    --secondary-500: 145 100% 33%;
+    --secondary-700: 145 100% 25%;
+    --secondary-900: 145 100% 15%;
     --secondary-foreground: 0 0% 100%;
+    
+    /* Success */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
     --muted: 20 15% 15%;
     --muted-foreground: 20 10% 65%;
@@ -118,5 +158,28 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Hiérarchie typographique */
+  .text-h1 {
+    @apply text-5xl md:text-7xl font-bold leading-tight;
+  }
+  
+  .text-h2 {
+    @apply text-3xl md:text-5xl font-bold leading-tight;
+  }
+  
+  .text-h3 {
+    @apply text-2xl md:text-3xl font-semibold leading-snug;
+  }
+  
+  .text-body-lg {
+    @apply text-lg md:text-xl leading-relaxed;
+  }
+  
+  .text-body {
+    @apply text-base leading-relaxed;
   }
 }
