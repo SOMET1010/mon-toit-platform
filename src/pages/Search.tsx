@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PropertyFiltersComponent, { PropertyFilters } from '@/components/PropertyFilters';
+import PropertyMap from '@/components/PropertyMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Bed, Bath, Maximize, Grid, List, Map, Search as SearchIcon } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Maximize, Grid, List, Map, Locate } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Link } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 type ViewMode = 'grid' | 'list' | 'map';
 
@@ -30,14 +32,18 @@ interface Property {
   has_garden: boolean;
   main_image: string | null;
   status: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const Search = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
@@ -135,8 +141,57 @@ const Search = () => {
     setFilteredProperties(filtered);
   };
 
+  const handleLocationSearch = (lat: number, lng: number) => {
+    setUserLocation({ lat, lng });
+    
+    // Calculate distance and sort by proximity
+    const propertiesWithDistance = properties
+      .filter(p => p.latitude !== null && p.longitude !== null)
+      .map(property => {
+        const distance = calculateDistance(
+          lat, 
+          lng, 
+          property.latitude!, 
+          property.longitude!
+        );
+        return { ...property, distance };
+      })
+      .sort((a, b) => a.distance - b.distance);
+    
+    // Filter properties within 10km
+    const nearbyProperties = propertiesWithDistance.filter(p => p.distance <= 10);
+    
+    if (nearbyProperties.length > 0) {
+      setFilteredProperties(nearbyProperties);
+      toast({
+        title: 'Recherche géolocalisée',
+        description: `${nearbyProperties.length} bien(s) trouvé(s) dans un rayon de 10km`,
+      });
+    } else {
+      toast({
+        title: 'Aucun bien à proximité',
+        description: 'Essayez d\'élargir votre recherche',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Haversine formula to calculate distance between two coordinates
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   const handleReset = () => {
     setFilteredProperties(properties);
+    setUserLocation(null);
   };
 
   const PropertyCard = ({ property }: { property: Property }) => {
@@ -248,7 +303,6 @@ const Search = () => {
                 variant={viewMode === 'map' ? 'default' : 'outline'}
                 size="icon"
                 onClick={() => setViewMode('map')}
-                disabled
               >
                 <Map className="h-4 w-4" />
               </Button>
@@ -257,16 +311,29 @@ const Search = () => {
 
           <PropertyFiltersComponent onFilterChange={handleFilterChange} onReset={handleReset} />
 
-          {filteredProperties.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">Aucun bien ne correspond à vos critères</p>
-            </Card>
-          ) : (
-            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
-              {filteredProperties.map(property => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
+          {viewMode === 'map' ? (
+            <div className="mt-6 h-[600px] rounded-lg overflow-hidden border">
+              <PropertyMap 
+                properties={filteredProperties}
+                onPropertyClick={(id) => navigate(`/property/${id}`)}
+                onLocationSearch={handleLocationSearch}
+                showLocationButton={true}
+              />
             </div>
+          ) : (
+            <>
+              {filteredProperties.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground">Aucun bien ne correspond à vos critères</p>
+                </Card>
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+                  {filteredProperties.map(property => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

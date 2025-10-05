@@ -141,6 +141,28 @@ const AddProperty = () => {
     setUploading(true);
 
     try {
+      // Geocode the address
+      let latitude = null;
+      let longitude = null;
+      
+      try {
+        const { data: geocodeData, error: geocodeError } = await supabase.functions.invoke('geocode-address', {
+          body: { 
+            address: data.address,
+            city: data.city 
+          }
+        });
+
+        if (!geocodeError && geocodeData) {
+          latitude = geocodeData.latitude;
+          longitude = geocodeData.longitude;
+          console.log('Geocoded coordinates:', { latitude, longitude });
+        }
+      } catch (geocodeError) {
+        console.error('Geocoding error:', geocodeError);
+        // Continue without coordinates
+      }
+
       // Créer le bien
       const { data: property, error: propertyError } = await supabase
         .from('properties')
@@ -164,6 +186,8 @@ const AddProperty = () => {
           has_parking: data.has_parking,
           has_garden: data.has_garden,
           status: 'disponible',
+          latitude,
+          longitude,
         })
         .select()
         .single();

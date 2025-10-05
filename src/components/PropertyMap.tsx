@@ -1,0 +1,191 @@
+import { useEffect, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { Button } from './ui/button';
+import { Locate, List } from 'lucide-react';
+import { Card } from './ui/card';
+
+interface Property {
+  id: string;
+  title: string;
+  city: string;
+  monthly_rent: number;
+  latitude: number | null;
+  longitude: number | null;
+  main_image: string | null;
+}
+
+interface PropertyMapProps {
+  properties: Property[];
+  onPropertyClick?: (propertyId: string) => void;
+  onLocationSearch?: (lat: number, lng: number) => void;
+  showLocationButton?: boolean;
+}
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN || '';
+
+const PropertyMap = ({ 
+  properties, 
+  onPropertyClick, 
+  onLocationSearch,
+  showLocationButton = true 
+}: PropertyMapProps) => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
+  const [mapReady, setMapReady] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [-4.0305, 5.3599], // Abidjan coordinates
+      zoom: 11,
+    });
+
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
+    map.current.on('load', () => {
+      setMapReady(true);
+    });
+
+    return () => {
+      map.current?.remove();
+      map.current = null;
+    };
+  }, []);
+
+  // Update markers when properties change
+  useEffect(() => {
+    if (!map.current || !mapReady) return;
+
+    // Clear existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
+
+    // Filter properties with valid coordinates
+    const validProperties = properties.filter(
+      p => p.latitude !== null && p.longitude !== null
+    );
+
+    if (validProperties.length === 0) return;
+
+    // Add markers for each property
+    validProperties.forEach(property => {
+      const el = document.createElement('div');
+      el.className = 'property-marker';
+      el.style.backgroundImage = 'url(/placeholder.svg)';
+      el.style.width = '40px';
+      el.style.height = '40px';
+      el.style.backgroundSize = 'cover';
+      el.style.cursor = 'pointer';
+      el.style.borderRadius = '50%';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        <div class="p-2">
+          <h3 class="font-semibold text-sm mb-1">${property.title}</h3>
+          <p class="text-xs text-muted-foreground mb-1">${property.city}</p>
+          <p class="text-sm font-bold text-primary">${property.monthly_rent.toLocaleString()} FCFA/mois</p>
+        </div>
+      `);
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([property.longitude!, property.latitude!])
+        .setPopup(popup)
+        .addTo(map.current!);
+
+      el.addEventListener('click', () => {
+        if (onPropertyClick) {
+          onPropertyClick(property.id);
+        }
+      });
+
+      markers.current.push(marker);
+    });
+
+    // Fit map to show all markers
+    if (validProperties.length > 0) {
+      const bounds = new mapboxgl.LngLatBounds();
+      validProperties.forEach(property => {
+        bounds.extend([property.longitude!, property.latitude!]);
+      });
+      map.current.fitBounds(bounds, { padding: 50, maxZoom: 15 });
+    }
+  }, [properties, mapReady, onPropertyClick]);
+
+  const handleLocateMe = () => {
+    setLocating(true);
+    
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          if (map.current) {
+            map.current.flyTo({
+              center: [longitude, latitude],
+              zoom: 13,
+              essential: true
+            });
+
+            // Add user location marker
+            new mapboxgl.Marker({ color: '#3b82f6' })
+              .setLngLat([longitude, latitude])
+              .addTo(map.current);
+          }
+
+          if (onLocationSearch) {
+            onLocationSearch(latitude, longitude);
+          }
+          
+          setLocating(false);
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setLocating(false);
+        }
+      );
+    } else {
+      setLocating(false);
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full min-h-[500px]">
+      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+      
+      {showLocationButton && (
+        <div className="absolute top-4 left-4 z-10">
+          <Button
+            onClick={handleLocateMe}
+            disabled={locating}
+            size="sm"
+            className="shadow-lg"
+          >
+            <Locate className="h-4 w-4 mr-2" />
+            {locating ? 'Localisation...' : 'Autour de moi'}
+          </Button>
+        </div>
+      )}
+
+      {properties.filter(p => p.latitude === null || p.longitude === null).length > 0 && (
+        <Card className="absolute bottom-4 left-4 right-4 p-3 z-10 bg-background/95 backdrop-blur">
+          <p className="text-sm text-muted-foreground">
+            {properties.filter(p => p.latitude === null || p.longitude === null).length} bien(s) sans géolocalisation
+          </p>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default PropertyMap;
