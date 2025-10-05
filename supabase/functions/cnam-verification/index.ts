@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { cniNumber, employerName, socialSecurityNumber } = await req.json();
+    const authHeader = req.headers.get('Authorization')!;
 
     console.log('CNAM Verification Request:', { cniNumber, employerName, socialSecurityNumber });
 
@@ -42,20 +44,47 @@ serve(async (req) => {
       const randomEmployer = employers[Math.floor(Math.random() * employers.length)];
       const estimatedSalary = Math.floor(Math.random() * (1000000 - 200000) + 200000);
 
+      const employmentData = {
+        employer: employerName || randomEmployer,
+        socialSecurityNumber: socialSecurityNumber || `SS${Math.random().toString().slice(2, 8)}`,
+        employmentStatus: 'ACTIVE',
+        contributionStatus: 'À JOUR',
+        contractType: 'CDI',
+        estimatedSalary: estimatedSalary,
+        lastContribution: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      };
+
+      // Initialiser client Supabase
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      // Récupérer l'ID utilisateur
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Utilisateur non authentifié');
+
+      // Mettre à jour la table user_verifications avec statut pending_review
+      const { error: updateError } = await supabase
+        .from('user_verifications')
+        .update({
+          cnam_status: 'pending_review',
+          cnam_data: employmentData,
+          cnam_employer: employerName,
+          cnam_social_security_number: socialSecurityNumber,
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
       return new Response(
         JSON.stringify({
           valid: true,
           cniNumber,
-          employment: {
-            employer: employerName || randomEmployer,
-            socialSecurityNumber: socialSecurityNumber || `SS${Math.random().toString().slice(2, 8)}`,
-            status: 'ACTIVE',
-            contributionStatus: 'À JOUR',
-            employmentType: 'CDI',
-            estimatedMonthlySalary: estimatedSalary,
-            lastContribution: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-          },
-          status: 'VERIFIED',
+          employment: employmentData,
+          status: 'PENDING_REVIEW',
+          message: 'Vérification soumise. En attente de validation par un administrateur.',
           verifiedAt: new Date().toISOString()
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

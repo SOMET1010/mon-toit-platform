@@ -1121,6 +1121,9 @@ export type Database = {
       }
       user_verifications: {
         Row: {
+          admin_review_notes: string | null
+          admin_reviewed_at: string | null
+          admin_reviewed_by: string | null
           cnam_data: Json | null
           cnam_employer: string | null
           cnam_social_security_number: string | null
@@ -1142,6 +1145,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_review_notes?: string | null
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
           cnam_data?: Json | null
           cnam_employer?: string | null
           cnam_social_security_number?: string | null
@@ -1163,6 +1169,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_review_notes?: string | null
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
           cnam_data?: Json | null
           cnam_employer?: string | null
           cnam_social_security_number?: string | null
@@ -1190,6 +1199,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_verification: {
+        Args: {
+          p_review_notes?: string
+          p_user_id: string
+          p_verification_type: string
+        }
+        Returns: undefined
+      }
       calculate_reputation_score: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -1228,6 +1245,14 @@ export type Database = {
       }
       promote_to_super_admin: {
         Args: { target_user_id: string }
+        Returns: undefined
+      }
+      reject_verification: {
+        Args: {
+          p_review_notes: string
+          p_user_id: string
+          p_verification_type: string
+        }
         Returns: undefined
       }
     }

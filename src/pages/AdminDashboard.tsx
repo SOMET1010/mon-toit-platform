@@ -14,6 +14,7 @@ import AdminLeases from '@/components/admin/AdminLeases';
 import AdminIntegrations from '@/components/admin/AdminIntegrations';
 import PlatformAnalytics from '@/components/admin/PlatformAnalytics';
 import DisputeManager from '@/components/admin/DisputeManager';
+import AdminVerificationQueue from '@/components/admin/AdminVerificationQueue';
 import ReviewModeration from '@/components/admin/ReviewModeration';
 import AdvancedReporting from '@/components/admin/AdvancedReporting';
 import LeaseCertificationQueue from '@/components/admin/LeaseCertificationQueue';
@@ -109,7 +110,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-10 mb-8">
+          <TabsList className="grid w-full grid-cols-11 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Vue d'ensemble
@@ -123,6 +124,7 @@ const AdminDashboard = () => {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="verifications">Vérifications</TabsTrigger>
             <TabsTrigger value="audit">Audit</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="disputes" className="flex items-center gap-2">
@@ -155,6 +157,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="certifications" className="space-y-6">
             <LeaseCertificationQueue />
+          </TabsContent>
+
+          <TabsContent value="verifications" className="space-y-6">
+            <AdminVerificationQueue />
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">

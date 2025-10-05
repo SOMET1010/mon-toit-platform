@@ -74,6 +74,8 @@ const VerificationStatus = () => {
         return <Badge className="bg-green-600">Vérifié</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-600">En attente</Badge>;
+      case 'pending_review':
+        return <Badge className="bg-blue-600">En cours de validation</Badge>;
       case 'rejected':
         return <Badge className="bg-red-600">Rejeté</Badge>;
       default:

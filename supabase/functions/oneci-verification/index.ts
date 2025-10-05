@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { cniNumber, lastName, firstName, birthDate } = await req.json();
+    const authHeader = req.headers.get('Authorization')!;
 
     console.log('ONECI Verification Request:', { cniNumber, lastName, firstName, birthDate });
 
@@ -41,20 +43,46 @@ serve(async (req) => {
     await new Promise(resolve => setTimeout(resolve, 2000)); // Simule délai API
 
     if (isValid) {
+      const holderData = {
+        lastName: lastName.toUpperCase(),
+        firstName,
+        birthDate,
+        birthPlace: 'Abidjan',
+        nationality: 'Ivoirienne',
+        issueDate: '2020-01-15',
+        expiryDate: '2030-01-15'
+      };
+
+      // Initialiser client Supabase
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      // Récupérer l'ID utilisateur
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Utilisateur non authentifié');
+
+      // Mettre à jour la table user_verifications avec statut pending_review
+      const { error: updateError } = await supabase
+        .from('user_verifications')
+        .update({
+          oneci_status: 'pending_review',
+          oneci_data: holderData,
+          oneci_cni_number: cniNumber,
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
       return new Response(
         JSON.stringify({
           valid: true,
           cniNumber,
-          holder: {
-            lastName: lastName.toUpperCase(),
-            firstName,
-            birthDate,
-            birthPlace: 'Abidjan',
-            nationality: 'Ivoirienne',
-            issueDate: '2020-01-15',
-            expiryDate: '2030-01-15'
-          },
-          status: 'VERIFIED',
+          holder: holderData,
+          status: 'PENDING_REVIEW',
+          message: 'Vérification soumise. En attente de validation par un administrateur.',
           verifiedAt: new Date().toISOString()
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
