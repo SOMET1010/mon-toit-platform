@@ -1,33 +1,51 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/services/logger';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { CheckCircle, XCircle, AlertTriangle, Star, Loader2, Filter } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface Review {
   id: string;
   rating: number;
   comment: string | null;
-  review_type: string;
-  moderation_status: string;
-  moderation_notes: string | null;
   created_at: string;
-  reviewer: { full_name: string } | null;
-  reviewee: { full_name: string } | null;
+  review_type: string;
+  moderation_status: string | null;
+  moderation_notes: string | null;
+  moderated_at: string | null;
+  reviewer: {
+    full_name: string;
+    avatar_url: string | null;
+  };
+  reviewee: {
+    full_name: string;
+  };
+}
+
+interface ModerationAnalysis {
+  inappropriateLanguage: boolean;
+  personalInfoDetected: boolean;
+  suspiciousContent: boolean;
+  confidenceScore: number;
+  suggestedAction: string;
+  aiReason: string;
 }
 
 const ReviewModeration = () => {
@@ -35,31 +53,70 @@ const ReviewModeration = () => {
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [moderationNotes, setModerationNotes] = useState('');
   const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<ModerationAnalysis | null>(null);
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [reviewTypeFilter, setReviewTypeFilter] = useState<string>('all');
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchPendingReviews();
-  }, []);
-
-  const fetchPendingReviews = async () => {
+  const fetchReviews = async (status: string) => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      let query = supabase
         .from('reviews')
         .select(`
           *,
-          reviewer:reviewer_id(full_name),
+          reviewer:reviewer_id(full_name, avatar_url),
           reviewee:reviewee_id(full_name)
         `)
-        .eq('moderation_status', 'pending')
+        .eq('moderation_status', status)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (reviewTypeFilter !== 'all') {
+        query = query.eq('review_type', reviewTypeFilter);
+      }
 
+      const { data, error } = await query;
+
+      if (error) throw error;
       setReviews((data || []) as unknown as Review[]);
     } catch (error) {
-      logger.error('Error fetching reviews', { error });
+      console.error('Error fetching reviews:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les avis',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews(activeTab);
+  }, [activeTab, reviewTypeFilter]);
+
+  const analyzeReviewContent = async (review: Review) => {
+    if (!review.comment) return;
+    
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('moderate-review', {
+        body: { reviewId: review.id, reviewText: review.comment }
+      });
+
+      if (error) throw error;
+      
+      setAnalysis(data.moderationResult);
+    } catch (error) {
+      console.error('Error analyzing review:', error);
+      toast({
+        title: 'Erreur',
+        description: "Impossible d'analyser l'avis",
+        variant: 'destructive',
+      });
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -74,231 +131,288 @@ const ReviewModeration = () => {
           moderation_status: action,
           moderation_notes: moderationNotes,
           moderated_by: user.id,
-          moderated_at: new Date().toISOString()
+          moderated_at: new Date().toISOString(),
         })
         .eq('id', reviewId);
 
       if (error) throw error;
 
       toast({
-        title: action === 'approved' ? "Avis approuvé" : "Avis rejeté",
+        title: action === 'approved' ? 'Avis approuvé' : 'Avis rejeté',
         description: `L'avis a été ${action === 'approved' ? 'approuvé' : 'rejeté'} avec succès`,
       });
 
-      fetchPendingReviews();
+      fetchReviews(activeTab);
       setSelectedReview(null);
       setModerationNotes('');
+      setAnalysis(null);
     } catch (error) {
-      logger.error('Error moderating review', { error, reviewId, action });
+      console.error('Error moderating review:', error);
       toast({
-        title: "Erreur",
+        title: 'Erreur',
         description: "Impossible de modérer l'avis",
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
 
-  const analyzeContent = (comment: string | null): { isSuspicious: boolean; reasons: string[] } => {
-    if (!comment) return { isSuspicious: false, reasons: [] };
-
-    const reasons: string[] = [];
-    
-    // Check for inappropriate language
-    const inappropriateWords = ['mot1', 'mot2']; // Add actual inappropriate words
-    if (inappropriateWords.some(word => comment.toLowerCase().includes(word))) {
-      reasons.push('Contient un langage inapproprié');
-    }
-
-    // Check for personal info (basic patterns)
-    if (/\d{10}/.test(comment)) {
-      reasons.push('Contient un numéro de téléphone');
-    }
-    if (/[\w.-]+@[\w.-]+\.\w+/.test(comment)) {
-      reasons.push('Contient une adresse email');
-    }
-
-    // Check for short/generic content
-    if (comment.length < 20) {
-      reasons.push('Commentaire trop court');
-    }
-
-    return {
-      isSuspicious: reasons.length > 0,
-      reasons
-    };
+  const getToxicityBadge = (score: number) => {
+    if (score >= 50) return <Badge variant="destructive">Toxicité élevée ({score}%)</Badge>;
+    if (score >= 20) return <Badge className="bg-warning text-warning-foreground">Toxicité modérée ({score}%)</Badge>;
+    return <Badge variant="secondary">Toxicité faible ({score}%)</Badge>;
   };
 
-  if (loading) {
+  if (loading && reviews.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Modération des avis</h2>
-        <Badge variant="secondary">{reviews.length} en attente</Badge>
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Modération des Avis</CardTitle>
+              <CardDescription>
+                Gérez les avis soumis par les utilisateurs
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={reviewTypeFilter} onValueChange={setReviewTypeFilter}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Type d'avis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les types</SelectItem>
+                    <SelectItem value="tenant_to_landlord">Locataire → Propriétaire</SelectItem>
+                    <SelectItem value="landlord_to_tenant">Propriétaire → Locataire</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="pending">
+                En attente
+              </TabsTrigger>
+              <TabsTrigger value="approved">Approuvés</TabsTrigger>
+              <TabsTrigger value="rejected">Rejetés</TabsTrigger>
+            </TabsList>
 
-      <div className="grid gap-4">
-        {reviews.length === 0 ? (
-          <Card>
-            <CardContent className="flex items-center justify-center h-32">
-              <p className="text-muted-foreground">Aucun avis en attente de modération</p>
-            </CardContent>
-          </Card>
-        ) : (
-          reviews.map((review) => {
-            const analysis = analyzeContent(review.comment);
-            
-            return (
-              <Card key={review.id} className={analysis.isSuspicious ? 'border-yellow-500' : ''}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="text-base">
-                        {review.reviewer?.full_name || 'N/A'} → {review.reviewee?.full_name || 'N/A'}
-                      </CardTitle>
-                      <div className="flex items-center gap-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < review.rating
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <Badge variant="outline">{review.review_type}</Badge>
-                      </div>
-                    </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={() => setSelectedReview(review)}>
-                          Modérer
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Modération de l'avis</DialogTitle>
-                        </DialogHeader>
-                        {selectedReview && (
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+            <TabsContent value={activeTab} className="mt-6">
+              {reviews.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  Aucun avis dans cette catégorie
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <Card key={review.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-4 flex-1">
+                            <Avatar>
+                              <AvatarImage src={review.reviewer.avatar_url || undefined} />
+                              <AvatarFallback>
+                                {review.reviewer.full_name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="space-y-2 flex-1">
                               <div>
-                                <Label>Auteur</Label>
-                                <p className="text-sm">{selectedReview.reviewer?.full_name || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <Label>À propos de</Label>
-                                <p className="text-sm">{selectedReview.reviewee?.full_name || 'N/A'}</p>
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label>Note</Label>
-                              <div className="flex items-center gap-2 mt-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-5 w-5 ${
-                                      i < selectedReview.rating
-                                        ? 'fill-yellow-400 text-yellow-400'
-                                        : 'text-gray-300'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label>Commentaire</Label>
-                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
-                                {selectedReview.comment || 'Aucun commentaire'}
-                              </p>
-                            </div>
-
-                            <div>
-                              <Label>Date</Label>
-                              <p className="text-sm">
-                                {format(new Date(selectedReview.created_at), 'PPP à HH:mm', { locale: fr })}
-                              </p>
-                            </div>
-
-                            {analysis.isSuspicious && (
-                              <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                                <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 font-medium mb-2">
-                                  <AlertTriangle className="h-4 w-4" />
-                                  Contenu suspect détecté
+                                <p className="font-medium">{review.reviewer.full_name}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  À propos de {review.reviewee.full_name}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <div className="flex items-center gap-1">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={`h-4 w-4 ${
+                                          i < review.rating
+                                            ? 'fill-primary text-primary'
+                                            : 'text-muted'
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <Badge variant="outline">
+                                    {review.review_type === 'tenant_to_landlord' 
+                                      ? 'Locataire → Propriétaire' 
+                                      : 'Propriétaire → Locataire'}
+                                  </Badge>
                                 </div>
-                                <ul className="text-sm text-yellow-700 dark:text-yellow-300 list-disc list-inside">
-                                  {analysis.reasons.map((reason, i) => (
-                                    <li key={i}>{reason}</li>
-                                  ))}
-                                </ul>
                               </div>
-                            )}
-
-                            <div className="space-y-2">
-                              <Label>Notes de modération</Label>
-                              <Textarea
-                                value={moderationNotes}
-                                onChange={(e) => setModerationNotes(e.target.value)}
-                                placeholder="Ajouter des notes de modération (optionnel)..."
-                              />
-                            </div>
-
-                            <div className="flex gap-2">
-                              <Button
-                                variant="default"
-                                className="flex-1"
-                                onClick={() => moderateReview(selectedReview.id, 'approved')}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Approuver
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                className="flex-1"
-                                onClick={() => moderateReview(selectedReview.id, 'rejected')}
-                              >
-                                <XCircle className="h-4 w-4 mr-2" />
-                                Rejeter
-                              </Button>
+                              <p className="text-sm">{review.comment}</p>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>
+                                  {format(new Date(review.created_at), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                                </span>
+                              </div>
+                              {review.moderation_notes && activeTab !== 'pending' && (
+                                <div className="mt-2 p-2 bg-muted rounded-md">
+                                  <p className="text-xs font-medium">Notes de modération :</p>
+                                  <p className="text-xs text-muted-foreground">{review.moderation_notes}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        )}
-                      </DialogContent>
-                    </Dialog>
+                          {activeTab === 'pending' && (
+                            <Button
+                              onClick={() => {
+                                setSelectedReview(review);
+                                setModerationNotes('');
+                                setAnalysis(null);
+                                analyzeReviewContent(review);
+                              }}
+                            >
+                              Modérer
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!selectedReview} onOpenChange={(open) => !open && setSelectedReview(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Modération de l'avis</DialogTitle>
+            <DialogDescription>
+              Analysez et modérez cet avis utilisateur
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedReview && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Auteur</Label>
+                  <p className="text-sm mt-1">{selectedReview.reviewer.full_name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">À propos de</Label>
+                  <p className="text-sm mt-1">{selectedReview.reviewee.full_name}</p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Note</Label>
+                <div className="flex items-center gap-1 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-5 w-5 ${
+                        i < selectedReview.rating
+                          ? 'fill-primary text-primary'
+                          : 'text-muted'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Commentaire</Label>
+                <p className="text-sm mt-1 p-3 bg-muted rounded-md">
+                  {selectedReview.comment || 'Aucun commentaire'}
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Analyse automatique</Label>
+                {analyzing ? (
+                  <div className="flex items-center gap-2 mt-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Analyse en cours...</span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {review.comment || 'Aucun commentaire'}
-                  </p>
-                  {analysis.isSuspicious && (
-                    <div className="flex items-center gap-2 mt-2 text-yellow-600 text-sm">
-                      <AlertTriangle className="h-4 w-4" />
-                      Contenu suspect
+                ) : analysis ? (
+                  <div className="mt-2 space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      {getToxicityBadge(analysis.confidenceScore)}
+                      {analysis.inappropriateLanguage && (
+                        <Badge variant="destructive">
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          Langage inapproprié
+                        </Badge>
+                      )}
+                      {analysis.personalInfoDetected && (
+                        <Badge variant="destructive">
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          Infos personnelles
+                        </Badge>
+                      )}
+                      {analysis.suspiciousContent && (
+                        <Badge className="bg-warning text-warning-foreground">
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          Contenu suspect
+                        </Badge>
+                      )}
                     </div>
-                  )}
-                  <div className="text-xs text-muted-foreground mt-2">
-                    {format(new Date(review.created_at), 'PPP', { locale: fr })}
+                    <p className="text-sm text-muted-foreground">{analysis.aiReason}</p>
+                    <p className="text-sm font-medium">
+                      Action suggérée : {
+                        analysis.suggestedAction === 'approve' ? '✅ Approuver' :
+                        analysis.suggestedAction === 'reject' ? '❌ Rejeter' :
+                        '🚩 Marquer pour révision'
+                      }
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
-      </div>
+                ) : null}
+              </div>
+
+              <div>
+                <Label htmlFor="notes">Notes de modération (optionnel)</Label>
+                <Textarea
+                  id="notes"
+                  value={moderationNotes}
+                  onChange={(e) => setModerationNotes(e.target.value)}
+                  placeholder="Ajoutez des notes expliquant votre décision..."
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedReview(null)}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => moderateReview(selectedReview.id, 'rejected')}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Rejeter
+                </Button>
+                <Button
+                  onClick={() => moderateReview(selectedReview.id, 'approved')}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Approuver
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

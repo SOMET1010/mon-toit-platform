@@ -19,6 +19,73 @@ interface ModerationResult {
   };
 }
 
+// Basic keyword-based content analysis
+function analyzeContentBasic(text: string): ModerationResult['moderationResult'] {
+  const lowerText = text.toLowerCase();
+  
+  // Inappropriate language detection
+  const inappropriateKeywords = [
+    'connard', 'salaud', 'merde', 'putain', 'enculé', 'con', 'débile',
+    'crétin', 'idiot', 'imbécile', 'nul', 'pourri', 'arnaque', 'escroquerie'
+  ];
+  const inappropriateLanguage = inappropriateKeywords.some(keyword => lowerText.includes(keyword));
+  
+  // Personal information detection
+  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+  const phoneRegex = /(\+?225|0)?[0-9]{8,10}/;
+  const personalInfoDetected = emailRegex.test(text) || phoneRegex.test(text);
+  
+  // Suspicious content (too short, repetitive, spam patterns)
+  const words = text.trim().split(/\s+/);
+  const suspiciousContent = 
+    words.length < 5 || // Too short
+    /(.)\1{4,}/.test(text) || // Repeated characters
+    /^[A-Z\s!]+$/.test(text); // All caps (shouting)
+  
+  // Sentiment analysis (basic)
+  const positiveKeywords = ['bien', 'bon', 'excellent', 'super', 'parfait', 'agréable', 'propre', 'calme'];
+  const negativeKeywords = ['mauvais', 'sale', 'bruyant', 'insalubre', 'dangereux', 'problème', 'défaut'];
+  
+  const positiveCount = positiveKeywords.filter(kw => lowerText.includes(kw)).length;
+  const negativeCount = negativeKeywords.filter(kw => lowerText.includes(kw)).length;
+  
+  let sentiment: 'positive' | 'negative' | 'neutral' = 'neutral';
+  if (positiveCount > negativeCount) sentiment = 'positive';
+  else if (negativeCount > positiveCount) sentiment = 'negative';
+  
+  // Calculate toxicity score
+  let toxicityScore = 0;
+  if (inappropriateLanguage) toxicityScore += 40;
+  if (personalInfoDetected) toxicityScore += 20;
+  if (suspiciousContent) toxicityScore += 15;
+  if (sentiment === 'negative') toxicityScore += 10;
+  
+  // Suggested action based on score
+  let suggestedAction: 'approve' | 'reject' | 'flag_for_review' = 'approve';
+  if (toxicityScore >= 50) suggestedAction = 'reject';
+  else if (toxicityScore >= 20) suggestedAction = 'flag_for_review';
+  
+  // Build reason
+  const reasons: string[] = [];
+  if (inappropriateLanguage) reasons.push('langage inapproprié détecté');
+  if (personalInfoDetected) reasons.push('informations personnelles détectées');
+  if (suspiciousContent) reasons.push('contenu suspect (trop court ou spam)');
+  
+  const aiReason = reasons.length > 0 
+    ? `Problèmes détectés : ${reasons.join(', ')}`
+    : 'Aucun problème majeur détecté';
+  
+  return {
+    sentiment,
+    inappropriateLanguage,
+    personalInfoDetected,
+    suspiciousContent,
+    confidenceScore: toxicityScore,
+    suggestedAction,
+    aiReason
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -84,85 +151,8 @@ serve(async (req) => {
       });
     }
 
-    // Call Lovable AI for moderation analysis
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
-
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a content moderation AI for a rental platform. Analyze reviews for:
-1. Sentiment (positive/negative/neutral)
-2. Inappropriate language (insults, threats, profanity)
-3. Personal information (emails, phone numbers, addresses)
-4. Suspicious content (spam, generic reviews, too short)
-5. Overall confidence score (0-100)
-6. Suggested action (approve/reject/flag_for_review)
-
-Respond ONLY with valid JSON in this exact format:
-{
-  "sentiment": "positive" | "negative" | "neutral",
-  "inappropriateLanguage": boolean,
-  "personalInfoDetected": boolean,
-  "suspiciousContent": boolean,
-  "confidenceScore": number,
-  "suggestedAction": "approve" | "reject" | "flag_for_review",
-  "aiReason": "brief explanation"
-}`
-          },
-          {
-            role: 'user',
-            content: `Analyze this review: "${textToAnalyze}"`
-          }
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "moderate_review",
-              description: "Analyze review content for moderation",
-              parameters: {
-                type: "object",
-                properties: {
-                  sentiment: { type: "string", enum: ["positive", "negative", "neutral"] },
-                  inappropriateLanguage: { type: "boolean" },
-                  personalInfoDetected: { type: "boolean" },
-                  suspiciousContent: { type: "boolean" },
-                  confidenceScore: { type: "number" },
-                  suggestedAction: { type: "string", enum: ["approve", "reject", "flag_for_review"] },
-                  aiReason: { type: "string" }
-                },
-                required: ["sentiment", "inappropriateLanguage", "personalInfoDetected", "suspiciousContent", "confidenceScore", "suggestedAction", "aiReason"],
-                additionalProperties: false
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "moderate_review" } }
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('Lovable AI error:', errorText);
-      throw new Error('AI moderation failed');
-    }
-
-    const aiData = await aiResponse.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (!toolCall) {
-      throw new Error('No tool call in AI response');
-    }
-
-    const moderationResult = JSON.parse(toolCall.function.arguments);
+    // Basic keyword-based moderation
+    const moderationResult = analyzeContentBasic(textToAnalyze);
 
     // Auto-update review if confidence is high
     if (reviewId && moderationResult.confidenceScore > 90) {
