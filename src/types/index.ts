@@ -264,27 +264,27 @@ export interface GeoLocation {
   longitude: number;
 }
 
-// =========== STATUS & LABELS ===========
-export const STATUS_LABELS: Record<string, string> = {
-  disponible: 'Disponible',
-  loue: 'Loué',
-  loué: 'Loué',
-  en_attente: 'En attente',
-  retire: 'Retiré',
-  retiré: 'Retiré',
-  refuse: 'Refusé',
-} as const;
+// =========== DEPRECATED - USE @/constants INSTEAD ===========
+// These are kept for backward compatibility but should be migrated to @/constants
 
-export const STATUS_COLORS: Record<string, string> = {
-  disponible: 'bg-green-500',
-  loue: 'bg-blue-500',
-  loué: 'bg-blue-500',
-  en_attente: 'bg-yellow-500',
-  retire: 'bg-gray-500',
-  retiré: 'bg-gray-500',
-  refuse: 'bg-red-500',
-} as const;
+import {
+  PROPERTY_STATUS_LABELS,
+  PROPERTY_STATUS_COLORS,
+} from '@/constants';
 
+/**
+ * @deprecated Use PROPERTY_STATUS_LABELS from @/constants instead
+ */
+export const STATUS_LABELS = PROPERTY_STATUS_LABELS;
+
+/**
+ * @deprecated Use PROPERTY_STATUS_COLORS from @/constants instead
+ */
+export const STATUS_COLORS = PROPERTY_STATUS_COLORS;
+
+/**
+ * @deprecated Define variants in @/constants instead
+ */
 export const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   disponible: 'default',
   en_attente: 'secondary',

@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Filter, X } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { CITIES, PROPERTY_TYPES } from '@/constants';
 
 export interface PropertyFilters {
   city?: string;
@@ -38,9 +39,6 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
   const [filters, setFilters] = useState<PropertyFilters>({});
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [surfaceRange, setSurfaceRange] = useState([0, 500]);
-
-  const cities = ['Abidjan', 'Bouaké', 'Yamoussoukro', 'Daloa', 'San-Pédro', 'Korhogo'];
-  const propertyTypes = ['Appartement', 'Villa', 'Studio', 'Duplex', 'Maison'];
 
   const handleFilterChange = (key: keyof PropertyFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };
@@ -88,7 +86,7 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                       <SelectValue placeholder="Toutes les villes" />
                     </SelectTrigger>
                     <SelectContent>
-                      {cities.map(city => (
+                      {CITIES.map(city => (
                         <SelectItem key={city} value={city}>{city}</SelectItem>
                       ))}
                     </SelectContent>
@@ -103,7 +101,7 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                       <SelectValue placeholder="Tous les types" />
                     </SelectTrigger>
                     <SelectContent>
-                      {propertyTypes.map(type => (
+                      {PROPERTY_TYPES.map(type => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
                     </SelectContent>

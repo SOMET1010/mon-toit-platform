@@ -1,63 +1,27 @@
 import type { ApplicationStatus, PropertyStatus, VerificationStatus } from '@/types';
+import {
+  PROPERTY_STATUS_LABELS,
+  PROPERTY_STATUS_COLORS,
+  APPLICATION_STATUS_LABELS,
+  APPLICATION_STATUS_VARIANTS,
+  VERIFICATION_STATUS_LABELS,
+  VERIFICATION_STATUS_VARIANTS,
+  formatPrice,
+  formatMonthlyRent,
+} from '@/constants';
 
 /**
  * Badge helper utilities for consistent styling across the app
+ * All constants are now imported from @/constants for centralized management
  */
 
-// Property status mappings
-export const propertyStatusLabels: Record<string, string> = {
-  disponible: 'Disponible',
-  loué: 'Loué',
-  loue: 'Loué',
-  en_attente: 'En attente',
-  retiré: 'Retiré',
-  retire: 'Retiré',
-};
-
-export const propertyStatusColors: Record<string, string> = {
-  disponible: 'bg-green-500',
-  loué: 'bg-blue-500',
-  loue: 'bg-blue-500',
-  en_attente: 'bg-yellow-500',
-  retiré: 'bg-gray-500',
-  retire: 'bg-gray-500',
-};
-
-// Application status mappings
-export const applicationStatusLabels: Record<string, string> = {
-  pending: 'En attente',
-  approved: 'Approuvée',
-  rejected: 'Rejetée',
-  withdrawn: 'Retirée',
-};
-
-export const applicationStatusVariants: Record<
-  string,
-  'default' | 'secondary' | 'destructive' | 'outline'
-> = {
-  pending: 'secondary',
-  approved: 'default',
-  rejected: 'destructive',
-  withdrawn: 'outline',
-};
-
-// Verification status mappings
-export const verificationStatusLabels: Record<string, string> = {
-  pending: 'En attente',
-  verified: 'Vérifié',
-  rejected: 'Rejeté',
-  not_attempted: 'Non tenté',
-};
-
-export const verificationStatusVariants: Record<
-  string,
-  'default' | 'secondary' | 'destructive' | 'outline'
-> = {
-  pending: 'secondary',
-  verified: 'default',
-  rejected: 'destructive',
-  not_attempted: 'outline',
-};
+// Re-export for backward compatibility
+export const propertyStatusLabels = PROPERTY_STATUS_LABELS;
+export const propertyStatusColors = PROPERTY_STATUS_COLORS;
+export const applicationStatusLabels = APPLICATION_STATUS_LABELS;
+export const applicationStatusVariants = APPLICATION_STATUS_VARIANTS;
+export const verificationStatusLabels = VERIFICATION_STATUS_LABELS;
+export const verificationStatusVariants = VERIFICATION_STATUS_VARIANTS;
 
 /**
  * Get property status label
@@ -105,16 +69,5 @@ export function getVerificationStatusVariant(
   return verificationStatusVariants[status] || 'outline';
 }
 
-/**
- * Format price with FCFA currency
- */
-export function formatPrice(price: number): string {
-  return `${price.toLocaleString('fr-FR')} FCFA`;
-}
-
-/**
- * Format price per month
- */
-export function formatMonthlyRent(rent: number): string {
-  return `${formatPrice(rent)}/mois`;
-}
+// Re-export formatPrice and formatMonthlyRent from constants
+export { formatPrice, formatMonthlyRent };
