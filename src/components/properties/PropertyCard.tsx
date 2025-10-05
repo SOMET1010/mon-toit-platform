@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -5,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Bed, Bath, Maximize } from 'lucide-react';
 import { Property } from '@/types';
 import { getPropertyStatusLabel, formatPrice } from '@/lib/badgeHelpers';
+import { supabase } from '@/integrations/supabase/client';
+import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 
 interface PropertyCardProps {
   property: Property;
@@ -23,6 +26,24 @@ export const PropertyCard = ({
   showStatus = true,
   showRemoveButton = false
 }: PropertyCardProps) => {
+  const [hasCertifiedLease, setHasCertifiedLease] = useState(false);
+
+  useEffect(() => {
+    const checkCertification = async () => {
+      const { data } = await supabase
+        .from('leases')
+        .select('id')
+        .eq('property_id', property.id)
+        .eq('certification_status', 'certified')
+        .limit(1)
+        .maybeSingle();
+      
+      setHasCertifiedLease(!!data);
+    };
+
+    checkCertification();
+  }, [property.id]);
+
   return (
     <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-primary/50 border-2">
       <div className="relative h-56 bg-muted overflow-hidden">
@@ -60,6 +81,12 @@ export const PropertyCard = ({
           }`}>
             {getPropertyStatusLabel(property.status)}
           </Badge>
+        )}
+        
+        {hasCertifiedLease && (
+          <div className="absolute bottom-3 left-3">
+            <ANSUTCertifiedBadge status="certified" variant="compact" />
+          </div>
         )}
       </div>
 

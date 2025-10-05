@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface ANSUTCertifiedBadgeProps {
   status: 'not_requested' | 'pending' | 'certified' | 'rejected';
   certifiedAt?: string | null;
-  variant?: 'default' | 'detailed';
+  variant?: 'default' | 'detailed' | 'compact';
 }
 
 const ANSUTCertifiedBadge = ({ status, certifiedAt, variant = 'default' }: ANSUTCertifiedBadgeProps) => {
@@ -45,6 +45,15 @@ const ANSUTCertifiedBadge = ({ status, certifiedAt, variant = 'default' }: ANSUT
   const config = getStatusConfig();
   const Icon = config.icon;
 
+  if (variant === 'compact') {
+    return (
+      <Badge className={`${config.color} gap-1.5 text-xs px-2 py-1`}>
+        <Icon className="h-3 w-3" />
+        <span>ANSUT</span>
+      </Badge>
+    );
+  }
+
   if (variant === 'detailed') {
     return (
       <div className={`inline-flex items-center gap-2 ${config.color} px-4 py-2 rounded-lg text-white transition-smooth`}>
@@ -70,12 +79,35 @@ const ANSUTCertifiedBadge = ({ status, certifiedAt, variant = 'default' }: ANSUT
             {config.text}
           </Badge>
         </TooltipTrigger>
-        <TooltipContent>
-          <p>{config.text}</p>
-          {status === 'certified' && certifiedAt && (
-            <p className="text-xs mt-1">
-              Certifié le {new Date(certifiedAt).toLocaleDateString('fr-FR')}
-            </p>
+        <TooltipContent className="max-w-xs">
+          {status === 'certified' && (
+            <div className="space-y-1">
+              <p className="font-semibold">Bail validé par ANSUT</p>
+              {certifiedAt && (
+                <p className="text-xs">
+                  Certifié le {new Date(certifiedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              )}
+              <p className="text-xs">Conforme aux normes légales ivoiriennes</p>
+            </div>
+          )}
+          {status === 'pending' && (
+            <div className="space-y-1">
+              <p className="font-semibold">Certification en cours</p>
+              <p className="text-xs">Demande en cours d'examen (2-5 jours)</p>
+            </div>
+          )}
+          {status === 'rejected' && (
+            <div className="space-y-1">
+              <p className="font-semibold">Certification refusée</p>
+              <p className="text-xs">Consultez les notes pour plus de détails</p>
+            </div>
+          )}
+          {status === 'not_requested' && (
+            <div className="space-y-1">
+              <p className="font-semibold">Pas de certification ANSUT</p>
+              <p className="text-xs">Ce bail n'a pas demandé de certification</p>
+            </div>
           )}
         </TooltipContent>
       </Tooltip>

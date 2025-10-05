@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Shield, Info } from 'lucide-react';
+import { Shield, Info, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CertificationRequestProps {
@@ -47,8 +48,8 @@ const CertificationRequest = ({ leaseId, certificationStatus, onRequestSubmitted
       if (error) throw error;
 
       toast({
-        title: 'Demande envoyée',
-        description: 'Votre demande de certification ANSUT a été envoyée avec succès',
+        title: '✅ Demande envoyée avec succès',
+        description: 'Un agent ANSUT examinera votre dossier sous 2-5 jours ouvrables',
       });
 
       setOpen(false);
@@ -100,6 +101,11 @@ const CertificationRequest = ({ leaseId, certificationStatus, onRequestSubmitted
                 <li>La certification peut prendre 2-5 jours ouvrables</li>
                 <li>Un agent ANSUT examinera votre dossier complet</li>
               </ul>
+              <p className="text-sm mt-2">
+                <Link to="/certification-faq" className="text-primary underline hover:text-primary/80">
+                  Consulter la FAQ complète
+                </Link>
+              </p>
             </AlertDescription>
           </Alert>
 
@@ -123,7 +129,8 @@ const CertificationRequest = ({ leaseId, certificationStatus, onRequestSubmitted
             <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
               Annuler
             </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button onClick={handleSubmit} disabled={loading} className="gap-2">
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? 'Envoi en cours...' : 'Soumettre la demande'}
             </Button>
           </div>

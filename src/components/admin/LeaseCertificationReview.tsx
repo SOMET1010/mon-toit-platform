@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, User, Home, FileText, Shield } from 'lucide-react';
+import { CheckCircle, XCircle, User, Home, FileText, Shield, Loader2 } from 'lucide-react';
 import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 
 interface LeaseCertificationReviewProps {
@@ -171,15 +171,15 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
 
       toast({
         title: action === 'approve' 
-          ? 'Bail certifié' 
+          ? '✅ Bail certifié avec succès' 
           : action === 'reject'
-          ? 'Certification refusée'
-          : 'Modifications demandées',
+          ? '❌ Certification refusée'
+          : '⚠️ Modifications demandées',
         description: action === 'approve'
-          ? 'Le bail a été certifié avec succès par l\'ANSUT'
+          ? 'Le bail a été certifié par l\'ANSUT. Les parties ont été notifiées par email.'
           : action === 'reject'
-          ? 'La demande de certification a été refusée'
-          : 'Des modifications ont été demandées aux parties',
+          ? 'La demande de certification a été refusée. Les parties ont été notifiées.'
+          : 'Des modifications ont été demandées aux parties.',
       });
 
       onOpenChange(false);
@@ -386,23 +386,26 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
               variant="outline"
               onClick={() => handleCertification('request_changes')}
               disabled={actionLoading}
-              className="border-warning text-warning hover:bg-warning/10"
+              className="border-warning text-warning hover:bg-warning/10 gap-2"
             >
+              {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               Demander modifications
             </Button>
             <Button
               variant="destructive"
               onClick={() => handleCertification('reject')}
               disabled={actionLoading}
+              className="gap-2"
             >
-              <XCircle className="h-4 w-4 mr-2" />
+              {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
               Refuser
             </Button>
             <Button
               onClick={() => handleCertification('approve')}
               disabled={actionLoading || !isFullySigned}
+              className="gap-2"
             >
-              <CheckCircle className="h-4 w-4 mr-2" />
+              {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
               Certifier
             </Button>
           </div>

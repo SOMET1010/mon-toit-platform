@@ -1,57 +1,90 @@
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
-import { Shield, Clock, CheckCircle } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Shield, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
-interface CertificationStats {
-  total: number;
-  certified: number;
-  pending: number;
-  rejected: number;
-  in_review: number;
-  avg_processing_time: number;
+interface CertificationMetrics {
+  totalCertified: number;
+  totalRejected: number;
+  totalPending: number;
+  avgProcessingDays: number;
+  approvalRate: number;
+  topRejectionReasons: { reason: string; count: number }[];
+  thisMonthCertified: number;
 }
 
-export const CertificationStats = () => {
-  const [stats, setStats] = useState<CertificationStats | null>(null);
+const CertificationStats = () => {
+  const [metrics, setMetrics] = useState<CertificationMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
+    fetchMetrics();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchMetrics = async () => {
     try {
       const { data: leases, error } = await supabase
         .from('leases')
-        .select('certification_status, certification_requested_at, ansut_certified_at');
+        .select('certification_status, certification_requested_at, ansut_certified_at, certification_notes');
 
       if (error) throw error;
 
-      const certifiedLeases = leases?.filter(l => l.certification_status === 'certified') || [];
-      const processingTimes = certifiedLeases
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      const totalCertified = leases.filter(l => l.certification_status === 'certified').length;
+      const totalRejected = leases.filter(l => l.certification_status === 'rejected').length;
+      const totalPending = leases.filter(l => l.certification_status === 'pending').length;
+
+      const processingTimes = leases
         .filter(l => l.certification_requested_at && l.ansut_certified_at)
         .map(l => {
-          const requested = new Date(l.certification_requested_at!).getTime();
-          const certified = new Date(l.ansut_certified_at!).getTime();
-          return (certified - requested) / (1000 * 60 * 60 * 24);
+          const requested = new Date(l.certification_requested_at!);
+          const certified = new Date(l.ansut_certified_at!);
+          return (certified.getTime() - requested.getTime()) / (1000 * 60 * 60 * 24);
         });
 
-      const avgTime = processingTimes.length > 0
+      const avgProcessingDays = processingTimes.length > 0
         ? processingTimes.reduce((a, b) => a + b, 0) / processingTimes.length
         : 0;
 
-      setStats({
-        total: leases?.length || 0,
-        certified: leases?.filter(l => l.certification_status === 'certified').length || 0,
-        pending: leases?.filter(l => l.certification_status === 'pending').length || 0,
-        rejected: leases?.filter(l => l.certification_status === 'rejected').length || 0,
-        in_review: leases?.filter(l => l.certification_status === 'in_review').length || 0,
-        avg_processing_time: Math.round(avgTime * 10) / 10
+      const totalProcessed = totalCertified + totalRejected;
+      const approvalRate = totalProcessed > 0 ? (totalCertified / totalProcessed) * 100 : 0;
+
+      const thisMonthCertified = leases.filter(l => 
+        l.certification_status === 'certified' && 
+        l.ansut_certified_at &&
+        new Date(l.ansut_certified_at) >= thirtyDaysAgo
+      ).length;
+
+      const rejectionNotes = leases
+        .filter(l => l.certification_status === 'rejected' && l.certification_notes)
+        .map(l => l.certification_notes!);
+
+      const reasonCounts: { [key: string]: number } = {};
+      rejectionNotes.forEach(note => {
+        const key = note.substring(0, 50);
+        reasonCounts[key] = (reasonCounts[key] || 0) + 1;
+      });
+
+      const topRejectionReasons = Object.entries(reasonCounts)
+        .map(([reason, count]) => ({ reason, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3);
+
+      setMetrics({
+        totalCertified,
+        totalRejected,
+        totalPending,
+        avgProcessingDays,
+        approvalRate,
+        topRejectionReasons,
+        thisMonthCertified,
       });
     } catch (error) {
-      console.error('Erreur stats:', error);
+      console.error('Error fetching certification metrics:', error);
     } finally {
       setLoading(false);
     }
@@ -60,14 +93,14 @@ export const CertificationStats = () => {
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
+        {[...Array(4)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-[100px]" />
-              <Skeleton className="h-4 w-4 rounded" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-4 rounded-full" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-8 w-[60px]" />
+              <Skeleton className="h-8 w-16" />
             </CardContent>
           </Card>
         ))}
@@ -75,56 +108,92 @@ export const CertificationStats = () => {
     );
   }
 
-  if (!stats) return null;
+  if (!metrics) return null;
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total baux</CardTitle>
-          <Shield className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.total}</div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Certifications (30j)</CardTitle>
+            <Shield className="h-4 w-4 text-secondary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.thisMonthCertified}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Total: {metrics.totalCertified}
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Certifiés</CardTitle>
-          <CheckCircle className="h-4 w-4 text-success" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-success">{stats.certified}</div>
-          <p className="text-xs text-muted-foreground">
-            {stats.total > 0 ? `${Math.round((stats.certified / stats.total) * 100)}% du total` : '0%'}
-          </p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Taux d'approbation</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.approvalRate.toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {metrics.totalCertified} approuvés / {metrics.totalRejected} rejetés
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">En attente</CardTitle>
-          <Clock className="h-4 w-4 text-warning" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-warning">{stats.pending + stats.in_review}</div>
-          <p className="text-xs text-muted-foreground">
-            {stats.pending} demandes + {stats.in_review} en révision
-          </p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Temps moyen</CardTitle>
+            <Clock className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.avgProcessingDays.toFixed(1)} jours</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              De la demande à l'approbation
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Temps moyen</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.avg_processing_time}j</div>
-          <p className="text-xs text-muted-foreground">Traitement certification</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En attente</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalPending}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Demandes à traiter
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {metrics.topRejectionReasons.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <XCircle className="h-5 w-5 text-destructive" />
+              Top 3 des raisons de rejet
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {metrics.topRejectionReasons.map((reason, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {reason.count}x
+                    </Badge>
+                    <span className="text-sm text-muted-foreground line-clamp-1">
+                      {reason.reason}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
+
+export default CertificationStats;

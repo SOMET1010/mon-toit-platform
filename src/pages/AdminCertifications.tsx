@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRequireRole } from "@/hooks/useRequireRole";
 import Navbar from "@/components/Navbar";
-import { CertificationStats } from "@/components/admin/CertificationStats";
+import CertificationStats from "@/components/admin/CertificationStats";
 import LeaseCertificationQueue from "@/components/admin/LeaseCertificationQueue";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";

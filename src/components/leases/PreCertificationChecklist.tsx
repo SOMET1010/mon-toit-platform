@@ -3,6 +3,7 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface ValidationCheck {
   check_name: string;
@@ -76,10 +77,17 @@ export const PreCertificationChecklist = ({ leaseId }: PreCertificationChecklist
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {validation.checks.map((check) => (
-          <div key={check.check_name} className="flex items-start gap-3 p-3 rounded-lg border">
+        {validation.checks.map((check, index) => (
+          <div 
+            key={check.check_name} 
+            className={cn(
+              "flex items-start gap-3 p-3 rounded-lg border animate-fade-in",
+              check.passed && "border-green-600/20 bg-green-50/50 dark:bg-green-950/20"
+            )}
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
             {check.passed ? (
-              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5 animate-scale-in" />
             ) : (
               <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             )}

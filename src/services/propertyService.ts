@@ -9,6 +9,35 @@ export const propertyService = {
    * Fetch all properties with optional filters
    */
   async fetchAll(filters?: SearchFilters): Promise<Property[]> {
+    // Si filtre ANSUT, utiliser une jointure avec la table leases
+    if (filters?.isAnsutCertified) {
+      const { data, error } = await supabase
+        .from('properties')
+        .select(`
+          *,
+          leases!inner(certification_status)
+        `)
+        .eq('leases.certification_status', 'certified')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching certified properties:', error);
+        throw error;
+      }
+      
+      // Supprimer les doublons si plusieurs baux certifiés pour la même propriété
+      const uniqueProperties = data.reduce((acc, current) => {
+        const exists = acc.find(item => item.id === current.id);
+        if (!exists) {
+          acc.push(current);
+        }
+        return acc;
+      }, [] as any[]);
+
+      return uniqueProperties as Property[];
+    }
+
+    // Requête normale sans filtre ANSUT
     let query = supabase
       .from('properties')
       .select('*')

@@ -257,6 +257,7 @@ export interface SearchFilters {
   latitude?: number;
   longitude?: number;
   radius?: number;
+  isAnsutCertified?: boolean;
 }
 
 export interface GeoLocation {
