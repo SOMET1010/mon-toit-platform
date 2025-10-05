@@ -219,36 +219,39 @@ export default function Leases() {
           ) : (
             leases.map((lease) => (
               <Card key={lease.id}>
-                <Tabs defaultValue="details" className="w-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="mb-2">{lease.properties.title}</CardTitle>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <MapPin className="h-4 w-4" />
-                          {lease.properties.address}, {lease.properties.city}
-                        </div>
-                        <div className="flex gap-2 mb-4">
-                          {getStatusBadge(lease)}
-                          <Badge variant="outline">{lease.lease_type}</Badge>
-                        </div>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="mb-2">{lease.properties.title}</CardTitle>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <MapPin className="h-4 w-4" />
+                        {lease.properties.address}, {lease.properties.city}
                       </div>
-                      {lease.properties.main_image && (
-                        <img
-                          src={lease.properties.main_image}
-                          alt={lease.properties.title}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                      )}
+                      <div className="flex gap-2 mb-4">
+                        {getStatusBadge(lease)}
+                        <Badge variant="outline">{lease.lease_type}</Badge>
+                      </div>
                     </div>
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="details">Détails</TabsTrigger>
-                      <TabsTrigger value="documents">
-                        <Folder className="h-4 w-4 mr-2" />
-                        Documents
-                      </TabsTrigger>
-                    </TabsList>
-                  </CardHeader>
+                    {lease.properties.main_image && (
+                      <img
+                        src={lease.properties.main_image}
+                        alt={lease.properties.title}
+                        className="w-24 h-24 object-cover rounded-lg"
+                      />
+                    )}
+                  </div>
+                </CardHeader>
+                
+                <Tabs defaultValue="details" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 px-6">
+                    <TabsTrigger value="details">Détails</TabsTrigger>
+                    <TabsTrigger value="documents">
+                      <Folder className="h-4 w-4 mr-2" />
+                      Documents
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="details">
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div>
