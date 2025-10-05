@@ -1,38 +1,27 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield } from "lucide-react";
-import CertificationStats from "@/components/admin/CertificationStats";
+import { useRequireRole } from "@/hooks/useRequireRole";
+import Navbar from "@/components/Navbar";
+import { CertificationStats } from "@/components/admin/CertificationStats";
 import LeaseCertificationQueue from "@/components/admin/LeaseCertificationQueue";
-import AdminLeases from "@/components/admin/AdminLeases";
 
 const AdminCertifications = () => {
+  useRequireRole('admin');
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center gap-3 mb-6">
-        <Shield className="h-8 w-8 text-secondary" />
-        <div>
-          <h1 className="text-3xl font-bold">Certifications ANSUT</h1>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Certifications ANSUT</h1>
           <p className="text-muted-foreground">
-            Gérez les demandes de certification et suivez les statistiques
+            Gérez les demandes de certification des baux
           </p>
         </div>
-      </div>
 
-      <CertificationStats />
-
-      <Tabs defaultValue="queue" className="mt-8">
-        <TabsList>
-          <TabsTrigger value="queue">File d'attente</TabsTrigger>
-          <TabsTrigger value="all">Tous les baux</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="queue" className="mt-6">
+        <div className="space-y-8">
+          <CertificationStats />
           <LeaseCertificationQueue />
-        </TabsContent>
-
-        <TabsContent value="all" className="mt-6">
-          <AdminLeases />
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 };

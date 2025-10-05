@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ValidationCheck {
   check_name: string;
@@ -22,102 +22,82 @@ interface PreCertificationChecklistProps {
   leaseId: string;
 }
 
-const PreCertificationChecklist = ({ leaseId }: PreCertificationChecklistProps) => {
-  const [loading, setLoading] = useState(true);
+export const PreCertificationChecklist = ({ leaseId }: PreCertificationChecklistProps) => {
   const [validation, setValidation] = useState<ValidationResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const validateLease = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { data, error: rpcError } = await supabase
-          .rpc('pre_validate_lease_for_certification', { p_lease_id: leaseId });
-
-        if (rpcError) throw rpcError;
-        if (data) {
-          setValidation(data as unknown as ValidationResult);
-        }
-      } catch (err: any) {
-        console.error('Validation error:', err);
-        setError(err.message || 'Erreur lors de la validation');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (leaseId) {
-      validateLease();
-    }
+    validateLease();
   }, [leaseId]);
+
+  const validateLease = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.rpc('pre_validate_lease_for_certification', {
+        p_lease_id: leaseId
+      });
+
+      if (error) throw error;
+      setValidation(data as unknown as ValidationResult);
+    } catch (error) {
+      console.error('Erreur validation:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
-      <Card className="p-6">
-        <div className="flex items-center justify-center gap-2">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Validation en cours...</span>
-        </div>
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
       </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
     );
   }
 
   if (!validation) return null;
 
   return (
-    <Card className="p-6">
-      <h3 className="text-lg font-semibold mb-4">Critères de certification ANSUT</h3>
-      
-      <div className="space-y-3">
-        {validation.checks.map((check, index) => (
-          <div
-            key={index}
-            className="flex items-start gap-3 p-3 rounded-lg border bg-card"
-          >
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {validation.all_passed ? (
+            <CheckCircle2 className="h-5 w-5 text-success" />
+          ) : (
+            <XCircle className="h-5 w-5 text-destructive" />
+          )}
+          Vérifications pré-certification
+        </CardTitle>
+        <CardDescription>
+          {validation.all_passed 
+            ? "Tous les critères sont remplis pour la certification ANSUT" 
+            : "Certains critères doivent être complétés avant la certification"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {validation.checks.map((check) => (
+          <div key={check.check_name} className="flex items-start gap-3 p-3 rounded-lg border">
             {check.passed ? (
-              <CheckCircle2 className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
             ) : (
-              <XCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+              <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             )}
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
               <p className="font-medium">{check.label}</p>
-              <p className={`text-sm ${check.passed ? 'text-muted-foreground' : 'text-destructive'}`}>
-                {check.message}
-              </p>
+              <p className="text-sm text-muted-foreground">{check.message}</p>
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-4 pt-4 border-t">
-        {validation.all_passed ? (
-          <Alert className="bg-success/10 border-success text-success">
-            <CheckCircle2 className="h-4 w-4" />
+        
+        {!validation.all_passed && (
+          <Alert>
             <AlertDescription>
-              Tous les critères sont remplis. Ce bail peut être soumis pour certification ANSUT.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertDescription>
-              Certains critères ne sont pas remplis. Complétez les éléments manquants avant de demander la certification.
+              Complétez les critères manquants avant de demander la certification ANSUT.
             </AlertDescription>
           </Alert>
         )}
-      </div>
+      </CardContent>
     </Card>
   );
 };
-
-export default PreCertificationChecklist;
