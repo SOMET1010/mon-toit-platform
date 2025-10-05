@@ -175,6 +175,44 @@ export type Database = {
         }
         Relationships: []
       }
+      lease_certification_history: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          lease_id: string
+          notes: string | null
+          status: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          lease_id: string
+          notes?: string | null
+          status: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          lease_id?: string
+          notes?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lease_certification_history_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lease_documents: {
         Row: {
           created_at: string
@@ -1292,6 +1330,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      pre_validate_lease_for_certification: {
+        Args: { p_lease_id: string }
+        Returns: Json
+      }
       promote_to_super_admin: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -1317,6 +1359,12 @@ export type Database = {
         | "moderator"
         | "super_admin"
         | "tiers_de_confiance"
+      certification_status:
+        | "not_requested"
+        | "pending"
+        | "in_review"
+        | "certified"
+        | "rejected"
       user_type: "locataire" | "proprietaire" | "agence" | "admin_ansut"
     }
     CompositeTypes: {
@@ -1452,6 +1500,13 @@ export const Constants = {
         "moderator",
         "super_admin",
         "tiers_de_confiance",
+      ],
+      certification_status: [
+        "not_requested",
+        "pending",
+        "in_review",
+        "certified",
+        "rejected",
       ],
       user_type: ["locataire", "proprietaire", "agence", "admin_ansut"],
     },

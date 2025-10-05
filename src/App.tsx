@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminCertifications from "./pages/AdminCertifications";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import MyProperties from "./pages/MyProperties";
 import AddProperty from "./pages/AddProperty";
@@ -70,6 +71,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/certifications" 
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
+                  <AdminCertifications />
                 </ProtectedRoute>
               } 
             />

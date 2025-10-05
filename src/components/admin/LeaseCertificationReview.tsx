@@ -101,11 +101,29 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
     }
   };
 
-  const handleCertification = async (status: 'certified' | 'rejected') => {
+  const handleCertification = async (action: 'approve' | 'reject' | 'request_changes') => {
     setActionLoading(true);
     try {
+      let status: 'certified' | 'rejected' | 'in_review';
+      let actionType: string;
+      
+      switch (action) {
+        case 'approve':
+          status = 'certified';
+          actionType = 'approved';
+          break;
+        case 'reject':
+          status = 'rejected';
+          actionType = 'rejected';
+          break;
+        case 'request_changes':
+          status = 'in_review';
+          actionType = 'requested_changes';
+          break;
+      }
+
       const updateData: {
-        certification_status: 'certified' | 'rejected';
+        certification_status: 'certified' | 'rejected' | 'in_review';
         certification_notes: string | null;
         ansut_certified_at?: string;
       } = {
@@ -113,7 +131,7 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
         certification_notes: adminNotes.trim() || null,
       };
 
-      if (status === 'certified') {
+      if (action === 'approve') {
         updateData.ansut_certified_at = new Date().toISOString();
       }
 
@@ -124,17 +142,35 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
 
       if (error) throw error;
 
+      // Log history
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        await supabase.from('lease_certification_history').insert({
+          lease_id: leaseId,
+          admin_id: userData.user.id,
+          action: actionType,
+          status: status,
+          notes: adminNotes.trim() || null,
+        });
+      }
+
       toast({
-        title: status === 'certified' ? 'Bail certifié' : 'Certification refusée',
-        description: status === 'certified' 
+        title: action === 'approve' 
+          ? 'Bail certifié' 
+          : action === 'reject'
+          ? 'Certification refusée'
+          : 'Modifications demandées',
+        description: action === 'approve'
           ? 'Le bail a été certifié avec succès par l\'ANSUT'
-          : 'La demande de certification a été refusée',
+          : action === 'reject'
+          ? 'La demande de certification a été refusée'
+          : 'Des modifications ont été demandées aux parties',
       });
 
       onOpenChange(false);
       onStatusUpdated?.();
     } catch (error) {
-      logger.error('Error updating certification', { error, leaseId, status });
+      logger.error('Error updating certification', { error, leaseId, action });
       toast({
         title: 'Erreur',
         description: error instanceof Error ? error.message : 'Impossible de mettre à jour la certification',
@@ -332,15 +368,23 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
               Fermer
             </Button>
             <Button
+              variant="outline"
+              onClick={() => handleCertification('request_changes')}
+              disabled={actionLoading}
+              className="border-warning text-warning hover:bg-warning/10"
+            >
+              Demander modifications
+            </Button>
+            <Button
               variant="destructive"
-              onClick={() => handleCertification('rejected')}
+              onClick={() => handleCertification('reject')}
               disabled={actionLoading}
             >
               <XCircle className="h-4 w-4 mr-2" />
               Refuser
             </Button>
             <Button
-              onClick={() => handleCertification('certified')}
+              onClick={() => handleCertification('approve')}
               disabled={actionLoading || !isFullySigned}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
