@@ -48,7 +48,7 @@ const AdminStats = () => {
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
       const { count: failedCount } = await supabase
-        .from('admin_login_attempts')
+        .from('login_attempts')
         .select('*', { count: 'exact', head: true })
         .eq('success', false)
         .gte('created_at', oneDayAgo);

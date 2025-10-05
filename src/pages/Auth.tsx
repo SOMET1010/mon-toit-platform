@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Shield, Home, Eye, EyeOff } from 'lucide-react';
+import { Shield, Home, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { TwoFactorVerify } from '@/components/auth/TwoFactorVerify';
 import { toast } from '@/hooks/use-toast';
+import { getClientIP, getDeviceFingerprint, formatRetryAfter } from '@/lib/ipUtils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -51,6 +53,11 @@ const Auth = () => {
   // Password visibility toggles
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+
+  // Rate limiting states
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockMessage, setBlockMessage] = useState('');
+  const [retryAfter, setRetryAfter] = useState<string | null>(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -92,6 +99,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setSignInErrors({});
+    setIsBlocked(false);
 
     const validation = signInSchema.safeParse({
       email: signInEmail,
@@ -109,34 +117,70 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const { error } = await signIn(signInEmail, signInPassword);
-    setLoading(false);
 
-    if (!error) {
-      // Check if user is admin and requires 2FA
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      
-      if (currentUser) {
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', currentUser.id);
+    try {
+      // Get IP and fingerprint
+      const ipAddress = await getClientIP();
+      const fingerprint = getDeviceFingerprint();
 
-        const isAdmin = roles?.some(r => r.role === 'admin');
+      // Check rate limit before attempting sign in
+      const { data: rateLimitCheck } = await supabase.rpc('check_login_rate_limit', {
+        _email: signInEmail,
+        _ip_address: ipAddress
+      }) as { data: { allowed: boolean; reason?: string; retry_after?: string; blocked?: boolean; show_captcha?: boolean; failed_count?: number } | null };
 
-        if (isAdmin) {
-          // Check if 2FA is enabled
-          const { data: factors } = await supabase.auth.mfa.listFactors();
-          
-          if (factors?.totp && factors.totp.length > 0) {
-            setPendingUserId(currentUser.id);
-            setShow2FA(true);
-            return;
-          }
+      if (rateLimitCheck && typeof rateLimitCheck === 'object' && 'allowed' in rateLimitCheck && !rateLimitCheck.allowed) {
+        setIsBlocked(true);
+        setBlockMessage(rateLimitCheck.reason || 'Trop de tentatives');
+        if (rateLimitCheck.retry_after) {
+          setRetryAfter(formatRetryAfter(rateLimitCheck.retry_after));
         }
+        setLoading(false);
+        return;
       }
 
-      navigate('/');
+      const { error } = await signIn(signInEmail, signInPassword);
+
+      // Log login attempt
+      await supabase.from('login_attempts').insert({
+        email: signInEmail,
+        ip_address: ipAddress,
+        user_agent: navigator.userAgent,
+        success: !error,
+        fingerprint: fingerprint
+      });
+
+      setLoading(false);
+
+      if (!error) {
+        // Check if user is admin and requires 2FA
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        
+        if (currentUser) {
+          const { data: roles } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', currentUser.id);
+
+          const isAdmin = roles?.some(r => r.role === 'admin');
+
+          if (isAdmin) {
+            // Check if 2FA is enabled
+            const { data: factors } = await supabase.auth.mfa.listFactors();
+            
+            if (factors?.totp && factors.totp.length > 0) {
+              setPendingUserId(currentUser.id);
+              setShow2FA(true);
+              return;
+            }
+          }
+        }
+
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setLoading(false);
     }
   };
 
@@ -236,6 +280,15 @@ const Auth = () => {
               </CardHeader>
               <form onSubmit={handleSignIn}>
                 <CardContent className="space-y-4">
+                  {isBlocked && (
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        {blockMessage}
+                        {retryAfter && ` Réessayez dans ${retryAfter}.`}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">Email</Label>
                     <Input
