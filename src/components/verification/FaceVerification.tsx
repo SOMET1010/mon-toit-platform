@@ -108,7 +108,7 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
     setVerificationResult(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('face-verification', {
+      const { data, error } = await supabase.functions.invoke('smile-id-verification', {
         body: {
           cniImageBase64: cniImage,
           selfieBase64: selfieImage,
@@ -120,17 +120,17 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
       setVerificationResult(data);
 
       if (data.verified) {
-        toast.success('Vérification faciale réussie !', {
-          description: `Score de similarité : ${data.similarityScore}%`
+        toast.success('Vérification Smile ID réussie !', {
+          description: `Score : ${data.similarityScore}% | Liveness : ${data.livenessCheck ? '✓' : '✗'} | Match : ${data.selfieToIdMatch ? '✓' : '✗'}`
         });
         onSuccess?.();
       } else {
         toast.error('Vérification échouée', {
-          description: data.message
+          description: data.message || data.resultText
         });
       }
     } catch (error) {
-      logger.error('Face verification error', { error });
+      logger.error('Smile ID verification error', { error });
       toast.error('Erreur lors de la vérification', {
         description: error instanceof Error ? error.message : 'Une erreur est survenue'
       });

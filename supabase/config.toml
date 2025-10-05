@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.face-verification]
 verify_jwt = false
 
+[functions.smile-id-verification]
+verify_jwt = false
+
 [functions.oneci-verification]
 verify_jwt = false
 
