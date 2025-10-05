@@ -8,16 +8,47 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, FileText, Download, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
+import { logger } from '@/services/logger';
+import type { Application } from '@/types';
+
+
+interface ScoringData {
+  score: number;
+  recommendation: 'approved' | 'conditional' | 'rejected';
+  factors: Record<string, unknown>;
+  breakdown?: {
+    identity_verification: number;
+    employment_verification: number;
+    payment_history: number;
+    income_ratio: number;
+    documents: number;
+    profile_completeness: number;
+  };
+}
 
 interface ApplicationDetailProps {
-  application: any;
+  application: Application & {
+    properties: {
+      title: string;
+      monthly_rent: number;
+      owner_id: string;
+      deposit_amount: number | null;
+      charges_amount: number | null;
+    };
+    profiles: {
+      full_name: string;
+      phone: string | null;
+      oneci_verified: boolean;
+      cnam_verified: boolean;
+    };
+  };
   onClose: () => void;
   onStatusUpdate: (applicationId: string, status: string) => void;
   isOwner: boolean;
 }
 
 const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: ApplicationDetailProps) => {
-  const [scoring, setScoring] = useState<any>(null);
+  const [scoring, setScoring] = useState<ScoringData | null>(null);
   const [loadingScore, setLoadingScore] = useState(false);
 
   useEffect(() => {
@@ -47,7 +78,7 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
         .eq('id', application.id);
 
     } catch (error) {
-      console.error('Error calculating score:', error);
+      logger.error('Error calculating tenant score', { error, applicationId: application.id });
       toast({
         title: 'Erreur',
         description: 'Impossible de calculer le score',

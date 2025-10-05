@@ -11,24 +11,30 @@ import { toast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Eye, FileText } from 'lucide-react';
 import ApplicationDetail from '@/components/application/ApplicationDetail';
 
-type Application = {
+import type { ApplicationStatus } from '@/types';
+
+type ApplicationDisplay = {
   id: string;
   property_id: string;
   applicant_id: string;
-  status: string;
-  cover_letter: string;
+  status: ApplicationStatus;
+  cover_letter: string | null;
   documents: any[];
-  application_score: number;
+  application_score: number | null;
   created_at: string;
   reviewed_at: string | null;
+  updated_at: string;
   properties: {
     title: string;
     monthly_rent: number;
     city: string;
+    owner_id: string;
+    deposit_amount: number | null;
+    charges_amount: number | null;
   };
   profiles: {
     full_name: string;
-    phone: string;
+    phone: string | null;
     oneci_verified: boolean;
     cnam_verified: boolean;
   };
@@ -36,8 +42,8 @@ type Application = {
 
 const Applications = () => {
   const { user, profile } = useAuth();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [applications, setApplications] = useState<ApplicationDisplay[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<ApplicationDisplay | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,7 +68,8 @@ const Applications = () => {
           application_score,
           created_at,
           reviewed_at,
-          properties:property_id (title, monthly_rent, city),
+          updated_at,
+          properties:property_id (title, monthly_rent, city, owner_id, deposit_amount, charges_amount),
           profiles:applicant_id (full_name, phone, oneci_verified, cnam_verified)
         `)
         .order('created_at', { ascending: false });
@@ -233,8 +240,8 @@ const ApplicationsList = ({
   getStatusBadge,
   isOwner 
 }: { 
-  applications: Application[];
-  onSelect: (app: Application) => void;
+  applications: ApplicationDisplay[];
+  onSelect: (app: ApplicationDisplay) => void;
   getStatusBadge: (status: string) => JSX.Element;
   isOwner: boolean;
 }) => {

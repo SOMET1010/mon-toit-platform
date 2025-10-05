@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { Property, Application, PropertyStats } from '@/types';
 import { propertyService } from '@/services/propertyService';
+import { logger } from '@/services/logger';
 
 interface PropertyOwner {
   id: string;
@@ -71,7 +72,7 @@ export const usePropertyDetail = (propertyId: string | undefined) => {
         ]);
       }
     } catch (error) {
-      console.error('Error fetching property details:', error);
+      logger.error('Error fetching property details', { error, propertyId });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les détails du bien',
@@ -106,7 +107,7 @@ export const usePropertyDetail = (propertyId: string | undefined) => {
       if (error) throw error;
       setApplications(data as any || []);
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      logger.error('Error fetching applications', { error, propertyId });
     }
   };
 
@@ -122,7 +123,7 @@ export const usePropertyDetail = (propertyId: string | undefined) => {
         applications_count: statsData.applications,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      logger.error('Error fetching property stats', { error, propertyId });
     }
   };
 
@@ -137,7 +138,7 @@ export const usePropertyDetail = (propertyId: string | undefined) => {
         description: 'Le statut du bien a été mis à jour',
       });
     } catch (error) {
-      console.error('Error updating status:', error);
+      logger.error('Error updating property status', { error, propertyId, newStatus });
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour le statut',
