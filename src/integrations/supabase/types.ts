@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      disputes: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          created_at: string | null
+          description: string
+          dispute_type: string
+          id: string
+          lease_id: string | null
+          priority: string | null
+          reported_id: string
+          reporter_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          created_at?: string | null
+          description: string
+          dispute_type: string
+          id?: string
+          lease_id?: string | null
+          priority?: string | null
+          reported_id: string
+          reporter_id: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          created_at?: string | null
+          description?: string
+          dispute_type?: string
+          id?: string
+          lease_id?: string | null
+          priority?: string | null
+          reported_id?: string
+          reporter_id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_templates: {
         Row: {
           created_at: string
@@ -709,6 +765,10 @@ export type Database = {
           created_at: string
           id: string
           lease_id: string | null
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
+          moderation_status: string | null
           rating: number
           review_type: string
           reviewee_id: string
@@ -720,6 +780,10 @@ export type Database = {
           created_at?: string
           id?: string
           lease_id?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string | null
           rating: number
           review_type: string
           reviewee_id: string
@@ -731,6 +795,10 @@ export type Database = {
           created_at?: string
           id?: string
           lease_id?: string | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string | null
           rating?: number
           review_type?: string
           reviewee_id?: string
@@ -869,6 +937,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_reminders: {
+        Row: {
+          created_at: string | null
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          last_sent_at: string | null
+          link: string | null
+          message: string | null
+          reminder_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sent_at?: string | null
+          link?: string | null
+          message?: string | null
+          reminder_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sent_at?: string | null
+          link?: string | null
+          message?: string | null
+          reminder_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

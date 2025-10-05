@@ -9,6 +9,8 @@ import { Home, Building2, Users, BarChart3, Plus, FileText, Settings } from 'luc
 import { Link } from 'react-router-dom';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
+import SearchHistory from '@/components/dashboard/SearchHistory';
+import SmartReminders from '@/components/dashboard/SmartReminders';
 
 const Dashboard = () => {
   const { profile, loading, user } = useAuth();
@@ -95,12 +97,14 @@ const Dashboard = () => {
 
           {/* Recommendations Section */}
           {user && profile.user_type === 'locataire' && (
-            <div className="mb-8">
+            <div className="space-y-6 mb-8">
+              <SmartReminders />
               <RecommendationsSection
                 userId={user.id}
                 type="properties"
                 limit={5}
               />
+              <SearchHistory />
             </div>
           )}
 
