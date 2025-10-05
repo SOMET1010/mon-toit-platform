@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Home, Building2, Users, BarChart3, Plus, FileText, Settings } from 'lucide-react';
@@ -69,8 +70,10 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-6xl mx-auto space-y-8">
+          <DynamicBreadcrumb />
+          
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>

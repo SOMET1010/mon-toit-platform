@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Home, Menu, User, LogOut, LayoutDashboard, Heart, Search, ShieldCheck, Building2, FileText, Key, Shield } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Home, User, LogOut, LayoutDashboard, Search, ShieldCheck, Building2, FileText, Shield, Settings } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,63 +10,54 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import monToitLogo from "@/assets/mon-toit-logo.png";
 import NotificationBell from "@/components/NotificationBell";
 import CertificationNotificationBadge from "@/components/admin/CertificationNotificationBadge";
-import MessageNotifications from "@/components/messaging/MessageNotifications";
+import { NavLink } from "@/components/navigation/NavLink";
+import { VerificationProgress } from "@/components/navigation/VerificationProgress";
+import { MobileMenu } from "@/components/navigation/MobileMenu";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const { canAccessAdminDashboard } = usePermissions();
+  const location = useLocation();
 
   const getNavLinks = (userType: string | null | undefined) => {
-    // Menu Visiteur (non connecté)
     if (!userType) {
       return [
         { to: "/recherche", label: "Rechercher", icon: Search },
         { to: "/publier", label: "Publier", icon: Building2 },
-        { to: "/a-propos", label: "À propos", icon: FileText },
       ];
     }
 
-    // Menu Locataire
     if (userType === 'locataire') {
       return [
         { to: "/recherche", label: "Rechercher", icon: Search },
-        { to: "/favoris", label: "Favoris", icon: Heart },
-        { to: "/candidatures", label: "Mes candidatures", icon: FileText },
-        { to: "/a-propos", label: "À propos", icon: FileText },
+        { to: "/candidatures", label: "Candidatures", icon: FileText },
       ];
     }
 
-    // Menu Propriétaire
     if (userType === 'proprietaire') {
       return [
         { to: "/recherche", label: "Rechercher", icon: Search },
         { to: "/mes-biens", label: "Mes biens", icon: Home },
         { to: "/publier", label: "Publier", icon: Building2 },
-        { to: "/baux", label: "Mes baux", icon: FileText },
-        { to: "/a-propos", label: "À propos", icon: FileText },
       ];
     }
 
-    // Menu Agence
     if (userType === 'agence') {
       return [
         { to: "/recherche", label: "Rechercher", icon: Search },
         { to: "/mes-biens", label: "Portefeuille", icon: Building2 },
-        { to: "/publier", label: "Publier", icon: Building2 },
-        { to: "/baux", label: "Gestion baux", icon: FileText },
-        { to: "/a-propos", label: "À propos", icon: FileText },
       ];
     }
 
-    // Fallback
     return [
       { to: "/recherche", label: "Rechercher", icon: Search },
-      { to: "/a-propos", label: "À propos", icon: FileText },
     ];
   };
 
@@ -94,24 +84,20 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link 
-                  key={link.to}
-                  to={link.to} 
-                  className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-smooth group"
-                >
-                  <Icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                label={link.label}
+                icon={link.icon}
+              />
+            ))}
           </div>
 
           <div className="flex items-center gap-3">
             {user ? (
               <>
+                <VerificationProgress />
                 <NotificationBell />
                 <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -131,50 +117,46 @@ const Navbar = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard" className="cursor-pointer">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Tableau de bord
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/profil" className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" />
-                      Mon profil
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/favoris" className="cursor-pointer">
-                      <Heart className="mr-2 h-4 w-4" />
-                      Mes favoris
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/verification" className="cursor-pointer">
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      Vérification d'identité
-                      {(profile?.oneci_verified || profile?.cnam_verified) && (
-                        <span className="ml-auto text-xs text-green-600">✓</span>
-                      )}
-                    </Link>
-                  </DropdownMenuItem>
-                  {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
+                  
+                  <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
-                      <Link to="/mes-biens" className="cursor-pointer">
-                        <Home className="mr-2 h-4 w-4" />
-                        Mes biens
+                      <Link to="/dashboard" className="cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Tableau de bord
                       </Link>
                     </DropdownMenuItem>
-                  )}
+                    <DropdownMenuItem asChild>
+                      <Link to="/profil" className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        Mon profil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/verification" className="cursor-pointer">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        Vérification
+                        {(profile?.oneci_verified || profile?.cnam_verified) && (
+                          <span className="ml-auto text-xs text-green-600">✓</span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+
                   {canAccessAdminDashboard && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/certifications" className="cursor-pointer flex items-center">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Certifications ANSUT
-                        <CertificationNotificationBadge />
-                      </Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/certifications" className="cursor-pointer flex items-center">
+                            <Shield className="mr-2 h-4 w-4" />
+                            Admin ANSUT
+                            <CertificationNotificationBadge />
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </>
                   )}
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -198,92 +180,7 @@ const Navbar = () => {
             )}
             
             {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[280px]">
-                <div className="flex flex-col gap-6 mt-8">
-                  <div className="flex flex-col gap-4">
-                    {navLinks.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <Link
-                          key={link.to}
-                          to={link.to}
-                          className="flex items-center gap-3 text-base font-medium text-foreground/80 hover:text-foreground transition-smooth px-2 py-2"
-                        >
-                          <Icon className="h-5 w-5" />
-                          {link.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                  <div className="border-t border-border pt-6 flex flex-col gap-3">
-                    {user ? (
-                      <>
-                        <Button variant="outline" className="w-full gap-2" asChild>
-                          <Link to="/dashboard">
-                            <LayoutDashboard className="h-4 w-4" />
-                            Tableau de bord
-                          </Link>
-                        </Button>
-                        <Button variant="outline" className="w-full gap-2" asChild>
-                          <Link to="/profil">
-                            <User className="h-4 w-4" />
-                            Mon profil
-                          </Link>
-                        </Button>
-                        <Button variant="outline" className="w-full gap-2" asChild>
-                          <Link to="/favoris">
-                            <Heart className="h-4 w-4" />
-                            Mes favoris
-                          </Link>
-                        </Button>
-                        <Button variant="outline" className="w-full gap-2" asChild>
-                          <Link to="/verification">
-                            <ShieldCheck className="h-4 w-4" />
-                            Vérification
-                            {(profile?.oneci_verified || profile?.cnam_verified) && (
-                              <span className="ml-auto text-xs text-green-600">✓</span>
-                            )}
-                          </Link>
-                        </Button>
-                        {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
-                          <Button variant="outline" className="w-full gap-2" asChild>
-                            <Link to="/mes-biens">
-                              <Home className="h-4 w-4" />
-                              Mes biens
-                            </Link>
-                          </Button>
-                        )}
-                        <Button variant="destructive" className="w-full gap-2" onClick={signOut}>
-                          <LogOut className="h-4 w-4" />
-                          Déconnexion
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button variant="outline" className="w-full gap-2" asChild>
-                          <Link to="/auth">
-                            <User className="h-4 w-4" />
-                            Connexion
-                          </Link>
-                        </Button>
-                        <Button className="w-full gap-2" asChild>
-                          <Link to="/auth">
-                            <Home className="h-4 w-4" />
-                            Créer mon compte
-                          </Link>
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <MobileMenu navLinks={navLinks} />
           </div>
         </div>
       </div>

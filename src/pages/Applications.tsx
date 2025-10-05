@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -191,7 +192,9 @@ const Applications = () => {
       
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="mb-10">
-          <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
+          <DynamicBreadcrumb />
+          
+          <h1 className="text-4xl font-bold mb-3 mt-6 flex items-center gap-3">
             <FileText className="h-8 w-8 text-primary" />
             {isOwner ? 'Candidatures reçues' : 'Mes candidatures'}
           </h1>

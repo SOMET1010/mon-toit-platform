@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Shield, CheckCircle2, XCircle, Award, Settings, Home, MapPin, DollarSign, Bed, Bath } from 'lucide-react';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
@@ -175,6 +176,7 @@ const Profile = () => {
       
       <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-4xl mx-auto space-y-6">
+          <DynamicBreadcrumb />
           {/* Header */}
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">

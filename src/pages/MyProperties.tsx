@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Navigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, MapPin, BedDouble, Bath, Square, Eye } from 'lucide-react';
@@ -67,8 +68,10 @@ const MyProperties = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-7xl mx-auto space-y-8">
+          <DynamicBreadcrumb />
+          
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
