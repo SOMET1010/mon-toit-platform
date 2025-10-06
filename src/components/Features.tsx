@@ -1,13 +1,33 @@
-import { ShieldCheck, Users, FileSignature, TrendingUp } from "lucide-react";
+import { ShieldCheck, Users, FileSignature, TrendingUp, CheckCircle, X, Award, TrendingUp as TrendingUpIcon, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import monToitLogo from "@/assets/mon-toit-logo.png";
+
+const kpis = [
+  {
+    value: "15,000+",
+    label: "Locataires certifiés",
+    icon: Users,
+  },
+  {
+    value: "98%",
+    label: "Taux de satisfaction",
+    icon: Award,
+  },
+  {
+    value: "0",
+    label: "Fraude détectée",
+    icon: Shield,
+  },
+];
 
 const features = [
   {
     icon: ShieldCheck,
     title: "Certification Locataire ANSUT",
     description: "Vérification biométrique + scoring automatique. Démarquez-vous auprès des propriétaires",
+    microKpi: "Vérification en 48h",
     target: "locataire",
     targetLabel: "Pour les locataires",
     ctaText: "En savoir plus",
@@ -17,6 +37,7 @@ const features = [
     icon: Users,
     title: "Candidatures Pré-Vérifiées",
     description: "Ne recevez que des locataires certifiés ANSUT avec dossier complet et score de confiance",
+    microKpi: "Score de confiance 0-100",
     target: "proprietaire",
     targetLabel: "Pour les propriétaires",
     ctaText: "Publier un bien",
@@ -26,6 +47,7 @@ const features = [
     icon: FileSignature,
     title: "Contrats Digitaux Sécurisés",
     description: "Bail électronique conforme à la loi ivoirienne + signature numérique + paiements Mobile Money",
+    microKpi: "Signature en 5 min",
     target: "all",
     targetLabel: "Pour tous",
     ctaText: "Voir l'exemple",
@@ -35,6 +57,7 @@ const features = [
     icon: TrendingUp,
     title: "Tableau de Bord Agence",
     description: "Gérez plusieurs propriétés, suivez les paiements et générez des rapports en temps réel",
+    microKpi: "Rapports en temps réel",
     target: "agence",
     targetLabel: "Pour les agences",
     ctaText: "Découvrir",
@@ -42,30 +65,77 @@ const features = [
   },
 ];
 
+const beforeAnsut = [
+  { text: "Dossiers incomplets", icon: X },
+  { text: "Identité non vérifiée", icon: X },
+  { text: "Paiements non sécurisés", icon: X },
+  { text: "Pas de médiation en cas de litige", icon: X },
+];
+
+const withAnsut = [
+  { text: "Vérification biométrique", icon: CheckCircle },
+  { text: "Certification gouvernementale", icon: CheckCircle },
+  { text: "Paiements Mobile Money sécurisés", icon: CheckCircle },
+  { text: "Médiation ANSUT incluse", icon: CheckCircle },
+];
+
 const Features = () => {
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+    <section className="py-20 md:py-28 bg-gradient-to-b from-gray-50 to-white pattern-kita relative overflow-hidden">
+      <div className="container mx-auto px-4 max-w-7xl relative z-10">
+        {/* Header enrichi ANSUT */}
+        <div className="text-center mb-16">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <img src={monToitLogo} alt="Mon Toit" className="h-12 md:h-14" />
+            <Badge variant="default" className="bg-primary text-primary-foreground px-4 py-1.5 text-sm font-semibold">
+              Propulsé par ANSUT
+            </Badge>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground tracking-tight">
             L'avantage ANSUT
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Des fonctionnalités uniques pour simplifier et sécuriser vos démarches immobilières
+          
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-3 leading-relaxed">
+            L'Agence Nationale de Sécurisation des Transactions Urbaines garantit la sécurité de chaque transaction
+          </p>
+          
+          <p className="text-sm text-primary font-semibold">
+            Organisme d'État certifié
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {/* KPIs ANSUT */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+          {kpis.map((kpi, index) => {
+            const Icon = kpi.icon;
+            return (
+              <div
+                key={index}
+                className="bg-white rounded-lg border-l-4 border-l-primary shadow-md p-6 flex items-center gap-4 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Icon className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-foreground">{kpi.value}</p>
+                  <p className="text-sm text-muted-foreground">{kpi.label}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Features Cards enrichies */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             
-            // Couleur border gauche selon le target
             const borderColor = 
               feature.target === "locataire" ? "border-l-blue-600" : 
               feature.target === "proprietaire" ? "border-l-primary" : 
               "border-l-secondary";
             
-            // Couleur fond icône
             const iconBgColor = 
               feature.target === "locataire" ? "bg-blue-600" : 
               feature.target === "proprietaire" ? "bg-primary" : 
@@ -74,31 +144,123 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className={`bg-white rounded-lg border-l-4 ${borderColor} shadow-md hover:shadow-xl hover:border-l-primary transition-all duration-300 p-8 flex flex-col`}
+                style={{ animationDelay: `${index * 100}ms` }}
+                className={`bg-white rounded-lg border-l-4 ${borderColor} shadow-md hover:shadow-2xl hover:scale-[1.02] hover:border-l-primary transition-all duration-300 p-8 flex flex-col animate-fade-in relative overflow-hidden group`}
               >
-                <Badge 
-                  variant="secondary" 
-                  className="mb-4 self-start text-xs"
-                >
-                  {feature.targetLabel}
-                </Badge>
-                <div className={`${iconBgColor} p-3 rounded-full w-fit mb-4`}>
-                  <Icon className="h-8 w-8 text-white" />
+                {/* Pattern bogolan au hover */}
+                <div className="absolute inset-0 pattern-bogolan opacity-0 group-hover:opacity-[0.02] transition-opacity duration-300" />
+                
+                <div className="relative z-10">
+                  <Badge 
+                    variant="secondary" 
+                    className="mb-4 self-start text-xs"
+                  >
+                    {feature.targetLabel}
+                  </Badge>
+                  
+                  <div className={`${iconBgColor} p-3 rounded-full w-fit mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="h-8 w-8 text-white" />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
+                  
+                  <div className="mb-4">
+                    <Badge variant="outline" className="text-xs text-primary border-primary/30 bg-primary/5">
+                      ⚡ {feature.microKpi}
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{feature.description}</p>
+                  
+                  <div className="space-y-3">
+                    <Button asChild variant="outline" size="sm" className="w-full">
+                      <Link to={feature.ctaLink}>{feature.ctaText}</Link>
+                    </Button>
+                    
+                    <div className="flex items-center gap-2 justify-center">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      <span className="text-xs text-primary font-semibold">Certifié ANSUT</span>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
-                <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{feature.description}</p>
-                <Button asChild variant="outline" size="sm" className="w-full">
-                  <Link to={feature.ctaLink}>{feature.ctaText}</Link>
-                </Button>
               </div>
             );
           })}
         </div>
-        
-        <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground">
-            Conforme à la loi ivoirienne 2013-450 sur la protection des données
-          </p>
+
+        {/* Section comparative Avant/Avec ANSUT */}
+        <div className="max-w-5xl mx-auto mb-16">
+          <h3 className="text-3xl font-bold text-center mb-10 text-foreground">
+            Pourquoi ANSUT fait la différence
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Avant ANSUT */}
+            <div className="bg-gray-100 rounded-lg p-8 shadow-sm">
+              <h4 className="text-xl font-bold mb-6 text-foreground flex items-center gap-2">
+                <X className="h-6 w-6 text-destructive" />
+                Avant ANSUT
+              </h4>
+              <ul className="space-y-4">
+                {beforeAnsut.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={index} className="flex items-start gap-3">
+                      <Icon className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+                      <span className="text-muted-foreground">{item.text}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Avec ANSUT */}
+            <div className="bg-white rounded-lg p-8 shadow-lg border-2 border-primary/20 pattern-bogolan relative overflow-hidden">
+              <div className="absolute inset-0 pattern-bogolan opacity-[0.03]" />
+              <div className="relative z-10">
+                <h4 className="text-xl font-bold mb-6 text-foreground flex items-center gap-2">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                  Avec ANSUT
+                </h4>
+                <ul className="space-y-4">
+                  {withAnsut.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <li key={index} className="flex items-start gap-3">
+                        <Icon className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-foreground font-medium">{item.text}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer avec CTA */}
+        <div className="text-center mt-16 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-10 border border-primary/10">
+          <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
+            Prêt à bénéficier de la garantie ANSUT ?
+          </h3>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 max-w-md mx-auto">
+            <Button asChild size="lg" className="flex-1">
+              <Link to="/verification">Certifier mon profil</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="flex-1">
+              <Link to="/certification">En savoir plus</Link>
+            </Button>
+          </div>
+          
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">
+              Conforme à la loi ivoirienne 2013-450 sur la protection des données
+            </p>
+            <p className="text-xs text-muted-foreground font-medium">
+              ANSUT - Organisme d'État sous tutelle du Ministère de la Construction
+            </p>
+          </div>
         </div>
       </div>
     </section>
