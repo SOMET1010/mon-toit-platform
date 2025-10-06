@@ -147,9 +147,15 @@ const Navbar = () => {
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
                         <DropdownMenuItem asChild>
+                          <Link to="/admin" className="cursor-pointer flex items-center">
+                            <Shield className="mr-2 h-4 w-4" />
+                            Dashboard Admin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link to="/admin/certifications" className="cursor-pointer flex items-center">
                             <Shield className="mr-2 h-4 w-4" />
-                            Admin ANSUT
+                            Certifications ANSUT
                             <CertificationNotificationBadge />
                           </Link>
                         </DropdownMenuItem>
