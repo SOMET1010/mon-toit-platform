@@ -43,7 +43,7 @@ const Hero = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-foreground leading-tight uppercase tracking-tight">
             Trouvez votre logement ou louez{" "}
             <span className="block mt-2">en toute sécurité</span>{" "}
-            <span className="block mt-2">avec ANSUT</span>
+            <span className="block mt-2">avec Mon Toit</span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl font-medium">
