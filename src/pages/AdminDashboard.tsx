@@ -26,6 +26,7 @@ import SensitiveDataAccessMonitor from '@/components/admin/SensitiveDataAccessMo
 import { MfaSecurityMonitor } from '@/components/admin/MfaSecurityMonitor';
 import { ProcessingConfigPanel } from '@/components/admin/ProcessingConfigPanel';
 import { ProcessingAnalytics } from '@/components/admin/ProcessingAnalytics';
+import { SeedDemoDataButton } from '@/components/admin/SeedDemoDataButton';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -192,6 +193,7 @@ const AdminDashboard = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            <SeedDemoDataButton />
             <AdminStats />
           </TabsContent>
 
