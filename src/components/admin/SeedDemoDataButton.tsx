@@ -15,6 +15,10 @@ interface SeedResult {
   applications: number;
   leases: number;
   favorites: number;
+  messages: number;
+  searches: number;
+  reviews: number;
+  overdueApplications: number;
 }
 
 export const SeedDemoDataButton = () => {
@@ -25,7 +29,11 @@ export const SeedDemoDataButton = () => {
     properties: 0,
     applications: 0,
     leases: 0,
-    favorites: 0
+    favorites: 0,
+    messages: 0,
+    searches: 0,
+    reviews: 0,
+    overdueApplications: 0
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +63,11 @@ export const SeedDemoDataButton = () => {
           properties: data.result.properties || 0,
           applications: data.result.applications || 0,
           leases: data.result.leases || 0,
-          favorites: data.result.favorites || 0
+          favorites: data.result.favorites || 0,
+          messages: data.result.messages || 0,
+          searches: data.result.searches || 0,
+          reviews: data.result.reviews || 0,
+          overdueApplications: data.result.overdueApplications || 0
         });
       }
 
@@ -193,7 +205,13 @@ export const SeedDemoDataButton = () => {
               <li>• {stats.properties} propriétés</li>
               <li>• {stats.applications} candidatures</li>
               <li>• {stats.leases} baux</li>
-              <li>• {stats.favorites} données additionnelles</li>
+              <li>• {stats.favorites} favoris</li>
+              <li>• {stats.messages} messages</li>
+              <li>• {stats.searches} recherches</li>
+              <li>• {stats.reviews} avis</li>
+              {stats.overdueApplications > 0 && (
+                <li>• {stats.overdueApplications} candidatures en retard traitées</li>
+              )}
             </ul>
           </div>
         )}
