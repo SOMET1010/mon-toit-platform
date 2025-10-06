@@ -44,7 +44,7 @@ const features = [
 
 const Features = () => {
   return (
-    <section className="py-20 md:py-28 bg-gray-50">
+    <section className="py-20 md:py-28 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
@@ -74,7 +74,7 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className={`bg-white rounded-lg border-l-4 ${borderColor} shadow-md hover:shadow-lg hover:border-l-primary transition-all duration-200 p-8 flex flex-col`}
+                className={`bg-white rounded-lg border-l-4 ${borderColor} shadow-md hover:shadow-xl hover:border-l-primary transition-all duration-300 p-8 flex flex-col`}
               >
                 <Badge 
                   variant="secondary" 

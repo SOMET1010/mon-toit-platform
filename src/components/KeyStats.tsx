@@ -20,7 +20,7 @@ const stats = [
 
 const KeyStats = () => {
   return (
-    <section className="py-20 md:py-28 bg-white">
+    <section className="py-20 md:py-28 bg-gradient-to-br from-primary/5 via-white to-secondary/5 border-t-2 border-primary/20">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           {stats.map((stat, index) => {
