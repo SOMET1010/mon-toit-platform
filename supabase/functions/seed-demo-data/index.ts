@@ -444,6 +444,152 @@ Deno.serve(async (req) => {
       result.favorites++;
     }
 
+    // 6. CRÉER DES MESSAGES
+    console.log(`[${requestId}] Creating messages...`);
+    const messages = [
+      // Conversations entre propriétaires et locataires
+      { sender: 'koffi.mensah@example.com', receiver: 'jean-paul.kouassi@example.com', content: "Bonjour, je suis très intéressé par votre villa. Est-elle toujours disponible ?" },
+      { sender: 'jean-paul.kouassi@example.com', receiver: 'koffi.mensah@example.com', content: "Oui, elle est disponible ! Souhaitez-vous organiser une visite ?", read: true },
+      { sender: 'koffi.mensah@example.com', receiver: 'jean-paul.kouassi@example.com', content: "Avec plaisir ! Je suis disponible ce weekend.", read: true },
+      
+      { sender: 'aminata.toure@example.com', receiver: 'contact@immobilier-ci.com', content: "Bonjour, quelles sont les conditions de location pour le Penthouse ?", read: true },
+      { sender: 'contact@immobilier-ci.com', receiver: 'aminata.toure@example.com', content: "Bonjour ! Il faut justifier de revenus stables et fournir une caution. Voulez-vous plus de détails ?", read: true },
+      
+      { sender: 'yao.kouadio@example.com', receiver: 'marie.diabate@example.com', content: "Le loyer inclut-il les charges ?" },
+      { sender: 'marie.diabate@example.com', receiver: 'yao.kouadio@example.com', content: "Non, les charges sont en supplément (environ 50 000 FCFA/mois).", read: true },
+      
+      { sender: 'fanta.diarra@example.com', receiver: 'jean-paul.kouassi@example.com', content: "Bonjour, les animaux domestiques sont-ils acceptés ?" },
+      { sender: 'jean-paul.kouassi@example.com', receiver: 'fanta.diarra@example.com', content: "Oui, les petits animaux sont acceptés avec un supplément de garantie." },
+      
+      { sender: 'moussa.kone@example.com', receiver: 'contact@immobilier-ci.com', content: "Votre appartement standing m'intéresse beaucoup. Puis-je avoir plus de photos ?" },
+      { sender: 'contact@immobilier-ci.com', receiver: 'moussa.kone@example.com', content: "Bien sûr ! Je vous envoie le lien vers l'album photo complet.", read: true },
+      
+      { sender: 'adjoua.assi@example.com', receiver: 'marie.diabate@example.com', content: "Bonjour, quand puis-je emménager si ma candidature est acceptée ?", read: true },
+      { sender: 'marie.diabate@example.com', receiver: 'adjoua.assi@example.com', content: "Vous pourrez emménager dès la signature du bail, généralement sous 7 jours.", read: true },
+      
+      { sender: 'awa.bamba@example.com', receiver: 'ismael.traore@example.com', content: "Y a-t-il un parking disponible ?" },
+      { sender: 'ismael.traore@example.com', receiver: 'awa.bamba@example.com', content: "Oui, un parking sécurisé est inclus dans le loyer." },
+    ];
+
+    for (const msgData of messages) {
+      const senderId = userMap.get(msgData.sender);
+      const receiverId = userMap.get(msgData.receiver);
+      if (!senderId || !receiverId) continue;
+
+      await supabase.from('messages').insert({
+        sender_id: senderId,
+        receiver_id: receiverId,
+        content: msgData.content,
+        is_read: msgData.read || false,
+      });
+
+      result.messages++;
+    }
+
+    // 7. CRÉER DES AVIS
+    console.log(`[${requestId}] Creating reviews...`);
+    const reviews = [
+      // Avis propriétaires -> locataires (après baux terminés)
+      { reviewer: 'jean-paul.kouassi@example.com', reviewee: 'koffi.mensah@example.com', type: 'landlord_to_tenant', rating: 5, comment: "Locataire exemplaire, très soigneux et respectueux. Je recommande vivement !" },
+      { reviewer: 'marie.diabate@example.com', reviewee: 'aminata.toure@example.com', type: 'landlord_to_tenant', rating: 4, comment: "Bon locataire, quelques petits retards de paiement mais rien de grave." },
+      { reviewer: 'contact@immobilier-ci.com', reviewee: 'yao.kouadio@example.com', type: 'landlord_to_tenant', rating: 5, comment: "Parfait ! Locataire sérieux et fiable." },
+      { reviewer: 'contact@abidjan-prestige.com', reviewee: 'fanta.diarra@example.com', type: 'landlord_to_tenant', rating: 4, comment: "Très bien, logement rendu en bon état." },
+      
+      // Avis locataires -> propriétaires
+      { reviewer: 'koffi.mensah@example.com', reviewee: 'jean-paul.kouassi@example.com', type: 'tenant_to_landlord', rating: 5, comment: "Propriétaire réactif et à l'écoute. Logement conforme à l'annonce." },
+      { reviewer: 'aminata.toure@example.com', reviewee: 'marie.diabate@example.com', type: 'tenant_to_landlord', rating: 3, comment: "Quelques problèmes de maintenance non résolus rapidement." },
+      { reviewer: 'yao.kouadio@example.com', reviewee: 'contact@immobilier-ci.com', type: 'tenant_to_landlord', rating: 5, comment: "Excellent service, très professionnel. Je recommande cette agence." },
+      { reviewer: 'fanta.diarra@example.com', reviewee: 'contact@abidjan-prestige.com', type: 'tenant_to_landlord', rating: 4, comment: "Bon propriétaire, appartement agréable et bien situé." },
+      
+      // Avis supplémentaires
+      { reviewer: 'marie.diabate@example.com', reviewee: 'yao.kouadio@example.com', type: 'landlord_to_tenant', rating: 5, comment: "Client sérieux et fiable. Aucun problème durant toute la durée du bail." },
+      { reviewer: 'yao.kouadio@example.com', reviewee: 'marie.diabate@example.com', type: 'tenant_to_landlord', rating: 4, comment: "Propriétaire sympathique, quelques petits travaux à prévoir mais globalement satisfait." },
+    ];
+
+    for (const reviewData of reviews) {
+      const reviewerId = userMap.get(reviewData.reviewer);
+      const revieweeId = userMap.get(reviewData.reviewee);
+      if (!reviewerId || !revieweeId) continue;
+
+      await supabase.from('reviews').insert({
+        reviewer_id: reviewerId,
+        reviewee_id: revieweeId,
+        review_type: reviewData.type,
+        rating: reviewData.rating,
+        comment: reviewData.comment,
+        moderation_status: 'approved',
+      });
+
+      result.reviews++;
+    }
+
+    // 8. CRÉER L'HISTORIQUE DE RECHERCHES
+    console.log(`[${requestId}] Creating search history...`);
+    const searches = [
+      { 
+        user: 'koffi.mensah@example.com', 
+        filters: { city: 'Abidjan', minPrice: 200000, maxPrice: 400000, bedrooms: 2, propertyType: 'apartment' },
+        resultCount: 8,
+        clicked: ['Penthouse Premium Vue Lagune', 'Villa de Prestige']
+      },
+      { 
+        user: 'aminata.toure@example.com', 
+        filters: { city: 'Abidjan', maxPrice: 300000, bedrooms: 3, isFurnished: true },
+        resultCount: 5,
+        clicked: ['Duplex Luxueux 5 Chambres']
+      },
+      { 
+        user: 'yao.kouadio@example.com', 
+        filters: { city: 'Bingerville', minPrice: 250000, propertyType: 'house', hasGarden: true },
+        resultCount: 4,
+        clicked: ['Villa Familiale', 'Villa Neuve']
+      },
+      { 
+        user: 'fanta.diarra@example.com', 
+        filters: { city: 'Abidjan', neighborhood: 'Cocody', maxPrice: 500000, bedrooms: 4 },
+        resultCount: 12,
+        clicked: ['Villa Moderne 4 Chambres', 'Appartement Standing']
+      },
+      { 
+        user: 'moussa.kone@example.com', 
+        filters: { city: 'Abidjan', minPrice: 150000, maxPrice: 250000, hasParking: true },
+        resultCount: 7,
+        clicked: ['Appartement 3 Pièces', 'Maison Moderne']
+      },
+      { 
+        user: 'adjoua.assi@example.com', 
+        filters: { city: 'Abidjan', propertyType: 'studio', maxPrice: 150000 },
+        resultCount: 3,
+        clicked: ['Studio Meublé']
+      },
+      { 
+        user: 'awa.bamba@example.com', 
+        filters: { city: 'Abidjan', neighborhood: 'Marcory', bedrooms: 2, maxPrice: 200000 },
+        resultCount: 6,
+        clicked: ['Appartement 2 Pièces', 'Appartement Économique']
+      },
+    ];
+
+    for (const searchData of searches) {
+      const userId = userMap.get(searchData.user);
+      if (!userId) continue;
+
+      const clickedPropertyIds: string[] = [];
+      for (const propertyTitle of searchData.clicked) {
+        const propertyId = propertyMap.get(propertyTitle);
+        if (propertyId) clickedPropertyIds.push(propertyId);
+      }
+
+      await supabase.from('search_history').insert({
+        user_id: userId,
+        search_filters: searchData.filters,
+        result_count: searchData.resultCount,
+        clicked_properties: clickedPropertyIds,
+      });
+
+      result.searches++;
+    }
+
     // Logger l'action dans les audit logs
     await supabase.from('admin_audit_logs').insert({
       admin_id: user.id,
