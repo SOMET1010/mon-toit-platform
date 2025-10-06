@@ -96,16 +96,9 @@ export const zIndex = {
 } as const;
 
 // Animation Utilities
-export const animations = {
-  fadeIn: 'animate-fade-in',
-  fadeOut: 'animate-fade-out',
-  scaleIn: 'animate-scale-in',
-  scaleOut: 'animate-scale-out',
-  slideInRight: 'animate-slide-in-right',
-  slideOutRight: 'animate-slide-out-right',
-  pulse: 'animate-pulse',
-  spin: 'animate-spin',
-} as const;
+// NOTE: Animations are now centralized in visual-layers.ts
+// Re-export them here for backward compatibility
+export { animations } from './visual-layers';
 
 // Breakpoints (for reference, use with Tailwind's responsive prefixes)
 export const breakpoints = {
