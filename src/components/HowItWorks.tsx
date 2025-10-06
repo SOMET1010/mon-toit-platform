@@ -95,8 +95,11 @@ const journeys = [
 
 const HowItWorks = () => {
   return (
-    <section id="comment-ca-marche" className="py-20 md:py-28 bg-white">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <section id="comment-ca-marche" className="py-20 md:py-28 bg-gradient-to-br from-primary/8 via-white to-secondary/8 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-0" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl -z-0" />
+      <div className="container mx-auto px-4 max-w-7xl relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Comment ça marche ?</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -105,7 +108,7 @@ const HowItWorks = () => {
         </div>
 
         <Tabs defaultValue="tenant" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-12 h-auto bg-muted/50">
+          <TabsList className="grid w-full grid-cols-3 mb-12 h-auto bg-white/80 backdrop-blur-sm shadow-md border border-primary/10">
             <TabsTrigger value="tenant" className="flex items-center gap-2 py-4 text-base">
               <User className="h-5 w-5" />
               <span className="hidden sm:inline">Locataire</span>
@@ -134,7 +137,7 @@ const HowItWorks = () => {
 
             return (
               <TabsContent key={journeyIndex} value={tabValue} className="mt-0">
-                <div className={`bg-white rounded-lg border-l-4 ${borderColor} shadow-md p-8 md:p-12`}>
+                <div className={`bg-gradient-to-br from-white to-gray-50/30 rounded-lg border-l-4 ${borderColor} shadow-lg hover:shadow-xl transition-all duration-300 p-8 md:p-12 backdrop-blur-sm`}>
                   {/* Header */}
                   <div className="flex items-center gap-4 mb-10">
                     <div className={`${iconBgColor} p-3 rounded-full`}>
