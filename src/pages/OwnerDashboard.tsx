@@ -235,7 +235,7 @@ const OwnerDashboard = () => {
           </div>
 
           {/* Urgent Actions */}
-          <UrgentActionsCard actions={urgentActions} />
+          <UrgentActionsCard />
 
           {/* Stats Overview */}
           <PropertyStats stats={stats} />

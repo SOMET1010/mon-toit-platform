@@ -12,6 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Upload, FileText } from 'lucide-react';
 import DocumentUpload from '@/components/application/DocumentUpload';
+import { ApplicationStatusTracker } from '@/components/application/ApplicationStatusTracker';
 
 type Property = {
   id: string;
@@ -173,6 +174,8 @@ const Application = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Note: ApplicationStatusTracker sera visible après soumission */}
+          
           {/* Vérifications */}
           <Card className="border-2 shadow-lg">
             <CardHeader className="pb-4">

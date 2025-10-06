@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Eye, FileText } from 'lucide-react';
 import ApplicationDetail from '@/components/application/ApplicationDetail';
+import { ApplicationStatusTracker } from '@/components/application/ApplicationStatusTracker';
 
 import type { ApplicationStatus } from '@/types';
 
@@ -25,6 +26,10 @@ type ApplicationDisplay = {
   created_at: string;
   reviewed_at: string | null;
   updated_at: string;
+  processing_deadline?: string | null;
+  is_overdue?: boolean;
+  auto_processed?: boolean;
+  auto_action_type?: string | null;
   properties: {
     title: string;
     monthly_rent: number;
@@ -59,7 +64,7 @@ const Applications = () => {
     try {
       let query = supabase
         .from('rental_applications')
-        .select('*')
+        .select('*, processing_deadline, is_overdue, auto_processed, auto_action_type')
         .order('created_at', { ascending: false });
 
       // Si propriétaire, voir les candidatures sur ses biens
@@ -281,24 +286,35 @@ const ApplicationsList = ({
   return (
     <div className="grid gap-4">
       {applications.map((application) => (
-        <Card key={application.id} className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-lg">
-                  {application.properties?.title || 'Propriété non disponible'}
-                </CardTitle>
-                <CardDescription>
-                  {isOwner 
-                    ? `Candidat: ${application.profiles?.full_name || 'Inconnu'}`
-                    : application.properties?.city || 'N/A'
-                  }
-                </CardDescription>
+        <div key={application.id} className="space-y-4">
+          {!isOwner && (
+            <ApplicationStatusTracker
+              status={application.status}
+              createdAt={application.created_at}
+              reviewedAt={application.reviewed_at}
+              processingDeadline={application.processing_deadline}
+              isOverdue={application.is_overdue}
+              autoProcessed={application.auto_processed}
+            />
+          )}
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg">
+                    {application.properties?.title || 'Propriété non disponible'}
+                  </CardTitle>
+                  <CardDescription>
+                    {isOwner 
+                      ? `Candidat: ${application.profiles?.full_name || 'Inconnu'}`
+                      : application.properties?.city || 'N/A'
+                    }
+                  </CardDescription>
+                </div>
+                {getStatusBadge(application.status)}
               </div>
-              {getStatusBadge(application.status)}
-            </div>
-          </CardHeader>
-          <CardContent>
+            </CardHeader>
+            <CardContent>
             <div className="flex items-center justify-between">
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-4">
@@ -337,6 +353,7 @@ const ApplicationsList = ({
             </div>
           </CardContent>
         </Card>
+        </div>
       ))}
     </div>
   );

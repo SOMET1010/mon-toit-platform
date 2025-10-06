@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Clock, Image, FileWarning } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UrgentAction {
   id: string;
@@ -14,11 +16,69 @@ interface UrgentAction {
   daysOverdue?: number;
 }
 
-interface UrgentActionsCardProps {
-  actions: UrgentAction[];
-}
+const UrgentActionsCard = () => {
+  const [actions, setActions] = useState<UrgentAction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const UrgentActionsCard = ({ actions }: UrgentActionsCardProps) => {
+  useEffect(() => {
+    fetchUrgentActions();
+  }, []);
+
+  const fetchUrgentActions = async () => {
+    try {
+      // Récupérer les candidatures en retard
+      const { data: overdueApps, error } = await supabase
+        .from('rental_applications')
+        .select(`
+          id,
+          property_id,
+          processing_deadline,
+          created_at,
+          properties (title)
+        `)
+        .eq('status', 'pending')
+        .eq('is_overdue', true)
+        .order('processing_deadline', { ascending: true })
+        .limit(10);
+
+      if (error) throw error;
+
+      const urgentActions: UrgentAction[] = (overdueApps || []).map(app => {
+        const deadline = new Date(app.processing_deadline);
+        const now = new Date();
+        const diffMs = now.getTime() - deadline.getTime();
+        const daysOverdue = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        return {
+          id: app.id,
+          type: 'overdue_application',
+          title: `Candidature en retard - ${(app.properties as any)?.title || 'Bien'}`,
+          description: `Cette candidature dépasse le délai de traitement`,
+          priority: daysOverdue > 5 ? 'critical' : daysOverdue > 2 ? 'important' : 'info',
+          link: '/tiers-de-confiance',
+          daysOverdue
+        };
+      });
+
+      setActions(urgentActions);
+    } catch (error) {
+      console.error('Error fetching urgent actions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   const getPriorityColor = (priority: UrgentAction['priority']) => {
     switch (priority) {
       case 'critical': return 'destructive';

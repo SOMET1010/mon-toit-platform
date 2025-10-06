@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LayoutDashboard, Home, Users, FileText, Settings, Shield } from 'lucide-react';
+import { LayoutDashboard, Home, Users, FileText, Settings, Shield, Clock } from 'lucide-react';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminProperties from '@/components/admin/AdminProperties';
 import AdminUsers from '@/components/admin/AdminUsers';
@@ -24,6 +24,8 @@ import { PromoteToSuperAdmin } from '@/components/admin/PromoteToSuperAdmin';
 import PropertyModerationQueue from '@/components/admin/PropertyModerationQueue';
 import SensitiveDataAccessMonitor from '@/components/admin/SensitiveDataAccessMonitor';
 import { MfaSecurityMonitor } from '@/components/admin/MfaSecurityMonitor';
+import { ProcessingConfigPanel } from '@/components/admin/ProcessingConfigPanel';
+import { ProcessingAnalytics } from '@/components/admin/ProcessingAnalytics';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -32,6 +34,7 @@ const AdminDashboard = () => {
   const [pendingCertifications, setPendingCertifications] = useState(0);
   const [openDisputes, setOpenDisputes] = useState(0);
   const [pendingProperties, setPendingProperties] = useState(0);
+  const [overdueApplications, setOverdueApplications] = useState(0);
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -58,9 +61,19 @@ const AdminDashboard = () => {
       setPendingProperties(count || 0);
     };
 
+    const fetchOverdueApplications = async () => {
+      const { count } = await supabase
+        .from('rental_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending')
+        .eq('is_overdue', true);
+      setOverdueApplications(count || 0);
+    };
+
     fetchPendingCount();
     fetchOpenDisputes();
     fetchPendingProperties();
+    fetchOverdueApplications();
 
     const leasesChannel = supabase
       .channel('admin-pending-count')
@@ -138,22 +151,16 @@ const AdminDashboard = () => {
               )}
             </TabsTrigger>
             <TabsTrigger value="verifications">Vérifications</TabsTrigger>
-            <TabsTrigger value="security">Sécurité</TabsTrigger>
-            <TabsTrigger value="audit">Audit</TabsTrigger>
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              Vue d'ensemble
-            </TabsTrigger>
-            <TabsTrigger value="certifications" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Certifications
-              {pendingCertifications > 0 && (
+            <TabsTrigger value="processing" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Traitement
+              {overdueApplications > 0 && (
                 <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
-                  {pendingCertifications}
+                  {overdueApplications}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="verifications">Vérifications</TabsTrigger>
+            <TabsTrigger value="security">Sécurité</TabsTrigger>
             <TabsTrigger value="audit">Audit</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="disputes" className="flex items-center gap-2">
@@ -194,6 +201,15 @@ const AdminDashboard = () => {
 
           <TabsContent value="verifications" className="space-y-6">
             <AdminVerificationQueue />
+          </TabsContent>
+
+          <TabsContent value="processing" className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ProcessingConfigPanel />
+              <div>
+                <ProcessingAnalytics />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
