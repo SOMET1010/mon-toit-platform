@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,40 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
+  const [sessionReady, setSessionReady] = useState(false);
+
+  // Établir la session depuis l'URL de réinitialisation
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' && session) {
+        setSessionReady(true);
+      }
+    });
+
+    // Vérifier si une session existe déjà
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionReady(true);
+      }
+    });
+
+    // Timeout : si pas de session après 3 secondes, rediriger
+    const timeout = setTimeout(() => {
+      if (!sessionReady) {
+        toast({
+          title: "Lien invalide",
+          description: "Le lien de réinitialisation est expiré ou invalide. Veuillez redemander un nouveau lien.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      }
+    }, 3000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, [sessionReady, navigate]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +113,12 @@ const ResetPassword = () => {
           </CardHeader>
           <form onSubmit={handleResetPassword}>
             <CardContent className="space-y-4">
+              {!sessionReady && (
+                <div className="flex items-center justify-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="ml-3 text-muted-foreground">Vérification du lien...</p>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="password">Nouveau mot de passe</Label>
                 <div className="relative">
@@ -118,7 +158,7 @@ const ResetPassword = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading || !sessionReady}>
                 {loading ? 'Réinitialisation...' : 'Réinitialiser le mot de passe'}
               </Button>
             </CardFooter>
