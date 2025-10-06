@@ -20,21 +20,26 @@ const stats = [
 
 const KeyStats = () => {
   return (
-    <section className="py-16 md:py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+    <section className="py-20 md:py-28 bg-white">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
+            const iconBgColor = 
+              index === 0 ? "bg-blue-600" : 
+              index === 1 ? "bg-primary" : 
+              "bg-secondary";
+            
             return (
-              <div key={index} className="flex flex-col items-center gap-3">
-                <div className="p-3 rounded-full bg-gradient-primary">
-                  <Icon className="h-6 w-6 text-primary-foreground" />
+              <div key={index} className="flex flex-col items-center gap-4">
+                <div className={`p-4 rounded-full ${iconBgColor}`}>
+                  <Icon className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-1">
+                  <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  <div className="text-base text-muted-foreground">{stat.label}</div>
                 </div>
               </div>
             );

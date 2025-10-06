@@ -42,10 +42,10 @@ const Testimonials = () => {
   );
 
   return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-h2 mb-4">Ils nous font confiance</h2>
+    <section className="py-20 md:py-28 bg-gray-50">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Ils nous font confiance</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Découvrez les témoignages de notre communauté d'utilisateurs satisfaits
           </p>
@@ -63,7 +63,7 @@ const Testimonials = () => {
             <CarouselContent>
               {testimonials.map((testimonial, index) => (
                 <CarouselItem key={index}>
-                  <div className="bg-card rounded-2xl p-8 md:p-12 shadow-sm border border-border relative">
+                  <div className="bg-white rounded-lg p-8 md:p-12 shadow-md border border-gray-200 relative">
                     <Quote className="absolute top-6 right-6 h-12 w-12 text-primary/10" />
                     
                     {/* Rating */}
@@ -80,7 +80,7 @@ const Testimonials = () => {
 
                     {/* Author */}
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
                         {testimonial.avatar}
                       </div>
                       <div>

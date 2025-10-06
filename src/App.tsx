@@ -36,6 +36,7 @@ import Confidentialite from "./pages/Confidentialite";
 import MentionsLegales from "./pages/MentionsLegales";
 import TiersDeConfianceDashboard from "./pages/TiersDeConfianceDashboard";
 import CertificationFAQ from "./pages/CertificationFAQ";
+import Tarifs from "./pages/Tarifs";
 
 const queryClient = new QueryClient();
 
@@ -196,6 +197,7 @@ const App = () => (
             <Route path="/confidentialite" element={<Confidentialite />} />
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/certification-faq" element={<CertificationFAQ />} />
+            <Route path="/tarifs" element={<Tarifs />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
