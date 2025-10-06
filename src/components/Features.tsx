@@ -44,8 +44,12 @@ const features = [
 
 const Features = () => {
   return (
-    <section className="py-16 md:py-20 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-16 md:py-20 bg-gradient-section-secondary relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-20 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="container mx-auto px-4 relative z-10">
       <div className="text-center mb-12">
           <h2 className="text-h2 mb-4">
             L'avantage ANSUT
@@ -61,15 +65,17 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className="text-center group bg-card rounded-xl p-6 shadow-sm hover:shadow-md transition-smooth flex flex-col"
+                className="text-center group relative overflow-hidden bg-card/90 backdrop-blur-sm rounded-2xl p-6 shadow-soft hover:shadow-elevated transition-all duration-500 flex flex-col border border-primary/10 hover:border-primary/30 hover:scale-105"
               >
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
                 <Badge 
                   variant="secondary" 
                   className="mb-4 self-center text-xs"
                 >
                   {feature.targetLabel}
                 </Badge>
-                <div className="relative inline-flex p-4 rounded-xl bg-gradient-primary mb-4 group-hover:shadow-primary transition-smooth self-center">
+                <div className="relative inline-flex p-4 rounded-xl bg-gradient-to-br from-primary/90 to-primary/70 mb-4 group-hover:shadow-primary group-hover:scale-110 transition-all duration-300 self-center shadow-soft">
                   <Icon className="h-8 w-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>

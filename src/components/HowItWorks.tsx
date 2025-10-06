@@ -94,8 +94,12 @@ const journeys = [
 
 const HowItWorks = () => {
   return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-20 md:py-28 bg-gradient-section-primary relative overflow-hidden">
+      {/* Decorative background element */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-h2 mb-4">Comment ça marche ?</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -109,8 +113,10 @@ const HowItWorks = () => {
             return (
               <div
                 key={journeyIndex}
-                className="bg-card rounded-2xl p-8 shadow-sm hover:shadow-lg transition-smooth border border-border"
+                className="group relative overflow-hidden bg-gradient-card rounded-2xl p-8 shadow-soft hover:shadow-elevated transition-all duration-500 border border-primary/10 hover:border-primary/30 hover:scale-[1.02]"
               >
+                {/* Shine effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
                 {/* Header */}
                 <div className="text-center mb-8">
                   <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${journey.color} mb-4`}>

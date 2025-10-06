@@ -65,9 +65,18 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Background Carousel */}
+      {/* Layer 1: Gradient mesh base */}
+      <div className="absolute inset-0 bg-gradient-mesh" />
+      
+      {/* Layer 2: Animated floating shapes */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float-delayed" />
+      </div>
+      
+      {/* Layer 3: Background Carousel with blend mode */}
       <Carousel 
-        className="absolute inset-0"
+        className="absolute inset-0 mix-blend-soft-light opacity-40"
         plugins={[autoplayPlugin()]}
         opts={{ loop: true }}
       >
@@ -121,8 +130,8 @@ const Hero = () => {
             </CarouselContent>
           </Carousel>
 
-          {/* Search Bar */}
-          <div className="bg-background rounded-2xl shadow-elegant p-6 md:p-8 backdrop-blur-sm">
+          {/* Search Bar - Glassmorphism */}
+          <div className="bg-card/90 backdrop-blur-xl rounded-2xl shadow-glass border border-white/20 p-6 md:p-8">
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="relative">

@@ -45,7 +45,9 @@ export const PropertyCard = ({
   }, [property.id]);
 
   return (
-    <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-primary/50 border-2">
+    <Card className="group relative overflow-hidden bg-gradient-card shadow-soft hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 border-2 border-primary/10">
+      {/* Shine effect on hover */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none z-10" />
       <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
           <img
@@ -74,17 +76,17 @@ export const PropertyCard = ({
         )}
         
         {showStatus && (
-          <Badge className={`absolute top-3 left-3 rounded-xl font-semibold ${
+          <Badge className={`absolute top-3 left-3 rounded-xl font-semibold backdrop-blur-sm shadow-soft ${
             property.status === 'disponible' 
-              ? 'bg-primary text-primary-foreground animate-pulse' 
-              : 'bg-gray-500 text-white'
+              ? 'bg-primary/90 text-primary-foreground animate-pulse border border-white/20' 
+              : 'bg-gray-500/90 text-white border border-white/20'
           }`}>
             {getPropertyStatusLabel(property.status)}
           </Badge>
         )}
         
         {hasCertifiedLease && (
-          <div className="absolute bottom-3 left-3">
+          <div className="absolute bottom-3 left-3 backdrop-blur-sm">
             <ANSUTCertifiedBadge status="certified" variant="compact" />
           </div>
         )}
