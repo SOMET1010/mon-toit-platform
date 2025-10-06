@@ -841,6 +841,33 @@ export type Database = {
         }
         Relationships: []
       }
+      processing_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1069,10 +1096,14 @@ export type Database = {
         Row: {
           applicant_id: string
           application_score: number | null
+          auto_action_type: string | null
+          auto_processed: boolean | null
           cover_letter: string | null
           created_at: string
           documents: Json | null
           id: string
+          is_overdue: boolean | null
+          processing_deadline: string | null
           property_id: string
           reviewed_at: string | null
           status: string
@@ -1081,10 +1112,14 @@ export type Database = {
         Insert: {
           applicant_id: string
           application_score?: number | null
+          auto_action_type?: string | null
+          auto_processed?: boolean | null
           cover_letter?: string | null
           created_at?: string
           documents?: Json | null
           id?: string
+          is_overdue?: boolean | null
+          processing_deadline?: string | null
           property_id: string
           reviewed_at?: string | null
           status?: string
@@ -1093,10 +1128,14 @@ export type Database = {
         Update: {
           applicant_id?: string
           application_score?: number | null
+          auto_action_type?: string | null
+          auto_processed?: boolean | null
           cover_letter?: string | null
           created_at?: string
           documents?: Json | null
           id?: string
+          is_overdue?: boolean | null
+          processing_deadline?: string | null
           property_id?: string
           reviewed_at?: string | null
           status?: string
@@ -1554,6 +1593,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      auto_process_overdue_applications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       block_ip: {
         Args: {
           _duration_hours?: number
@@ -1747,6 +1790,10 @@ export type Database = {
       }
       log_mfa_attempt: {
         Args: { _attempt_type?: string; _success: boolean }
+        Returns: undefined
+      }
+      mark_overdue_applications: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       pre_validate_lease_for_certification: {
