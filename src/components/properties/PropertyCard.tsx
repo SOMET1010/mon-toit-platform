@@ -45,15 +45,13 @@ export const PropertyCard = ({
   }, [property.id]);
 
   return (
-    <Card className="group relative overflow-hidden bg-gradient-card shadow-soft hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 border-2 border-primary/10">
-      {/* Shine effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none z-10" />
+    <Card className="group relative overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200">
       <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
           <img
             src={property.main_image}
             alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-br from-muted to-muted/50">
@@ -68,7 +66,7 @@ export const PropertyCard = ({
           <Button
             size="icon"
             variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
-            className="absolute top-3 right-3 rounded-xl shadow-lg hover:scale-125 transition-all duration-300 hover:rotate-12"
+            className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
             onClick={() => onFavoriteClick(property.id)}
           >
             <Heart className={`h-4 w-4 transition-all ${isFavorite ? 'fill-current scale-110' : ''}`} />
@@ -76,17 +74,17 @@ export const PropertyCard = ({
         )}
         
         {showStatus && (
-          <Badge className={`absolute top-3 left-3 rounded-xl font-semibold backdrop-blur-sm shadow-soft ${
+          <Badge className={`absolute top-3 left-3 rounded-lg font-semibold shadow-md ${
             property.status === 'disponible' 
-              ? 'bg-primary/90 text-primary-foreground animate-pulse border border-white/20' 
-              : 'bg-gray-500/90 text-white border border-white/20'
+              ? 'bg-primary text-primary-foreground' 
+              : 'bg-gray-500 text-white'
           }`}>
             {getPropertyStatusLabel(property.status)}
           </Badge>
         )}
         
         {hasCertifiedLease && (
-          <div className="absolute bottom-3 left-3 backdrop-blur-sm">
+          <div className="absolute bottom-3 left-3">
             <ANSUTCertifiedBadge status="certified" variant="compact" />
           </div>
         )}

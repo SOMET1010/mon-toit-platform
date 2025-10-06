@@ -148,10 +148,6 @@ All colors MUST be HSL.
     --gradient-secondary: linear-gradient(135deg, hsl(28 87% 54%), hsl(28 87% 64%));
     --gradient-hero: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.95), hsl(28 87% 54% / 0.85));
     --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(218 65.5% 38.6% / 0.03) 100%);
-    --gradient-mesh: radial-gradient(at 20% 30%, hsl(218 65.5% 38.6% / 0.2) 0px, transparent 50%),
-                     radial-gradient(at 80% 70%, hsl(28 87% 54% / 0.2) 0px, transparent 50%);
-    --gradient-section-primary: linear-gradient(to bottom, hsl(var(--background)), hsl(218 65.5% 38.6% / 0.05), hsl(var(--background)));
-    --gradient-section-secondary: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.08) 0%, hsl(var(--background)) 50%, hsl(28 87% 54% / 0.08) 100%);
     
     /* Shadows - ANSUT Official Colors */
     --shadow-primary: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.4);
