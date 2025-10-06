@@ -18,7 +18,7 @@ export type Database = {
         Row: {
           action_metadata: Json | null
           action_type: string
-          admin_id: string
+          admin_id: string | null
           created_at: string | null
           id: string
           ip_address: string | null
@@ -32,7 +32,7 @@ export type Database = {
         Insert: {
           action_metadata?: Json | null
           action_type: string
-          admin_id: string
+          admin_id?: string | null
           created_at?: string | null
           id?: string
           ip_address?: string | null
@@ -46,7 +46,7 @@ export type Database = {
         Update: {
           action_metadata?: Json | null
           action_type?: string
-          admin_id?: string
+          admin_id?: string | null
           created_at?: string | null
           id?: string
           ip_address?: string | null
