@@ -1,236 +1,119 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Home, DollarSign, CheckCircle2 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import heroSlide1 from "@/assets/hero-slide-1.jpg";
-import heroSlide2 from "@/assets/hero-slide-2.jpg";
-import heroSlide3 from "@/assets/hero-slide-3.jpg";
-import heroSlide4 from "@/assets/hero-slide-4.jpg";
-import { PROPERTY_TYPES } from "@/constants";
-
-const heroSlides = [
-  {
-    image: heroSlide1,
-    title: "Logement pour",
-    highlight: "Tous",
-    description: "Studios, appartements, villas : ANSUT sécurise la location pour tous les budgets en Côte d'Ivoire."
-  },
-  {
-    image: heroSlide2,
-    title: "Familles et",
-    highlight: "Foyers",
-    description: "Des logements familiaux accessibles et vérifiés dans tous les quartiers d'Abidjan."
-  },
-  {
-    image: heroSlide3,
-    title: "Service",
-    highlight: "Universel",
-    description: "ANSUT rend la location sécurisée accessible à tous, peu importe votre budget ou situation."
-  },
-  {
-    image: heroSlide4,
-    title: "Quartiers",
-    highlight: "Vivants",
-    description: "Trouvez votre chez-vous dans des quartiers dynamiques et accessibles partout en Côte d'Ivoire."
-  }
-];
+import { Search, CheckCircle2, Users, Building2, Star } from "lucide-react";
+import heroImage from "@/assets/hero-slide-1.jpg";
 
 const Hero = () => {
   const navigate = useNavigate();
-  const [location, setLocation] = useState('');
-  const [propertyType, setPropertyType] = useState('');
-  const [priceRange, setPriceRange] = useState('');
-  const [zone, setZone] = useState('');
-  
-  const autoplayPlugin = useCallback(() => 
-    Autoplay({ delay: 5000, stopOnInteraction: true })
-  , []);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (location) params.set('location', location);
-    if (propertyType) params.set('type', propertyType);
-    if (priceRange) params.set('maxPrice', priceRange);
-    if (zone) params.set('zone', zone);
-    navigate(`/recherche?${params.toString()}`);
+    if (searchQuery.trim()) {
+      navigate(`/recherche?location=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate('/recherche');
+    }
   };
 
-  const handleFreeSearch = () => {
-    navigate('/recherche');
+  const handleQuickSearch = (location: string) => {
+    navigate(`/recherche?location=${encodeURIComponent(location)}`);
   };
 
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Layer 1: Gradient mesh base */}
-      <div className="absolute inset-0 bg-gradient-mesh" />
-      
-      {/* Layer 2: Animated floating shapes */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float-delayed" />
+      {/* Fixed Background Image */}
+      <div className="absolute inset-0">
+        <img 
+          src={heroImage} 
+          alt="Trouvez votre logement avec ANSUT"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-background/50" />
       </div>
-      
-      {/* Layer 3: Background Carousel with blend mode */}
-      <Carousel 
-        className="absolute inset-0 mix-blend-soft-light opacity-40"
-        plugins={[autoplayPlugin()]}
-        opts={{ loop: true }}
-      >
-        <CarouselContent>
-          {heroSlides.map((slide, index) => (
-            <CarouselItem key={index}>
-              <div className="relative w-full h-[600px]">
-                <img 
-                  src={slide.image} 
-                  alt={`${slide.title} ${slide.highlight}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-foreground/40" />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 py-20 md:py-28">
-        <div className="max-w-4xl">
-          <div className="mb-6 inline-flex items-center gap-2 bg-primary backdrop-blur-sm border-2 border-primary px-4 py-2 rounded-full shadow-primary">
-            <CheckCircle2 className="h-5 w-5 text-primary-foreground fill-primary-foreground/50" />
+      <div className="relative container mx-auto px-4 py-20 md:py-28 max-w-7xl">
+        <div className="max-w-2xl">
+          {/* ANSUT Badge */}
+          <div className="mb-6 inline-flex items-center gap-2 bg-primary px-4 py-2 rounded-full shadow-md">
+            <CheckCircle2 className="h-5 w-5 text-primary-foreground" />
             <span className="text-sm font-semibold text-primary-foreground uppercase tracking-wide">
               Vérifié ANSUT
             </span>
           </div>
           
-          <Carousel 
-            className="mb-6"
-            plugins={[autoplayPlugin()]}
-            opts={{ loop: true }}
-          >
-            <CarouselContent>
-              {heroSlides.map((slide, index) => (
-                <CarouselItem key={index}>
-                  <div className="transition-all duration-700 animate-fade-in">
-                    <h1 className="text-h1 mb-6 text-background">
-                      {slide.title}{" "}
-                      <span className="bg-gradient-primary bg-clip-text text-transparent">
-                        {slide.highlight}
-                      </span>
-                    </h1>
-                    <p className="text-body-lg text-background/95 mb-8 max-w-3xl">
-                      {slide.description}
-                    </p>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          {/* Main Title */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-foreground leading-tight">
+            Trouvez votre logement ou louez{" "}
+            <span className="text-primary">en toute sécurité</span>{" "}
+            avec ANSUT
+          </h1>
+          
+          <p className="text-lg md:text-xl text-foreground/80 mb-8 max-w-xl">
+            La première plateforme de location sécurisée en Côte d'Ivoire. Certification officielle ANSUT pour locataires et propriétaires.
+          </p>
 
-          {/* Search Bar - Glassmorphism */}
-          <div className="bg-card/90 backdrop-blur-xl rounded-2xl shadow-glass border border-white/20 p-6 md:p-8">
-            <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                  <Input 
-                    placeholder="Localisation" 
-                    className="pl-10 h-14 rounded-xl border-2"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                </div>
-                
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                  <Select value={priceRange} onValueChange={setPriceRange}>
-                    <SelectTrigger className="h-14 pl-10 rounded-xl border-2">
-                      <SelectValue placeholder="Prix" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="100000">Moins de 100K</SelectItem>
-                      <SelectItem value="200000">100K - 200K</SelectItem>
-                      <SelectItem value="500000">200K - 500K</SelectItem>
-                      <SelectItem value="1000000">500K - 1M</SelectItem>
-                      <SelectItem value="999999999">Plus de 1M</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                  <Select value={zone} onValueChange={setZone}>
-                    <SelectTrigger className="h-14 pl-10 rounded-xl border-2">
-                      <SelectValue placeholder="Zone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="zone-4">Zone 4</SelectItem>
-                      <SelectItem value="riviera">Riviera</SelectItem>
-                      <SelectItem value="angre">Angré</SelectItem>
-                      <SelectItem value="deux-plateaux">Deux Plateaux</SelectItem>
-                      <SelectItem value="cocody">Cocody</SelectItem>
-                      <SelectItem value="marcory">Marcory</SelectItem>
-                      <SelectItem value="plateau">Plateau</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="relative">
-                  <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                  <Select value={propertyType} onValueChange={setPropertyType}>
-                    <SelectTrigger className="h-14 pl-10 rounded-xl border-2">
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PROPERTY_TYPES.map((type) => (
-                        <SelectItem key={type.toLowerCase()} value={type.toLowerCase()}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
+          {/* Simplified Search Bar */}
+          <div className="bg-background rounded-lg shadow-lg border border-border p-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input 
+                placeholder="Où cherchez-vous ?" 
+                className="h-12 flex-1 text-base rounded-lg"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
               <Button 
-                size="xl" 
-                className="w-full gap-2 h-14 rounded-xl text-base font-semibold bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl hover:scale-105 transition-transform" 
+                size="lg" 
+                className="h-12 px-8 gap-2 rounded-lg font-semibold shadow-md" 
                 onClick={handleSearch}
               >
                 <Search className="h-5 w-5" />
-                Lancer la recherche
+                Rechercher
               </Button>
             </div>
             
-            <div className="flex flex-wrap gap-2 mt-6 items-center">
+            {/* Popular Searches */}
+            <div className="flex flex-wrap gap-2 mt-4 items-center">
               <span className="text-sm font-medium text-muted-foreground">Recherches populaires:</span>
-              {[
-                { label: "Abidjan", search: "abidjan" },
-                { label: "Yamoussoukro", search: "yamoussoukro" },
-                { label: "Bouaké", search: "bouake" },
-                { label: "Cocody", search: "cocody" },
-                { label: "Marcory", search: "marcory" },
-                { label: "Plateau", search: "plateau" }
-              ].map((tag) => (
+              {["Abidjan", "Cocody", "Marcory"].map((location) => (
                 <button
-                  key={tag.search}
-                  onClick={() => {
-                    setLocation(tag.search);
-                    const params = new URLSearchParams();
-                    params.set('location', tag.search);
-                    if (propertyType) params.set('type', propertyType);
-                    if (priceRange) params.set('maxPrice', priceRange);
-                    if (zone) params.set('zone', zone);
-                    navigate(`/recherche?${params.toString()}`);
-                  }}
-                  className="text-sm px-4 py-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground text-foreground transition-smooth font-medium"
+                  key={location}
+                  onClick={() => handleQuickSearch(location)}
+                  className="text-sm px-3 py-1.5 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors font-medium"
                 >
-                  {tag.label}
+                  {location}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Social Proof Stats */}
+          <div className="grid grid-cols-3 gap-4 md:gap-6 mt-8">
+            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="h-5 w-5 text-primary" />
+                <p className="text-2xl md:text-3xl font-bold text-foreground">12 000+</p>
+              </div>
+              <p className="text-xs md:text-sm text-muted-foreground">Locataires certifiés ANSUT</p>
+            </div>
+            
+            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <Building2 className="h-5 w-5 text-secondary" />
+                <p className="text-2xl md:text-3xl font-bold text-foreground">3 500+</p>
+              </div>
+              <p className="text-xs md:text-sm text-muted-foreground">Propriétés vérifiées</p>
+            </div>
+            
+            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <Star className="h-5 w-5 text-secondary fill-secondary" />
+                <p className="text-2xl md:text-3xl font-bold text-foreground">4.8/5</p>
+              </div>
+              <p className="text-xs md:text-sm text-muted-foreground">Sur 2 000+ avis</p>
             </div>
           </div>
         </div>

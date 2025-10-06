@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Home, User, LogOut, LayoutDashboard, Search, ShieldCheck, Building2, FileText, Shield, Settings } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, HelpCircle, DollarSign } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import {
@@ -13,60 +13,22 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import monToitLogo from "@/assets/mon-toit-logo.png";
 import NotificationBell from "@/components/NotificationBell";
 import CertificationNotificationBadge from "@/components/admin/CertificationNotificationBadge";
-import { NavLink } from "@/components/navigation/NavLink";
 import { VerificationProgress } from "@/components/navigation/VerificationProgress";
 import { MobileMenu } from "@/components/navigation/MobileMenu";
-import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const { canAccessAdminDashboard } = usePermissions();
-  const location = useLocation();
-
-  const getNavLinks = (userType: string | null | undefined) => {
-    if (!userType) {
-      return [
-        { to: "/recherche", label: "Rechercher", icon: Search },
-        { to: "/publier", label: "Publier", icon: Building2 },
-      ];
-    }
-
-    if (userType === 'locataire') {
-      return [
-        { to: "/recherche", label: "Rechercher", icon: Search },
-        { to: "/candidatures", label: "Candidatures", icon: FileText },
-      ];
-    }
-
-    if (userType === 'proprietaire') {
-      return [
-        { to: "/recherche", label: "Rechercher", icon: Search },
-        { to: "/mes-biens", label: "Mes biens", icon: Home },
-        { to: "/publier", label: "Publier", icon: Building2 },
-      ];
-    }
-
-    if (userType === 'agence') {
-      return [
-        { to: "/recherche", label: "Rechercher", icon: Search },
-        { to: "/mes-biens", label: "Portefeuille", icon: Building2 },
-      ];
-    }
-
-    return [
-      { to: "/recherche", label: "Rechercher", icon: Search },
-    ];
-  };
-
-  const navLinks = getNavLinks(profile?.user_type);
 
   return (<>
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
             <img 
               src={monToitLogo} 
@@ -83,110 +45,124 @@ const Navbar = () => {
             </div>
           </Link>
 
+          {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                label={link.label}
-                icon={link.icon}
-              />
-            ))}
+            <Link 
+              to="/#comment-ca-marche" 
+              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              Comment ça marche
+            </Link>
+            <Link 
+              to="/tarifs" 
+              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              Tarifs
+            </Link>
           </div>
 
+          {/* Right Side Actions */}
           <div className="flex items-center gap-3">
             {user ? (
               <>
                 <VerificationProgress />
                 <NotificationBell />
                 <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Avatar>
-                      <AvatarFallback>
-                        {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{profile?.full_name}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="cursor-pointer">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Tableau de bord
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profil" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        Mon profil
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/verification" className="cursor-pointer">
-                        <ShieldCheck className="mr-2 h-4 w-4" />
-                        Vérification
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Avatar>
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64 bg-background border border-border shadow-lg">
+                    <DropdownMenuLabel className="pb-2">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-semibold text-foreground">{profile?.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                         {(profile?.oneci_verified || profile?.cnam_verified) && (
-                          <span className="ml-auto text-xs text-green-600">✓</span>
+                          <Badge variant="outline" className="w-fit mt-1 text-xs border-primary text-primary">
+                            ✓ Certifié ANSUT
+                          </Badge>
                         )}
-                      </Link>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard" className="cursor-pointer flex items-center">
+                          <LayoutDashboard className="mr-3 h-4 w-4 text-primary" />
+                          <span>Tableau de bord</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/profil" className="cursor-pointer flex items-center">
+                          <User className="mr-3 h-4 w-4 text-primary" />
+                          <span>Mon profil</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/verification" className="cursor-pointer flex items-center">
+                          <ShieldCheck className="mr-3 h-4 w-4 text-primary" />
+                          <span>Vérification</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+
+                    {canAccessAdminDashboard && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem asChild>
+                            <Link to="/admin" className="cursor-pointer flex items-center">
+                              <Shield className="mr-3 h-4 w-4 text-primary" />
+                              <span>Admin Dashboard</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to="/admin/certifications" className="cursor-pointer flex items-center">
+                              <Shield className="mr-3 h-4 w-4 text-primary" />
+                              <span>Certifications ANSUT</span>
+                              <CertificationNotificationBadge />
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </>
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                      <LogOut className="mr-3 h-4 w-4" />
+                      <span>Déconnexion</span>
                     </DropdownMenuItem>
-                  </DropdownMenuGroup>
-
-                  {canAccessAdminDashboard && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin" className="cursor-pointer flex items-center">
-                            <Shield className="mr-2 h-4 w-4" />
-                            Dashboard Admin
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/certifications" className="cursor-pointer flex items-center">
-                            <Shield className="mr-2 h-4 w-4" />
-                            Certifications ANSUT
-                            <CertificationNotificationBadge />
-                          </Link>
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                    </>
-                  )}
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Déconnexion
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" className="hidden md:flex gap-2" asChild>
-                  <Link to="/auth">
-                    <User className="h-4 w-4" />
-                    Connexion
-                  </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="hidden md:flex border-primary text-primary hover:bg-primary/5" 
+                  asChild
+                >
+                  <Link to="/auth?type=locataire">Je suis locataire</Link>
                 </Button>
-                <Button size="sm" className="hidden md:flex" asChild>
-                  <Link to="/auth">S'inscrire</Link>
+                <Button 
+                  size="sm" 
+                  className="hidden md:flex" 
+                  asChild
+                >
+                  <Link to="/auth?type=proprietaire">Je suis propriétaire</Link>
                 </Button>
               </>
             )}
             
             {/* Mobile Menu */}
-            <MobileMenu navLinks={navLinks} />
+            <MobileMenu />
           </div>
         </div>
       </div>
