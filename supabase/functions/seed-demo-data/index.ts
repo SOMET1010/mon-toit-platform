@@ -25,7 +25,17 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    console.log('[SEED] Starting demo data seeding...');
+    console.log('[SEED] Supabase URL:', supabaseUrl);
+    console.log('[SEED] Service key configured:', supabaseServiceKey ? `Yes (${supabaseServiceKey.substring(0, 8)}...)` : 'No');
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
     // Vérifier l'authentification
     const authHeader = req.headers.get('Authorization');
@@ -37,20 +47,27 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
+      console.error('[SEED] Auth error:', authError);
       throw new Error('Unauthorized');
     }
 
+    console.log('[SEED] Authenticated user:', user.email);
+
     // Vérifier que l'utilisateur est super_admin
-    const { data: isSuperAdmin } = await supabase.rpc('has_role', {
+    const { data: isSuperAdmin, error: roleError } = await supabase.rpc('has_role', {
       _user_id: user.id,
       _role: 'super_admin'
     });
+
+    if (roleError) {
+      console.error('[SEED] Error checking role:', roleError);
+    }
 
     if (!isSuperAdmin) {
       throw new Error('Only super admins can seed demo data');
     }
 
-    console.log('Starting demo data seeding...');
+    console.log('[SEED] User confirmed as super_admin');
 
     const result: SeedResult = {
       users: 0,
@@ -95,46 +112,77 @@ Deno.serve(async (req) => {
     const userMap = new Map<string, string>();
     const defaultPassword = 'Demo2025!';
 
+    console.log(`[SEED] Creating ${users.length} users...`);
+
     for (const userData of users) {
-      // Vérifier si l'utilisateur existe déjà
-      const { data: existingUser } = await supabase.auth.admin.listUsers();
-      const userExists = existingUser?.users.find(u => u.email === userData.email);
-
-      let userId: string;
-
-      if (userExists) {
-        console.log(`User ${userData.email} already exists, skipping creation`);
-        userId = userExists.id;
-      } else {
-        // Créer l'utilisateur via Auth API
-        const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-          email: userData.email,
-          password: defaultPassword,
-          email_confirm: true,
-          user_metadata: {
-            full_name: userData.name,
-            user_type: userData.type,
-          },
-        });
-
-        if (createError || !newUser.user) {
-          console.error(`Error creating user ${userData.email}:`, createError);
-          continue;
+      console.log(`[SEED] Processing user: ${userData.email}`);
+      
+      try {
+        // Vérifier si l'utilisateur existe déjà
+        const { data: existingUser, error: listError } = await supabase.auth.admin.listUsers();
+        
+        if (listError) {
+          console.error(`[SEED] Error listing users:`, listError);
+          throw listError;
         }
 
-        userId = newUser.user.id;
-        result.users++;
+        const userExists = existingUser?.users.find(u => u.email === userData.email);
+
+        let userId: string;
+
+        if (userExists) {
+          console.log(`[SEED] User ${userData.email} already exists, using existing ID`);
+          userId = userExists.id;
+        } else {
+          console.log(`[SEED] Creating new user: ${userData.email}`);
+          
+          // Créer l'utilisateur via Auth API
+          const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+            email: userData.email,
+            password: defaultPassword,
+            email_confirm: true,
+            user_metadata: {
+              full_name: userData.name,
+              user_type: userData.type,
+            },
+          });
+
+          if (createError) {
+            console.error(`[SEED] Error creating user ${userData.email}:`, {
+              message: createError.message,
+              status: createError.status,
+              code: (createError as any).code,
+              details: createError
+            });
+            continue;
+          }
+
+          if (!newUser.user) {
+            console.error(`[SEED] User creation returned no user for ${userData.email}`);
+            continue;
+          }
+
+          userId = newUser.user.id;
+          console.log(`[SEED] User created successfully: ${userData.email} (${userId})`);
+          result.users++;
+        }
 
         // Attribuer les rôles
+        console.log(`[SEED] Assigning roles to ${userData.email}: ${userData.roles.join(', ')}`);
         for (const role of userData.roles) {
-          await supabase.from('user_roles').insert({
+          const { error: roleError } = await supabase.from('user_roles').insert({
             user_id: userId,
             role: role,
           });
+          
+          if (roleError && !roleError.message.includes('duplicate')) {
+            console.error(`[SEED] Error assigning role ${role}:`, roleError);
+          }
         }
 
         // Créer/mettre à jour le profil
-        await supabase.from('profiles').upsert({
+        console.log(`[SEED] Creating/updating profile for ${userData.email}`);
+        const { error: profileError } = await supabase.from('profiles').upsert({
           id: userId,
           full_name: userData.name,
           user_type: userData.type,
@@ -143,19 +191,34 @@ Deno.serve(async (req) => {
           face_verified: userData.verifications.face === true,
         });
 
+        if (profileError) {
+          console.error(`[SEED] Error creating profile:`, profileError);
+        }
+
         // Créer l'entrée de vérification si nécessaire
         if (userData.verifications.oneci || userData.verifications.cnam) {
-          await supabase.from('user_verifications').upsert({
+          console.log(`[SEED] Creating verification entry for ${userData.email}`);
+          const { error: verificationError } = await supabase.from('user_verifications').upsert({
             user_id: userId,
             oneci_status: userData.verifications.oneci === 'pending' ? 'pending_review' : (userData.verifications.oneci ? 'verified' : 'pending'),
             cnam_status: userData.verifications.cnam === 'pending' ? 'pending_review' : (userData.verifications.cnam ? 'verified' : 'pending'),
             face_verification_status: userData.verifications.face ? 'verified' : 'pending',
           });
-        }
-      }
 
-      userMap.set(userData.email, userId);
+          if (verificationError) {
+            console.error(`[SEED] Error creating verification:`, verificationError);
+          }
+        }
+
+        userMap.set(userData.email, userId);
+        console.log(`[SEED] User ${userData.email} processed successfully`);
+      } catch (error) {
+        console.error(`[SEED] Unexpected error processing user ${userData.email}:`, error);
+        continue;
+      }
     }
+
+    console.log(`[SEED] Users created: ${result.users}, Total in map: ${userMap.size}`);
 
     // 2. CRÉER LES PROPRIÉTÉS
     const properties = [
