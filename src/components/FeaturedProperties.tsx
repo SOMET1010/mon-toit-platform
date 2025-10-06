@@ -41,16 +41,16 @@ const FeaturedProperties = () => {
   if (properties.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-28 px-4 bg-muted/30">
+    <section className="py-20 md:py-28 px-4 bg-white">
       <div className="container mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
           <div>
-            <h2 className="text-h2 mb-3">Biens en vedette</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Biens en vedette</h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
               Découvrez notre sélection de biens les plus consultés
             </p>
           </div>
-          <Button asChild variant="outline" className="mt-4 md:mt-0">
+          <Button asChild variant="outline" className="mt-6 md:mt-0">
             <Link to="/recherche">Voir tous les biens</Link>
           </Button>
         </div>
