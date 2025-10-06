@@ -104,9 +104,9 @@ Deno.serve(async (req) => {
       { email: 'nguessan.kouame@example.com', name: "N'Guessan Kouamé", type: 'locataire', roles: ['user'], verifications: { oneci: 'pending' } },
       { email: 'mariam.ouattara@example.com', name: 'Mariam Ouattara', type: 'locataire', roles: ['user'], verifications: { cnam: 'pending' } },
       
-      // Admins
-      { email: 'admin@ansut.ci', name: 'Admin ANSUT', type: 'admin_ansut', roles: ['user', 'admin', 'super_admin'], verifications: { oneci: true, cnam: true } },
-      { email: 'moderateur@ansut.ci', name: 'Modérateur ANSUT', type: 'admin_ansut', roles: ['user', 'admin'], verifications: { oneci: true } },
+      // Admins - utiliser 'proprietaire' comme type car admin_ansut n'est pas autorisé
+      { email: 'admin@ansut.ci', name: 'Admin ANSUT', type: 'proprietaire', roles: ['user', 'admin', 'super_admin'], verifications: { oneci: true, cnam: true } },
+      { email: 'moderateur@ansut.ci', name: 'Modérateur ANSUT', type: 'proprietaire', roles: ['user', 'admin'], verifications: { oneci: true } },
     ];
 
     const userMap = new Map<string, string>();
@@ -196,12 +196,12 @@ Deno.serve(async (req) => {
         }
 
         // Créer l'entrée de vérification si nécessaire
-        if (userData.verifications.oneci || userData.verifications.cnam) {
+        if (userData.verifications.oneci || userData.verifications.cnam || userData.verifications.face) {
           console.log(`[SEED] Creating verification entry for ${userData.email}`);
           const { error: verificationError } = await supabase.from('user_verifications').upsert({
             user_id: userId,
-            oneci_status: userData.verifications.oneci === 'pending' ? 'pending_review' : (userData.verifications.oneci ? 'verified' : 'pending'),
-            cnam_status: userData.verifications.cnam === 'pending' ? 'pending_review' : (userData.verifications.cnam ? 'verified' : 'pending'),
+            oneci_status: userData.verifications.oneci === 'pending' ? 'pending' : (userData.verifications.oneci ? 'verified' : 'pending'),
+            cnam_status: userData.verifications.cnam === 'pending' ? 'pending' : (userData.verifications.cnam ? 'verified' : 'pending'),
             face_verification_status: userData.verifications.face ? 'verified' : 'pending',
           });
 
@@ -223,32 +223,32 @@ Deno.serve(async (req) => {
     // 2. CRÉER LES PROPRIÉTÉS
     const properties = [
       // Jean-Paul Kouassi
-      { owner: 'jean-paul.kouassi@example.com', title: 'Villa Moderne 4 Chambres', city: 'Abidjan', neighborhood: 'Cocody Angré', type: 'villa', rent: 450000, bedrooms: 4, bathrooms: 3, surface: 250, status: 'disponible', moderation: 'approved' },
-      { owner: 'jean-paul.kouassi@example.com', title: 'Appartement 3 Pièces', city: 'Abidjan', neighborhood: 'Marcory Zone 4', type: 'appartement', rent: 180000, bedrooms: 2, bathrooms: 1, surface: 85, status: 'disponible', moderation: 'approved' },
+      { owner: 'jean-paul.kouassi@example.com', title: 'Villa Moderne 4 Chambres', city: 'Abidjan', neighborhood: 'Cocody Angré', type: 'house', rent: 450000, bedrooms: 4, bathrooms: 3, surface: 250, status: 'disponible', moderation: 'approved' },
+      { owner: 'jean-paul.kouassi@example.com', title: 'Appartement 3 Pièces', city: 'Abidjan', neighborhood: 'Marcory Zone 4', type: 'apartment', rent: 180000, bedrooms: 2, bathrooms: 1, surface: 85, status: 'disponible', moderation: 'approved' },
       { owner: 'jean-paul.kouassi@example.com', title: 'Studio Meublé', city: 'Abidjan', neighborhood: 'Plateau Centre Ville', type: 'studio', rent: 120000, bedrooms: 0, bathrooms: 1, surface: 35, status: 'loue', moderation: 'approved' },
       
       // Marie Diabaté
-      { owner: 'marie.diabate@example.com', title: 'Duplex Luxueux 5 Chambres', city: 'Abidjan', neighborhood: 'Riviera Palmeraie', type: 'duplex', rent: 550000, bedrooms: 5, bathrooms: 4, surface: 320, status: 'disponible', moderation: 'approved' },
-      { owner: 'marie.diabate@example.com', title: 'Villa Familiale', city: 'Bingerville', neighborhood: 'Centre', type: 'villa', rent: 280000, bedrooms: 3, bathrooms: 2, surface: 180, status: 'disponible', moderation: 'approved' },
-      { owner: 'marie.diabate@example.com', title: 'Villa 4 Chambres avec Piscine', city: 'Bingerville', neighborhood: 'Résidentiel', type: 'villa', rent: 350000, bedrooms: 4, bathrooms: 3, surface: 220, status: 'loue', moderation: 'approved', hasPool: true },
-      { owner: 'marie.diabate@example.com', title: 'Appartement 2 Pièces', city: 'Abidjan', neighborhood: 'Yopougon Niangon', type: 'appartement', rent: 95000, bedrooms: 1, bathrooms: 1, surface: 55, status: 'disponible', moderation: 'approved' },
+      { owner: 'marie.diabate@example.com', title: 'Duplex Luxueux 5 Chambres', city: 'Abidjan', neighborhood: 'Riviera Palmeraie', type: 'apartment', rent: 550000, bedrooms: 5, bathrooms: 4, surface: 320, status: 'disponible', moderation: 'approved' },
+      { owner: 'marie.diabate@example.com', title: 'Villa Familiale', city: 'Bingerville', neighborhood: 'Centre', type: 'house', rent: 280000, bedrooms: 3, bathrooms: 2, surface: 180, status: 'disponible', moderation: 'approved' },
+      { owner: 'marie.diabate@example.com', title: 'Villa 4 Chambres avec Piscine', city: 'Bingerville', neighborhood: 'Résidentiel', type: 'house', rent: 350000, bedrooms: 4, bathrooms: 3, surface: 220, status: 'loue', moderation: 'approved', hasPool: true },
+      { owner: 'marie.diabate@example.com', title: 'Appartement 2 Pièces', city: 'Abidjan', neighborhood: 'Yopougon Niangon', type: 'apartment', rent: 95000, bedrooms: 1, bathrooms: 1, surface: 55, status: 'disponible', moderation: 'approved' },
       
       // Ismaël Traoré
-      { owner: 'ismael.traore@example.com', title: 'Villa Contemporaine', city: 'Abidjan', neighborhood: 'Angré 8ème Tranche', type: 'villa', rent: 380000, bedrooms: 4, bathrooms: 2, surface: 200, status: 'disponible', moderation: 'approved' },
-      { owner: 'ismael.traore@example.com', title: 'Appartement Économique', city: 'Abidjan', neighborhood: 'Abobo Gare', type: 'appartement', rent: 75000, bedrooms: 2, bathrooms: 1, surface: 60, status: 'disponible', moderation: 'approved' },
+      { owner: 'ismael.traore@example.com', title: 'Villa Contemporaine', city: 'Abidjan', neighborhood: 'Angré 8ème Tranche', type: 'house', rent: 380000, bedrooms: 4, bathrooms: 2, surface: 200, status: 'disponible', moderation: 'approved' },
+      { owner: 'ismael.traore@example.com', title: 'Appartement Économique', city: 'Abidjan', neighborhood: 'Abobo Gare', type: 'apartment', rent: 75000, bedrooms: 2, bathrooms: 1, surface: 60, status: 'disponible', moderation: 'approved' },
       
       // Immobilier CI
-      { owner: 'contact@immobilier-ci.com', title: 'Penthouse Premium Vue Lagune', city: 'Abidjan', neighborhood: 'Cocody II Plateaux', type: 'penthouse', rent: 850000, bedrooms: 4, bathrooms: 4, surface: 280, status: 'disponible', moderation: 'approved' },
-      { owner: 'contact@immobilier-ci.com', title: 'Villa de Prestige', city: 'Abidjan', neighborhood: 'Deux Plateaux Vallon', type: 'villa', rent: 720000, bedrooms: 5, bathrooms: 4, surface: 350, status: 'disponible', moderation: 'approved' },
-      { owner: 'contact@immobilier-ci.com', title: 'Appartement Standing', city: 'Abidjan', neighborhood: 'Riviera 3', type: 'appartement', rent: 320000, bedrooms: 3, bathrooms: 2, surface: 120, status: 'disponible', moderation: 'approved' },
-      { owner: 'contact@immobilier-ci.com', title: 'Duplex Moderne', city: 'Abidjan', neighborhood: 'Cocody Danga', type: 'duplex', rent: 480000, bedrooms: 4, bathrooms: 3, surface: 230, status: 'loue', moderation: 'approved' },
-      { owner: 'contact@immobilier-ci.com', title: 'Villa Rénovation Complète', city: 'Abidjan', neighborhood: 'Cocody', type: 'villa', rent: 400000, bedrooms: 4, bathrooms: 3, surface: 210, status: 'maintenance', moderation: 'approved' },
+      { owner: 'contact@immobilier-ci.com', title: 'Penthouse Premium Vue Lagune', city: 'Abidjan', neighborhood: 'Cocody II Plateaux', type: 'apartment', rent: 850000, bedrooms: 4, bathrooms: 4, surface: 280, status: 'disponible', moderation: 'approved' },
+      { owner: 'contact@immobilier-ci.com', title: 'Villa de Prestige', city: 'Abidjan', neighborhood: 'Deux Plateaux Vallon', type: 'house', rent: 720000, bedrooms: 5, bathrooms: 4, surface: 350, status: 'disponible', moderation: 'approved' },
+      { owner: 'contact@immobilier-ci.com', title: 'Appartement Standing', city: 'Abidjan', neighborhood: 'Riviera 3', type: 'apartment', rent: 320000, bedrooms: 3, bathrooms: 2, surface: 120, status: 'disponible', moderation: 'approved' },
+      { owner: 'contact@immobilier-ci.com', title: 'Duplex Moderne', city: 'Abidjan', neighborhood: 'Cocody Danga', type: 'apartment', rent: 480000, bedrooms: 4, bathrooms: 3, surface: 230, status: 'loue', moderation: 'approved' },
+      { owner: 'contact@immobilier-ci.com', title: 'Villa Rénovation Complète', city: 'Abidjan', neighborhood: 'Cocody', type: 'house', rent: 400000, bedrooms: 4, bathrooms: 3, surface: 210, status: 'disponible', moderation: 'approved' },
       
       // Abidjan Prestige Homes
-      { owner: 'contact@abidjan-prestige.com', title: 'Maison Moderne', city: 'Abidjan', neighborhood: 'Marcory Résidentiel', type: 'maison', rent: 250000, bedrooms: 3, bathrooms: 2, surface: 150, status: 'disponible', moderation: 'approved' },
-      { owner: 'contact@abidjan-prestige.com', title: 'Appartement Familial', city: 'Abidjan', neighborhood: 'Koumassi', type: 'appartement', rent: 160000, bedrooms: 3, bathrooms: 2, surface: 90, status: 'disponible', moderation: 'approved' },
-      { owner: 'contact@abidjan-prestige.com', title: 'Villa Neuve', city: 'Bingerville', neighborhood: 'Zone Résidentielle', type: 'villa', rent: 420000, bedrooms: 4, bathrooms: 3, surface: 240, status: 'disponible', moderation: 'approved' },
-      { owner: 'contact@abidjan-prestige.com', title: 'Appartement En Attente Modération', city: 'Abidjan', neighborhood: 'Cocody', type: 'appartement', rent: 200000, bedrooms: 2, bathrooms: 1, surface: 75, status: 'disponible', moderation: 'pending' },
+      { owner: 'contact@abidjan-prestige.com', title: 'Maison Moderne', city: 'Abidjan', neighborhood: 'Marcory Résidentiel', type: 'house', rent: 250000, bedrooms: 3, bathrooms: 2, surface: 150, status: 'disponible', moderation: 'approved' },
+      { owner: 'contact@abidjan-prestige.com', title: 'Appartement Familial', city: 'Abidjan', neighborhood: 'Koumassi', type: 'apartment', rent: 160000, bedrooms: 3, bathrooms: 2, surface: 90, status: 'disponible', moderation: 'approved' },
+      { owner: 'contact@abidjan-prestige.com', title: 'Villa Neuve', city: 'Bingerville', neighborhood: 'Zone Résidentielle', type: 'house', rent: 420000, bedrooms: 4, bathrooms: 3, surface: 240, status: 'disponible', moderation: 'approved' },
+      { owner: 'contact@abidjan-prestige.com', title: 'Appartement En Attente Modération', city: 'Abidjan', neighborhood: 'Cocody', type: 'apartment', rent: 200000, bedrooms: 2, bathrooms: 1, surface: 75, status: 'disponible', moderation: 'pending' },
     ];
 
     const propertyMap = new Map<string, string>();
@@ -275,7 +275,7 @@ Deno.serve(async (req) => {
         has_parking: Math.random() > 0.3,
         has_garden: propData.type === 'villa' && Math.random() > 0.5,
         has_ac: Math.random() > 0.6,
-        description: `Belle ${propData.type} située à ${propData.neighborhood}. Idéale pour ${propData.bedrooms > 2 ? 'famille' : 'couple ou célibataire'}.`,
+        description: `Belle propriété située à ${propData.neighborhood}. Idéale pour ${propData.bedrooms > 2 ? 'famille' : 'couple ou célibataire'}.`,
       }).select().single();
 
       if (error) {
