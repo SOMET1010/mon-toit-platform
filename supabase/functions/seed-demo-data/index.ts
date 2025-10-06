@@ -22,12 +22,20 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  console.log(`[${requestId}] Seed demo data request started`);
+
   try {
+    const { idempotencyKey } = await req.json().catch(() => ({}));
+    if (idempotencyKey) {
+      console.log(`[${requestId}] Idempotency key: ${idempotencyKey}`);
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
-    console.log('[SEED] Starting demo data seeding...');
-    console.log('[SEED] Supabase URL:', supabaseUrl);
+    console.log(`[${requestId}] Starting demo data seeding...`);
+    console.log(`[${requestId}] Supabase URL:`, supabaseUrl);
     console.log('[SEED] Service key configured:', supabaseServiceKey ? `Yes (${supabaseServiceKey.substring(0, 8)}...)` : 'No');
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -443,20 +451,26 @@ Deno.serve(async (req) => {
       target_type: 'database',
       target_id: user.id,
       notes: 'Base de données peuplée avec des données de démonstration',
-      action_metadata: result,
+      action_metadata: { ...result, requestId },
     });
 
-    console.log('Demo data seeding completed:', result);
+    console.log(`[${requestId}] Demo data seeding completed:`, result);
 
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({ 
+      requestId,
+      result 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
 
   } catch (error) {
-    console.error('Error in seed-demo-data function:', error);
+    console.error(`[${requestId}] Error in seed-demo-data function:`, error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ 
+        requestId,
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
