@@ -44,14 +44,10 @@ const features = [
 
 const Features = () => {
   return (
-    <section className="py-16 md:py-20 bg-gradient-section-secondary relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="container mx-auto px-4 relative z-10">
-      <div className="text-center mb-12">
-          <h2 className="text-h2 mb-4">
+    <section className="py-20 md:py-28 bg-gray-50">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             L'avantage ANSUT
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -59,27 +55,38 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
+            
+            // Couleur border gauche selon le target
+            const borderColor = 
+              feature.target === "locataire" ? "border-l-blue-600" : 
+              feature.target === "proprietaire" ? "border-l-primary" : 
+              "border-l-secondary";
+            
+            // Couleur fond icône
+            const iconBgColor = 
+              feature.target === "locataire" ? "bg-blue-600" : 
+              feature.target === "proprietaire" ? "bg-primary" : 
+              "bg-secondary";
+            
             return (
               <div
                 key={index}
-                className="text-center group relative overflow-hidden bg-card/90 backdrop-blur-sm rounded-2xl p-6 shadow-soft hover:shadow-elevated transition-all duration-500 flex flex-col border border-primary/10 hover:border-primary/30 hover:scale-105"
+                className={`bg-white rounded-lg border-l-4 ${borderColor} shadow-md hover:shadow-lg hover:border-l-primary transition-all duration-200 p-8 flex flex-col`}
               >
-                {/* Shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
                 <Badge 
                   variant="secondary" 
-                  className="mb-4 self-center text-xs"
+                  className="mb-4 self-start text-xs"
                 >
                   {feature.targetLabel}
                 </Badge>
-                <div className="relative inline-flex p-4 rounded-xl bg-gradient-to-br from-primary/90 to-primary/70 mb-4 group-hover:shadow-primary group-hover:scale-110 transition-all duration-300 self-center shadow-soft">
-                  <Icon className="h-8 w-8 text-primary-foreground" />
+                <div className={`${iconBgColor} p-3 rounded-full w-fit mb-4`}>
+                  <Icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground mb-6 flex-1">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
+                <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{feature.description}</p>
                 <Button asChild variant="outline" size="sm" className="w-full">
                   <Link to={feature.ctaLink}>{feature.ctaText}</Link>
                 </Button>
