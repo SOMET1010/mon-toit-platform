@@ -17,23 +17,23 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 20 14% 10%;
 
-    /* Primary palette - Orange adouci #F9A238 */
-    --primary-50: 33 85% 98%;
-    --primary-100: 33 85% 92%;
-    --primary: 33 85% 55%;
-    --primary-500: 33 85% 55%;
-    --primary-700: 33 85% 45%;
-    --primary-900: 33 85% 30%;
+    /* Primary palette - Bleu ANSUT Officiel #2256a3 */
+    --primary-50: 218 65.5% 97%;
+    --primary-100: 218 65.5% 92%;
+    --primary: 218 65.5% 38.6%;
+    --primary-500: 218 65.5% 38.6%;
+    --primary-700: 218 65.5% 30%;
+    --primary-900: 218 65.5% 20%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 33 85% 65%;
+    --primary-glow: 218 65.5% 48.6%;
 
-    /* Secondary palette - Bleu adouci #3E63A3 */
-    --secondary-50: 220 60% 97%;
-    --secondary-100: 220 60% 92%;
-    --secondary: 220 60% 45%;
-    --secondary-500: 220 60% 45%;
-    --secondary-700: 220 60% 35%;
-    --secondary-900: 220 60% 22%;
+    /* Secondary palette - Orange ANSUT Officiel #f08224 */
+    --secondary-50: 28 87% 97%;
+    --secondary-100: 28 87% 92%;
+    --secondary: 28 87% 54%;
+    --secondary-500: 28 87% 54%;
+    --secondary-700: 28 87% 44%;
+    --secondary-900: 28 87% 30%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -47,8 +47,12 @@ All colors MUST be HSL.
     --muted: 20 20% 96%;
     --muted-foreground: 20 10% 45%;
 
-    --accent: 220 15% 62%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 218 65.5% 38.6%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* ANSUT Additional Colors from Official Charter */
+    --ansut-black: 0 7% 11%;      /* #1D1D1B */
+    --ansut-gray: 0 0% 53%;       /* #878787 */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -59,22 +63,22 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(33 85% 55%), hsl(33 85% 65%));
-    --gradient-secondary: linear-gradient(135deg, hsl(220 60% 45%), hsl(220 60% 55%));
-    --gradient-hero: linear-gradient(135deg, hsl(33 85% 55% / 0.95), hsl(220 60% 45% / 0.85));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(33 85% 55% / 0.02) 100%);
-    --gradient-mesh: radial-gradient(at 20% 30%, hsl(33 85% 55% / 0.15) 0px, transparent 50%),
-                     radial-gradient(at 80% 70%, hsl(220 60% 45% / 0.15) 0px, transparent 50%);
-    --gradient-section-primary: linear-gradient(to bottom, hsl(var(--background)), hsl(33 85% 55% / 0.03), hsl(var(--background)));
-    --gradient-section-secondary: linear-gradient(135deg, hsl(220 60% 45% / 0.05) 0%, hsl(var(--background)) 50%, hsl(33 85% 55% / 0.05) 100%);
+    /* Gradients - ANSUT Official Colors */
+    --gradient-primary: linear-gradient(135deg, hsl(218 65.5% 38.6%), hsl(218 65.5% 48.6%));
+    --gradient-secondary: linear-gradient(135deg, hsl(28 87% 54%), hsl(28 87% 64%));
+    --gradient-hero: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.95), hsl(28 87% 54% / 0.85));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(218 65.5% 38.6% / 0.02) 100%);
+    --gradient-mesh: radial-gradient(at 20% 30%, hsl(218 65.5% 38.6% / 0.15) 0px, transparent 50%),
+                     radial-gradient(at 80% 70%, hsl(28 87% 54% / 0.15) 0px, transparent 50%);
+    --gradient-section-primary: linear-gradient(to bottom, hsl(var(--background)), hsl(218 65.5% 38.6% / 0.03), hsl(var(--background)));
+    --gradient-section-secondary: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.05) 0%, hsl(var(--background)) 50%, hsl(28 87% 54% / 0.05) 100%);
     
-    /* Shadows */
-    --shadow-primary: 0 10px 40px -10px hsl(33 85% 55% / 0.3);
+    /* Shadows - ANSUT Official Colors */
+    --shadow-primary: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.3);
     --shadow-card: 0 4px 20px -2px hsl(20 14% 10% / 0.08);
-    --shadow-soft: 0 2px 20px -2px hsl(33 85% 55% / 0.1);
+    --shadow-soft: 0 2px 20px -2px hsl(218 65.5% 38.6% / 0.1);
     --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --shadow-elevated: 0 10px 40px -10px hsl(33 85% 55% / 0.3);
+    --shadow-elevated: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.3);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -99,23 +103,23 @@ All colors MUST be HSL.
     --popover: 20 15% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary palette - Orange adouci #F9A238 */
-    --primary-50: 33 85% 98%;
-    --primary-100: 33 85% 92%;
-    --primary: 33 85% 55%;
-    --primary-500: 33 85% 55%;
-    --primary-700: 33 85% 45%;
-    --primary-900: 33 85% 30%;
+    /* Primary palette - Bleu ANSUT Officiel #2256a3 */
+    --primary-50: 218 65.5% 97%;
+    --primary-100: 218 65.5% 92%;
+    --primary: 218 65.5% 38.6%;
+    --primary-500: 218 65.5% 38.6%;
+    --primary-700: 218 65.5% 30%;
+    --primary-900: 218 65.5% 20%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 33 85% 65%;
+    --primary-glow: 218 65.5% 48.6%;
 
-    /* Secondary palette - Bleu adouci #3E63A3 */
-    --secondary-50: 220 60% 97%;
-    --secondary-100: 220 60% 92%;
-    --secondary: 220 60% 45%;
-    --secondary-500: 220 60% 45%;
-    --secondary-700: 220 60% 35%;
-    --secondary-900: 220 60% 22%;
+    /* Secondary palette - Orange ANSUT Officiel #f08224 */
+    --secondary-50: 28 87% 97%;
+    --secondary-100: 28 87% 92%;
+    --secondary: 28 87% 54%;
+    --secondary-500: 28 87% 54%;
+    --secondary-700: 28 87% 44%;
+    --secondary-900: 28 87% 30%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -129,8 +133,12 @@ All colors MUST be HSL.
     --muted: 20 15% 15%;
     --muted-foreground: 20 10% 65%;
 
-    --accent: 220 15% 62%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 218 65.5% 38.6%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* ANSUT Additional Colors from Official Charter */
+    --ansut-black: 0 7% 11%;      /* #1D1D1B */
+    --ansut-gray: 0 0% 53%;       /* #878787 */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
@@ -139,22 +147,22 @@ All colors MUST be HSL.
     --input: 20 15% 20%;
     --ring: 22 95% 63%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(33 85% 55%), hsl(33 85% 65%));
-    --gradient-secondary: linear-gradient(135deg, hsl(220 60% 45%), hsl(220 60% 55%));
-    --gradient-hero: linear-gradient(135deg, hsl(33 85% 55% / 0.95), hsl(220 60% 45% / 0.85));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(33 85% 55% / 0.03) 100%);
-    --gradient-mesh: radial-gradient(at 20% 30%, hsl(33 85% 55% / 0.2) 0px, transparent 50%),
-                     radial-gradient(at 80% 70%, hsl(220 60% 45% / 0.2) 0px, transparent 50%);
-    --gradient-section-primary: linear-gradient(to bottom, hsl(var(--background)), hsl(33 85% 55% / 0.05), hsl(var(--background)));
-    --gradient-section-secondary: linear-gradient(135deg, hsl(220 60% 45% / 0.08) 0%, hsl(var(--background)) 50%, hsl(33 85% 55% / 0.08) 100%);
+    /* Gradients - ANSUT Official Colors */
+    --gradient-primary: linear-gradient(135deg, hsl(218 65.5% 38.6%), hsl(218 65.5% 48.6%));
+    --gradient-secondary: linear-gradient(135deg, hsl(28 87% 54%), hsl(28 87% 64%));
+    --gradient-hero: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.95), hsl(28 87% 54% / 0.85));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(218 65.5% 38.6% / 0.03) 100%);
+    --gradient-mesh: radial-gradient(at 20% 30%, hsl(218 65.5% 38.6% / 0.2) 0px, transparent 50%),
+                     radial-gradient(at 80% 70%, hsl(28 87% 54% / 0.2) 0px, transparent 50%);
+    --gradient-section-primary: linear-gradient(to bottom, hsl(var(--background)), hsl(218 65.5% 38.6% / 0.05), hsl(var(--background)));
+    --gradient-section-secondary: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.08) 0%, hsl(var(--background)) 50%, hsl(28 87% 54% / 0.08) 100%);
     
-    /* Shadows */
-    --shadow-primary: 0 10px 40px -10px hsl(33 85% 55% / 0.4);
+    /* Shadows - ANSUT Official Colors */
+    --shadow-primary: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.4);
     --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
-    --shadow-soft: 0 2px 20px -2px hsl(33 85% 55% / 0.15);
+    --shadow-soft: 0 2px 20px -2px hsl(218 65.5% 38.6% / 0.15);
     --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
-    --shadow-elevated: 0 10px 40px -10px hsl(33 85% 55% / 0.4);
+    --shadow-elevated: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.4);
 
     --sidebar-background: 20 15% 10%;
     --sidebar-foreground: 0 0% 98%;
