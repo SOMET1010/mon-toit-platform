@@ -22,7 +22,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-primary/5 to-secondary/5">
+    <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-primary/5 to-secondary/5 pattern-bogolan">
       {/* Fixed Background Image - Right Side */}
       <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden lg:block">
         <img 

@@ -198,4 +198,37 @@ All colors MUST be HSL.
   .text-body {
     @apply text-base leading-relaxed;
   }
+
+  /* Motifs africains bogolan/kita - Couleurs ANSUT */
+  .pattern-bogolan {
+    position: relative;
+  }
+  
+  .pattern-bogolan::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="bogolan" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse"><path d="M0 50 L50 50 L25 75 Z M75 25 L125 25 L100 50 Z M150 50 L200 50 L175 75 Z M25 100 L75 100 M125 100 L175 100 M50 125 L50 175 M100 125 L100 175 M150 125 L150 175 M10 150 L40 180 M160 150 L190 180 M0 0 L20 20 M180 0 L200 20 M0 180 L20 200 M180 180 L200 200" stroke="hsl(218 65.5%25 38.6%25)" stroke-width="2" fill="none"/><circle cx="50" cy="50" r="3" fill="hsl(28 87%25 54%25)"/><circle cx="150" cy="50" r="3" fill="hsl(28 87%25 54%25)"/><circle cx="100" cy="150" r="3" fill="hsl(218 65.5%25 38.6%25)"/><rect x="85" y="85" width="30" height="30" fill="none" stroke="hsl(218 65.5%25 38.6%25)" stroke-width="1.5"/></pattern></defs><rect width="200" height="200" fill="url(%23bogolan)"/></svg>');
+    background-size: 200px 200px;
+    background-repeat: repeat;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .pattern-kita {
+    position: relative;
+  }
+  
+  .pattern-kita::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="kita" x="0" y="0" width="150" height="150" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="25" height="25" fill="hsl(28 87%25 54%25)"/><rect x="50" y="0" width="25" height="25" fill="hsl(218 65.5%25 38.6%25)"/><rect x="100" y="0" width="25" height="25" fill="hsl(28 87%25 54%25)"/><rect x="25" y="25" width="25" height="25" fill="hsl(218 65.5%25 38.6%25)"/><rect x="75" y="25" width="25" height="25" fill="hsl(28 87%25 54%25)"/><rect x="125" y="25" width="25" height="25" fill="hsl(218 65.5%25 38.6%25)"/><rect x="0" y="50" width="25" height="25" fill="hsl(218 65.5%25 38.6%25)"/><rect x="50" y="50" width="25" height="25" fill="hsl(28 87%25 54%25)"/><rect x="100" y="50" width="25" height="25" fill="hsl(218 65.5%25 38.6%25)"/><polygon points="37.5,62.5 50,75 62.5,62.5" fill="hsl(28 87%25 54%25)"/><polygon points="87.5,62.5 100,75 112.5,62.5" fill="hsl(218 65.5%25 38.6%25)"/><polygon points="12.5,87.5 25,100 37.5,87.5" fill="hsl(218 65.5%25 38.6%25)"/><polygon points="62.5,87.5 75,100 87.5,87.5" fill="hsl(28 87%25 54%25)"/><polygon points="112.5,87.5 125,100 137.5,87.5" fill="hsl(218 65.5%25 38.6%25)"/><line x1="0" y1="125" x2="150" y2="125" stroke="hsl(218 65.5%25 38.6%25)" stroke-width="2"/><line x1="0" y1="135" x2="150" y2="135" stroke="hsl(28 87%25 54%25)" stroke-width="1.5"/></pattern></defs><rect width="150" height="150" fill="url(%23kita)"/></svg>');
+    background-size: 150px 150px;
+    background-repeat: repeat;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
