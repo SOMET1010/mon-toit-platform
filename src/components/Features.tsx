@@ -1,9 +1,18 @@
-import { ShieldCheck, Users, FileSignature, TrendingUp, CheckCircle, X, Award, Shield } from "lucide-react";
+import { ShieldCheck, Users, FileSignature, TrendingUp, CheckCircle, X, Award, Shield, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { memo } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import monToitLogo from "@/assets/mon-toit-logo.png";
+
+// Configuration - ANSUT (organisme public porteur)
+const ANSUT_FULL_NAME = "Agence Nationale du Service Universel des Télécommunications/TIC";
+const ANSUT_SHORT_NAME = "ANSUT";
+const ANSUT_MINISTRY = "Ministère de la Transition Numérique et de la Digitalisation";
+
+// Configuration - Mon Toit (le produit/service)
+const PRODUCT_NAME = "Mon Toit";
+const PRODUCT_TAGLINE = "Dossier de location numérique certifié par l'État";
 
 // Types
 interface KPI {
@@ -52,46 +61,46 @@ const TARGET_STYLES = {
 const kpis: KPI[] = [
   {
     value: "15,000+",
-    label: "Locataires certifiés",
+    label: "Dossiers créés",
     icon: Users,
   },
   {
-    value: "98%",
-    label: "Taux de satisfaction",
+    value: "0 FCFA",
+    label: "100% gratuit",
     icon: Award,
   },
   {
-    value: "0",
-    label: "Fraude détectée",
-    icon: Shield,
+    value: "48h",
+    label: "Vérification moyenne",
+    icon: Zap,
   },
 ];
 
 const features: Feature[] = [
   {
     icon: ShieldCheck,
-    title: "Certification Locataire par l'ANSUT",
-    description: "Vérification biométrique + scoring automatique. Démarquez-vous auprès des propriétaires",
-    microKpi: "Vérification en 48h",
+    title: "Dossier de Location Certifié",
+    description: "Créez votre dossier en ligne avec vérification biométrique et obtenez une certification d'État reconnue par tous les propriétaires",
+    microKpi: "Certification en 48h",
     target: "locataire",
     targetLabel: "Pour les locataires",
-    ctaText: "En savoir plus",
+    ctaText: "Créer mon dossier",
     ctaLink: "/certification",
   },
   {
     icon: Users,
-    title: "Candidatures Pré-Vérifiées",
-    description: "Ne recevez que des locataires certifiés par l'ANSUT avec dossier complet et score de confiance",
+    title: "Dossiers Pré-Vérifiés par l'État",
+    description: "Recevez uniquement des candidatures avec dossiers complets vérifiés par le service public et score de fiabilité",
     microKpi: "Score de confiance 0-100",
     target: "proprietaire",
     targetLabel: "Pour les propriétaires",
-    ctaText: "Publier un bien",
+    ctaText: "Publier une annonce",
     ctaLink: "/publier",
   },
   {
     icon: FileSignature,
-    title: "Contrats Digitaux Sécurisés",
-    description: "Bail électronique conforme à la loi ivoirienne + signature numérique + paiements Mobile Money",
+    title: "Signature Électronique Sécurisée",
+    description: "Bail numérique conforme à la loi ivoirienne avec signature électronique certifiée et paiements Mobile Money intégrés",
     microKpi: "Signature en 5 min",
     target: "all",
     targetLabel: "Pour tous",
@@ -100,9 +109,9 @@ const features: Feature[] = [
   },
   {
     icon: TrendingUp,
-    title: "Tableau de Bord Agence",
-    description: "Gérez plusieurs propriétés, suivez les paiements et générez des rapports en temps réel",
-    microKpi: "Rapports en temps réel",
+    title: "Tableau de Bord Professionnel",
+    description: "Gérez votre portefeuille immobilier, suivez les loyers en temps réel et générez des rapports automatisés",
+    microKpi: "Rapports instantanés",
     target: "agence",
     targetLabel: "Pour les agences",
     ctaText: "Découvrir",
@@ -111,19 +120,19 @@ const features: Feature[] = [
 ];
 
 const withoutMonToit: ComparisonItem[] = [
-  { text: "Dossiers incomplets et non vérifiés", icon: X },
-  { text: "Identité des locataires non certifiée", icon: X },
-  { text: "Paiements non sécurisés", icon: X },
-  { text: "Pas de médiation en cas de litige", icon: X },
-  { text: "Risque de fraude élevé", icon: X },
+  { text: "Dossiers papier incomplets", icon: X },
+  { text: "Pas de vérification d'identité", icon: X },
+  { text: "Espèces et chèques non sécurisés", icon: X },
+  { text: "Litiges sans médiation", icon: X },
+  { text: "Risque de fraude documentaire", icon: X },
 ];
 
 const withMonToit: ComparisonItem[] = [
-  { text: "Vérification biométrique des locataires", icon: CheckCircle },
-  { text: "Certification ANSUT (Agence Nationale du Service Universel)", icon: CheckCircle },
-  { text: "Paiements Mobile Money sécurisés", icon: CheckCircle },
-  { text: "Médiation professionnelle incluse", icon: CheckCircle },
-  { text: "Contrats digitaux certifiés", icon: CheckCircle },
+  { text: "Dossier numérique certifié par l'État", icon: CheckCircle },
+  { text: "Vérification biométrique et KYC", icon: CheckCircle },
+  { text: "Paiements Mobile Money tracés", icon: CheckCircle },
+  { text: "Médiation par service public", icon: CheckCircle },
+  { text: "Documents authentifiés par l'ANSUT", icon: CheckCircle },
 ];
 
 // Sous-composants
@@ -185,7 +194,7 @@ const FeatureCard = memo(({ feature, index }: { feature: Feature; index: number 
           
           <div className="flex items-center gap-2 justify-center">
             <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
-            <span className="text-xs text-primary font-semibold">Certifié ANSUT</span>
+            <span className="text-xs text-primary font-semibold">Service public</span>
           </div>
         </div>
       </div>
@@ -220,37 +229,50 @@ const Features = () => {
       aria-labelledby="features-heading"
     >
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
-        {/* Header enrichi */}
+        {/* Header - Mon Toit en avant */}
         <header className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="flex flex-col items-center justify-center gap-3 mb-6">
+            {/* Logo Mon Toit - PRINCIPAL */}
             <img 
               src={monToitLogo} 
-              alt="Mon Toit - Plateforme de location sécurisée" 
-              className="h-12 md:h-14" 
+              alt="Mon Toit - Dossier de location numérique certifié" 
+              className="h-14 md:h-16" 
             />
-            <Badge variant="default" className="bg-primary text-primary-foreground px-4 py-1.5 text-sm font-semibold">
-              Certifié ANSUT
-            </Badge>
+            
+            {/* Badges service public */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 text-sm font-semibold">
+                🇨🇮 Service Public
+              </Badge>
+              <Badge variant="outline" className="border-primary text-primary px-4 py-1.5 text-sm font-semibold">
+                100% Gratuit
+              </Badge>
+            </div>
           </div>
           
           <h2 
             id="features-heading" 
             className="text-4xl md:text-5xl font-bold mb-4 text-foreground tracking-tight"
           >
-            L'avantage Mon Toit
+            Le dossier de location numérique certifié
           </h2>
           
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-3 leading-relaxed">
-            Plateforme de location sécurisée certifiée par l'ANSUT (Agence Nationale du Service Universel)
+            Créez votre dossier en ligne, obtenez une certification d'État et trouvez votre logement en toute confiance
           </p>
           
-          <p className="text-sm text-primary font-semibold">
-            Partenaire officiel de l'ANSUT - Organisme d'État
-          </p>
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-sm text-primary font-semibold">
+              Un service de l'ANSUT
+            </p>
+            <p className="text-xs text-muted-foreground max-w-md">
+              Inspiré de DossierFacile (France) • Adapté au contexte ivoirien
+            </p>
+          </div>
         </header>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16" role="region" aria-label="Indicateurs de performance">
+        {/* KPIs du service */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16" role="region" aria-label="Indicateurs du service">
           {kpis.map((kpi, index) => (
             <KPICard key={index} kpi={kpi} index={index} />
           ))}
@@ -263,10 +285,10 @@ const Features = () => {
           ))}
         </div>
 
-        {/* Section comparative Sans/Avec Mon Toit */}
+        {/* Section comparative */}
         <div className="max-w-5xl mx-auto mb-16">
           <h3 className="text-3xl font-bold text-center mb-10 text-foreground">
-            Pourquoi Mon Toit fait la différence
+            Pourquoi choisir {PRODUCT_NAME} ?
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -286,11 +308,11 @@ const Features = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h4 className="text-xl font-bold text-foreground flex items-center gap-2">
                     <CheckCircle className="h-6 w-6 text-green-600" aria-hidden="true" />
-                    Avec Mon Toit
+                    Avec {PRODUCT_NAME}
                   </h4>
-                  <Badge className="bg-primary/10 text-primary border border-primary/20">
-                    <ShieldCheck className="h-3 w-3 mr-1" aria-hidden="true" />
-                    Certifié par ANSUT
+                  <Badge className="bg-blue-600 text-white border-0">
+                    <Shield className="h-3 w-3 mr-1" aria-hidden="true" />
+                    Service Public
                   </Badge>
                 </div>
                 <ComparisonList items={withMonToit} positive />
@@ -299,27 +321,61 @@ const Features = () => {
           </div>
         </div>
 
-        {/* Footer avec CTA */}
+        {/* Section Transparence - Service Public */}
+        <div className="max-w-4xl mx-auto mb-16 bg-blue-50 border border-blue-200 rounded-xl p-8">
+          <div className="flex items-start gap-4">
+            <Shield className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="text-xl font-bold mb-3 text-foreground">
+                Un vrai service public
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <span>Gratuit pour tous les citoyens</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <span>Aucune revente de données</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <span>Hébergement en Côte d'Ivoire</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <span>Conformité RGPD et loi ivoirienne</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA final */}
         <div className="text-center mt-16 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-10 border border-primary/10">
           <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
-            Prêt à louer en toute sécurité avec Mon Toit ?
+            Créez votre dossier de location en ligne
           </h3>
+          
+          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+            Service 100% gratuit et sécurisé. Obtenez votre certification d'État en 48h et facilitez votre recherche de logement.
+          </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 max-w-md mx-auto">
             <Button asChild size="lg" className="flex-1">
-              <Link to="/verification">Certifier mon profil</Link>
+              <Link to="/verification">Créer mon dossier</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="flex-1">
-              <Link to="/certification">En savoir plus</Link>
+              <Link to="/certification">Comment ça marche ?</Link>
             </Button>
           </div>
           
-          <div className="space-y-1">
+          <div className="space-y-2 pt-4 border-t border-muted">
             <p className="text-sm text-muted-foreground">
-              Conforme à la loi ivoirienne 2013-450 sur la protection des données
+              Un service de l'<span className="font-semibold">{ANSUT_SHORT_NAME}</span> • Conforme à la loi ivoirienne 2013-450
             </p>
-            <p className="text-xs text-muted-foreground font-medium">
-              En partenariat avec l'ANSUT - Agence Nationale du Service Universel
+            <p className="text-xs text-muted-foreground">
+              {ANSUT_FULL_NAME} • Sous tutelle du {ANSUT_MINISTRY}
             </p>
           </div>
         </div>
