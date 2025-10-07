@@ -21,13 +21,13 @@ const Index = () => {
       <ContextBar />
       <main className="flex-1">
         <Hero />
+        <ExploreMap />
         <HowItWorks />
         <KeyStats />
         <Features />
         <Testimonials />
         <FeaturedProperties />
         <RightNowSection />
-        <ExploreMap />
       </main>
       <TrustBar />
       <PreFooterCTA />
