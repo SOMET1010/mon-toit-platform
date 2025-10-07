@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, LayoutDashboard, User, LogOut, ShieldCheck, HelpCircle, DollarSign } from 'lucide-react';
+import { Menu, LayoutDashboard, User, LogOut, ShieldCheck, HelpCircle, DollarSign, Search, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,30 @@ export const MobileMenu = () => {
         <div className="flex flex-col gap-6 mt-8">
           {/* Navigation Links */}
           <div className="flex flex-col gap-1">
+            <Link
+              to="/recherche"
+              onClick={handleNavClick}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <Search className="h-5 w-5 text-primary" />
+              <span>Rechercher un bien</span>
+            </Link>
+            <Link
+              to="/publier"
+              onClick={handleNavClick}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <PlusCircle className="h-5 w-5 text-primary" />
+              <span>Publier une annonce</span>
+            </Link>
+            <Link
+              to="/certification"
+              onClick={handleNavClick}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold bg-primary/5 border-l-2 border-primary hover:bg-primary/10 transition-colors"
+            >
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <span>Certification ANSUT</span>
+            </Link>
             <Link
               to="/#comment-ca-marche"
               onClick={handleNavClick}

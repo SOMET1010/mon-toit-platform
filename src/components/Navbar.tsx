@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, HelpCircle, DollarSign } from "lucide-react";
+import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, Search, PlusCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -47,6 +47,27 @@ const Navbar = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
+            <Link 
+              to="/recherche" 
+              className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              <Search className="h-4 w-4" />
+              <span>Rechercher</span>
+            </Link>
+            <Link 
+              to="/publier" 
+              className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Publier</span>
+            </Link>
+            <Link 
+              to="/certification" 
+              className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Certification ANSUT</span>
+            </Link>
             <Link 
               to="/#comment-ca-marche" 
               className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
