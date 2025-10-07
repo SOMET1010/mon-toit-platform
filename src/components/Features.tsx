@@ -65,18 +65,20 @@ const features = [
   },
 ];
 
-const beforeAnsut = [
-  { text: "Dossiers incomplets", icon: X },
-  { text: "Identité non vérifiée", icon: X },
+const withoutMonToit = [
+  { text: "Dossiers incomplets et non vérifiés", icon: X },
+  { text: "Identité des locataires non certifiée", icon: X },
   { text: "Paiements non sécurisés", icon: X },
   { text: "Pas de médiation en cas de litige", icon: X },
+  { text: "Risque de fraude élevé", icon: X },
 ];
 
-const withAnsut = [
-  { text: "Vérification biométrique", icon: CheckCircle },
-  { text: "Certification gouvernementale", icon: CheckCircle },
+const withMonToit = [
+  { text: "Vérification biométrique des locataires", icon: CheckCircle },
+  { text: "Certification ANSUT (garantie gouvernementale)", icon: CheckCircle },
   { text: "Paiements Mobile Money sécurisés", icon: CheckCircle },
-  { text: "Médiation ANSUT incluse", icon: CheckCircle },
+  { text: "Médiation professionnelle incluse", icon: CheckCircle },
+  { text: "Contrats digitaux certifiés", icon: CheckCircle },
 ];
 
 const Features = () => {
@@ -188,21 +190,21 @@ const Features = () => {
           })}
         </div>
 
-        {/* Section comparative Avant/Avec ANSUT */}
+        {/* Section comparative Sans/Avec Mon Toit */}
         <div className="max-w-5xl mx-auto mb-16">
           <h3 className="text-3xl font-bold text-center mb-10 text-foreground">
-            Pourquoi ANSUT fait la différence
+            Pourquoi Mon Toit fait la différence
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Avant ANSUT */}
+            {/* Sans Mon Toit */}
             <div className="bg-gray-100 rounded-lg p-8 shadow-sm">
               <h4 className="text-xl font-bold mb-6 text-foreground flex items-center gap-2">
                 <X className="h-6 w-6 text-destructive" />
-                Avant ANSUT
+                Location traditionnelle
               </h4>
               <ul className="space-y-4">
-                {beforeAnsut.map((item, index) => {
+                {withoutMonToit.map((item, index) => {
                   const Icon = item.icon;
                   return (
                     <li key={index} className="flex items-start gap-3">
@@ -214,16 +216,22 @@ const Features = () => {
               </ul>
             </div>
 
-            {/* Avec ANSUT */}
+            {/* Avec Mon Toit */}
             <div className="bg-white rounded-lg p-8 shadow-lg border-2 border-primary/20 pattern-bogolan relative overflow-hidden">
               <div className="absolute inset-0 pattern-bogolan opacity-[0.03]" />
               <div className="relative z-10">
-                <h4 className="text-xl font-bold mb-6 text-foreground flex items-center gap-2">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                  Avec ANSUT
-                </h4>
+                <div className="flex items-center justify-between mb-6">
+                  <h4 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                    Avec Mon Toit
+                  </h4>
+                  <Badge className="bg-primary/10 text-primary border border-primary/20">
+                    <ShieldCheck className="h-3 w-3 mr-1" />
+                    Certifié par ANSUT
+                  </Badge>
+                </div>
                 <ul className="space-y-4">
-                  {withAnsut.map((item, index) => {
+                  {withMonToit.map((item, index) => {
                     const Icon = item.icon;
                     return (
                       <li key={index} className="flex items-start gap-3">
@@ -241,7 +249,7 @@ const Features = () => {
         {/* Footer avec CTA */}
         <div className="text-center mt-16 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-10 border border-primary/10">
           <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
-            Prêt à bénéficier de la garantie ANSUT ?
+            Prêt à louer en toute sécurité avec Mon Toit ?
           </h3>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 max-w-md mx-auto">
