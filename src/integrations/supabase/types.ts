@@ -1699,6 +1699,20 @@ export type Database = {
           status: string
         }[]
       }
+      get_my_verification_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admin_review_notes: string
+          admin_reviewed_at: string
+          cnam_status: string
+          cnam_verified: boolean
+          face_verification_status: string
+          face_verified: boolean
+          oneci_status: string
+          oneci_verified: boolean
+          tenant_score: number
+        }[]
+      }
       get_public_profile: {
         Args: { target_user_id: string }
         Returns: {
