@@ -54,45 +54,57 @@ const ONECIForm = () => {
         }
       );
 
-      if (functionError) throw functionError;
+      // Enhanced error extraction from edge function
+      if (functionError) {
+        const errorData = (functionError as any).context?.body;
+        if (errorData?.error) {
+          throw new Error(errorData.error);
+        } else if (errorData?.status === 'SERVICE_UNAVAILABLE') {
+          throw new Error('Service de vérification ONECI temporairement indisponible');
+        }
+        throw functionError;
+      }
 
-      // Note: Ne pas mettre à jour user_verifications ni profiles ici
-      // L'edge function le fait déjà et met le statut en 'pending_review'
-      // pour validation par un admin
+      // Check if verification result has error
+      if (verificationResult?.error || verificationResult?.status === 'FAILED') {
+        throw new Error(verificationResult.error || verificationResult.message || 'Vérification échouée');
+      }
 
+      // Success case
       toast({
-        title: verificationResult.valid ? 'Vérification envoyée' : 'Vérification échouée',
-        description: verificationResult.valid 
-          ? 'Votre demande de vérification a été envoyée. Elle sera validée par un administrateur sous 48h.'
-          : verificationResult.error || verificationResult.message,
-        variant: verificationResult.valid ? 'default' : 'destructive',
+        title: 'Vérification envoyée',
+        description: verificationResult.message || 'Votre demande de vérification a été envoyée. Elle sera validée par un administrateur sous 48h.',
       });
 
-      if (verificationResult.valid) {
-        setFormData({ cniNumber: '', lastName: '', firstName: '', birthDate: '' });
-        setOneciVerified(true);
-        setShowFaceVerification(true);
-      }
-    } catch (error) {
+      setFormData({ cniNumber: '', lastName: '', firstName: '', birthDate: '' });
+      setOneciVerified(true);
+      setShowFaceVerification(true);
+    } catch (error: any) {
       logger.error('ONECI verification error', { error, userId: user?.id });
       
-      // Contextual error messages
-      let errorTitle = 'Erreur';
+      // Parse error for user-friendly messages
+      let errorTitle = 'Erreur de vérification';
       let errorDescription = 'Une erreur est survenue lors de la vérification';
       
-      if (error instanceof Error) {
-        if (error.message.includes('SERVICE_UNAVAILABLE') || error.message.includes('indisponible')) {
-          errorTitle = 'Service temporairement indisponible';
-          errorDescription = 'La vérification ONECI est en maintenance. Réessayez dans quelques minutes.';
-        } else if (error.message.includes('Format CNI')) {
-          errorTitle = 'Format CNI incorrect';
-          errorDescription = 'Veuillez saisir un numéro CNI valide (CI + 10 chiffres)';
-        } else if (error.message.includes('Session')) {
-          errorTitle = 'Session expirée';
-          errorDescription = 'Veuillez vous reconnecter et réessayer.';
-        } else {
-          errorDescription = error.message;
-        }
+      const errorMessage = error?.message || error?.error || String(error);
+      
+      if (errorMessage.includes('SERVICE_UNAVAILABLE') || errorMessage.includes('indisponible')) {
+        errorTitle = 'Service indisponible';
+        errorDescription = 'Le service de vérification ONECI est temporairement indisponible. Réessayez dans quelques instants.';
+      } else if (errorMessage.includes('Format CNI') || errorMessage.includes('invalide')) {
+        errorTitle = 'Format invalide';
+        errorDescription = 'Le numéro CNI doit commencer par "CI" suivi de 10 chiffres (ex: CI1234567890)';
+      } else if (errorMessage.includes('Session') || errorMessage.includes('authentifi')) {
+        errorTitle = 'Session expirée';
+        errorDescription = 'Votre session a expiré. Veuillez vous reconnecter et réessayer.';
+      } else if (errorMessage.includes('non trouvée') || errorMessage.includes('not found')) {
+        errorTitle = 'CNI non trouvée';
+        errorDescription = 'Ce numéro CNI n\'a pas été trouvé dans la base ONECI. Vérifiez vos informations.';
+      } else if (errorMessage.includes('Edge Function')) {
+        errorTitle = 'Erreur de connexion';
+        errorDescription = 'Impossible de se connecter au service de vérification. Vérifiez votre connexion internet.';
+      } else if (errorMessage.trim()) {
+        errorDescription = errorMessage;
       }
       
       toast({

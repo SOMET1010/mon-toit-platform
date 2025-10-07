@@ -28,7 +28,6 @@ const Application = () => {
   const navigate = useNavigate();
   
   const [property, setProperty] = useState<Property | null>(null);
-  const [coverLetter, setCoverLetter] = useState('');
   const [documents, setDocuments] = useState<any[]>([]);
   const [verification, setVerification] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +91,6 @@ const Application = () => {
           .upsert({
             property_id: propertyId,
             applicant_id: user.id,
-            cover_letter: coverLetter || '',
             documents: documents,
             status: 'pending',
           }, {

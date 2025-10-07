@@ -2,6 +2,54 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Property, SearchFilters } from '@/types';
 
 /**
+ * Parse Supabase/Postgres errors into user-friendly messages
+ */
+export function parsePropertyError(error: any): string {
+  if (!error) return 'Une erreur inconnue est survenue';
+
+  const errorMessage = error?.message || String(error);
+  const errorCode = error?.code;
+
+  // Postgres constraint violations
+  if (errorCode === '23505') {
+    return 'Une propriété similaire existe déjà. Vérifiez vos données.';
+  }
+  
+  if (errorCode === '23503') {
+    return 'Référence invalide. Assurez-vous que toutes les informations sont correctes.';
+  }
+
+  if (errorCode === '23502') {
+    return 'Champs obligatoires manquants. Veuillez remplir tous les champs requis.';
+  }
+
+  // RLS policy violations
+  if (errorMessage.includes('RLS') || errorMessage.includes('policy')) {
+    return 'Permissions insuffisantes. Connectez-vous avec un compte propriétaire.';
+  }
+
+  // Geolocation errors
+  if (errorMessage.includes('latitude') || errorMessage.includes('longitude')) {
+    return 'Erreur de localisation. Veuillez sélectionner un emplacement valide sur la carte.';
+  }
+
+  // Network/timeout errors
+  if (errorMessage.includes('timeout') || errorMessage.includes('network')) {
+    return 'Problème de connexion. Vérifiez votre connexion internet et réessayez.';
+  }
+
+  // Generic validation errors
+  if (errorMessage.includes('invalid') || errorMessage.includes('invalide')) {
+    return 'Données invalides. Vérifiez que tous les champs sont correctement remplis.';
+  }
+
+  // Return original message if no pattern matches
+  return errorMessage.length > 100 
+    ? 'Erreur lors de la création de la propriété. Veuillez réessayer.' 
+    : errorMessage;
+}
+
+/**
  * Centralized property service for all property-related database operations
  */
 export const propertyService = {
@@ -145,7 +193,8 @@ export const propertyService = {
 
     if (error) {
       console.error('Error updating property:', error);
-      throw error;
+      const userMessage = parsePropertyError(error);
+      throw new Error(userMessage);
     }
 
     return data;
@@ -162,7 +211,8 @@ export const propertyService = {
 
     if (error) {
       console.error('Error deleting property:', error);
-      throw error;
+      const userMessage = parsePropertyError(error);
+      throw new Error(userMessage);
     }
   },
 
