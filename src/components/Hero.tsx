@@ -36,6 +36,14 @@ const Hero = () => {
       {/* Content */}
       <div className="relative container mx-auto px-4 py-20 md:py-28 max-w-7xl z-10">
         <div className="max-w-2xl lg:max-w-xl">
+          {/* Badge Gratuit */}
+          <div className="inline-flex items-center gap-2 bg-secondary/10 border-2 border-secondary px-4 py-2 rounded-full mb-6">
+            <CheckCircle2 className="h-5 w-5 text-secondary" />
+            <span className="text-sm font-bold text-secondary uppercase tracking-wide">
+              100% Gratuit pour locataires
+            </span>
+          </div>
+
           {/* Small decorative line */}
           <div className="mb-6 w-20 h-1 bg-gradient-to-r from-primary to-secondary rounded-full" />
           
@@ -47,7 +55,7 @@ const Hero = () => {
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl font-medium">
-            La première plateforme de location sécurisée et certifiée en Côte d'Ivoire.
+            Gratuit pour les locataires, sécurisé pour tous. La première plateforme de location certifiée en Côte d'Ivoire.
           </p>
 
           {/* Primary CTA Button */}
@@ -60,6 +68,12 @@ const Hero = () => {
               <Search className="h-5 w-5 mr-2" />
               O, Rechercher un logement
             </Button>
+          </div>
+
+          {/* Note ANSUT */}
+          <div className="flex items-center gap-2 mb-8 text-sm text-muted-foreground">
+            <CheckCircle2 className="h-4 w-4 text-secondary" />
+            <span>✨ Service financé par l'ANSUT</span>
           </div>
 
           {/* Social Proof Stats - White Cards */}

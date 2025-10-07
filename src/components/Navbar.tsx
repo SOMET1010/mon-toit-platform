@@ -62,11 +62,12 @@ const Navbar = () => {
               <span>Publier</span>
             </Link>
             <Link 
-              to="/certification" 
+              to="/verification" 
               className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
             >
               <ShieldCheck className="h-4 w-4" />
               <span>Certification ANSUT</span>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">Gratuit</Badge>
             </Link>
             <Link 
               to="/#comment-ca-marche" 

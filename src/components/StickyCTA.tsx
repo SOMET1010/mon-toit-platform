@@ -28,7 +28,7 @@ const StickyCTA = () => {
             <div className="flex items-center gap-3 text-center md:text-left">
               <Home className="h-6 w-6 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-lg">Prêt à trouver votre toit ?</p>
+                <p className="font-semibold text-lg">Prêt à trouver votre toit ? <span className="text-yellow-300">100% GRATUIT</span></p>
                 <p className="text-sm text-primary-foreground/90">Rejoignez des milliers d'utilisateurs satisfaits</p>
               </div>
             </div>
@@ -36,7 +36,7 @@ const StickyCTA = () => {
               <Button asChild variant="secondary" size="lg">
                 <Link to="/auth?type=tenant">
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Je suis locataire
+                  Créer mon dossier gratuit
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="bg-white/10 border-white/20 hover:bg-white/20 text-white">

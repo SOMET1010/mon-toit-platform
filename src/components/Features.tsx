@@ -1,4 +1,4 @@
-import { ShieldCheck, Users, FileSignature, TrendingUp, CheckCircle, X, Award, Shield, Zap } from "lucide-react";
+import { ShieldCheck, Users, FileSignature, TrendingUp, CheckCircle, X, Award, Shield, Zap, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { memo } from "react";
 import { Button } from "./ui/button";
@@ -359,7 +359,14 @@ const Features = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Locataires - Gratuit */}
-            <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-8 shadow-md border-2 border-blue-200">
+            <div className="relative bg-gradient-to-br from-blue-50 to-white rounded-lg p-8 shadow-md border-2 border-blue-200 md:scale-105">
+              {/* Badge Recommandé */}
+              <div className="absolute -top-3 -right-3">
+                <Badge className="bg-secondary text-white border-0 px-3 py-1 text-xs font-bold">
+                  ⭐ RECOMMANDÉ
+                </Badge>
+              </div>
+
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="bg-blue-600 p-3 rounded-full">
@@ -394,6 +401,14 @@ const Features = () => {
                   <span className="text-foreground">Support client gratuit</span>
                 </li>
               </ul>
+
+              {/* CTA Locataire */}
+              <Button asChild className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold mb-4">
+                <Link to="/verification">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Créer mon dossier gratuit
+                </Link>
+              </Button>
               
               <div className="pt-4 border-t border-blue-200">
                 <p className="text-xs text-muted-foreground">

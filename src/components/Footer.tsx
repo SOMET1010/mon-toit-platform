@@ -14,9 +14,12 @@ const Footer = () => {
             <p className="text-gray-300 text-sm mb-4 leading-relaxed">
               La plateforme de confiance pour l'immobilier en Côte d'Ivoire
             </p>
+            <div className="mb-3 text-sm text-secondary font-semibold">
+              🎁 Gratuit pour tous les locataires
+            </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Shield className="h-4 w-4" />
-              <span>Propulsé par ANSUT</span>
+              <span>Financé par l'ANSUT</span>
             </div>
           </div>
 

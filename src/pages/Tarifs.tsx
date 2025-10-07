@@ -92,10 +92,17 @@ const Tarifs = () => {
                   <div
                     key={index}
                     className={`bg-white rounded-lg border-l-4 ${borderColor} ${
-                      plan.highlighted ? "shadow-lg scale-105 md:scale-110" : "shadow-md"
+                      plan.highlighted ? "shadow-lg scale-105 md:scale-110" : index === 0 ? "shadow-lg md:scale-105" : "shadow-md"
                     } p-8 relative transition-all duration-200 hover:shadow-xl`}
                   >
-                    {plan.highlighted && (
+                    {/* Badge Toujours Gratuit pour Locataire */}
+                    {index === 0 && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-semibold">
+                        TOUJOURS GRATUIT
+                      </div>
+                    )}
+
+                    {plan.highlighted && index !== 0 && (
                       <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
                         Populaire
                       </div>
