@@ -37,26 +37,16 @@ const OnboardingModal = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center">
-                <Home className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <DialogTitle className="text-2xl">Bienvenue sur Mon Toit</DialogTitle>
-                <DialogDescription className="text-base">
-                  Plateforme certifiée ANSUT de location immobilière
-                </DialogDescription>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center">
+              <Home className="h-6 w-6 text-primary-foreground" />
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div>
+              <DialogTitle className="text-2xl">Bienvenue sur Mon Toit</DialogTitle>
+              <DialogDescription className="text-base">
+                Plateforme certifiée ANSUT de location immobilière
+              </DialogDescription>
+            </div>
           </div>
         </DialogHeader>
 

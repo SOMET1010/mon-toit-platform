@@ -45,33 +45,14 @@ const ONECIForm = () => {
 
       if (functionError) throw functionError;
 
-      // Update or create user_verifications record
-      const { error: upsertError } = await supabase
-        .from('user_verifications')
-        .upsert({
-          user_id: user.id,
-          oneci_cni_number: formData.cniNumber,
-          oneci_status: verificationResult.valid ? 'verified' : 'failed',
-          oneci_data: verificationResult.valid ? verificationResult.holder : null,
-          oneci_verified_at: verificationResult.valid ? new Date().toISOString() : null,
-        }, {
-          onConflict: 'user_id'
-        });
-
-      if (upsertError) throw upsertError;
-
-      // Update profile
-      if (verificationResult.valid) {
-        await supabase
-          .from('profiles')
-          .update({ oneci_verified: true })
-          .eq('id', user.id);
-      }
+      // Note: Ne pas mettre à jour user_verifications ni profiles ici
+      // L'edge function le fait déjà et met le statut en 'pending_review'
+      // pour validation par un admin
 
       toast({
-        title: verificationResult.valid ? 'Vérification ONECI réussie' : 'Vérification échouée',
+        title: verificationResult.valid ? 'Vérification envoyée' : 'Vérification échouée',
         description: verificationResult.valid 
-          ? 'Vous pouvez maintenant effectuer la vérification faciale (optionnelle)'
+          ? 'Votre demande de vérification a été envoyée. Elle sera validée par un administrateur sous 48h.'
           : verificationResult.error || verificationResult.message,
         variant: verificationResult.valid ? 'default' : 'destructive',
       });

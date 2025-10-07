@@ -66,6 +66,28 @@ export const PreferencesModal = ({ open, onOpenChange }: PreferencesModalProps) 
   };
 
   const handleSave = async () => {
+    // Validation
+    if (preferences.min_budget > 0 && preferences.max_budget > 0 && preferences.min_budget > preferences.max_budget) {
+      toast({
+        title: "Critères invalides",
+        description: "Le budget minimum ne peut pas être supérieur au budget maximum",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (preferences.preferred_cities.length > 0) {
+      const invalidCities = preferences.preferred_cities.filter(city => city.length < 2);
+      if (invalidCities.length > 0) {
+        toast({
+          title: "Villes invalides",
+          description: "Certaines villes saisies sont trop courtes (minimum 2 caractères)",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       await updatePreferences(preferences);
@@ -76,19 +98,43 @@ export const PreferencesModal = ({ open, onOpenChange }: PreferencesModalProps) 
       });
     } catch (error) {
       console.error('Error saving preferences:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder les préférences",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const addCity = () => {
-    if (cityInput.trim() && !preferences.preferred_cities.includes(cityInput.trim())) {
-      setPreferences({
-        ...preferences,
-        preferred_cities: [...preferences.preferred_cities, cityInput.trim()],
+    const trimmedCity = cityInput.trim();
+    if (!trimmedCity) return;
+    
+    if (trimmedCity.length < 2) {
+      toast({
+        title: "Ville invalide",
+        description: "Le nom de la ville doit contenir au moins 2 caractères",
+        variant: "destructive",
       });
-      setCityInput('');
+      return;
     }
+
+    if (preferences.preferred_cities.includes(trimmedCity)) {
+      toast({
+        title: "Ville déjà ajoutée",
+        description: "Cette ville est déjà dans votre liste",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPreferences({
+      ...preferences,
+      preferred_cities: [...preferences.preferred_cities, trimmedCity],
+    });
+    setCityInput('');
   };
 
   const removeCity = (city: string) => {

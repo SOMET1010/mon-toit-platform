@@ -66,8 +66,7 @@ const Hero = () => {
               className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-secondary hover:bg-secondary/90 text-white rounded-full"
               onClick={() => navigate('/recherche')}
             >
-              <Search className="h-5 w-5 mr-2" />
-              Rechercher un logement
+              🔍 Rechercher un logement
             </Button>
           </div>
 

@@ -75,10 +75,10 @@ const Application = () => {
   const handleSubmit = async () => {
     if (!user || !propertyId) return;
 
-    if (!coverLetter.trim()) {
+    if (documents.length === 0) {
       toast({
-        title: 'Lettre de motivation requise',
-        description: 'Veuillez rédiger une lettre de motivation',
+        title: 'Documents requis',
+        description: 'Veuillez ajouter au moins un document justificatif pour soumettre votre candidature',
         variant: 'destructive',
       });
       return;
@@ -86,18 +86,21 @@ const Application = () => {
 
     setSubmitting(true);
 
-    try {
-      const { data, error } = await supabase
-        .from('rental_applications')
-        .insert({
-          property_id: propertyId,
-          applicant_id: user.id,
-          cover_letter: coverLetter,
-          documents: documents,
-          status: 'pending',
-        })
-        .select()
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('rental_applications')
+          .upsert({
+            property_id: propertyId,
+            applicant_id: user.id,
+            cover_letter: coverLetter || '',
+            documents: documents,
+            status: 'pending',
+          }, {
+            onConflict: 'property_id,applicant_id',
+            ignoreDuplicates: false
+          })
+          .select()
+          .single();
 
       if (error) throw error;
 
@@ -270,33 +273,6 @@ const Application = () => {
             </CardContent>
           </Card>
 
-          {/* Lettre de motivation */}
-          <Card className="border-2 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <FileText className="h-5 w-5 text-primary" />
-                Lettre de motivation
-              </CardTitle>
-              <CardDescription>
-                Présentez-vous et expliquez pourquoi vous souhaitez louer ce bien
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                placeholder="Cher(e) propriétaire,
-
-Je suis vivement intéressé(e) par votre bien car...
-
-Cordialement,"
-                className="min-h-[240px] text-base rounded-xl border-2 focus:border-primary transition-colors"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                {coverLetter.length} caractères
-              </p>
-            </CardContent>
-          </Card>
 
           {/* Récapitulatif */}
           <Card className="border-2 shadow-lg bg-gradient-to-br from-background to-muted/20">
@@ -316,14 +292,8 @@ Cordialement,"
               )}
               <div className="flex justify-between items-center p-3 rounded-xl bg-background">
                 <span className="text-muted-foreground">Documents joints</span>
-                <Badge variant="secondary" className="rounded-xl">
-                  {documents.length} fichier{documents.length > 1 ? 's' : ''}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center p-3 rounded-xl bg-background">
-                <span className="text-muted-foreground">Lettre de motivation</span>
-                <Badge variant={coverLetter.trim() ? "default" : "secondary"} className="rounded-xl">
-                  {coverLetter.trim() ? 'Complétée' : 'À compléter'}
+                <Badge variant={documents.length > 0 ? "default" : "destructive"} className="rounded-xl">
+                  {documents.length > 0 ? `${documents.length} fichier${documents.length > 1 ? 's' : ''}` : 'Requis'}
                 </Badge>
               </div>
             </CardContent>

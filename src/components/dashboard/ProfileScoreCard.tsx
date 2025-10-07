@@ -2,9 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const ProfileScoreCard = () => {
   const { profile } = useAuth();
@@ -91,7 +92,29 @@ export const ProfileScoreCard = () => {
             <div className={`flex-1 h-2 rounded-full ${profile?.cnam_verified ? 'bg-green-600' : 'bg-muted'}`} />
             <div className={`flex-1 h-2 rounded-full ${profile?.face_verified ? 'bg-green-600' : 'bg-muted'}`} />
           </div>
+          <div className="flex gap-1 text-xs text-muted-foreground">
+            <span>ONECI</span>
+            <span>•</span>
+            <span>CNAM</span>
+            <span>•</span>
+            <span>Face ID</span>
+          </div>
         </div>
+
+        {/* Score Explanation */}
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription className="text-xs">
+            <strong>Comment améliorer votre score :</strong>
+            <ul className="mt-2 space-y-1 list-disc list-inside">
+              {!profile?.oneci_verified && <li>Vérifiez votre identité ONECI (+30 points)</li>}
+              {!profile?.cnam_verified && <li>Vérifiez votre situation professionnelle CNAM (+25 points)</li>}
+              {!profile?.face_verified && <li>Effectuez la vérification faciale (+20 points)</li>}
+              {!profile?.phone && <li>Ajoutez votre numéro de téléphone (+5 points)</li>}
+              {!profile?.bio && <li>Complétez votre biographie (+10 points)</li>}
+            </ul>
+          </AlertDescription>
+        </Alert>
 
         {/* Action Button */}
         {!isFullyVerified && (

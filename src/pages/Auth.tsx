@@ -18,7 +18,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
-  password: z.string().min(6, { message: "Le mot de passe doit contenir au moins 6 caractères" }),
+  password: z
+    .string()
+    .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" })
+    .regex(/[A-Z]/, { message: "Le mot de passe doit contenir au moins une majuscule" })
+    .regex(/[a-z]/, { message: "Le mot de passe doit contenir au moins une minuscule" })
+    .regex(/[0-9]/, { message: "Le mot de passe doit contenir au moins un chiffre" })
+    .regex(/[^A-Za-z0-9]/, { message: "Le mot de passe doit contenir au moins un caractère spécial" }),
   fullName: z.string().min(2, { message: "Le nom complet doit contenir au moins 2 caractères" }),
   userType: z.enum(['locataire', 'proprietaire', 'agence']),
 });
@@ -478,7 +484,10 @@ const Auth = () => {
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground">
-          En créant un compte, vous acceptez nos conditions d'utilisation
+          En créant un compte, vous acceptez nos{' '}
+          <Link to="/conditions" className="text-primary hover:underline">
+            conditions d'utilisation
+          </Link>
         </p>
       </div>
     </div>

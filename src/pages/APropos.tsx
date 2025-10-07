@@ -18,8 +18,8 @@ const APropos = () => {
             <div className="prose prose-lg max-w-none mb-12">
               <p>
                 <strong>Mon Toit</strong> est une plateforme innovante propulsée par <strong>ANSUT</strong> 
-                (Agence Nationale de Sécurisation des Transactions), dédiée à révolutionner 
-                le marché immobilier ivoirien.
+                (Agence Nationale du Service Universel des Télécommunications/TIC de Côte d'Ivoire), 
+                dédiée à révolutionner le marché immobilier ivoirien.
               </p>
               <p>
                 Notre mission est de créer un environnement sécurisé, transparent et efficace 
