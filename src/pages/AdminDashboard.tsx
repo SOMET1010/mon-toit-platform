@@ -27,6 +27,8 @@ import { MfaSecurityMonitor } from '@/components/admin/MfaSecurityMonitor';
 import { ProcessingConfigPanel } from '@/components/admin/ProcessingConfigPanel';
 import { ProcessingAnalytics } from '@/components/admin/ProcessingAnalytics';
 import { SeedDemoDataButton } from '@/components/admin/SeedDemoDataButton';
+import { ElectronicSignaturesDashboard } from '@/components/admin/ElectronicSignaturesDashboard';
+import { CertificateManager } from '@/components/admin/CertificateManager';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -173,6 +175,7 @@ const AdminDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="moderation">Modération</TabsTrigger>
             <TabsTrigger value="reporting">Rapports</TabsTrigger>
+            <TabsTrigger value="electronic-signatures">Signatures Électroniques</TabsTrigger>
             <TabsTrigger value="properties" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               Biens

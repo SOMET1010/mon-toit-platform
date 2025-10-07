@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock } from "lucide-react";
+import { FileText, Calendar, MapPin, DollarSign, CheckCircle, Clock, Shield } from "lucide-react";
+import { ElectronicSignature } from "@/components/leases/ElectronicSignature";
 import { useToast } from "@/hooks/use-toast";
 import CertificationRequest from "@/components/leases/CertificationRequest";
 import { PreCertificationChecklist } from "@/components/leases/PreCertificationChecklist";
@@ -42,6 +43,11 @@ interface Lease {
   certification_status: 'not_requested' | 'pending' | 'certified' | 'rejected';
   certification_requested_at: string | null;
   document_url: string | null;
+  cryptoneo_operation_id: string | null;
+  signed_document_url: string | null;
+  is_electronically_signed: boolean;
+  landlord_cryptoneo_signature_at: string | null;
+  tenant_cryptoneo_signature_at: string | null;
   properties: {
     title: string;
     address: string;

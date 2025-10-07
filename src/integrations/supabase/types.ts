@@ -122,6 +122,47 @@ export type Database = {
         }
         Relationships: []
       }
+      digital_certificates: {
+        Row: {
+          certificate_data: Json
+          certificate_id: string
+          certificate_status: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_data: Json
+          certificate_id: string
+          certificate_status?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_data?: Json
+          certificate_id?: string
+          certificate_status?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digital_certificates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes: {
         Row: {
           assigned_to: string | null
@@ -210,6 +251,60 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      electronic_signature_logs: {
+        Row: {
+          created_at: string | null
+          cryptoneo_response: Json | null
+          error_message: string | null
+          id: string
+          lease_id: string
+          operation_id: string
+          signature_type: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cryptoneo_response?: Json | null
+          error_message?: string | null
+          id?: string
+          lease_id: string
+          operation_id: string
+          signature_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cryptoneo_response?: Json | null
+          error_message?: string | null
+          id?: string
+          lease_id?: string
+          operation_id?: string
+          signature_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "electronic_signature_logs_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "electronic_signature_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lease_certification_history: {
         Row: {
@@ -353,18 +448,25 @@ export type Database = {
           certified_by: string | null
           charges_amount: number | null
           created_at: string
+          cryptoneo_operation_id: string | null
           deposit_amount: number | null
           document_url: string | null
           end_date: string
           id: string
+          is_electronically_signed: boolean | null
+          landlord_cryptoneo_signature_at: string | null
           landlord_id: string
+          landlord_signature_operation_id: string | null
           landlord_signed_at: string | null
           lease_type: string
           monthly_rent: number
           property_id: string
+          signed_document_url: string | null
           start_date: string
           status: string
+          tenant_cryptoneo_signature_at: string | null
           tenant_id: string
+          tenant_signature_operation_id: string | null
           tenant_signed_at: string | null
           updated_at: string
         }
@@ -376,18 +478,25 @@ export type Database = {
           certified_by?: string | null
           charges_amount?: number | null
           created_at?: string
+          cryptoneo_operation_id?: string | null
           deposit_amount?: number | null
           document_url?: string | null
           end_date: string
           id?: string
+          is_electronically_signed?: boolean | null
+          landlord_cryptoneo_signature_at?: string | null
           landlord_id: string
+          landlord_signature_operation_id?: string | null
           landlord_signed_at?: string | null
           lease_type: string
           monthly_rent: number
           property_id: string
+          signed_document_url?: string | null
           start_date: string
           status?: string
+          tenant_cryptoneo_signature_at?: string | null
           tenant_id: string
+          tenant_signature_operation_id?: string | null
           tenant_signed_at?: string | null
           updated_at?: string
         }
@@ -399,18 +508,25 @@ export type Database = {
           certified_by?: string | null
           charges_amount?: number | null
           created_at?: string
+          cryptoneo_operation_id?: string | null
           deposit_amount?: number | null
           document_url?: string | null
           end_date?: string
           id?: string
+          is_electronically_signed?: boolean | null
+          landlord_cryptoneo_signature_at?: string | null
           landlord_id?: string
+          landlord_signature_operation_id?: string | null
           landlord_signed_at?: string | null
           lease_type?: string
           monthly_rent?: number
           property_id?: string
+          signed_document_url?: string | null
           start_date?: string
           status?: string
+          tenant_cryptoneo_signature_at?: string | null
           tenant_id?: string
+          tenant_signature_operation_id?: string | null
           tenant_signed_at?: string | null
           updated_at?: string
         }
