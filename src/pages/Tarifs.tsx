@@ -159,11 +159,23 @@ const Tarifs = () => {
 
                 <div className="bg-white rounded-lg p-6 shadow-md">
                   <h3 className="font-bold text-lg mb-2 text-foreground">
-                    La certification ANSUT est-elle vraiment gratuite ?
+                    Pourquoi c'est gratuit pour les locataires ?
                   </h3>
                   <p className="text-muted-foreground">
-                    Oui, la certification ANSUT (vérification d'identité biométrique + constitution du dossier digital) 
-                    est 100% gratuite pour tous les locataires. C'est notre engagement pour faciliter l'accès au logement.
+                    La certification ANSUT (vérification d'identité biométrique + constitution du dossier digital) 
+                    est 100% gratuite pour tous les locataires car financée par l'ANSUT dans le cadre du service universel. 
+                    Mon Toit se rémunère uniquement via les commissions sur les baux signés par les propriétaires.
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-lg p-6 shadow-md">
+                  <h3 className="font-bold text-lg mb-2 text-foreground">
+                    Comment Mon Toit finance son fonctionnement ?
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Mon Toit opère selon un modèle freemium transparent : l'ANSUT finance l'infrastructure (CAPEX) 
+                    et Mon Toit assure les opérations (OPEX) via des commissions sur les transactions, 
+                    de la publicité ciblée et des services premium pour les agences. Les locataires ne paient jamais.
                   </p>
                 </div>
 

@@ -66,7 +66,7 @@ const kpis: KPI[] = [
   },
   {
     value: "0 FCFA",
-    label: "100% gratuit",
+    label: "Gratuit pour locataires",
     icon: Award,
   },
   {
@@ -245,7 +245,7 @@ const Features = () => {
                 🇨🇮 Service Public
               </Badge>
               <Badge variant="outline" className="border-primary text-primary px-4 py-1.5 text-sm font-semibold">
-                100% Gratuit
+                Gratuit pour locataires
               </Badge>
             </div>
           </div>
@@ -332,7 +332,7 @@ const Features = () => {
               <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <span>Gratuit pour tous les citoyens</span>
+                  <span>Gratuit pour tous les locataires</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -351,6 +351,112 @@ const Features = () => {
           </div>
         </div>
 
+        {/* Section Tarification Transparente */}
+        <div className="max-w-5xl mx-auto mb-16">
+          <h3 className="text-3xl font-bold text-center mb-10 text-foreground">
+            Tarification transparente
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Locataires - Gratuit */}
+            <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-8 shadow-md border-2 border-blue-200">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-600 p-3 rounded-full">
+                    <Users className="h-6 w-6 text-white" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-foreground">Locataires</h4>
+                </div>
+                <Badge className="bg-green-600 text-white border-0 text-lg px-4 py-1">
+                  0 FCFA
+                </Badge>
+              </div>
+              
+              <p className="text-muted-foreground mb-6">
+                Toutes les fonctionnalités pour trouver votre logement
+              </p>
+              
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Création de dossier gratuite</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Vérification ANSUT gratuite</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Candidatures illimitées</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Support client gratuit</span>
+                </li>
+              </ul>
+              
+              <div className="pt-4 border-t border-blue-200">
+                <p className="text-xs text-muted-foreground">
+                  💡 Financé par l'ANSUT dans le cadre du service universel
+                </p>
+              </div>
+            </div>
+
+            {/* Propriétaires/Agences - Commission */}
+            <div className="bg-white rounded-lg p-8 shadow-lg border-2 border-primary/20">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary p-3 rounded-full">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-foreground">Propriétaires</h4>
+                </div>
+                <Badge variant="outline" className="border-primary text-primary text-lg px-4 py-1 font-bold">
+                  5%
+                </Badge>
+              </div>
+              
+              <p className="text-muted-foreground mb-6">
+                Commission uniquement sur signature de bail réussie
+              </p>
+              
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Publication illimitée de biens</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Dossiers pré-vérifiés par l'État</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Signature électronique + Mobile Money</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Médiation en cas de litige</span>
+                </li>
+              </ul>
+              
+              <div className="pt-4 border-t border-muted">
+                <p className="text-xs text-muted-foreground mb-2">
+                  💰 Commission prélevée uniquement à la signature du bail
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  📊 Agences : tarifs dégressifs sur devis
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <Button asChild variant="outline" size="lg">
+              <Link to="/tarifs">Voir tous les détails tarifaires</Link>
+            </Button>
+          </div>
+        </div>
+
         {/* CTA final */}
         <div className="text-center mt-16 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-10 border border-primary/10">
           <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
@@ -358,7 +464,7 @@ const Features = () => {
           </h3>
           
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Service 100% gratuit et sécurisé. Obtenez votre certification d'État en 48h et facilitez votre recherche de logement.
+            Création de dossier gratuite pour les locataires. Propriétaires : commission uniquement sur signature de bail réussie.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 max-w-md mx-auto">
