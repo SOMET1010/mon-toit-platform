@@ -68,25 +68,18 @@ const DisputeManager = () => {
 
   const fetchDisputes = async () => {
     try {
-      let query = supabase
-        .from('disputes')
-        .select(`
-          *,
-          reporter:reporter_id(full_name, avatar_url),
-          reported:reported_id(full_name, avatar_url),
-          assigned_admin:assigned_to(full_name, avatar_url)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (filter !== 'all') {
-        query = query.eq('status', filter);
-      }
-
-      const { data, error } = await query;
+      // Utiliser le RPC sécurisé qui masque reporter_id pour les signalés
+      const { data, error } = await supabase.rpc('get_my_disputes');
 
       if (error) throw error;
 
-      setDisputes((data || []) as unknown as Dispute[]);
+      // Appliquer le filtre côté client
+      let filteredData = data || [];
+      if (filter !== 'all') {
+        filteredData = filteredData.filter(d => d.status === filter);
+      }
+
+      setDisputes(filteredData as unknown as Dispute[]);
     } catch (error) {
       logger.error('Error fetching disputes', { error, filter });
     } finally {
@@ -117,9 +110,9 @@ const DisputeManager = () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+      // Utiliser le RPC sécurisé et calculer stats côté client
       const { data: allDisputes, error } = await supabase
-        .from('disputes')
-        .select('status, created_at, resolved_at');
+        .rpc('get_my_disputes');
 
       if (error) throw error;
 

@@ -36,9 +36,9 @@ export const AdminVerificationStats = () => {
 
   const fetchStats = async () => {
     try {
+      // Utiliser le RPC sécurisé pour accès aux données de vérification
       const { data: verifications, error } = await supabase
-        .from('user_verifications')
-        .select('*');
+        .rpc('get_verifications_for_admin_review');
 
       if (error) throw error;
 
@@ -72,10 +72,10 @@ export const AdminVerificationStats = () => {
         avgProcessingTime = totalTime / reviewedVerifications.length / (1000 * 60 * 60); // Convert to hours
       }
 
-      // Calculate average tenant score
-      const scoresWithValues = verifications.filter(v => v.tenant_score && v.tenant_score > 0);
+      // Calculate average tenant score (avec cast any car RPC ne type pas tenant_score)
+      const scoresWithValues = verifications.filter(v => (v as any).tenant_score && (v as any).tenant_score > 0);
       const avgScore = scoresWithValues.length > 0
-        ? scoresWithValues.reduce((sum, v) => sum + (v.tenant_score || 0), 0) / scoresWithValues.length
+        ? scoresWithValues.reduce((sum, v) => sum + ((v as any).tenant_score || 0), 0) / scoresWithValues.length
         : 0;
 
       setStats({
@@ -102,12 +102,9 @@ export const AdminVerificationStats = () => {
 
   const exportToCSV = async () => {
     try {
+      // Utiliser le RPC sécurisé qui retourne déjà les données avec full_name
       const { data, error } = await supabase
-        .from('user_verifications')
-        .select(`
-          *,
-          profiles!inner(full_name, user_type)
-        `);
+        .rpc('get_verifications_for_admin_review');
 
       if (error) throw error;
 
@@ -115,11 +112,11 @@ export const AdminVerificationStats = () => {
         ['ID Utilisateur', 'Nom', 'Type', 'Statut ONECI', 'Statut CNAM', 'Score Locataire', 'Date Création', 'Date Révision', 'Révisé Par'].join(','),
         ...data.map((v: any) => [
           v.user_id,
-          v.profiles?.full_name || 'N/A',
-          v.profiles?.user_type || 'N/A',
+          v.full_name || 'N/A',
+          v.user_type || 'N/A',
           v.oneci_status,
           v.cnam_status,
-          v.tenant_score || 0,
+          (v as any).tenant_score || 0,
           new Date(v.created_at).toLocaleDateString('fr-FR'),
           v.admin_reviewed_at ? new Date(v.admin_reviewed_at).toLocaleDateString('fr-FR') : 'N/A',
           v.admin_reviewed_by || 'N/A'

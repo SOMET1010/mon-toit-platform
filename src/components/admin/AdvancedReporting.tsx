@@ -114,10 +114,9 @@ const AdvancedReporting = () => {
       }
       const { data: applications } = await applicationsQuery;
 
-      // Fetch verifications
-      const { data: verifications } = await supabase
-        .from('user_verifications')
-        .select('*');
+    // Fetch verifications via RPC sécurisé
+    const { data: verifications } = await supabase
+      .rpc('get_verifications_for_admin_review');
 
       // Fetch leases for financial data
       const { data: leases } = await supabase

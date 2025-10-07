@@ -47,11 +47,10 @@ const AdminDashboard = () => {
     };
 
     const fetchOpenDisputes = async () => {
-      const { count } = await supabase
-        .from('disputes')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'open');
-      setOpenDisputes(count || 0);
+      // Utiliser le RPC sécurisé via get_my_disputes
+      const { data: disputes } = await supabase.rpc('get_my_disputes');
+      const openCount = disputes?.filter(d => d.status === 'open').length || 0;
+      setOpenDisputes(openCount);
     };
 
     const fetchPendingProperties = async () => {
