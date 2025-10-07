@@ -44,10 +44,10 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
   const verificationStatus = useMemo((): ComponentStatus => {
     if (loading) return 'loading';
     if (error) return 'error';
-    if (profile?.oneci_verified || verification?.oneci_status === 'verified') return 'verified';
+    if (profile?.oneci_verified || profile?.passport_verified || verification?.oneci_status === 'verified') return 'verified';
     if (verification?.oneci_status === 'pending' || verification?.oneci_status === 'pending_review') return 'pending';
     return 'not_verified';
-  }, [loading, error, profile?.oneci_verified, verification?.oneci_status]);
+  }, [loading, error, profile?.oneci_verified, profile?.passport_verified, verification?.oneci_status]);
 
   const isVerified = verificationStatus === 'verified';
   const isPending = verificationStatus === 'pending';

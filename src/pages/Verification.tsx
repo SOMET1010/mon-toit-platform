@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import ONECIForm from '@/components/verification/ONECIForm';
 import VerificationStatus from '@/components/verification/VerificationStatus';
 import FaceVerification from '@/components/verification/FaceVerification';
+import PassportVerificationForm from '@/components/verification/PassportVerificationForm';
 import { Shield } from 'lucide-react';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -45,9 +46,12 @@ const Verification = () => {
             <VerificationStatus />
 
             <Tabs defaultValue="oneci" className="mt-8">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="oneci">
-                  Vérification ONECI
+                  ONECI (Ivoiriens)
+                </TabsTrigger>
+                <TabsTrigger value="passport">
+                  Passeport (Étrangers)
                 </TabsTrigger>
                 <TabsTrigger value="face">
                   Vérification Faciale
@@ -64,6 +68,20 @@ const Verification = () => {
                   </CardHeader>
                   <CardContent>
                     <ONECIForm />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="passport">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Vérification Passeport</CardTitle>
+                    <CardDescription>
+                      Pour les ressortissants étrangers non-ivoiriens
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PassportVerificationForm />
                   </CardContent>
                 </Card>
               </TabsContent>

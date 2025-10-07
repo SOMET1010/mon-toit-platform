@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { CheckCircle2, XCircle, Clock, User, FileText, Shield } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CheckCircle2, XCircle, Clock, User, FileText, Shield, Globe } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -17,10 +18,14 @@ interface VerificationWithUser {
   user_id: string;
   oneci_status: string;
   cnam_status: string;
+  passport_status: string;
   oneci_data: any;
   cnam_data: any;
+  passport_data: any;
   oneci_cni_number: string | null;
   cnam_employer: string | null;
+  passport_number: string | null;
+  passport_nationality: string | null;
   created_at: string;
   profiles: {
     full_name: string;
@@ -31,10 +36,11 @@ interface VerificationWithUser {
 
 export default function AdminVerificationQueue() {
   const [verifications, setVerifications] = useState<VerificationWithUser[]>([]);
+  const [passportVerifications, setPassportVerifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVerification, setSelectedVerification] = useState<{
     userId: string;
-    type: 'oneci' | 'cnam';
+    type: 'oneci' | 'cnam' | 'passport';
     action: 'approve' | 'reject';
   } | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
@@ -42,28 +48,39 @@ export default function AdminVerificationQueue() {
 
   const fetchPendingVerifications = async () => {
     try {
-      // EPIC 2: Use secure RPC with audit logging instead of direct SELECT
+      // Fetch ONECI/CNAM verifications
       const { data, error } = await supabase.rpc('get_verifications_for_admin_review');
-
       if (error) throw error;
 
       const enrichedData = (data || []).map((verification: any) => ({
         user_id: verification.user_id,
         oneci_status: verification.oneci_status,
         cnam_status: verification.cnam_status,
+        passport_status: 'not_submitted',
         oneci_data: verification.oneci_data,
         cnam_data: verification.cnam_data,
+        passport_data: null,
         oneci_cni_number: verification.oneci_cni_number,
         cnam_employer: verification.cnam_employer,
+        passport_number: null,
+        passport_nationality: null,
         created_at: verification.created_at,
         profiles: {
           full_name: verification.full_name || 'N/A',
           avatar_url: null,
-          email: 'user@example.com' // Placeholder
+          email: 'user@example.com'
         }
       }));
 
       setVerifications(enrichedData as VerificationWithUser[]);
+
+      // Fetch passport verifications
+      const { data: passportData, error: passportError } = await supabase.rpc('get_passport_verifications_for_admin');
+      if (passportError) {
+        console.error('Passport verification fetch error:', passportError);
+      } else {
+        setPassportVerifications(passportData || []);
+      }
     } catch (error: any) {
       console.error('Erreur lors du chargement des vérifications:', error);
       toast({
@@ -85,17 +102,30 @@ export default function AdminVerificationQueue() {
 
     setSubmitting(true);
     try {
-      const functionName = selectedVerification.action === 'approve' 
-        ? 'approve_verification' 
-        : 'reject_verification';
+      let functionName: string;
+      
+      if (selectedVerification.type === 'passport') {
+        functionName = selectedVerification.action === 'approve' 
+          ? 'approve_passport_verification' 
+          : 'reject_passport_verification';
+        
+        const { error } = await supabase.rpc(functionName, {
+          p_user_id: selectedVerification.userId,
+          p_review_notes: reviewNotes || null,
+        });
+        if (error) throw error;
+      } else {
+        functionName = selectedVerification.action === 'approve' 
+          ? 'approve_verification' 
+          : 'reject_verification';
 
-      const { error } = await supabase.rpc(functionName, {
-        p_user_id: selectedVerification.userId,
-        p_verification_type: selectedVerification.type,
-        p_review_notes: reviewNotes || null,
-      });
-
-      if (error) throw error;
+        const { error } = await supabase.rpc(functionName, {
+          p_user_id: selectedVerification.userId,
+          p_verification_type: selectedVerification.type,
+          p_review_notes: reviewNotes || null,
+        });
+        if (error) throw error;
+      }
 
       toast({
         title: selectedVerification.action === 'approve' ? 'Vérification approuvée' : 'Vérification rejetée',
@@ -144,17 +174,24 @@ export default function AdminVerificationQueue() {
         {/* Statistics Dashboard */}
         <AdminVerificationStats />
         
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">File d'attente des vérifications</h2>
-            <p className="text-muted-foreground">
-              {verifications.length} vérification{verifications.length > 1 ? 's' : ''} en attente de validation
-            </p>
+        <Tabs defaultValue="oneci_cnam" className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList>
+              <TabsTrigger value="oneci_cnam">ONECI & CNAM ({verifications.length})</TabsTrigger>
+              <TabsTrigger value="passport">Passeports ({passportVerifications.length})</TabsTrigger>
+            </TabsList>
+            <Button onClick={fetchPendingVerifications} variant="outline">
+              Rafraîchir
+            </Button>
           </div>
-          <Button onClick={fetchPendingVerifications} variant="outline">
-            Rafraîchir
-          </Button>
-        </div>
+
+          <TabsContent value="oneci_cnam" className="space-y-4">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold">Vérifications ONECI & CNAM</h2>
+              <p className="text-muted-foreground">
+                {verifications.length} vérification{verifications.length > 1 ? 's' : ''} en attente de validation
+              </p>
+            </div>
 
         {verifications.length === 0 ? (
           <Card>
@@ -276,6 +313,95 @@ export default function AdminVerificationQueue() {
             ))}
           </div>
         )}
+          </TabsContent>
+
+          <TabsContent value="passport" className="space-y-4">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold">Vérifications Passeport</h2>
+              <p className="text-muted-foreground">
+                {passportVerifications.length} vérification{passportVerifications.length > 1 ? 's' : ''} passeport en attente
+              </p>
+            </div>
+
+            {passportVerifications.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center h-64">
+                  <CheckCircle2 className="h-16 w-16 text-muted-foreground mb-4" />
+                  <p className="text-lg font-medium">Aucune vérification passeport en attente</p>
+                  <p className="text-sm text-muted-foreground">Toutes les vérifications passeport ont été traitées</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {passportVerifications.map((verification: any) => (
+                  <Card key={verification.user_id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarFallback>
+                              <User className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <CardTitle className="text-lg">{verification.full_name}</CardTitle>
+                            <CardDescription className="text-sm">Nationalité: {verification.passport_nationality}</CardDescription>
+                          </div>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(verification.created_at), 'PPp', { locale: fr })}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="border rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-5 w-5 text-primary" />
+                            <span className="font-semibold">Vérification Passeport</span>
+                          </div>
+                          {getStatusBadge(verification.passport_status)}
+                        </div>
+                        
+                        {verification.passport_data && (
+                          <div className="bg-muted/50 rounded p-3 space-y-1 text-sm">
+                            <div><strong>Numéro passeport:</strong> {verification.passport_number}</div>
+                            <div><strong>Nationalité:</strong> {verification.passport_nationality}</div>
+                            <div><strong>Nom:</strong> {verification.passport_data.lastName}</div>
+                            <div><strong>Prénom:</strong> {verification.passport_data.firstName}</div>
+                            <div><strong>Date de naissance:</strong> {verification.passport_data.birthDate}</div>
+                            <div><strong>Date d'émission:</strong> {verification.passport_data.issueDate}</div>
+                            <div><strong>Date d'expiration:</strong> {verification.passport_data.expiryDate}</div>
+                          </div>
+                        )}
+
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'passport', action: 'approve' })}
+                            className="flex-1"
+                          >
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            Approuver
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'passport', action: 'reject' })}
+                            className="flex-1"
+                          >
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Rejeter
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Dialog de confirmation */}
