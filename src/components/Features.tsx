@@ -70,7 +70,7 @@ const kpis: KPI[] = [
 const features: Feature[] = [
   {
     icon: ShieldCheck,
-    title: "Certification Locataire ANSUT",
+    title: "Certification Locataire par l'ANSUT",
     description: "Vérification biométrique + scoring automatique. Démarquez-vous auprès des propriétaires",
     microKpi: "Vérification en 48h",
     target: "locataire",
@@ -81,7 +81,7 @@ const features: Feature[] = [
   {
     icon: Users,
     title: "Candidatures Pré-Vérifiées",
-    description: "Ne recevez que des locataires certifiés ANSUT avec dossier complet et score de confiance",
+    description: "Ne recevez que des locataires certifiés par l'ANSUT avec dossier complet et score de confiance",
     microKpi: "Score de confiance 0-100",
     target: "proprietaire",
     targetLabel: "Pour les propriétaires",
@@ -120,7 +120,7 @@ const withoutMonToit: ComparisonItem[] = [
 
 const withMonToit: ComparisonItem[] = [
   { text: "Vérification biométrique des locataires", icon: CheckCircle },
-  { text: "Certification ANSUT (garantie gouvernementale)", icon: CheckCircle },
+  { text: "Certification ANSUT (Agence Nationale du Service Universel)", icon: CheckCircle },
   { text: "Paiements Mobile Money sécurisés", icon: CheckCircle },
   { text: "Médiation professionnelle incluse", icon: CheckCircle },
   { text: "Contrats digitaux certifiés", icon: CheckCircle },
@@ -220,7 +220,7 @@ const Features = () => {
       aria-labelledby="features-heading"
     >
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
-        {/* Header enrichi ANSUT */}
+        {/* Header enrichi */}
         <header className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
@@ -229,7 +229,7 @@ const Features = () => {
               className="h-12 md:h-14" 
             />
             <Badge variant="default" className="bg-primary text-primary-foreground px-4 py-1.5 text-sm font-semibold">
-              Propulsé par ANSUT
+              Certifié ANSUT
             </Badge>
           </div>
           
@@ -237,19 +237,19 @@ const Features = () => {
             id="features-heading" 
             className="text-4xl md:text-5xl font-bold mb-4 text-foreground tracking-tight"
           >
-            L'avantage ANSUT
+            L'avantage Mon Toit
           </h2>
           
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-3 leading-relaxed">
-            L'Agence Nationale de Sécurisation des Transactions Urbaines garantit la sécurité de chaque transaction
+            Plateforme de location sécurisée certifiée par l'ANSUT (Agence Nationale du Service Universel)
           </p>
           
           <p className="text-sm text-primary font-semibold">
-            Organisme d'État certifié
+            Partenaire officiel de l'ANSUT - Organisme d'État
           </p>
         </header>
 
-        {/* KPIs ANSUT */}
+        {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16" role="region" aria-label="Indicateurs de performance">
           {kpis.map((kpi, index) => (
             <KPICard key={index} kpi={kpi} index={index} />
@@ -319,7 +319,7 @@ const Features = () => {
               Conforme à la loi ivoirienne 2013-450 sur la protection des données
             </p>
             <p className="text-xs text-muted-foreground font-medium">
-              ANSUT - Organisme d'État sous tutelle du Ministère de la Construction
+              En partenariat avec l'ANSUT - Agence Nationale du Service Universel
             </p>
           </div>
         </div>
