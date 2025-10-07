@@ -61,7 +61,7 @@ const Testimonials = () => {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto px-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-12">
           <Carousel
             opts={{
               align: "center",

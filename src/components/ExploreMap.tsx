@@ -109,7 +109,7 @@ const ExploreMap = () => {
             <span>{weather.temperature}°C à Abidjan - {getWeatherMessage()}</span>
           </Badge>
 
-          <div className="h-[500px] md:h-[700px]">
+          <div className="h-[60vh] md:h-[700px]">
             <PropertyMap 
               properties={featuredProperties}
               onPropertyClick={handlePropertyClick}
