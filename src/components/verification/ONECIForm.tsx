@@ -27,6 +27,17 @@ const ONECIForm = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Frontend CNI format validation
+    const cniRegex = /^CI\d{10}$/;
+    if (!formData.cniNumber.match(cniRegex)) {
+      toast({
+        title: 'Format CNI invalide',
+        description: 'Le numéro CNI doit commencer par "CI" suivi de 10 chiffres (ex: CI1234567890)',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -64,9 +75,29 @@ const ONECIForm = () => {
       }
     } catch (error) {
       logger.error('ONECI verification error', { error, userId: user?.id, formData });
+      
+      // Contextual error messages
+      let errorTitle = 'Erreur';
+      let errorDescription = 'Une erreur est survenue lors de la vérification';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('SERVICE_UNAVAILABLE') || error.message.includes('indisponible')) {
+          errorTitle = 'Service temporairement indisponible';
+          errorDescription = 'La vérification ONECI est en maintenance. Réessayez dans quelques minutes.';
+        } else if (error.message.includes('Format CNI')) {
+          errorTitle = 'Format CNI incorrect';
+          errorDescription = 'Veuillez saisir un numéro CNI valide (CI + 10 chiffres)';
+        } else if (error.message.includes('Session')) {
+          errorTitle = 'Session expirée';
+          errorDescription = 'Veuillez vous reconnecter et réessayer.';
+        } else {
+          errorDescription = error.message;
+        }
+      }
+      
       toast({
-        title: 'Erreur',
-        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la vérification',
+        title: errorTitle,
+        description: errorDescription,
         variant: 'destructive',
       });
     } finally {
@@ -79,9 +110,10 @@ const ONECIForm = () => {
       title: 'Vérification complète !',
       description: 'Votre identité ONECI et votre Face ID ont été vérifiés avec succès',
     });
+    // TODO Phase 2: Replace with queryClient.invalidateQueries(['user_verifications'])
     setTimeout(() => {
       window.location.reload();
-    }, 2000);
+    }, 1500); // Reduced from 2000ms
   };
 
   const handleSkipFaceVerification = () => {
@@ -89,9 +121,10 @@ const ONECIForm = () => {
       title: 'Vérification ONECI effectuée',
       description: 'Vous pourrez ajouter la vérification faciale plus tard',
     });
+    // TODO Phase 2: Replace with queryClient.invalidateQueries(['user_verifications'])
     setTimeout(() => {
       window.location.reload();
-    }, 2000);
+    }, 1500); // Reduced from 2000ms
   };
 
   if (showFaceVerification && oneciVerified) {

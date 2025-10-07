@@ -319,5 +319,21 @@ Si vous avez besoin d'aide pour implémenter ces correctifs :
 
 ---
 
+---
+
+## ✅ Corrections Bugs Tests Utilisateurs (7 octobre 2025)
+
+### Bugs Critiques Corrigés
+- [x] **#16** : ONECI Edge Function → Mode DEMO, UPSERT, messages HTTP spécifiques
+- [x] **#4** : PropertyDetail Loading → Validation UUID, `.maybeSingle()`
+- [x] **#8** : Messages Loading Infini → `finally`, timeout 10s
+- [x] **#9** : Studio Caractéristiques → "Studio (0 chambre séparée)", badge Lock
+
+### Documentation Créée
+- [x] `docs/EDGE_FUNCTIONS_TROUBLESHOOTING.md`
+- [x] `tests/manual/bug-fixes-validation.md`
+
+---
+
 **Dernière mise à jour:** 2025-10-07
 **Prochaine revue:** Après correction des problèmes CRITIQUES

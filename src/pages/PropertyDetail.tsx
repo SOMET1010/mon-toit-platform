@@ -69,14 +69,28 @@ const PropertyDetail = () => {
   }, [id, isOwner]);
 
   const fetchPropertyDetails = async () => {
+    // Validate UUID before query
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!id || !uuidRegex.test(id)) {
+      setLoading(false);
+      return; // Show "Bien introuvable"
+    }
+
     try {
       const { data: propertyData, error: propertyError } = await supabase
         .from('properties')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single()
 
       if (propertyError) throw propertyError;
+      
+      if (!propertyData) {
+        // Property doesn't exist (deleted or never existed)
+        setLoading(false);
+        return; // Just show "Bien introuvable", no toast
+      }
+
       setProperty(propertyData);
       setSelectedImage(propertyData.main_image);
 
@@ -85,15 +99,19 @@ const PropertyDetail = () => {
         .from('profiles')
         .select('id, full_name, user_type, phone')
         .eq('id', propertyData.owner_id)
-        .single();
+        .maybeSingle(); // Also maybeSingle() here
 
       if (ownerError) throw ownerError;
-      setOwner(ownerData);
+      
+      if (ownerData) {
+        setOwner(ownerData);
+      }
     } catch (error) {
+      // Toast error ONLY for technical errors
       logger.error('Error fetching property details', { error, propertyId: id });
       toast({
-        title: "Erreur",
-        description: "Impossible de charger les détails du bien",
+        title: "Erreur technique",
+        description: "Impossible de charger les détails du bien. Veuillez réessayer plus tard.",
         variant: "destructive"
       });
     } finally {
@@ -329,13 +347,18 @@ const PropertyDetail = () => {
                         <p className="font-medium">{property.surface_area || 'N/A'} m²</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Bed className="h-5 w-5 text-primary" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Chambres</p>
-                        <p className="font-medium">{property.bedrooms}</p>
-                      </div>
-                    </div>
+                <div className="flex items-center gap-2">
+                  <Bed className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Chambres</p>
+                    <p className="font-medium">
+                      {property.bedrooms === 0 
+                        ? 'Studio (0 chambre séparée)' 
+                        : property.bedrooms
+                      }
+                    </p>
+                  </div>
+                </div>
                     <div className="flex items-center gap-2">
                       <Bath className="h-5 w-5 text-primary" />
                       <div>

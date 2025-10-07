@@ -64,6 +64,20 @@ const Messages = () => {
   useEffect(() => {
     if (user) {
       fetchConversations();
+      
+      // Safety timeout: 10 seconds max
+      const timeoutId = setTimeout(() => {
+        if (loading) {
+          setLoading(false);
+          toast({
+            title: 'Chargement lent',
+            description: 'Le chargement prend plus de temps que prévu. Vérifiez votre connexion.',
+            variant: 'destructive'
+          });
+        }
+      }, 10000);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [user]);
 
@@ -135,7 +149,10 @@ const Messages = () => {
   }, [user, selectedConversation]);
 
   const fetchConversations = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false); // Important
+      return;
+    }
 
     try {
       // Fetch all messages where user is sender or receiver
@@ -194,8 +211,13 @@ const Messages = () => {
       setConversations(Array.from(conversationMap.values()));
     } catch (error) {
       logger.error('Failed to fetch conversations', { error, userId: user?.id });
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les conversations. Réessayez.',
+        variant: 'destructive'
+      });
     } finally {
-      setLoading(false);
+      setLoading(false); // ALWAYS called
     }
   };
 
@@ -387,7 +409,7 @@ const Messages = () => {
                 <>
                   <CardHeader>
                     <CardTitle>
-                      {profiles[selectedConversation]?.full_name || 'Chargement...'}
+                      {profiles[selectedConversation]?.full_name || 'Utilisateur inconnu'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">

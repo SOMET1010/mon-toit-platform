@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MapPin, Bed, Bath, Maximize, Clock } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock } from 'lucide-react';
 import { Property } from '@/types';
 import { getPropertyStatusLabel, formatPrice } from '@/constants';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,11 +82,12 @@ export const PropertyCard = ({
         </Badge>
         
         {showStatus && (
-          <Badge className={`absolute top-14 left-3 rounded-lg font-semibold shadow-md ${
+          <Badge className={`absolute top-14 left-3 rounded-lg font-semibold shadow-md flex items-center gap-1 ${
             property.status === 'disponible' 
               ? 'bg-primary text-primary-foreground' 
               : 'bg-gray-500 text-white'
           }`}>
+            {property.status === 'loué' && <Lock className="h-3 w-3" />}
             {getPropertyStatusLabel(property.status)}
           </Badge>
         )}
