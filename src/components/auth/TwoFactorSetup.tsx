@@ -47,7 +47,12 @@ export const TwoFactorSetup = () => {
       if (error) throw error;
 
       if (data) {
-        setQrCode(data.totp.qr_code);
+        // Limit QR code to just the URI without extra data
+        const uri = data.totp.uri || '';
+        if (uri.length > 500) {
+          console.warn('QR URI too long, truncating');
+        }
+        setQrCode(uri.substring(0, 500));
         setSecret(data.totp.secret);
         setFactorId(data.id);
         setStep('qr');
