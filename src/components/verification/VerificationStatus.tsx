@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
+import { TenantScoreExplanation } from './TenantScoreExplanation';
 
 interface VerificationData {
   oneci_status: string;
@@ -103,7 +104,10 @@ const VerificationStatus = () => {
             <div className="flex items-center gap-3">
               {getStatusIcon(verification?.cnam_status || 'pending')}
               <div>
-                <h3 className="font-semibold">Vérification CNAM</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">Vérification CNAM</h3>
+                  <Badge variant="outline" className="text-xs">Optionnel</Badge>
+                </div>
                 <p className="text-sm text-muted-foreground">Situation professionnelle</p>
               </div>
             </div>
@@ -117,7 +121,15 @@ const VerificationStatus = () => {
                   <h3 className="font-semibold">Score de Fiabilité</h3>
                   <p className="text-sm text-muted-foreground">Évaluation automatique</p>
                 </div>
-                <TenantScoreBadge score={verification.tenant_score} size="lg" />
+                <div className="flex items-center gap-2">
+                  <TenantScoreBadge score={verification.tenant_score} size="lg" />
+                  <TenantScoreExplanation
+                    currentScore={verification.tenant_score}
+                    oneciVerified={verification.oneci_verified}
+                    cnamVerified={verification.cnam_verified}
+                    faceVerified={verification.face_verified}
+                  />
+                </div>
               </div>
             </div>
           )}

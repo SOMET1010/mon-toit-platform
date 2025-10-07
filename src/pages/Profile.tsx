@@ -16,6 +16,7 @@ import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Shield, CheckCircle2, XCircle, Award, Settings, Home, MapPin, DollarSign, Bed, Bath } from 'lucide-react';
 import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
+import { TenantScoreExplanation } from '@/components/verification/TenantScoreExplanation';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
@@ -218,7 +219,15 @@ const Profile = () => {
                       Ce score est calculé automatiquement selon vos vérifications et votre profil
                     </p>
                   </div>
-                  <TenantScoreBadge score={tenantScore} size="lg" />
+                  <div className="flex items-center gap-2">
+                    <TenantScoreBadge score={tenantScore} size="lg" />
+                    <TenantScoreExplanation
+                      currentScore={tenantScore}
+                      oneciVerified={profile.oneci_verified}
+                      cnamVerified={profile.cnam_verified}
+                      faceVerified={profile.face_verified}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
