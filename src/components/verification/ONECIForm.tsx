@@ -3,10 +3,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, Upload, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Camera, Upload, CheckCircle, XCircle, AlertCircle, Shield } from 'lucide-react';
 
 // Simple progress bar component
 const SimpleProgress = ({ value, className }: { value: number; className?: string }) => (
@@ -170,29 +171,38 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Vérification ONECI (Ivoiriens)</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Shield className="h-6 w-6 text-primary" />
+          Vérification d'Identité ONECI
+        </CardTitle>
         <CardDescription>
-          Vérification d'identité via Smile ID - Carte Nationale d'Identité + Selfie
+          Vérification sécurisée via Smile ID pour ressortissants ivoiriens
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Instructions :</strong>
+            <strong>Instructions importantes :</strong>
             <ul className="mt-2 space-y-1 text-sm list-disc list-inside">
-              <li>Téléchargez une photo claire de votre CNI</li>
-              <li>Prenez un selfie avec un bon éclairage</li>
-              <li>Regardez directement la caméra</li>
-              <li>Retirez lunettes, masque ou chapeau</li>
+              <li>Téléchargez une photo <strong>claire et nette</strong> de votre CNI ivoirienne</li>
+              <li>Assurez-vous que <strong>toutes les informations</strong> sur la CNI sont lisibles</li>
+              <li>Prenez un selfie avec un <strong>bon éclairage</strong> (lumière naturelle de préférence)</li>
+              <li>Regardez <strong>directement la caméra</strong>, expression neutre</li>
+              <li>Retirez <strong>lunettes, masque, chapeau</strong> ou tout accessoire</li>
             </ul>
           </AlertDescription>
         </Alert>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-6">
           {/* CNI Upload */}
           <div className="space-y-3">
-            <label className="text-sm font-medium">Photo de votre CNI</label>
+            <Label htmlFor="cni-upload" className="text-base font-semibold">
+              1. Photo de votre Carte Nationale d'Identité
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Téléchargez une photo claire du recto de votre CNI
+            </p>
             {cniImage ? (
               <div className="relative">
                 <img 
@@ -210,10 +220,15 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
                 </Button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors">
-                <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Cliquez pour charger</span>
+              <label 
+                htmlFor="cni-upload"
+                className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors bg-muted/30"
+              >
+                <Upload className="h-10 w-10 mb-3 text-primary" />
+                <span className="text-sm font-medium">Cliquez pour télécharger</span>
+                <span className="text-xs text-muted-foreground mt-1">Format accepté : JPG, PNG</span>
                 <input
+                  id="cni-upload"
                   type="file"
                   accept="image/*"
                   className="hidden"
@@ -225,7 +240,12 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
 
           {/* Selfie Capture */}
           <div className="space-y-3">
-            <label className="text-sm font-medium">Votre selfie</label>
+            <Label className="text-base font-semibold">
+              2. Selfie de vérification
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Prenez une photo de votre visage pour vérification biométrique
+            </p>
             {selfieImage ? (
               <div className="relative">
                 <img 
@@ -262,11 +282,12 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
             ) : (
               <Button
                 onClick={startCamera}
-                className="w-full h-48 flex flex-col gap-2"
+                className="w-full h-48 flex flex-col gap-3 bg-muted/30"
                 variant="outline"
               >
-                <Camera className="h-8 w-8" />
-                Ouvrir la caméra
+                <Camera className="h-10 w-10 text-primary" />
+                <span className="font-medium">Ouvrir la caméra</span>
+                <span className="text-xs text-muted-foreground">Selfie en direct</span>
               </Button>
             )}
           </div>
@@ -299,25 +320,41 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
           </Alert>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3">
           <Button
             onClick={handleVerify}
             disabled={!cniImage || !selfieImage || isVerifying}
-            className="flex-1"
+            size="lg"
+            className="w-full"
           >
-            {isVerifying ? 'Vérification en cours...' : 'Vérifier mon identité ONECI'}
+            {isVerifying ? (
+              <>
+                <CheckCircle className="mr-2 h-5 w-5 animate-pulse" />
+                Vérification en cours via Smile ID...
+              </>
+            ) : (
+              <>
+                <Shield className="mr-2 h-5 w-5" />
+                Vérifier mon identité ONECI
+              </>
+            )}
           </Button>
           
           {(cniImage || selfieImage || verificationResult) && (
-            <Button onClick={reset} variant="outline">
-              Recommencer
+            <Button onClick={reset} variant="outline" size="lg" className="w-full">
+              Recommencer la vérification
             </Button>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground text-center">
-          🔒 Vos images ne sont pas stockées. Seul le résultat de vérification est conservé.
-        </p>
+        <Alert className="bg-muted">
+          <Shield className="h-4 w-4" />
+          <AlertDescription className="text-xs">
+            <strong>Sécurité et confidentialité :</strong> Vos images sont transmises de manière sécurisée à Smile ID 
+            pour vérification biométrique. Elles ne sont <strong>jamais stockées</strong> sur nos serveurs. 
+            Seul le résultat de vérification (score de correspondance) est conservé dans votre profil.
+          </AlertDescription>
+        </Alert>
       </CardContent>
     </Card>
   );
