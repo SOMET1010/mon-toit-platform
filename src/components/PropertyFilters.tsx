@@ -28,6 +28,7 @@ export interface PropertyFilters {
   hasVirtualTour?: boolean;
   status?: string;
   isAnsutCertified?: boolean;
+  addedPeriod?: 'today' | 'week' | 'month' | 'all';
 }
 
 interface PropertyFiltersProps {
@@ -119,6 +120,22 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                     <SelectContent>
                       <SelectItem value="disponible">Disponible</SelectItem>
                       <SelectItem value="loué">Loué</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Added Period */}
+                <div className="space-y-2">
+                  <Label>Ajouté</Label>
+                  <Select onValueChange={(value) => handleFilterChange('addedPeriod', value)} value={filters.addedPeriod}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Tout" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="today">Aujourd'hui</SelectItem>
+                      <SelectItem value="week">Cette semaine</SelectItem>
+                      <SelectItem value="month">Ce mois-ci</SelectItem>
+                      <SelectItem value="all">Tout</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

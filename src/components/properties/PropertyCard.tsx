@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MapPin, Bed, Bath, Maximize } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Maximize, Clock } from 'lucide-react';
 import { Property } from '@/types';
 import { getPropertyStatusLabel, formatPrice } from '@/lib/badgeHelpers';
 import { supabase } from '@/integrations/supabase/client';
 import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
+import { useTimeAgo } from '@/hooks/useTimeAgo';
 
 interface PropertyCardProps {
   property: Property;
@@ -27,6 +28,7 @@ export const PropertyCard = ({
   showRemoveButton = false
 }: PropertyCardProps) => {
   const [hasCertifiedLease, setHasCertifiedLease] = useState(false);
+  const timeAgo = useTimeAgo(property.created_at);
 
   useEffect(() => {
     const checkCertification = async () => {
@@ -73,8 +75,14 @@ export const PropertyCard = ({
           </Button>
         )}
         
+        {/* Time badge - top left */}
+        <Badge className="absolute top-3 left-3 rounded-lg font-semibold shadow-md bg-background/90 backdrop-blur-sm text-foreground border border-border/50 flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {timeAgo}
+        </Badge>
+        
         {showStatus && (
-          <Badge className={`absolute top-3 left-3 rounded-lg font-semibold shadow-md ${
+          <Badge className={`absolute top-14 left-3 rounded-lg font-semibold shadow-md ${
             property.status === 'disponible' 
               ? 'bg-primary text-primary-foreground' 
               : 'bg-gray-500 text-white'

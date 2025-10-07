@@ -1,7 +1,9 @@
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Cloud, CloudRain, Sun } from "lucide-react";
 import { Button } from "./ui/button";
 import PropertyMap from "./PropertyMap";
 import { Link } from "react-router-dom";
+import { useWeather } from "@/hooks/useWeather";
+import { Badge } from "./ui/badge";
 
 // Mock featured properties for the map
 const featuredProperties = [
@@ -44,9 +46,27 @@ const featuredProperties = [
 ];
 
 const ExploreMap = () => {
+  const { weather } = useWeather();
+  
   const handlePropertyClick = (propertyId: string) => {
     window.location.href = `/properties/${propertyId}`;
   };
+
+  const getWeatherMessage = () => {
+    if (weather.description.toLowerCase().includes('pluie')) {
+      return 'Pensez à votre parapluie';
+    } else if (weather.description.toLowerCase().includes('nuage')) {
+      return 'Bonne journée pour chercher';
+    } else {
+      return 'Idéal pour visiter';
+    }
+  };
+
+  const WeatherIcon = weather.description.toLowerCase().includes('pluie') 
+    ? CloudRain 
+    : weather.description.toLowerCase().includes('nuage')
+    ? Cloud
+    : Sun;
 
   return (
     <section className="relative py-20 pattern-bogolan">
@@ -68,7 +88,13 @@ const ExploreMap = () => {
           </p>
         </div>
 
-        <div className="rounded-2xl overflow-hidden shadow-elevated border border-border/50 bg-background">
+        <div className="rounded-2xl overflow-hidden shadow-elevated border border-border/50 bg-background relative">
+          {/* Weather Badge */}
+          <Badge className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm border border-border/50 shadow-md flex items-center gap-2 text-sm px-3 py-2">
+            <WeatherIcon className="h-4 w-4 text-warning" />
+            <span>{weather.temperature}°C à Abidjan - {getWeatherMessage()}</span>
+          </Badge>
+
           <div className="h-[500px] md:h-[700px]">
             <PropertyMap 
               properties={featuredProperties}
