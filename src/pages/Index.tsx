@@ -5,6 +5,9 @@ import KeyStats from "@/components/KeyStats";
 import Features from "@/components/Features";
 import Testimonials from "@/components/Testimonials";
 import FeaturedProperties from "@/components/FeaturedProperties";
+import ExploreMap from "@/components/ExploreMap";
+import TrustBar from "@/components/TrustBar";
+import PreFooterCTA from "@/components/PreFooterCTA";
 import Footer from "@/components/Footer";
 import StickyCTA from "@/components/StickyCTA";
 import OnboardingModal from "@/components/OnboardingModal";
@@ -20,7 +23,10 @@ const Index = () => {
         <Features />
         <Testimonials />
         <FeaturedProperties />
+        <ExploreMap />
       </main>
+      <TrustBar />
+      <PreFooterCTA />
       <Footer />
       <StickyCTA />
       <OnboardingModal />

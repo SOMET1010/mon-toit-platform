@@ -231,4 +231,42 @@ All colors MUST be HSL.
     pointer-events: none;
     z-index: 0;
   }
+
+  /* Pattern mixte Bogolan + Kita */
+  .pattern-mixed {
+    position: relative;
+  }
+  
+  .pattern-mixed::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="bogolan" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse"><path d="M0 50 L50 50 L25 75 Z M75 25 L125 25 L100 50 Z M150 50 L200 50 L175 75 Z M25 100 L75 100 M125 100 L175 100 M50 125 L50 175 M100 125 L100 175 M150 125 L150 175" stroke="hsl(218 65.5%25 38.6%25)" stroke-width="2" fill="none"/></pattern></defs><rect width="200" height="200" fill="url(%23bogolan)"/></svg>'),
+      url('data:image/svg+xml;utf8,<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="kita" x="0" y="0" width="150" height="150" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="25" height="25" fill="hsl(28 87%25 54%25)"/></pattern></defs><rect width="150" height="150" fill="url(%23kita)"/></svg>');
+    background-size: 200px 200px, 150px 150px;
+    background-repeat: repeat;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Trust Badge Styling */
+  .trust-badge {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .trust-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Pre-footer gradient background */
+  .pre-footer-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.03) 0%, 
+      hsl(var(--background)) 50%, 
+      hsl(var(--secondary) / 0.03) 100%
+    );
+  }
 }

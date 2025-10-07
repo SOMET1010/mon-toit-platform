@@ -77,26 +77,50 @@ const PropertyMap = ({
 
     if (validProperties.length === 0) return;
 
-    // Add markers for each property
+    // Add markers for each property with enhanced styling
     validProperties.forEach(property => {
       const el = document.createElement('div');
       el.className = 'property-marker';
-      el.style.backgroundImage = 'url(/placeholder.svg)';
-      el.style.width = '40px';
-      el.style.height = '40px';
-      el.style.backgroundSize = 'cover';
-      el.style.cursor = 'pointer';
-      el.style.borderRadius = '50%';
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
-
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-        <div class="p-2">
-          <h3 class="font-semibold text-sm mb-1">${property.title}</h3>
-          <p class="text-xs text-muted-foreground mb-1">${property.city}</p>
-          <p class="text-sm font-bold text-primary">${property.monthly_rent.toLocaleString()} FCFA/mois</p>
+      
+      // Enhanced marker styling with ANSUT colors
+      el.innerHTML = `
+        <div class="relative group">
+          <div class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-25 group-hover:opacity-50 transition-opacity"></div>
+          <div class="relative w-10 h-10 rounded-full bg-primary border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-xs group-hover:scale-110 transition-transform">
+            ${(property.monthly_rent / 1000).toFixed(0)}k
+          </div>
         </div>
-      `);
+      `;
+      el.style.cursor = 'pointer';
+
+      // Enhanced popup with image and better styling
+      const popupHTML = `
+        <div class="min-w-[200px]">
+          ${property.main_image ? `
+            <img 
+              src="${property.main_image}" 
+              alt="${property.title}"
+              class="w-full h-32 object-cover rounded-t-lg mb-2"
+            />
+          ` : ''}
+          <div class="p-3">
+            <h3 class="font-semibold text-sm mb-2 text-foreground">${property.title}</h3>
+            <div class="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>${property.city}</span>
+            </div>
+            <p class="text-base font-bold text-primary">${property.monthly_rent.toLocaleString()} FCFA<span class="text-xs font-normal">/mois</span></p>
+          </div>
+        </div>
+      `;
+
+      const popup = new mapboxgl.Popup({ 
+        offset: 25,
+        className: 'property-popup'
+      }).setHTML(popupHTML);
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([property.longitude!, property.latitude!])
