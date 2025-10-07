@@ -21,9 +21,9 @@ const ContextBar = () => {
   const WeatherIcon = WEATHER_ICONS[weather.icon as keyof typeof WEATHER_ICONS] || Sun;
 
   return (
-    <div className="w-full bg-muted/50 border-b border-border/50 backdrop-blur-sm">
+    <div className="w-full bg-accent/30 border-b border-border backdrop-blur-sm sticky top-16 z-40">
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="h-10 flex items-center justify-center gap-4 text-xs md:text-sm text-muted-foreground">
+        <div className="h-9 flex items-center justify-center gap-3 md:gap-4 text-xs md:text-sm text-foreground/80 font-medium">{/* Location */}
           {/* Location */}
           <div className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
