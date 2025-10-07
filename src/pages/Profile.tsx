@@ -224,7 +224,6 @@ const Profile = () => {
                     <TenantScoreExplanation
                       currentScore={tenantScore}
                       oneciVerified={profile.oneci_verified}
-                      cnamVerified={profile.cnam_verified}
                       faceVerified={profile.face_verified}
                     />
                   </div>

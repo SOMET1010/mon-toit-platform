@@ -5,7 +5,6 @@ import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ONECIForm from '@/components/verification/ONECIForm';
-import CNAMForm from '@/components/verification/CNAMForm';
 import VerificationStatus from '@/components/verification/VerificationStatus';
 import FaceVerification from '@/components/verification/FaceVerification';
 import { Shield } from 'lucide-react';
@@ -39,22 +38,16 @@ const Verification = () => {
                 <h1 className="text-3xl font-bold">Vérification d'Identité</h1>
               </div>
               <p className="text-muted-foreground">
-                Complétez vos vérifications ONECI, CNAM et Face ID pour augmenter votre crédibilité
+                Complétez vos vérifications ONECI et Face ID pour augmenter votre crédibilité
               </p>
             </div>
 
             <VerificationStatus />
 
             <Tabs defaultValue="oneci" className="mt-8">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="oneci">
                   Vérification ONECI
-                </TabsTrigger>
-                <TabsTrigger value="cnam" className="relative">
-                  <span>Vérification CNAM</span>
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-secondary/50 text-secondary-foreground">
-                    Optionnel
-                  </span>
                 </TabsTrigger>
                 <TabsTrigger value="face">
                   Vérification Faciale
@@ -71,25 +64,6 @@ const Verification = () => {
                   </CardHeader>
                   <CardContent>
                     <ONECIForm />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="cnam">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      Vérification CNAM
-                      <span className="text-xs px-2 py-1 rounded-full bg-secondary/50 text-secondary-foreground font-normal">
-                        Optionnel
-                      </span>
-                    </CardTitle>
-                    <CardDescription>
-                      Vérifiez votre situation professionnelle avec la CNAM pour augmenter votre score de +25 points
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <CNAMForm />
                   </CardContent>
                 </Card>
               </TabsContent>

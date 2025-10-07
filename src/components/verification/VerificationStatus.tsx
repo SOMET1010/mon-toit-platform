@@ -102,16 +102,13 @@ const VerificationStatus = () => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {getStatusIcon(verification?.cnam_status || 'pending')}
+              {getStatusIcon(verification?.face_verification_status || 'pending')}
               <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">Vérification CNAM</h3>
-                  <Badge variant="outline" className="text-xs">Optionnel</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">Situation professionnelle</p>
+                <h3 className="font-semibold">Vérification Faciale</h3>
+                <p className="text-sm text-muted-foreground">Vérification biométrique</p>
               </div>
             </div>
-            {getStatusBadge(verification?.cnam_status || 'pending')}
+            {getStatusBadge(verification?.face_verification_status || 'pending')}
           </div>
 
           {verification?.tenant_score !== undefined && verification.tenant_score > 0 && (
@@ -126,7 +123,6 @@ const VerificationStatus = () => {
                   <TenantScoreExplanation
                     currentScore={verification.tenant_score}
                     oneciVerified={verification.oneci_verified}
-                    cnamVerified={verification.cnam_verified}
                     faceVerified={verification.face_verified}
                   />
                 </div>

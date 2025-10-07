@@ -14,38 +14,27 @@ import { Badge } from '@/components/ui/badge';
 interface TenantScoreExplanationProps {
   currentScore: number;
   oneciVerified?: boolean;
-  cnamVerified?: boolean;
   faceVerified?: boolean;
 }
 
 export const TenantScoreExplanation = ({
   currentScore,
   oneciVerified = false,
-  cnamVerified = false,
   faceVerified = false,
 }: TenantScoreExplanationProps) => {
   const criteria = [
     {
       icon: Shield,
       label: 'Identité ONECI vérifiée',
-      points: 30,
+      points: 40,
       verified: oneciVerified,
       description: 'Vérification de votre Carte Nationale d\'Identité',
       action: oneciVerified ? null : 'Compléter ma vérification ONECI',
     },
     {
-      icon: FileText,
-      label: 'Situation CNAM vérifiée',
-      points: 25,
-      verified: cnamVerified,
-      description: 'Vérification de votre situation professionnelle',
-      action: cnamVerified ? null : 'Compléter ma vérification CNAM',
-      optional: true,
-    },
-    {
       icon: Camera,
       label: 'Vérification faciale',
-      points: 20,
+      points: 30,
       verified: faceVerified,
       description: 'Vérification biométrique Smile ID',
       action: faceVerified ? null : 'Activer la vérification faciale',
@@ -53,7 +42,7 @@ export const TenantScoreExplanation = ({
     {
       icon: FileText,
       label: 'Documents fournis',
-      points: 15,
+      points: 20,
       verified: false,
       description: 'Fiches de paie, contrat de travail, etc.',
       action: 'Ajouter mes documents',
@@ -125,9 +114,6 @@ export const TenantScoreExplanation = ({
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm">{criterion.label}</span>
-                          {criterion.optional && (
-                            <Badge variant="outline" className="text-xs">Optionnel</Badge>
-                          )}
                         </div>
                         <p className="text-xs text-muted-foreground">{criterion.description}</p>
                         {criterion.action && !criterion.verified && (
@@ -160,13 +146,10 @@ export const TenantScoreExplanation = ({
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {!oneciVerified && (
-                <li>• Complétez votre vérification ONECI pour gagner +30 points immédiatement</li>
+                <li>• Complétez votre vérification ONECI pour gagner +40 points immédiatement</li>
               )}
               {!faceVerified && (
-                <li>• Activez la vérification faciale pour +20 points supplémentaires</li>
-              )}
-              {!cnamVerified && (
-                <li>• La vérification CNAM est optionnelle mais rapporte +25 points</li>
+                <li>• Activez la vérification faciale pour +30 points supplémentaires</li>
               )}
               <li>• Un score élevé augmente vos chances d'obtenir un logement</li>
               <li>• Les propriétaires privilégient les profils vérifiés</li>
