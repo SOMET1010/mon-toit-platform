@@ -328,26 +328,42 @@ export default function Leases() {
                         </span>
                       </div>
                     )}
+                    {lease.is_electronically_signed && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Shield className="h-4 w-4 text-blue-500" />
+                        <span className="font-medium text-blue-600 dark:text-blue-400">
+                          Signé électroniquement via CryptoNeo
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    {profile?.user_type === "proprietaire" && !lease.landlord_signed_at && (
-                      <Button onClick={() => handleSign(lease.id, "landlord")}>
-                        <FileText className="h-4 w-4 mr-2" />
-                        Signer le bail
-                      </Button>
-                    )}
-                    {profile?.user_type === "locataire" && !lease.tenant_signed_at && (
-                      <Button onClick={() => handleSign(lease.id, "tenant")}>
-                        <FileText className="h-4 w-4 mr-2" />
-                        Signer le bail
-                      </Button>
-                    )}
+                  {/* Electronic Signature Component */}
+                  {((profile?.user_type === "proprietaire" && !lease.landlord_signed_at) ||
+                    (profile?.user_type === "locataire" && !lease.tenant_signed_at)) && (
+                    <div className="mb-4">
+                      <ElectronicSignature
+                        lease={lease}
+                        userType={profile?.user_type === "proprietaire" ? "proprietaire" : "locataire"}
+                        onSignatureComplete={fetchLeases}
+                      />
+                    </div>
+                  )}
                     
-                    {/* PDF Download button - shown after both parties signed */}
+                  <div className="flex flex-wrap gap-2">
+                    {/* PDF Download buttons - shown after both parties signed */}
                     {lease.tenant_signed_at && lease.landlord_signed_at && (
                       <>
-                        {lease.document_url ? (
+                        {/* Signed document (priority if available) */}
+                        {lease.signed_document_url ? (
+                          <Button
+                            onClick={() => window.open(lease.signed_document_url!, '_blank')}
+                            className="gap-2"
+                          >
+                            <Shield className="h-4 w-4" />
+                            Contrat signé électroniquement
+                          </Button>
+                        ) : lease.document_url ? (
                           <Button
                             variant="outline"
                             onClick={() => window.open(lease.document_url!, '_blank')}

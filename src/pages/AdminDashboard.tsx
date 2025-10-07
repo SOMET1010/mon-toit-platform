@@ -247,6 +247,36 @@ const AdminDashboard = () => {
             <AdvancedReporting />
           </TabsContent>
 
+          <TabsContent value="electronic-signatures" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Signatures Électroniques CryptoNeo
+                </CardTitle>
+                <CardDescription>
+                  Gestion des certificats numériques et signatures électroniques
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="dashboard" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
+                    <TabsTrigger value="certificates">Gestion des certificats</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="dashboard">
+                    <ElectronicSignaturesDashboard />
+                  </TabsContent>
+
+                  <TabsContent value="certificates">
+                    <CertificateManager />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="properties" className="space-y-6">
             <AdminProperties />
           </TabsContent>
