@@ -20,6 +20,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { MediaGallery } from '@/components/property/MediaGallery';
+import { VerificationGuard } from '@/components/application/VerificationGuard';
 import { logger } from '@/services/logger';
 import type { Property, Application, PropertyStats } from '@/types';
 
@@ -530,10 +531,12 @@ const PropertyDetail = () => {
                         Contacter le propriétaire
                       </Button>
                       {user && property.status === 'disponible' && (
-                        <Button variant="outline" className="w-full gap-2" onClick={handleApply}>
-                          <Calendar className="h-4 w-4" />
-                          Postuler
-                        </Button>
+                        <VerificationGuard propertyId={property.id}>
+                          <Button variant="outline" className="w-full gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Postuler
+                          </Button>
+                        </VerificationGuard>
                       )}
                     </div>
                   )}

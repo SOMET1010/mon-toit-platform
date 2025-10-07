@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Upload, FileText } from 'lucide-react';
 import DocumentUpload from '@/components/application/DocumentUpload';
 import { ApplicationStatusTracker } from '@/components/application/ApplicationStatusTracker';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Shield } from 'lucide-react';
 
 type Property = {
   id: string;
@@ -175,6 +177,18 @@ const Application = () => {
         </div>
 
         <div className="space-y-6">
+          {/* ONECI Verification Required Alert */}
+          {!profile?.oneci_verified && verification?.oneci_status !== 'verified' && (
+            <Alert className="border-primary/50 bg-primary/5">
+              <Shield className="h-4 w-4" />
+              <AlertTitle>Vérification ONECI recommandée</AlertTitle>
+              <AlertDescription>
+                Complétez votre vérification d'identité ONECI pour renforcer votre candidature. 
+                Les propriétaires accordent plus de confiance aux profils vérifiés.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Note: ApplicationStatusTracker sera visible après soumission */}
           
           {/* Vérifications */}
@@ -206,7 +220,7 @@ const Application = () => {
                   </div>
                 </div>
                 {!profile?.oneci_verified && (
-                  <Button variant="outline" size="sm" onClick={() => navigate('/certification')} className="rounded-xl">
+                  <Button variant="outline" size="sm" onClick={() => navigate('/verification')} className="rounded-xl">
                     Vérifier
                   </Button>
                 )}
@@ -229,7 +243,7 @@ const Application = () => {
                   </div>
                 </div>
                 {!profile?.cnam_verified && (
-                  <Button variant="outline" size="sm" onClick={() => navigate('/certification')} className="rounded-xl">
+                  <Button variant="outline" size="sm" onClick={() => navigate('/verification')} className="rounded-xl">
                     Vérifier
                   </Button>
                 )}
