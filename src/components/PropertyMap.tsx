@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
-import { Locate, List } from 'lucide-react';
+import { Locate, Map, Satellite, Layers } from 'lucide-react';
 import { Card } from './ui/card';
 import { logger } from '@/services/logger';
 
@@ -25,6 +25,14 @@ interface PropertyMapProps {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN || '';
 
+type MapStyle = 'streets' | 'satellite' | 'hybrid';
+
+const MAP_STYLES: Record<MapStyle, string> = {
+  streets: 'mapbox://styles/mapbox/streets-v12',
+  satellite: 'mapbox://styles/mapbox/satellite-v9',
+  hybrid: 'mapbox://styles/mapbox/satellite-streets-v12',
+};
+
 const PropertyMap = ({ 
   properties, 
   onPropertyClick, 
@@ -36,6 +44,9 @@ const PropertyMap = ({
   const markers = useRef<mapboxgl.Marker[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [mapStyle, setMapStyle] = useState<MapStyle>(() => {
+    return (localStorage.getItem('preferredMapStyle') as MapStyle) || 'streets';
+  });
 
   // Initialize map
   useEffect(() => {
@@ -51,7 +62,7 @@ const PropertyMap = ({
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: MAP_STYLES[mapStyle],
         center: [-4.0305, 5.3599], // Abidjan coordinates
         zoom: 11,
       });
@@ -70,10 +81,10 @@ const PropertyMap = ({
       map.current?.remove();
       map.current = null;
     };
-  }, []);
+  }, [mapStyle]);
 
-  // Update markers when properties change
-  useEffect(() => {
+  // Function to add markers to the map
+  const addMarkersToMap = () => {
     if (!map.current || !mapReady) return;
 
     // Clear existing markers
@@ -154,7 +165,26 @@ const PropertyMap = ({
       });
       map.current.fitBounds(bounds, { padding: 50, maxZoom: 15 });
     }
+  };
+
+  // Update markers when properties change
+  useEffect(() => {
+    addMarkersToMap();
   }, [properties, mapReady, onPropertyClick]);
+
+  // Handle map style change
+  const handleStyleChange = (newStyle: MapStyle) => {
+    if (!map.current || mapStyle === newStyle) return;
+    
+    setMapStyle(newStyle);
+    localStorage.setItem('preferredMapStyle', newStyle);
+    
+    map.current.once('style.load', () => {
+      addMarkersToMap();
+    });
+    
+    map.current.setStyle(MAP_STYLES[newStyle]);
+  };
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -210,6 +240,36 @@ const PropertyMap = ({
           </Button>
         </div>
       )}
+
+      <div className="absolute top-16 left-4 z-10 flex flex-col gap-2">
+        <Button
+          onClick={() => handleStyleChange('streets')}
+          size="sm"
+          variant={mapStyle === 'streets' ? 'default' : 'outline'}
+          className="shadow-lg"
+        >
+          <Map className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Rues</span>
+        </Button>
+        <Button
+          onClick={() => handleStyleChange('satellite')}
+          size="sm"
+          variant={mapStyle === 'satellite' ? 'default' : 'outline'}
+          className="shadow-lg"
+        >
+          <Satellite className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Satellite</span>
+        </Button>
+        <Button
+          onClick={() => handleStyleChange('hybrid')}
+          size="sm"
+          variant={mapStyle === 'hybrid' ? 'default' : 'outline'}
+          className="shadow-lg"
+        >
+          <Layers className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Hybride</span>
+        </Button>
+      </div>
 
       {properties.filter(p => p.latitude === null || p.longitude === null).length > 0 && (
         <Card className="absolute bottom-4 left-4 right-4 p-3 z-10 bg-background/95 backdrop-blur">
