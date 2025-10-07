@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import ONECIForm from '@/components/verification/ONECIForm';
 import { Shield, AlertTriangle, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -22,10 +21,14 @@ interface VerificationGuardProps {
   children: React.ReactNode;
 }
 
+type VerificationStatus = 'pending' | 'pending_review' | 'verified' | 'rejected';
+
 interface UserVerification {
-  oneci_status: string;
+  oneci_status: VerificationStatus;
   oneci_verified_at: string | null;
 }
+
+type ComponentStatus = 'loading' | 'not_verified' | 'pending' | 'verified' | 'error';
 
 export const VerificationGuard = ({ propertyId, onVerified, children }: VerificationGuardProps) => {
   const { user, profile } = useAuth();
@@ -34,34 +37,69 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
   const [verification, setVerification] = useState<UserVerification | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      checkVerificationStatus();
-    }
-  }, [user]);
+  // Mémorise le statut de vérification
+  const verificationStatus = useMemo((): ComponentStatus => {
+    if (loading) return 'loading';
+    if (error) return 'error';
+    if (profile?.oneci_verified || verification?.oneci_status === 'verified') return 'verified';
+    if (verification?.oneci_status === 'pending' || verification?.oneci_status === 'pending_review') return 'pending';
+    return 'not_verified';
+  }, [loading, error, profile?.oneci_verified, verification?.oneci_status]);
 
-  const checkVerificationStatus = async () => {
-    if (!user) return;
+  const isVerified = verificationStatus === 'verified';
+  const isPending = verificationStatus === 'pending';
+
+  // Vérifie le statut de vérification
+  const checkVerificationStatus = useCallback(async () => {
+    if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
+      setError(null);
+      const { data, error: fetchError } = await supabase
         .from('user_verifications')
         .select('oneci_status, oneci_verified_at')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
 
-      setVerification(data);
-    } catch (error) {
-      console.error('Error checking verification status:', error);
+      setVerification(data as UserVerification);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur de chargement';
+      console.error('Error checking verification status:', err);
+      setError(errorMessage);
+      toast({
+        title: "Erreur",
+        description: "Impossible de vérifier votre statut. Veuillez réessayer.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
-  const handleClick = () => {
+  useEffect(() => {
+    if (user) {
+      checkVerificationStatus();
+    } else {
+      setLoading(false);
+    }
+  }, [user, checkVerificationStatus]);
+
+  // Procède à l'étape suivante (application ou callback)
+  const proceedToNextStep = useCallback(() => {
+    if (onVerified) {
+      onVerified();
+    } else {
+      navigate(`/application/${propertyId}`);
+    }
+  }, [onVerified, navigate, propertyId]);
+
+  // Gère le clic sur l'élément enfant
+  const handleClick = useCallback(() => {
     if (!user) {
       toast({
         title: "Connexion requise",
@@ -72,53 +110,70 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
       return;
     }
 
-    // Check if ONECI verification is completed
-    const isONECIVerified = profile?.oneci_verified || verification?.oneci_status === 'verified';
-
-    if (!isONECIVerified) {
-      // Show verification dialog
+    if (!isVerified && !isPending) {
       setDialogOpen(true);
     } else {
-      // Proceed to application
-      if (onVerified) {
-        onVerified();
-      } else {
-        navigate(`/application/${propertyId}`);
-      }
+      proceedToNextStep();
     }
-  };
+  }, [user, isVerified, isPending, navigate, proceedToNextStep]);
 
-  const handleVerificationSuccess = async () => {
+  // Gère la soumission du formulaire
+  const handleFormSubmit = useCallback(() => {
+    setFormSubmitted(true);
+  }, []);
+
+  // Gère le succès de la vérification
+  const handleVerificationSuccess = useCallback(async () => {
+    if (!formSubmitted) {
+      toast({
+        title: "Attention",
+        description: "Veuillez d'abord compléter le formulaire de vérification",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setVerifying(true);
     
-    // Wait a moment for the verification to process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Recheck verification status
-    await checkVerificationStatus();
-    
-    toast({
-      title: "Vérification soumise !",
-      description: "Votre demande de vérification a été envoyée. Vous pouvez maintenant continuer votre candidature.",
-    });
+    try {
+      // Revérifie le statut
+      await checkVerificationStatus();
+      
+      toast({
+        title: "Vérification soumise !",
+        description: "Votre demande de vérification a été envoyée. Vous pouvez maintenant continuer votre candidature.",
+      });
 
-    setDialogOpen(false);
-    setVerifying(false);
-
-    // Proceed to application
-    if (onVerified) {
-      onVerified();
-    } else {
-      navigate(`/application/${propertyId}`);
+      setDialogOpen(false);
+      proceedToNextStep();
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de valider la vérification. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setVerifying(false);
     }
-  };
+  }, [formSubmitted, checkVerificationStatus, proceedToNextStep]);
 
-  const isVerified = profile?.oneci_verified || verification?.oneci_status === 'verified';
-  const isPending = verification?.oneci_status === 'pending' || verification?.oneci_status === 'pending_review';
+  // Gestion du clavier pour l'accessibilité
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  }, [handleClick]);
 
   return (
     <>
-      <div onClick={handleClick}>
+      <div 
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        style={{ cursor: 'pointer' }}
+      >
         {children}
       </div>
 
@@ -171,7 +226,7 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
               </div>
             </div>
 
-            {/* Verification status */}
+            {/* Statut de vérification en attente */}
             {isPending && (
               <Alert>
                 <CheckCircle2 className="h-4 w-4" />
@@ -179,6 +234,17 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
                 <AlertDescription>
                   Votre demande de vérification est en cours de traitement. 
                   Vous pouvez continuer votre candidature pendant ce temps.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Message de rejet */}
+            {verification?.oneci_status === 'rejected' && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Vérification refusée</AlertTitle>
+                <AlertDescription>
+                  Votre vérification a été refusée. Veuillez soumettre à nouveau avec des informations correctes.
                 </AlertDescription>
               </Alert>
             )}
@@ -194,12 +260,12 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
                   Complétez le formulaire ci-dessous pour vérifier votre identité. 
                   Une fois validé, vous pourrez continuer votre candidature.
                 </p>
-                <ONECIForm />
+                <ONECIForm onSubmit={handleFormSubmit} />
                 <div className="mt-4">
                   <Button 
                     onClick={handleVerificationSuccess} 
                     className="w-full"
-                    disabled={verifying}
+                    disabled={verifying || !formSubmitted}
                   >
                     {verifying ? (
                       <>
@@ -210,6 +276,11 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
                       'J\'ai soumis ma vérification'
                     )}
                   </Button>
+                  {!formSubmitted && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      Veuillez d'abord compléter le formulaire ci-dessus
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -227,11 +298,7 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
                 <Button
                   onClick={() => {
                     setDialogOpen(false);
-                    if (onVerified) {
-                      onVerified();
-                    } else {
-                      navigate(`/application/${propertyId}`);
-                    }
+                    proceedToNextStep();
                   }}
                   className="flex-1"
                 >

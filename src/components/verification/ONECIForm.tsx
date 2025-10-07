@@ -11,7 +11,11 @@ import { Loader2 } from 'lucide-react';
 // Lazy load FaceVerification to avoid blocking the main page
 const FaceVerification = lazy(() => import('./FaceVerification'));
 
-const ONECIForm = () => {
+interface ONECIFormProps {
+  onSubmit?: () => void;
+}
+
+const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [oneciVerified, setOneciVerified] = useState(false);
@@ -79,6 +83,9 @@ const ONECIForm = () => {
       setFormData({ cniNumber: '', lastName: '', firstName: '', birthDate: '' });
       setOneciVerified(true);
       setShowFaceVerification(true);
+      
+      // Notifie le parent que le formulaire a été soumis
+      onSubmit?.();
     } catch (error: any) {
       logger.error('ONECI verification error', { error, userId: user?.id });
       
