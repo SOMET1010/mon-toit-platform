@@ -59,17 +59,7 @@ const Verification = () => {
               </TabsList>
 
               <TabsContent value="oneci">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Vérification ONECI</CardTitle>
-                    <CardDescription>
-                      Vérifiez votre identité avec votre Carte Nationale d'Identité
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ONECIForm />
-                  </CardContent>
-                </Card>
+                <ONECIForm />
               </TabsContent>
 
               <TabsContent value="passport">
