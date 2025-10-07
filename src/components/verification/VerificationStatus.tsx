@@ -10,9 +10,13 @@ import { TenantScoreBadge } from '@/components/ui/tenant-score-badge';
 interface VerificationData {
   oneci_status: string;
   cnam_status: string;
-  oneci_verified_at: string | null;
-  cnam_verified_at: string | null;
+  oneci_verified: boolean;
+  cnam_verified: boolean;
+  face_verified: boolean;
+  face_verification_status: string;
   tenant_score: number;
+  admin_review_notes: string;
+  admin_reviewed_at: string;
 }
 
 const VerificationStatus = () => {
@@ -29,17 +33,14 @@ const VerificationStatus = () => {
 
       logger.info('VerificationStatus - Fetching verification', { userId: user.id });
 
-      const { data, error } = await supabase
-        .from('user_verifications')
-        .select('oneci_status, cnam_status, oneci_verified_at, cnam_verified_at, tenant_score')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('get_my_verification_status');
 
       if (error) {
         logger.error('VerificationStatus - Error fetching verification', { error, userId: user.id });
       } else {
         logger.info('VerificationStatus - Verification data fetched', { hasData: !!data, userId: user.id });
-        setVerification(data);
+        // RPC returns an array, take first element
+        setVerification(data && data.length > 0 ? data[0] : null);
       }
       setLoading(false);
     };

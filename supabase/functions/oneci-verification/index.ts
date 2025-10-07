@@ -15,7 +15,12 @@ serve(async (req) => {
     const { cniNumber, lastName, firstName, birthDate } = await req.json();
     const authHeader = req.headers.get('Authorization')!;
 
-    console.log('ONECI Verification Request:', { cniNumber, lastName, firstName, birthDate });
+    // Anonymize sensitive data in logs
+    const cniHash = cniNumber ? `CNI_${cniNumber.slice(-4)}` : 'N/A';
+    console.log('ONECI Verification Request:', { 
+      cniHash, 
+      timestamp: new Date().toISOString() 
+    });
 
     // Validation
     if (!cniNumber || !lastName || !firstName || !birthDate) {
@@ -42,7 +47,7 @@ serve(async (req) => {
     const ONECI_API_KEY = Deno.env.get('ONECI_API_KEY');
 
     let isValid = false;
-    let holderData = {
+    let holderData: any = {
       lastName: lastName.toUpperCase(),
       firstName,
       birthDate,
@@ -78,16 +83,19 @@ serve(async (req) => {
 
     if (isValid) {
 
-      // Initialiser client Supabase
+      // Extract user_id from JWT BEFORE creating service role client
+      const tempSupabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      );
+      const { data: { user } } = await tempSupabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) throw new Error('Utilisateur non authentifié');
+
+      // Create service role client WITHOUT user JWT
       const supabase = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-        { global: { headers: { Authorization: authHeader } } }
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
-
-      // Récupérer l'ID utilisateur
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Utilisateur non authentifié');
 
       // Use UPSERT instead of UPDATE to handle new users
       const { error: updateError } = await supabase

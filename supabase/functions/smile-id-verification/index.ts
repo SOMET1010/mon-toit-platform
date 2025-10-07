@@ -223,7 +223,7 @@ serve(async (req) => {
         message: isVerified 
           ? 'Vérification Smile ID réussie !' 
           : `Vérification échouée. ${resultText}`,
-        attemptsRemaining: Math.max(0, 3 - newAttempts),
+        canRetry: newAttempts < 3,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

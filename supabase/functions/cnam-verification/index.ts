@@ -15,7 +15,14 @@ serve(async (req) => {
     const { cniNumber, employerName, socialSecurityNumber } = await req.json();
     const authHeader = req.headers.get('Authorization')!;
 
-    console.log('CNAM Verification Request:', { cniNumber, employerName, socialSecurityNumber });
+    // Anonymize sensitive data in logs
+    const cniHash = cniNumber ? `CNI_${cniNumber.slice(-4)}` : 'N/A';
+    const ssHash = socialSecurityNumber ? `SS_${socialSecurityNumber.slice(-4)}` : 'N/A';
+    console.log('CNAM Verification Request:', { 
+      cniHash, 
+      ssHash,
+      timestamp: new Date().toISOString() 
+    });
 
     // Validation
     if (!cniNumber || !employerName) {
@@ -54,16 +61,19 @@ serve(async (req) => {
         lastContribution: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       };
 
-      // Initialiser client Supabase
+      // Extract user_id from JWT BEFORE creating service role client
+      const tempSupabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      );
+      const { data: { user } } = await tempSupabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) throw new Error('Utilisateur non authentifié');
+
+      // Create service role client WITHOUT user JWT
       const supabase = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-        { global: { headers: { Authorization: authHeader } } }
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
-
-      // Récupérer l'ID utilisateur
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Utilisateur non authentifié');
 
       // Mettre à jour la table user_verifications avec statut pending_review
       const { error: updateError } = await supabase
