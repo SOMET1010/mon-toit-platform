@@ -1,5 +1,6 @@
 // ============= CENTRALIZED CONSTANTS =============
 // Single source of truth for all application constants
+// Single source of truth for all application constants
 
 import type { ApplicationStatus, PropertyStatus, VerificationStatus } from '@/types';
 
