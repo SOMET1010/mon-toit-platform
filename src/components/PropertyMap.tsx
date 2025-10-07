@@ -40,21 +40,30 @@ const PropertyMap = ({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    try {
+      if (!MAPBOX_TOKEN) {
+        console.warn('Mapbox token not configured');
+        return;
+      }
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-4.0305, 5.3599], // Abidjan coordinates
-      zoom: 11,
-    });
+      mapboxgl.accessToken = MAPBOX_TOKEN;
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-4.0305, 5.3599], // Abidjan coordinates
+        zoom: 11,
+      });
 
-    map.current.on('load', () => {
-      setMapReady(true);
-    });
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
+      map.current.on('load', () => {
+        setMapReady(true);
+      });
+    } catch (error) {
+      console.error('Map initialization error:', error);
+    }
 
     return () => {
       map.current?.remove();

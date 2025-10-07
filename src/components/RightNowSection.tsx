@@ -13,29 +13,38 @@ const RightNowSection = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-      // New properties today
-      const { count: newProps } = await supabase
-        .from('properties')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', today.toISOString());
+        // New properties today
+        const { count: newProps, error: propsError } = await supabase
+          .from('properties')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', today.toISOString());
 
-      // Active tenants (users with type locataire)
-      const { count: activeTenants } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_type', 'locataire');
+        if (propsError) console.warn('Props fetch error:', propsError);
 
-      // Scheduled visits today (mock - would need a visits table)
-      const scheduledVisits = Math.floor(Math.random() * 10) + 3;
+        // Active tenants (users with type locataire)
+        const { count: activeTenants, error: tenantsError } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_type', 'locataire');
 
-      setStats({
-        newPropertiesToday: newProps || 0,
-        activeTenants: activeTenants || 247,
-        scheduledVisits
-      });
+        if (tenantsError) console.warn('Tenants fetch error:', tenantsError);
+
+        // Scheduled visits today (mock - would need a visits table)
+        const scheduledVisits = Math.floor(Math.random() * 10) + 3;
+
+        setStats({
+          newPropertiesToday: newProps || 0,
+          activeTenants: activeTenants || 247,
+          scheduledVisits
+        });
+      } catch (error) {
+        console.warn('Stats fetch error:', error);
+        // Keep default stats
+      }
     };
 
     fetchStats();

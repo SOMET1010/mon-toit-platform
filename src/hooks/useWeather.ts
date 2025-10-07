@@ -21,33 +21,40 @@ export const useWeather = () => {
 
   useEffect(() => {
     const fetchWeather = async () => {
-      // Check cache first (15 min)
-      const cachedWeather = localStorage.getItem('weather_data');
-      const cachedTime = localStorage.getItem('weather_timestamp');
-      
-      if (cachedWeather && cachedTime) {
-        const cacheAge = Date.now() - parseInt(cachedTime);
-        if (cacheAge < 15 * 60 * 1000) { // 15 minutes
-          setWeather(JSON.parse(cachedWeather));
-          setIsLoading(false);
-          return;
-        }
-      }
-
       try {
+        // Check cache first (15 min)
+        const cachedWeather = localStorage.getItem('weather_data');
+        const cachedTime = localStorage.getItem('weather_timestamp');
+        
+        if (cachedWeather && cachedTime) {
+          const cacheAge = Date.now() - parseInt(cachedTime);
+          if (cacheAge < 15 * 60 * 1000) { // 15 minutes
+            setWeather(JSON.parse(cachedWeather));
+            setIsLoading(false);
+            return;
+          }
+        }
+
         const { data, error } = await supabase.functions.invoke('get-weather', {
           body: { city: 'Abidjan' }
         });
 
-        if (error) throw error;
+        if (error) {
+          console.warn('Weather API error:', error);
+          setWeather(FALLBACK_WEATHER);
+          setIsLoading(false);
+          return;
+        }
 
         if (data?.weather) {
           setWeather(data.weather);
           localStorage.setItem('weather_data', JSON.stringify(data.weather));
           localStorage.setItem('weather_timestamp', Date.now().toString());
+        } else {
+          setWeather(FALLBACK_WEATHER);
         }
       } catch (error) {
-        console.error('Weather fetch error:', error);
+        console.warn('Weather fetch error:', error);
         setWeather(FALLBACK_WEATHER);
       } finally {
         setIsLoading(false);
