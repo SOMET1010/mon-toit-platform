@@ -124,7 +124,7 @@ const Application = () => {
       }
 
       toast({
-        title: 'Candidature soumise',
+        title: 'Candidature soumise avec succès !',
         description: 'Votre dossier a été envoyé au propriétaire',
       });
 

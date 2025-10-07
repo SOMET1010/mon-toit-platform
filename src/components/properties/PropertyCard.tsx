@@ -9,6 +9,7 @@ import { getPropertyStatusLabel, formatPrice } from '@/constants';
 import { supabase } from '@/integrations/supabase/client';
 import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 import { useTimeAgo } from '@/hooks/useTimeAgo';
+import { toast } from '@/hooks/use-toast';
 
 interface PropertyCardProps {
   property: Property;
@@ -69,7 +70,12 @@ export const PropertyCard = ({
             size="icon"
             variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
             className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-            onClick={() => onFavoriteClick(property.id)}
+            onClick={() => {
+              onFavoriteClick(property.id);
+              toast({
+                description: isFavorite ? "Bien retiré des favoris" : "Bien ajouté aux favoris !",
+              });
+            }}
           >
             <Heart className={`h-4 w-4 transition-all ${isFavorite ? 'fill-current scale-110' : ''}`} />
           </Button>

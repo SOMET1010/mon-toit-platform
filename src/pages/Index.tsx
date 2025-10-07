@@ -8,8 +8,6 @@ import Testimonials from "@/components/Testimonials";
 import FeaturedProperties from "@/components/FeaturedProperties";
 import RightNowSection from "@/components/RightNowSection";
 import ExploreMap from "@/components/ExploreMap";
-import TrustBar from "@/components/TrustBar";
-import PreFooterCTA from "@/components/PreFooterCTA";
 import Footer from "@/components/Footer";
 import StickyCTA from "@/components/StickyCTA";
 import OnboardingModal from "@/components/OnboardingModal";
@@ -29,8 +27,6 @@ const Index = () => {
         <FeaturedProperties />
         <RightNowSection />
       </main>
-      <TrustBar />
-      <PreFooterCTA />
       <Footer />
       <StickyCTA />
       <OnboardingModal />
