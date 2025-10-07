@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 interface WeatherData {
   temperature: number;
@@ -40,7 +41,7 @@ export const useWeather = () => {
         });
 
         if (error) {
-          console.warn('Weather API error:', error);
+          logger.warn('Weather API error', { error });
           setWeather(FALLBACK_WEATHER);
           setIsLoading(false);
           return;
@@ -54,7 +55,7 @@ export const useWeather = () => {
           setWeather(FALLBACK_WEATHER);
         }
       } catch (error) {
-        console.warn('Weather fetch error:', error);
+        logger.warn('Weather fetch error', { error });
         setWeather(FALLBACK_WEATHER);
       } finally {
         setIsLoading(false);

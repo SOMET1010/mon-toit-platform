@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Cloud, CloudRain, Sun, Home, Users, Calendar } from 'lucide-react';
 import { useWeather } from '@/hooks/useWeather';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 const RightNowSection = () => {
   const { weather } = useWeather();
@@ -23,7 +24,7 @@ const RightNowSection = () => {
           .select('*', { count: 'exact', head: true })
           .gte('created_at', today.toISOString());
 
-        if (propsError) console.warn('Props fetch error:', propsError);
+        if (propsError) logger.warn('Props fetch error', { error: propsError });
 
         // Active tenants (users with type locataire)
         const { count: activeTenants, error: tenantsError } = await supabase
@@ -31,7 +32,7 @@ const RightNowSection = () => {
           .select('*', { count: 'exact', head: true })
           .eq('user_type', 'locataire');
 
-        if (tenantsError) console.warn('Tenants fetch error:', tenantsError);
+        if (tenantsError) logger.warn('Tenants fetch error', { error: tenantsError });
 
         // Scheduled visits today (mock - would need a visits table)
         const scheduledVisits = Math.floor(Math.random() * 10) + 3;
@@ -42,7 +43,7 @@ const RightNowSection = () => {
           scheduledVisits
         });
       } catch (error) {
-        console.warn('Stats fetch error:', error);
+        logger.warn('Stats fetch error', { error });
         // Keep default stats
       }
     };

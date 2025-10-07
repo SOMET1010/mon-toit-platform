@@ -8,6 +8,7 @@ import { Property } from '@/types';
 import { useFavorites } from '@/hooks/useFavorites';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { handleError } from '@/lib/errorHandler';
+import { logger } from '@/services/logger';
 
 const FeaturedProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -29,7 +30,7 @@ const FeaturedProperties = () => {
       
       setProperties(featured);
     } catch (err) {
-      console.error('Error fetching featured properties:', err);
+      logger.logError(err, { context: 'fetchFeaturedProperties' });
       const errorMessage = 'Impossible de charger les biens en vedette. Veuillez réessayer.';
       setError(errorMessage);
       handleError(err, errorMessage);

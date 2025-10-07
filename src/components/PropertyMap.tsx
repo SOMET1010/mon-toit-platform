@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
 import { Locate, List } from 'lucide-react';
 import { Card } from './ui/card';
+import { logger } from '@/services/logger';
 
 interface Property {
   id: string;
@@ -42,7 +43,7 @@ const PropertyMap = ({
 
     try {
       if (!MAPBOX_TOKEN) {
-        console.warn('Mapbox token not configured');
+        logger.warn('Mapbox token not configured');
         return;
       }
 
@@ -62,7 +63,7 @@ const PropertyMap = ({
         setMapReady(true);
       });
     } catch (error) {
-      console.error('Map initialization error:', error);
+      logger.logError(error, { context: 'Map initialization' });
     }
 
     return () => {
@@ -183,7 +184,7 @@ const PropertyMap = ({
           setLocating(false);
         },
         (error) => {
-          console.error('Geolocation error:', error);
+          logger.logError(error, { context: 'Geolocation' });
           setLocating(false);
         }
       );

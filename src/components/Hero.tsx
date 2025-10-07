@@ -62,11 +62,11 @@ const Hero = () => {
           <div className="mb-10">
             <Button 
               size="lg" 
-              className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-secondary hover:bg-secondary-700 text-white rounded-full"
+              className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-secondary hover:bg-secondary/90 text-white rounded-full"
               onClick={() => navigate('/recherche')}
             >
               <Search className="h-5 w-5 mr-2" />
-              O, Rechercher un logement
+              Rechercher un logement
             </Button>
           </div>
 
@@ -103,7 +103,7 @@ const Hero = () => {
                 <Star className="h-8 w-8 md:h-10 md:w-10 text-secondary fill-secondary mb-2" />
                 <p className="text-2xl md:text-3xl font-black text-foreground">4,8/5</p>
                 <p className="text-xs md:text-sm text-muted-foreground font-medium mt-1">
-                  Sur 2 00+ avis
+                  Sur 200+ avis
                 </p>
               </div>
             </div>
