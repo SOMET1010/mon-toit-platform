@@ -55,20 +55,6 @@ export const PropertyLocation = ({ form }: PropertyLocationProps) => {
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="neighborhood"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Quartier (optionnel)</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Riviera Golf" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </CardContent>
     </Card>
   );

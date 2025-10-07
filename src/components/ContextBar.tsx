@@ -30,9 +30,7 @@ const ContextBar = () => {
             {locationLoading ? (
               <span>Abidjan</span>
             ) : (
-              <span>
-                {location.city}{location.neighborhood ? `, ${location.neighborhood}` : ''}
-              </span>
+              <span>{location.city}</span>
             )}
           </div>
 

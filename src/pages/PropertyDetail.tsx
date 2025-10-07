@@ -366,15 +366,6 @@ const PropertyDetail = () => {
                         <p className="font-medium">{property.bathrooms}</p>
                       </div>
                     </div>
-                    {property.floor_number && (
-                      <div className="flex items-center gap-2">
-                        <Home className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Étage</p>
-                          <p className="font-medium">{property.floor_number}</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <Separator className="my-4" />
@@ -418,9 +409,6 @@ const PropertyDetail = () => {
                     <MapPin className="h-5 w-5 text-primary mt-0.5" />
                     <div>
                       <p className="font-medium">{property.city}</p>
-                      {property.neighborhood && (
-                        <p className="text-sm text-muted-foreground">{property.neighborhood}</p>
-                      )}
                       <p className="text-sm text-muted-foreground mt-1">{property.address}</p>
                     </div>
                   </div>
@@ -530,12 +518,6 @@ const PropertyDetail = () => {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Caution</span>
                       <span className="font-medium">{property.deposit_amount.toLocaleString()} FCFA</span>
-                    </div>
-                  )}
-                  {property.charges_amount && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Charges</span>
-                      <span className="font-medium">{property.charges_amount.toLocaleString()} FCFA</span>
                     </div>
                   )}
 

@@ -13,7 +13,6 @@ export const propertySchema = z.object({
     .min(VALIDATION_LIMITS.MIN_ADDRESS_LENGTH, `L'adresse doit contenir au moins ${VALIDATION_LIMITS.MIN_ADDRESS_LENGTH} caractères`)
     .max(VALIDATION_LIMITS.MAX_ADDRESS_LENGTH, `L'adresse ne doit pas dépasser ${VALIDATION_LIMITS.MAX_ADDRESS_LENGTH} caractères`),
   city: z.string().min(1, "La ville est requise"),
-  neighborhood: z.string().optional(),
   bedrooms: z.coerce.number()
     .min(PROPERTY_LIMITS.MIN_BEDROOMS, `Minimum ${PROPERTY_LIMITS.MIN_BEDROOMS} chambre`)
     .max(PROPERTY_LIMITS.MAX_BEDROOMS, `Maximum ${PROPERTY_LIMITS.MAX_BEDROOMS} chambres`),
@@ -23,18 +22,11 @@ export const propertySchema = z.object({
   surface_area: z.coerce.number()
     .min(PROPERTY_LIMITS.MIN_SURFACE, `Minimum ${PROPERTY_LIMITS.MIN_SURFACE}m²`)
     .max(PROPERTY_LIMITS.MAX_SURFACE, `Maximum ${PROPERTY_LIMITS.MAX_SURFACE}m²`),
-  floor_number: z.coerce.number()
-    .min(PROPERTY_LIMITS.MIN_FLOOR, `Minimum ${PROPERTY_LIMITS.MIN_FLOOR}`)
-    .max(PROPERTY_LIMITS.MAX_FLOOR, `Maximum ${PROPERTY_LIMITS.MAX_FLOOR}`)
-    .optional(),
   monthly_rent: z.coerce.number()
     .min(PROPERTY_LIMITS.MIN_RENT, `Minimum ${PROPERTY_LIMITS.MIN_RENT} FCFA`)
     .max(PROPERTY_LIMITS.MAX_RENT, `Maximum ${PROPERTY_LIMITS.MAX_RENT} FCFA`),
   deposit_amount: z.coerce.number()
     .min(0, "La caution ne peut pas être négative"),
-  charges_amount: z.coerce.number()
-    .min(0, "Les charges ne peuvent pas être négatives")
-    .optional(),
   is_furnished: z.boolean().default(false),
   has_ac: z.boolean().default(false),
   has_parking: z.boolean().default(false),

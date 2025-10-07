@@ -45,23 +45,6 @@ export const PropertyPricing = ({ form }: PropertyPricingProps) => {
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="charges_amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Charges mensuelles (FCFA) - Optionnel</FormLabel>
-              <FormControl>
-                <Input type="number" min="0" placeholder="25000" {...field} />
-              </FormControl>
-              <FormDescription>
-                Eau, électricité, entretien, etc.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </CardContent>
     </Card>
   );

@@ -38,7 +38,6 @@ export const PropertyHeader = ({ property, isFavorite, onFavoriteToggle }: Prope
           <MapPin className="h-5 w-5 mr-2" />
           <span className="text-lg">
             {property.address}, {property.city}
-            {property.neighborhood && ` - ${property.neighborhood}`}
           </span>
         </div>
 
@@ -52,11 +51,6 @@ export const PropertyHeader = ({ property, isFavorite, onFavoriteToggle }: Prope
         {property.deposit_amount && (
           <p className="text-muted-foreground mt-2">
             Caution: {formatPrice(property.deposit_amount)}
-          </p>
-        )}
-        {property.charges_amount && (
-          <p className="text-muted-foreground">
-            Charges: {formatPrice(property.charges_amount)}/mois
           </p>
         )}
       </div>

@@ -15,14 +15,6 @@ export const PropertyCharacteristics = ({ property }: PropertyCharacteristicsPro
     { icon: Bath, label: 'Salles de bain', value: property.bathrooms },
   ];
 
-  if (property.floor_number !== null && property.floor_number !== undefined) {
-    characteristics.push({
-      icon: Building,
-      label: 'Étage',
-      value: property.floor_number === 0 ? 'Rez-de-chaussée' : `${property.floor_number}e étage`,
-    });
-  }
-
   const amenities = [
     { condition: property.is_furnished, label: 'Meublé' },
     { condition: property.has_ac, label: 'Climatisation' },

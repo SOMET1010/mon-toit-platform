@@ -58,20 +58,6 @@ export const PropertyCharacteristicsForm = ({ form }: PropertyCharacteristicsFor
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="floor_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Étage (optionnel)</FormLabel>
-                <FormControl>
-                  <Input type="number" min="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         <div className="space-y-3">
