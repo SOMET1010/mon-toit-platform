@@ -31,12 +31,12 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
     e.preventDefault();
     if (!user) return;
 
-    // Frontend CNI format validation
-    const cniRegex = /^CI\d{10}$/;
+    // Frontend CNI format validation (9 or 10 digits after CI)
+    const cniRegex = /^CI\d{9,10}$/;
     if (!formData.cniNumber.match(cniRegex)) {
       toast({
         title: 'Format CNI invalide',
-        description: 'Le numéro CNI doit commencer par "CI" suivi de 10 chiffres (ex: CI1234567890)',
+        description: 'Le numéro CNI doit commencer par "CI" suivi de 9 ou 10 chiffres (ex: CI000913911 ou CI1234567890)',
         variant: 'destructive'
       });
       return;
@@ -100,7 +100,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         errorDescription = 'Le service de vérification ONECI est temporairement indisponible. Réessayez dans quelques instants.';
       } else if (errorMessage.includes('Format CNI') || errorMessage.includes('invalide')) {
         errorTitle = 'Format invalide';
-        errorDescription = 'Le numéro CNI doit commencer par "CI" suivi de 10 chiffres (ex: CI1234567890)';
+        errorDescription = 'Le numéro CNI doit commencer par "CI" suivi de 9 ou 10 chiffres (ex: CI000913911 ou CI1234567890)';
       } else if (errorMessage.includes('Session') || errorMessage.includes('authentifi')) {
         errorTitle = 'Session expirée';
         errorDescription = 'Votre session a expiré. Veuillez vous reconnecter et réessayer.';

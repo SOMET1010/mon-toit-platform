@@ -30,13 +30,13 @@ serve(async (req) => {
       );
     }
 
-    // Format CNI validation (CI + 10 chiffres)
-    const cniRegex = /^CI\d{10}$/;
+    // Format CNI validation (CI + 9 or 10 digits)
+    const cniRegex = /^CI\d{9,10}$/;
     if (!cniRegex.test(cniNumber)) {
       return new Response(
         JSON.stringify({ 
           valid: false,
-          error: 'Format CNI invalide. Attendu: CI + 10 chiffres'
+          error: 'Format CNI invalide. Attendu: CI + 9 ou 10 chiffres'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
