@@ -16,6 +16,12 @@ const FALLBACK_WEATHER: WeatherData = {
   icon: 'sun'
 };
 
+/**
+ * Hook to fetch weather data for Abidjan with localStorage caching
+ * Cache duration: 15 minutes
+ * Falls back to default sunny weather if API fails
+ */
+
 export const useWeather = () => {
   const [weather, setWeather] = useState<WeatherData>(FALLBACK_WEATHER);
   const [isLoading, setIsLoading] = useState(true);

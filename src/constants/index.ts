@@ -424,3 +424,51 @@ export const validateDocumentType = (file: File): boolean => {
   const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
   return validTypes.includes(file.type);
 };
+
+// ============= HELPER FUNCTIONS =============
+
+/**
+ * Get property status label
+ */
+export function getPropertyStatusLabel(status: string): string {
+  return PROPERTY_STATUS_LABELS[status] || status;
+}
+
+/**
+ * Get property status color class
+ */
+export function getPropertyStatusColor(status: string): string {
+  return PROPERTY_STATUS_COLORS[status] || 'bg-gray-500';
+}
+
+/**
+ * Get application status label
+ */
+export function getApplicationStatusLabel(status: ApplicationStatus): string {
+  return APPLICATION_STATUS_LABELS[status] || status;
+}
+
+/**
+ * Get application status variant
+ */
+export function getApplicationStatusVariant(
+  status: ApplicationStatus
+): 'default' | 'secondary' | 'destructive' | 'outline' {
+  return APPLICATION_STATUS_VARIANTS[status] || 'outline';
+}
+
+/**
+ * Get verification status label
+ */
+export function getVerificationStatusLabel(status: VerificationStatus): string {
+  return VERIFICATION_STATUS_LABELS[status] || status;
+}
+
+/**
+ * Get verification status variant
+ */
+export function getVerificationStatusVariant(
+  status: VerificationStatus
+): 'default' | 'secondary' | 'destructive' | 'outline' {
+  return VERIFICATION_STATUS_VARIANTS[status] || 'outline';
+}

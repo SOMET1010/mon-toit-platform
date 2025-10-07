@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Bed, Bath, Maximize, Clock } from 'lucide-react';
 import { Property } from '@/types';
-import { getPropertyStatusLabel, formatPrice } from '@/lib/badgeHelpers';
+import { getPropertyStatusLabel, formatPrice } from '@/constants';
 import { supabase } from '@/integrations/supabase/client';
 import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 import { useTimeAgo } from '@/hooks/useTimeAgo';

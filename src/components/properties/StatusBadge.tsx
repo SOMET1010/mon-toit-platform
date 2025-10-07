@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { PropertyStatus } from '@/types';
-import { getPropertyStatusLabel, getPropertyStatusColor } from '@/lib/badgeHelpers';
+import { PROPERTY_STATUS_LABELS, PROPERTY_STATUS_COLORS } from '@/constants';
 
 interface StatusBadgeProps {
   status: PropertyStatus | string;
@@ -8,8 +8,8 @@ interface StatusBadgeProps {
 }
 
 export const StatusBadge = ({ status, variant = 'default' }: StatusBadgeProps) => {
-  const label = getPropertyStatusLabel(status);
-  const colorClass = getPropertyStatusColor(status);
+  const label = PROPERTY_STATUS_LABELS[status] || status;
+  const colorClass = PROPERTY_STATUS_COLORS[status] || 'bg-gray-500';
   
   return (
     <Badge 

@@ -15,8 +15,8 @@ import { CheckCircle, XCircle, Eye, CheckSquare, Square, Edit, Archive, Trash2 }
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { logger } from '@/services/logger';
-import type { Property as PropertyType, STATUS_VARIANTS } from '@/types';
-import { STATUS_VARIANTS as statusVariants, STATUS_LABELS as statusLabels } from '@/types';
+import type { Property as PropertyType } from '@/types';
+import { PROPERTY_STATUS_LABELS, PROPERTY_STATUS_COLORS } from '@/constants';
 
 type Property = Pick<PropertyType, 
   'id' | 'title' | 'city' | 'monthly_rent' | 'status' | 'created_at' | 'owner_id'
@@ -292,8 +292,8 @@ const AdminProperties = () => {
         if (showStatusDialog) {
           return {
             title: prop.title,
-            current: statusLabels[prop.status] || prop.status,
-            new: statusLabels[bulkStatus] || bulkStatus
+            current: PROPERTY_STATUS_LABELS[prop.status] || prop.status,
+            new: PROPERTY_STATUS_LABELS[bulkStatus] || bulkStatus
           };
         } else if (showRentDialog && rentModificationValue) {
           const currentRent = prop.monthly_rent;
@@ -308,7 +308,7 @@ const AdminProperties = () => {
         } else if (showArchiveDialog) {
           return {
             title: prop.title,
-            current: statusLabels[prop.status] || prop.status,
+            current: PROPERTY_STATUS_LABELS[prop.status] || prop.status,
             new: 'Archivé'
           };
         }
@@ -318,7 +318,8 @@ const AdminProperties = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    return <Badge variant={statusVariants[status] || 'outline'}>{statusLabels[status] || status}</Badge>;
+    const variant = status === 'disponible' ? 'default' : status === 'refuse' ? 'destructive' : 'outline';
+    return <Badge variant={variant}>{PROPERTY_STATUS_LABELS[status] || status}</Badge>;
   };
 
   if (loading) {

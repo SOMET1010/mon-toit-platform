@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CheckCircle, XCircle, Clock, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Application } from '@/types';
-import { getApplicationStatusLabel, getApplicationStatusVariant } from '@/lib/badgeHelpers';
+import { APPLICATION_STATUS_LABELS, APPLICATION_STATUS_VARIANTS } from '@/constants';
 
 interface PropertyApplicationsListProps {
   applications: Application[];
@@ -45,8 +45,8 @@ export const PropertyApplicationsList = ({ applications }: PropertyApplicationsL
                 </div>
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                   <span>Score: {application.verification?.tenant_score || 0}/100</span>
-                  <Badge variant={getApplicationStatusVariant(application.status)}>
-                    {getApplicationStatusLabel(application.status)}
+                  <Badge variant={APPLICATION_STATUS_VARIANTS[application.status] || 'outline'}>
+                    {APPLICATION_STATUS_LABELS[application.status] || application.status}
                   </Badge>
                 </div>
               </div>

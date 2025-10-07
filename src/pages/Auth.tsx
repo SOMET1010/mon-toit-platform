@@ -318,6 +318,7 @@ const Auth = () => {
                         type="button"
                         onClick={() => setShowSignInPassword(!showSignInPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label={showSignInPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                       >
                         {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -435,6 +436,7 @@ const Auth = () => {
                         type="button"
                         onClick={() => setShowSignUpPassword(!showSignUpPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label={showSignUpPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                       >
                         {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>

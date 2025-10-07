@@ -9,7 +9,7 @@ import {
   TrendingUp, AlertCircle 
 } from 'lucide-react';
 import type { Property as PropertyType } from '@/types';
-import { STATUS_LABELS as statusLabels, STATUS_COLORS as statusColors } from '@/types';
+import { PROPERTY_STATUS_LABELS, PROPERTY_STATUS_COLORS } from '@/constants';
 
 type Property = Pick<PropertyType, 
   'id' | 'title' | 'description' | 'property_type' | 'status' | 
@@ -57,8 +57,8 @@ const PropertyCardEnhanced = ({ property, view, isSelected, onToggleSelect }: Pr
                 <MapPin className="h-12 w-12 text-muted-foreground" />
               </div>
             )}
-            <Badge className={`absolute top-2 right-2 ${statusColors[property.status]}`}>
-              {statusLabels[property.status]}
+            <Badge className={`absolute top-2 right-2 ${PROPERTY_STATUS_COLORS[property.status]}`}>
+              {PROPERTY_STATUS_LABELS[property.status]}
             </Badge>
           </div>
 
@@ -196,8 +196,8 @@ const PropertyCardEnhanced = ({ property, view, isSelected, onToggleSelect }: Pr
             <MapPin className="h-12 w-12 text-muted-foreground" />
           </div>
         )}
-        <Badge className={`absolute top-2 right-2 ${statusColors[property.status]}`}>
-          {statusLabels[property.status]}
+        <Badge className={`absolute top-2 right-2 ${PROPERTY_STATUS_COLORS[property.status]}`}>
+          {PROPERTY_STATUS_LABELS[property.status]}
         </Badge>
       </div>
 

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Property } from '@/types';
 import { StatusBadge } from '@/components/properties/StatusBadge';
-import { formatPrice } from '@/lib/badgeHelpers';
+import { formatPrice } from '@/constants';
 
 interface PropertyHeaderProps {
   property: Property;

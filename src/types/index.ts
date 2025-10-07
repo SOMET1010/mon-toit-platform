@@ -265,31 +265,3 @@ export interface GeoLocation {
   longitude: number;
 }
 
-// =========== DEPRECATED - USE @/constants INSTEAD ===========
-// These are kept for backward compatibility but should be migrated to @/constants
-
-import {
-  PROPERTY_STATUS_LABELS,
-  PROPERTY_STATUS_COLORS,
-} from '@/constants';
-
-/**
- * @deprecated Use PROPERTY_STATUS_LABELS from @/constants instead
- */
-export const STATUS_LABELS = PROPERTY_STATUS_LABELS;
-
-/**
- * @deprecated Use PROPERTY_STATUS_COLORS from @/constants instead
- */
-export const STATUS_COLORS = PROPERTY_STATUS_COLORS;
-
-/**
- * @deprecated Define variants in @/constants instead
- */
-export const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  disponible: 'default',
-  en_attente: 'secondary',
-  loue: 'outline',
-  loué: 'outline',
-  refuse: 'destructive',
-} as const;

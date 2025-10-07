@@ -1,7 +1,17 @@
 /**
- * Centralized logging service
- * Replaces console.error with structured logging
- * Can be extended to send logs to external services (Sentry, LogRocket, etc.)
+ * Centralized logging service for Mon Toit platform
+ * 
+ * Replaces direct console.* calls with structured logging that:
+ * - Provides consistent log formatting with timestamps
+ * - Can be extended to send logs to external monitoring services (Sentry, LogRocket, etc.)
+ * - Allows environment-specific behavior (dev vs production)
+ * - Prevents sensitive data leaks in production logs
+ * 
+ * @example
+ * import { logger } from '@/services/logger';
+ * 
+ * logger.error('Failed to fetch properties', { userId: '123', endpoint: '/api/properties' });
+ * logger.logError(error, { context: 'PropertyCard', action: 'delete' });
  */
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';

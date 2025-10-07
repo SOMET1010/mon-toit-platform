@@ -5,7 +5,11 @@ import { Link } from "react-router-dom";
 import { useWeather } from "@/hooks/useWeather";
 import { Badge } from "./ui/badge";
 
-// Mock featured properties for the map
+/**
+ * Mock featured properties data for map demonstration
+ * These are example properties located in different neighborhoods of Abidjan
+ * In production, this would be fetched from the database
+ */
 const featuredProperties = [
   {
     id: "1",
@@ -45,13 +49,23 @@ const featuredProperties = [
   }
 ];
 
+/**
+ * ExploreMap component displays an interactive map with featured properties
+ * and current weather information for Abidjan
+ */
 const ExploreMap = () => {
   const { weather } = useWeather();
   
+  /**
+   * Navigate to property detail page when marker is clicked
+   */
   const handlePropertyClick = (propertyId: string) => {
     window.location.href = `/properties/${propertyId}`;
   };
 
+  /**
+   * Generate contextual weather message based on current conditions
+   */
   const getWeatherMessage = () => {
     if (weather.description.toLowerCase().includes('pluie')) {
       return 'Pensez à votre parapluie';

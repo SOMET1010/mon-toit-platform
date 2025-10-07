@@ -29,6 +29,7 @@ const Hero = () => {
           src={heroImage} 
           alt="Famille heureuse avec ANSUT"
           className="w-full h-full object-cover"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/50 to-transparent" />
       </div>
