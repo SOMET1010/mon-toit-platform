@@ -74,7 +74,7 @@ const ONECIForm = () => {
         setShowFaceVerification(true);
       }
     } catch (error) {
-      logger.error('ONECI verification error', { error, userId: user?.id, formData });
+      logger.error('ONECI verification error', { error, userId: user?.id });
       
       // Contextual error messages
       let errorTitle = 'Erreur';

@@ -75,24 +75,34 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
 
-      // Mettre à jour la table user_verifications avec statut pending_review
-      const { error: updateError } = await supabase
+      // Upsert dans user_verifications avec creation automatique
+      const { error: upsertError } = await supabase
         .from('user_verifications')
-        .update({
+        .upsert({
+          user_id: user.id,
           cnam_status: 'pending_review',
           cnam_data: employmentData,
           cnam_employer: employerName,
           cnam_social_security_number: socialSecurityNumber,
-        })
-        .eq('user_id', user.id);
+        }, {
+          onConflict: 'user_id'
+        });
 
-      if (updateError) throw updateError;
+      if (upsertError) throw upsertError;
+
+      // Mettre à jour le profil
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ cnam_verified: true })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
 
       return new Response(
         JSON.stringify({
-          valid: true,
+          verified: true,
           cniNumber,
-          employment: employmentData,
+          employmentInfo: employmentData,
           status: 'PENDING_REVIEW',
           message: 'Vérification soumise. En attente de validation par un administrateur.',
           verifiedAt: new Date().toISOString()
@@ -102,7 +112,7 @@ serve(async (req) => {
     } else {
       return new Response(
         JSON.stringify({
-          valid: false,
+          verified: false,
           error: 'Aucune information CNAM trouvée',
           status: 'FAILED'
         }),

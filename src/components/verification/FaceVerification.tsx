@@ -31,7 +31,7 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
     verified: boolean;
     similarityScore: string;
     message: string;
-    attemptsRemaining: number;
+    canRetry: boolean;
   } | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -294,9 +294,9 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
                   <SimpleProgress value={parseFloat(verificationResult.similarityScore)} className="flex-1" />
                   <span className="text-sm font-bold">{verificationResult.similarityScore}%</span>
                 </div>
-                {!verificationResult.verified && verificationResult.attemptsRemaining > 0 && (
+                {!verificationResult.verified && verificationResult.canRetry && (
                   <p className="text-sm">
-                    Tentatives restantes aujourd'hui : {verificationResult.attemptsRemaining}
+                    Vous pouvez réessayer avec de meilleures conditions.
                   </p>
                 )}
               </div>

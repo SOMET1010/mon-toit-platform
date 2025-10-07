@@ -38,32 +38,8 @@ const CNAMForm = () => {
 
       if (functionError) throw functionError;
 
-      // Update or create user_verifications record
-      const { error: upsertError } = await supabase
-        .from('user_verifications')
-        .upsert({
-          user_id: user.id,
-          cnam_employer: formData.employerName,
-          cnam_social_security_number: formData.socialSecurityNumber,
-          cnam_status: verificationResult.verified ? 'verified' : 'rejected',
-          cnam_data: verificationResult.verified ? verificationResult.employmentInfo : null,
-          cnam_verified_at: verificationResult.verified ? new Date().toISOString() : null,
-        }, {
-          onConflict: 'user_id'
-        });
-
-      if (upsertError) throw upsertError;
-
-      // Update profile
-      if (verificationResult.verified) {
-        await supabase
-          .from('profiles')
-          .update({ cnam_verified: true })
-          .eq('id', user.id);
-      }
-
       toast({
-        title: verificationResult.verified ? 'Vérification réussie' : 'Vérification échouée',
+        title: verificationResult.verified ? 'Vérification envoyée' : 'Vérification échouée',
         description: verificationResult.message,
         variant: verificationResult.verified ? 'default' : 'destructive',
       });
@@ -73,7 +49,7 @@ const CNAMForm = () => {
         window.location.reload();
       }
     } catch (error) {
-      logger.error('CNAM verification error', { error, userId: user?.id, formData });
+      logger.error('CNAM verification error', { error, userId: user?.id });
       toast({
         title: 'Erreur',
         description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la vérification',
