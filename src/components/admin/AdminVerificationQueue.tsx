@@ -75,11 +75,11 @@ export default function AdminVerificationQueue() {
       setVerifications(enrichedData as VerificationWithUser[]);
 
       // Fetch passport verifications
-      const { data: passportData, error: passportError } = await supabase.rpc('get_passport_verifications_for_admin');
+      const { data: passportData, error: passportError } = await supabase.rpc('get_passport_verifications_for_admin' as any);
       if (passportError) {
         console.error('Passport verification fetch error:', passportError);
       } else {
-        setPassportVerifications(passportData || []);
+        setPassportVerifications((passportData as any) || []);
       }
     } catch (error: any) {
       console.error('Erreur lors du chargement des vérifications:', error);
@@ -109,7 +109,7 @@ export default function AdminVerificationQueue() {
           ? 'approve_passport_verification' 
           : 'reject_passport_verification';
         
-        const { error } = await supabase.rpc(functionName, {
+        const { error } = await supabase.rpc(functionName as any, {
           p_user_id: selectedVerification.userId,
           p_review_notes: reviewNotes || null,
         });
@@ -119,7 +119,7 @@ export default function AdminVerificationQueue() {
           ? 'approve_verification' 
           : 'reject_verification';
 
-        const { error } = await supabase.rpc(functionName, {
+        const { error } = await supabase.rpc(functionName as any, {
           p_user_id: selectedVerification.userId,
           p_verification_type: selectedVerification.type,
           p_review_notes: reviewNotes || null,
