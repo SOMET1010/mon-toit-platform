@@ -1,15 +1,22 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/services/logger';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
+import { logger } from '@/services/logger';
+import { supabase } from '@/integrations/supabase/client';
+import { Camera, Upload, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
-// Lazy load FaceVerification to avoid blocking the main page
-const FaceVerification = lazy(() => import('./FaceVerification'));
+// Simple progress bar component
+const SimpleProgress = ({ value, className }: { value: number; className?: string }) => (
+  <div className={`relative h-2 w-full overflow-hidden rounded-full bg-secondary ${className}`}>
+    <div 
+      className="h-full bg-primary transition-all duration-300"
+      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+    />
+  </div>
+);
 
 interface ONECIFormProps {
   onSubmit?: () => void;
@@ -17,209 +24,302 @@ interface ONECIFormProps {
 
 const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [oneciVerified, setOneciVerified] = useState(false);
-  const [showFaceVerification, setShowFaceVerification] = useState(false);
-  const [formData, setFormData] = useState({
-    cniNumber: '',
-    lastName: '',
-    firstName: '',
-    birthDate: '',
-  });
+  const [cniImage, setCniImage] = useState<string | null>(null);
+  const [selfieImage, setSelfieImage] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<{
+    verified: boolean;
+    similarityScore: string;
+    message: string;
+    canRetry: boolean;
+  } | null>(null);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
+  const startCamera = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('L\'API MediaDevices n\'est pas supportée par ce navigateur');
+      }
 
-    // Frontend CNI format validation (9 or 10 digits after CI)
-    const cniRegex = /^CI\d{9,10}$/;
-    if (!formData.cniNumber.match(cniRegex)) {
-      toast({
-        title: 'Format CNI invalide',
-        description: 'Le numéro CNI doit commencer par "CI" suivi de 9 ou 10 chiffres (ex: CI000913911 ou CI1234567890)',
-        variant: 'destructive'
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsCapturing(true);
+      }
+    } catch (error) {
+      logger.error('Error accessing camera', { error });
+      let errorMessage = 'Impossible d\'accéder à la caméra';
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = 'Autorisation caméra refusée.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = 'Aucune caméra trouvée';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = 'La caméra est déjà utilisée';
+        }
+      }
+      toast.error(errorMessage);
+    }
+  };
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCapturing(false);
+  }, []);
+
+  const captureSelfie = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        setSelfieImage(imageData);
+        stopCamera();
+        toast.success('Selfie capturé !');
+      }
+    }
+  };
+
+  const handleCniUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCniImage(reader.result as string);
+        toast.success('Photo de CNI chargée !');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!cniImage || !selfieImage) {
+      toast.error('Veuillez fournir les deux images');
       return;
     }
 
-    setLoading(true);
+    setIsVerifying(true);
+    setVerificationResult(null);
 
     try {
-      // Call ONECI verification edge function
-      const { data: verificationResult, error: functionError } = await supabase.functions.invoke(
-        'oneci-verification',
-        {
-          body: {
-            cniNumber: formData.cniNumber,
-            lastName: formData.lastName,
-            firstName: formData.firstName,
-            birthDate: formData.birthDate,
-          },
-        }
-      );
-
-      // Enhanced error extraction from edge function
-      if (functionError) {
-        const errorData = (functionError as any).context?.body;
-        if (errorData?.error) {
-          throw new Error(errorData.error);
-        } else if (errorData?.status === 'SERVICE_UNAVAILABLE') {
-          throw new Error('Service de vérification ONECI temporairement indisponible');
-        }
-        throw functionError;
-      }
-
-      // Check if verification result has error
-      if (verificationResult?.error || verificationResult?.status === 'FAILED') {
-        throw new Error(verificationResult.error || verificationResult.message || 'Vérification échouée');
-      }
-
-      // Success case
-      toast({
-        title: 'Vérification envoyée',
-        description: verificationResult.message || 'Votre demande de vérification a été envoyée. Elle sera validée par un administrateur sous 48h.',
+      const { data, error } = await supabase.functions.invoke('smile-id-verification', {
+        body: {
+          cniImageBase64: cniImage,
+          selfieBase64: selfieImage,
+        },
       });
 
-      setFormData({ cniNumber: '', lastName: '', firstName: '', birthDate: '' });
-      setOneciVerified(true);
-      setShowFaceVerification(true);
-      
-      // Notifie le parent que le formulaire a été soumis
-      onSubmit?.();
-    } catch (error: any) {
-      logger.error('ONECI verification error', { error, userId: user?.id });
-      
-      // Parse error for user-friendly messages
-      let errorTitle = 'Erreur de vérification';
-      let errorDescription = 'Une erreur est survenue lors de la vérification';
-      
-      const errorMessage = error?.message || error?.error || String(error);
-      
-      if (errorMessage.includes('SERVICE_UNAVAILABLE') || errorMessage.includes('indisponible')) {
-        errorTitle = 'Service indisponible';
-        errorDescription = 'Le service de vérification ONECI est temporairement indisponible. Réessayez dans quelques instants.';
-      } else if (errorMessage.includes('Format CNI') || errorMessage.includes('invalide')) {
-        errorTitle = 'Format invalide';
-        errorDescription = 'Le numéro CNI doit commencer par "CI" suivi de 9 ou 10 chiffres (ex: CI000913911 ou CI1234567890)';
-      } else if (errorMessage.includes('Session') || errorMessage.includes('authentifi')) {
-        errorTitle = 'Session expirée';
-        errorDescription = 'Votre session a expiré. Veuillez vous reconnecter et réessayer.';
-      } else if (errorMessage.includes('non trouvée') || errorMessage.includes('not found')) {
-        errorTitle = 'CNI non trouvée';
-        errorDescription = 'Ce numéro CNI n\'a pas été trouvé dans la base ONECI. Vérifiez vos informations.';
-      } else if (errorMessage.includes('Edge Function')) {
-        errorTitle = 'Erreur de connexion';
-        errorDescription = 'Impossible de se connecter au service de vérification. Vérifiez votre connexion internet.';
-      } else if (errorMessage.trim()) {
-        errorDescription = errorMessage;
+      if (error) throw error;
+
+      setVerificationResult(data);
+
+      if (data.verified) {
+        // Update profile
+        await supabase
+          .from('profiles')
+          .update({ oneci_verified: true })
+          .eq('id', user?.id);
+
+        toast.success('Vérification ONECI réussie via Smile ID !', {
+          description: `Score : ${data.similarityScore}%`
+        });
+        onSubmit?.();
+      } else {
+        toast.error('Vérification échouée', {
+          description: data.message || data.resultText
+        });
       }
-      
-      toast({
-        title: errorTitle,
-        description: errorDescription,
-        variant: 'destructive',
+    } catch (error) {
+      logger.error('ONECI Smile ID verification error', { error });
+      toast.error('Erreur lors de la vérification', {
+        description: error instanceof Error ? error.message : 'Une erreur est survenue'
       });
     } finally {
-      setLoading(false);
+      setIsVerifying(false);
     }
   };
 
-  const handleFaceVerificationSuccess = () => {
-    toast({
-      title: 'Vérification complète !',
-      description: 'Votre identité ONECI et votre Face ID ont été vérifiés avec succès',
-    });
-    // TODO Phase 2: Replace with queryClient.invalidateQueries(['user_verifications'])
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500); // Reduced from 2000ms
+  const reset = () => {
+    setCniImage(null);
+    setSelfieImage(null);
+    setVerificationResult(null);
+    stopCamera();
   };
-
-  const handleSkipFaceVerification = () => {
-    toast({
-      title: 'Vérification ONECI effectuée',
-      description: 'Vous pourrez ajouter la vérification faciale plus tard',
-    });
-    // TODO Phase 2: Replace with queryClient.invalidateQueries(['user_verifications'])
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500); // Reduced from 2000ms
-  };
-
-  if (showFaceVerification && oneciVerified) {
-    return (
-      <div className="space-y-4">
-        <Suspense fallback={
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        }>
-          <FaceVerification 
-            onSuccess={handleFaceVerificationSuccess}
-            onSkip={handleSkipFaceVerification}
-          />
-        </Suspense>
-      </div>
-    );
-  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="cniNumber">Numéro CNI</Label>
-        <Input
-          id="cniNumber"
-          placeholder="CI1234567890"
-          value={formData.cniNumber}
-          onChange={(e) => setFormData({ ...formData, cniNumber: e.target.value })}
-          required
-        />
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Vérification ONECI (Ivoiriens)</CardTitle>
+        <CardDescription>
+          Vérification d'identité via Smile ID - Carte Nationale d'Identité + Selfie
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Instructions :</strong>
+            <ul className="mt-2 space-y-1 text-sm list-disc list-inside">
+              <li>Téléchargez une photo claire de votre CNI</li>
+              <li>Prenez un selfie avec un bon éclairage</li>
+              <li>Regardez directement la caméra</li>
+              <li>Retirez lunettes, masque ou chapeau</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
 
-      <div className="space-y-2">
-        <Label htmlFor="lastName">Nom de famille</Label>
-        <Input
-          id="lastName"
-          placeholder="KOUASSI"
-          value={formData.lastName}
-          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-          required
-        />
-      </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* CNI Upload */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Photo de votre CNI</label>
+            {cniImage ? (
+              <div className="relative">
+                <img 
+                  src={cniImage} 
+                  alt="CNI" 
+                  className="w-full h-48 object-cover rounded-lg border-2 border-primary"
+                />
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="absolute top-2 right-2"
+                  onClick={() => setCniImage(null)}
+                >
+                  Retirer
+                </Button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors">
+                <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Cliquez pour charger</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCniUpload}
+                />
+              </label>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="firstName">Prénom(s)</Label>
-        <Input
-          id="firstName"
-          placeholder="Kouadio Jean"
-          value={formData.firstName}
-          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-          required
-        />
-      </div>
+          {/* Selfie Capture */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Votre selfie</label>
+            {selfieImage ? (
+              <div className="relative">
+                <img 
+                  src={selfieImage} 
+                  alt="Selfie" 
+                  className="w-full h-48 object-cover rounded-lg border-2 border-primary"
+                />
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="absolute top-2 right-2"
+                  onClick={() => setSelfieImage(null)}
+                >
+                  Retirer
+                </Button>
+              </div>
+            ) : isCapturing ? (
+              <div className="space-y-2">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full h-48 object-cover rounded-lg border-2 border-primary"
+                />
+                <div className="flex gap-2">
+                  <Button onClick={captureSelfie} className="flex-1">
+                    Capturer
+                  </Button>
+                  <Button onClick={stopCamera} variant="outline">
+                    Annuler
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={startCamera}
+                className="w-full h-48 flex flex-col gap-2"
+                variant="outline"
+              >
+                <Camera className="h-8 w-8" />
+                Ouvrir la caméra
+              </Button>
+            )}
+          </div>
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="birthDate">Date de naissance</Label>
-        <Input
-          id="birthDate"
-          type="date"
-          value={formData.birthDate}
-          onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-          required
-        />
-      </div>
+        <canvas ref={canvasRef} className="hidden" />
 
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Vérification en cours...
-          </>
-        ) : (
-          'Vérifier mon identité'
+        {verificationResult && (
+          <Alert variant={verificationResult.verified ? "default" : "destructive"}>
+            {verificationResult.verified ? (
+              <CheckCircle className="h-4 w-4" />
+            ) : (
+              <XCircle className="h-4 w-4" />
+            )}
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-medium">{verificationResult.message}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Score de similarité :</span>
+                  <SimpleProgress value={parseFloat(verificationResult.similarityScore)} className="flex-1" />
+                  <span className="text-sm font-bold">{verificationResult.similarityScore}%</span>
+                </div>
+                {!verificationResult.verified && verificationResult.canRetry && (
+                  <p className="text-sm">
+                    Vous pouvez réessayer avec de meilleures conditions.
+                  </p>
+                )}
+              </div>
+            </AlertDescription>
+          </Alert>
         )}
-      </Button>
-    </form>
+
+        <div className="flex gap-3">
+          <Button
+            onClick={handleVerify}
+            disabled={!cniImage || !selfieImage || isVerifying}
+            className="flex-1"
+          >
+            {isVerifying ? 'Vérification en cours...' : 'Vérifier mon identité ONECI'}
+          </Button>
+          
+          {(cniImage || selfieImage || verificationResult) && (
+            <Button onClick={reset} variant="outline">
+              Recommencer
+            </Button>
+          )}
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center">
+          🔒 Vos images ne sont pas stockées. Seul le résultat de vérification est conservé.
+        </p>
+      </CardContent>
+    </Card>
   );
 };
 
