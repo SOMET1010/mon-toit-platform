@@ -1730,6 +1730,87 @@ export type Database = {
           user_type: Database["public"]["Enums"]["user_type"]
         }[]
       }
+      get_public_properties: {
+        Args: {
+          p_city?: string
+          p_max_rent?: number
+          p_min_bedrooms?: number
+          p_min_rent?: number
+          p_property_type?: string
+          p_status?: string
+        }
+        Returns: {
+          address: string
+          bathrooms: number
+          bedrooms: number
+          charges_amount: number
+          city: string
+          created_at: string
+          deposit_amount: number
+          description: string
+          floor_number: number
+          floor_plans: Json
+          has_ac: boolean
+          has_garden: boolean
+          has_parking: boolean
+          id: string
+          images: string[]
+          is_furnished: boolean
+          latitude: number
+          longitude: number
+          main_image: string
+          media_metadata: Json
+          moderation_status: string
+          monthly_rent: number
+          neighborhood: string
+          panoramic_images: Json
+          property_type: string
+          status: string
+          surface_area: number
+          title: string
+          updated_at: string
+          video_url: string
+          view_count: number
+          virtual_tour_url: string
+        }[]
+      }
+      get_public_property: {
+        Args: { p_property_id: string }
+        Returns: {
+          address: string
+          bathrooms: number
+          bedrooms: number
+          charges_amount: number
+          city: string
+          created_at: string
+          deposit_amount: number
+          description: string
+          floor_number: number
+          floor_plans: Json
+          has_ac: boolean
+          has_garden: boolean
+          has_parking: boolean
+          id: string
+          images: string[]
+          is_furnished: boolean
+          latitude: number
+          longitude: number
+          main_image: string
+          media_metadata: Json
+          moderation_status: string
+          monthly_rent: number
+          neighborhood: string
+          panoramic_images: Json
+          property_type: string
+          status: string
+          surface_area: number
+          title: string
+          updated_at: string
+          video_url: string
+          view_count: number
+          virtual_tour_url: string
+        }[]
+      }
       get_user_payments: {
         Args: { target_user_id: string }
         Returns: {

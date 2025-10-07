@@ -7,9 +7,11 @@ import type { Property, SearchFilters } from '@/types';
 export const propertyService = {
   /**
    * Fetch all properties with optional filters
+   * Uses secure RPC to hide owner_id from public queries
    */
   async fetchAll(filters?: SearchFilters): Promise<Property[]> {
-    // Si filtre ANSUT, utiliser une jointure avec la table leases
+    // SECURITY: Use RPC for public property browsing (hides owner_id)
+    // For ANSUT certified properties, still use direct query with join
     if (filters?.isAnsutCertified) {
       const { data, error } = await supabase
         .from('properties')
@@ -25,7 +27,7 @@ export const propertyService = {
         throw error;
       }
       
-      // Supprimer les doublons si plusieurs baux certifiés pour la même propriété
+      // Remove duplicates if multiple certified leases for the same property
       const uniqueProperties = data.reduce((acc, current) => {
         const exists = acc.find(item => item.id === current.id);
         if (!exists) {
@@ -37,66 +39,72 @@ export const propertyService = {
       return uniqueProperties as Property[];
     }
 
-    // Requête normale sans filtre ANSUT
-    let query = supabase
-      .from('properties')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    // Apply filters
-    if (filters?.city) {
-      query = query.eq('city', filters.city);
-    }
-    if (filters?.propertyType && filters.propertyType.length > 0) {
-      query = query.in('property_type', filters.propertyType);
-    }
-    if (filters?.minPrice) {
-      query = query.gte('monthly_rent', filters.minPrice);
-    }
-    if (filters?.maxPrice) {
-      query = query.lte('monthly_rent', filters.maxPrice);
-    }
-    if (filters?.minBedrooms) {
-      query = query.gte('bedrooms', filters.minBedrooms);
-    }
-    if (filters?.minBathrooms) {
-      query = query.gte('bathrooms', filters.minBathrooms);
-    }
-    if (filters?.minSurface) {
-      query = query.gte('surface_area', filters.minSurface);
-    }
-    if (filters?.isFurnished !== undefined) {
-      query = query.eq('is_furnished', filters.isFurnished);
-    }
-    if (filters?.hasParking !== undefined) {
-      query = query.eq('has_parking', filters.hasParking);
-    }
-    if (filters?.hasGarden !== undefined) {
-      query = query.eq('has_garden', filters.hasGarden);
-    }
-    if (filters?.hasAc !== undefined) {
-      query = query.eq('has_ac', filters.hasAc);
-    }
-
-    const { data, error } = await query;
+    // Use secure RPC for public browsing
+    const { data, error } = await supabase.rpc('get_public_properties', {
+      p_city: filters?.city || null,
+      p_property_type: filters?.propertyType?.[0] || null,
+      p_min_rent: filters?.minPrice || null,
+      p_max_rent: filters?.maxPrice || null,
+      p_min_bedrooms: filters?.minBedrooms || null,
+      p_status: null, // Show all statuses in search
+    });
 
     if (error) {
       console.error('Error fetching properties:', error);
       throw error;
     }
 
-    return data || [];
+    // Apply client-side filters not supported by RPC
+    let results = data || [];
+    
+    if (filters?.propertyType && filters.propertyType.length > 1) {
+      results = results.filter(p => filters.propertyType?.includes(p.property_type));
+    }
+    if (filters?.minBathrooms) {
+      results = results.filter(p => p.bathrooms >= filters.minBathrooms!);
+    }
+    if (filters?.minSurface) {
+      results = results.filter(p => p.surface_area && p.surface_area >= filters.minSurface!);
+    }
+    if (filters?.isFurnished !== undefined) {
+      results = results.filter(p => p.is_furnished === filters.isFurnished);
+    }
+    if (filters?.hasParking !== undefined) {
+      results = results.filter(p => p.has_parking === filters.hasParking);
+    }
+    if (filters?.hasGarden !== undefined) {
+      results = results.filter(p => p.has_garden === filters.hasGarden);
+    }
+    if (filters?.hasAc !== undefined) {
+      results = results.filter(p => p.has_ac === filters.hasAc);
+    }
+
+    // Note: owner_id is intentionally excluded by RPC for security
+    return results as unknown as Property[];
   },
 
   /**
    * Fetch a single property by ID
+   * First tries secure RPC (public access), then falls back to direct query (for owners)
    */
   async fetchById(id: string): Promise<Property | null> {
+    // SECURITY: Try public RPC first (hides owner_id)
+    const { data: publicData, error: publicError } = await supabase.rpc('get_public_property', {
+      p_property_id: id
+    });
+
+    if (!publicError && publicData && publicData.length > 0) {
+      // Note: owner_id is intentionally excluded by RPC for security
+      return publicData[0] as unknown as Property;
+    }
+
+    // If RPC fails (not public or user is owner/admin), try direct query
+    // RLS will allow access if user is owner or admin
     const { data, error } = await supabase
       .from('properties')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching property:', error);
