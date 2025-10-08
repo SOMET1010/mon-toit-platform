@@ -102,11 +102,6 @@ const Tarifs = () => {
                       </div>
                     )}
 
-                    {plan.highlighted && index !== 0 && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Populaire
-                      </div>
-                    )}
 
                     <div className="mb-6">
                       <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>

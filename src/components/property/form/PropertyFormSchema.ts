@@ -26,7 +26,7 @@ export const propertySchema = z.object({
     .min(PROPERTY_LIMITS.MIN_RENT, `Minimum ${PROPERTY_LIMITS.MIN_RENT} FCFA`)
     .max(PROPERTY_LIMITS.MAX_RENT, `Maximum ${PROPERTY_LIMITS.MAX_RENT} FCFA`),
   deposit_amount: z.coerce.number()
-    .min(0, "La caution ne peut pas être négative"),
+    .min(1, "La caution est obligatoire et doit être supérieure à 0 FCFA"),
   is_furnished: z.boolean().default(false),
   has_ac: z.boolean().default(false),
   has_parking: z.boolean().default(false),
