@@ -10,6 +10,7 @@ import { leaseSignedTemplate } from "./_templates/lease-signed.ts";
 import { verificationSuccessTemplate } from "./_templates/verification-success.ts";
 import { faceVerificationSuccessTemplate } from "./_templates/face-verification-success.ts";
 import { leaseContractGeneratedTemplate } from "./_templates/lease-contract-generated.ts";
+import { roleChangeConfirmationTemplate } from "./_templates/role-change-confirmation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -73,6 +74,9 @@ const handler = async (req: Request): Promise<Response> => {
         break;
       case "lease-contract-generated":
         html = leaseContractGeneratedTemplate(data);
+        break;
+      case "role-change-confirmation":
+        html = roleChangeConfirmationTemplate(data);
         break;
       default:
         throw new Error(`Unknown template: ${template}`);
