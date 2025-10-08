@@ -54,6 +54,9 @@ export default function PopulateImages() {
 
       setProgress(prev => ({ ...prev, total: properties.length }));
 
+      // Accumuler les résultats localement
+      const localResults: Array<{ id: string; title: string; success: boolean; error?: string }> = [];
+
       // Générer les images via l'edge function
       for (const property of properties) {
         try {
@@ -68,24 +71,26 @@ export default function PopulateImages() {
           if (error) throw error;
           if (!data.success) throw new Error(data.error || 'Failed to generate image');
 
-          setProgress(prev => ({
-            ...prev,
-            current: prev.current + 1,
-            results: [...prev.results, { id: property.id, title: property.title, success: true }]
-          }));
+          localResults.push({ id: property.id, title: property.title, success: true });
 
         } catch (error: any) {
-          setProgress(prev => ({
-            ...prev,
-            current: prev.current + 1,
-            results: [...prev.results, { id: property.id, title: property.title, success: false, error: error.message }]
-          }));
+          localResults.push({ id: property.id, title: property.title, success: false, error: error.message });
         }
+
+        // Mettre à jour le state après chaque image
+        setProgress(prev => ({
+          ...prev,
+          current: prev.current + 1,
+          results: [...localResults]
+        }));
       }
+
+      // Compter les succès depuis le tableau local
+      const successCount = localResults.filter(r => r.success).length;
 
       toast({
         title: 'Génération terminée !',
-        description: `${progress.results.filter(r => r.success).length} images générées avec succès.`,
+        description: `${successCount} images générées avec succès sur ${properties.length}.`,
       });
 
     } catch (error: any) {
