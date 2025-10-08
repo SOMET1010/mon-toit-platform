@@ -609,7 +609,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
                   Capturé
                 </div>
               </div>
-            ) : isCapturing ? (
+            ) : (isCapturing || isVideoLoading) ? (
               <div className="space-y-2">
                 <div className="relative">
                   <video
@@ -620,10 +620,11 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
                     className="w-full h-48 object-cover rounded-lg border-2 border-primary"
                   />
                   {isVideoLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-lg">
                       <div className="text-center text-white">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-2" />
-                        <p className="text-sm">Chargement de la caméra...</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mx-auto mb-3" />
+                        <p className="text-sm font-medium">Chargement de la caméra...</p>
+                        <p className="text-xs text-white/70 mt-1">Patientez quelques secondes</p>
                       </div>
                     </div>
                   )}
