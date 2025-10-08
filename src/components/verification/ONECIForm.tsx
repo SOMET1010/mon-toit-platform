@@ -164,59 +164,81 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       
       console.log('📹 Stream vidéo obtenu:', stream.getVideoTracks()[0].getSettings());
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        
-        // Attendre que la vidéo soit prête
-        await new Promise<void>((resolve, reject) => {
-          if (!videoRef.current) {
-            reject(new Error('Référence vidéo perdue'));
-            return;
-          }
+      if (!videoRef.current) {
+        throw new Error('Référence vidéo non disponible');
+      }
 
-          const video = videoRef.current;
+      const video = videoRef.current;
+      streamRef.current = stream;
+      
+      // IMPORTANT: Définir srcObject APRÈS avoir configuré les événements
+      const playPromise = new Promise<void>((resolve, reject) => {
+        const onCanPlay = () => {
+          console.log('✅ Vidéo prête (canplay):', {
+            width: video.videoWidth,
+            height: video.videoHeight,
+            readyState: video.readyState
+          });
           
-          const onLoadedMetadata = () => {
-            console.log('✅ Métadonnées vidéo chargées:', {
+          if (video.videoWidth > 0 && video.videoHeight > 0) {
+            setIsCapturing(true);
+            setIsVideoLoading(false);
+            console.log('🎬 Caméra prête à capturer');
+            toast.success('Caméra activée !', { 
+              description: 'Positionnez votre visage au centre' 
+            });
+            resolve();
+          }
+        };
+
+        const onError = (e: Event) => {
+          console.error('❌ Erreur vidéo:', e);
+          reject(new Error('Erreur de chargement de la vidéo'));
+        };
+
+        // Utiliser 'canplay' au lieu de 'loadedmetadata' (plus fiable)
+        video.addEventListener('canplay', onCanPlay, { once: true });
+        video.addEventListener('error', onError, { once: true });
+        
+        // Timeout de sécurité
+        setTimeout(() => {
+          video.removeEventListener('canplay', onCanPlay);
+          video.removeEventListener('error', onError);
+          
+          // Vérifier manuellement si la vidéo est prête
+          if (video.readyState >= 2 && video.videoWidth > 0) {
+            console.log('⏰ Timeout mais vidéo prête:', {
+              readyState: video.readyState,
               width: video.videoWidth,
               height: video.videoHeight
             });
-            
-            if (video.videoWidth > 0 && video.videoHeight > 0) {
-              setIsCapturing(true);
-              setIsVideoLoading(false);
-              resolve();
-            } else {
-              reject(new Error('Dimensions vidéo invalides'));
-            }
-          };
+            setIsCapturing(true);
+            setIsVideoLoading(false);
+            toast.success('Caméra activée !');
+            resolve();
+          } else {
+            console.error('⏰ Timeout: vidéo non prête:', {
+              readyState: video.readyState,
+              width: video.videoWidth,
+              height: video.videoHeight
+            });
+            reject(new Error('La vidéo n\'a pas pu se charger'));
+          }
+        }, 5000);
+      });
 
-          const onError = () => {
-            reject(new Error('Erreur de chargement de la vidéo'));
-          };
-
-          video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
-          video.addEventListener('error', onError, { once: true });
-          
-          // Timeout de sécurité
-          setTimeout(() => {
-            video.removeEventListener('loadedmetadata', onLoadedMetadata);
-            video.removeEventListener('error', onError);
-            
-            if (video.videoWidth > 0 && video.videoHeight > 0) {
-              setIsCapturing(true);
-              setIsVideoLoading(false);
-              resolve();
-            } else {
-              reject(new Error('Timeout: la vidéo n\'a pas chargé'));
-            }
-          }, 5000);
-        });
-
-        console.log('🎬 Caméra prête à capturer');
-        toast.success('Caméra activée !');
+      // Assigner le stream à la vidéo
+      video.srcObject = stream;
+      
+      // Forcer le play (nécessaire sur certains navigateurs)
+      try {
+        await video.play();
+        console.log('▶️ video.play() appelé avec succès');
+      } catch (playError) {
+        console.warn('⚠️ video.play() a échoué (peut-être déjà en lecture):', playError);
       }
+
+      await playPromise;
     } catch (error) {
       logger.error('Error accessing camera', { error });
       console.error('❌ Erreur caméra:', error);
@@ -236,7 +258,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         } else if (error.name === 'NotReadableError') {
           errorMessage = 'La caméra est déjà utilisée';
           errorDescription = 'Fermez les autres applications utilisant la caméra';
-        } else if (error.message.includes('Timeout')) {
+        } else if (error.message.includes('Timeout') || error.message.includes('charger')) {
           errorMessage = 'La caméra n\'a pas pu se charger';
           errorDescription = 'Réessayez ou rechargez la page';
         }
@@ -246,7 +268,10 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       
       // Nettoyer le stream en cas d'erreur
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+          console.log('⏹️ Track arrêté (erreur):', track.label);
+        });
         streamRef.current = null;
       }
     }
