@@ -61,6 +61,14 @@ const Messages = () => {
   const [profiles, setProfiles] = useState<Record<string, UserProfile>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Stop loading if user is not connected
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       fetchConversations();

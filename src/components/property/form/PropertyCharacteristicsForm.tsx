@@ -10,6 +10,9 @@ interface PropertyCharacteristicsFormProps {
 }
 
 export const PropertyCharacteristicsForm = ({ form }: PropertyCharacteristicsFormProps) => {
+  const propertyType = form.watch("property_type");
+  const isApartment = propertyType === "Appartement";
+
   return (
     <Card>
       <CardHeader>
@@ -111,21 +114,23 @@ export const PropertyCharacteristicsForm = ({ form }: PropertyCharacteristicsFor
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="has_garden"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="font-normal cursor-pointer">Jardin</FormLabel>
-                </FormItem>
-              )}
-            />
+            {!isApartment && (
+              <FormField
+                control={form.control}
+                name="has_garden"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal cursor-pointer">Jardin</FormLabel>
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
         </div>
       </CardContent>

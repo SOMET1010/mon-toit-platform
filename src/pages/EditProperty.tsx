@@ -21,6 +21,7 @@ import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo'
 import { PropertyLocation } from '@/components/property/form/PropertyLocation';
 import { PropertyCharacteristicsForm } from '@/components/property/form/PropertyCharacteristicsForm';
 import { PropertyPricing } from '@/components/property/form/PropertyPricing';
+import { LocationPicker } from '@/components/property/LocationPicker';
 
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +46,9 @@ const EditProperty = () => {
     floorPlans: [],
     virtualTourUrl: '',
   });
+
+  const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [initialLocation, setInitialLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Load property data and media
   useEffect(() => {
@@ -91,6 +95,11 @@ const EditProperty = () => {
         ...prev,
         virtualTourUrl: property.virtual_tour_url || '',
       }));
+
+      // Set initial location if available
+      if (property.latitude && property.longitude) {
+        setInitialLocation({ lat: property.latitude, lng: property.longitude });
+      }
     };
 
     loadPropertyMedia();
@@ -104,7 +113,7 @@ const EditProperty = () => {
       const mediaUrls = await uploadMedia(id, mediaFiles, existingMedia);
 
       // Update property with all data including media URLs
-      await submitProperty(data, mediaUrls);
+      await submitProperty(data, mediaUrls, id, selectedLocation);
 
       navigate('/mes-biens');
     } catch (error) {
@@ -177,9 +186,15 @@ const EditProperty = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <PropertyBasicInfo form={form} />
-
-
               <PropertyLocation form={form} />
+              
+              <LocationPicker 
+                city={form.watch("city")}
+                initialLat={initialLocation?.lat}
+                initialLng={initialLocation?.lng}
+                onLocationSelect={(lat, lng) => setSelectedLocation({ lat, lng })}
+              />
+
               <PropertyCharacteristicsForm form={form} />
               <PropertyPricing form={form} />
 

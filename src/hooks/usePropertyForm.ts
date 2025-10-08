@@ -118,7 +118,8 @@ export const usePropertyForm = (propertyId?: string) => {
   const submitProperty = async (
     data: PropertyFormData,
     mediaUrls: MediaUrls,
-    overridePropertyId?: string
+    overridePropertyId?: string,
+    manualCoords?: { lat: number; lng: number } | null
   ): Promise<string> => {
     if (!user || !profile) {
       throw new AppError('AUTH_REQUIRED');
@@ -127,8 +128,12 @@ export const usePropertyForm = (propertyId?: string) => {
     setSubmitting(true);
 
     try {
-      // Geocode the address
-      const coords = await geocodeAddress(data.address, data.city);
+      // Use manual coordinates if provided, otherwise geocode
+      let coords = manualCoords ? { latitude: manualCoords.lat, longitude: manualCoords.lng } : null;
+      
+      if (!coords) {
+        coords = await geocodeAddress(data.address, data.city);
+      }
 
       const propertyData: any = {
         title: data.title,

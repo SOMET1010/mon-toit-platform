@@ -16,6 +16,7 @@ import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo'
 import { PropertyLocation } from '@/components/property/form/PropertyLocation';
 import { PropertyCharacteristicsForm } from '@/components/property/form/PropertyCharacteristicsForm';
 import { PropertyPricing } from '@/components/property/form/PropertyPricing';
+import { LocationPicker } from '@/components/property/LocationPicker';
 
 const AddProperty = () => {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ const AddProperty = () => {
     floorPlans: [],
     virtualTourUrl: '',
   });
+
+  const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
 
   const onSubmit = async (data: PropertyFormData) => {
     // Validate media files
@@ -109,6 +112,12 @@ const AddProperty = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <PropertyBasicInfo form={form} />
               <PropertyLocation form={form} />
+              
+              <LocationPicker 
+                city={form.watch("city")}
+                onLocationSelect={(lat, lng) => setSelectedLocation({ lat, lng })}
+              />
+
               <PropertyCharacteristicsForm form={form} />
               <PropertyPricing form={form} />
 
