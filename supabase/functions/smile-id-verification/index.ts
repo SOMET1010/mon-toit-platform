@@ -339,13 +339,14 @@ serve(async (req) => {
     const signature = await generateSignature(timestamp, config.partnerId, config.apiKey);
 
     // Prepare Smile ID request payload
-    // IMPORTANT: For job_type 5 (Enhanced Document Verification),
-    // id_type and id_number are NOT required - Smile ID detects automatically
+    // IMPORTANT: For CI (Côte d'Ivoire), id_type is REQUIRED for job_type 5
+    // IDENTITY_CARD = CNI with photo (for visual verification)
     const smileIdPayload = {
       partner_id: config.partnerId,
       timestamp: timestamp,
       signature: signature,
       country: "CI", // Côte d'Ivoire
+      id_type: "IDENTITY_CARD", // Required for CI CNI with photo
       job_type: 5, // Enhanced Document Verification
       user_id: user.id,
       images: [
