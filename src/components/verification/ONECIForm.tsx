@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,17 +7,105 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, Upload, CheckCircle, XCircle, AlertCircle, Shield } from 'lucide-react';
+import { Camera, Upload, CheckCircle, XCircle, AlertCircle, Shield, RefreshCw } from 'lucide-react';
+
+// Configuration
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
+const IMAGE_QUALITY = 0.85;
+const MAX_IMAGE_DIMENSION = 1920;
 
 // Simple progress bar component
 const SimpleProgress = ({ value, className }: { value: number; className?: string }) => (
   <div className={`relative h-2 w-full overflow-hidden rounded-full bg-secondary ${className}`}>
     <div 
-      className="h-full bg-primary transition-all duration-300"
+      className="h-full bg-primary transition-all duration-300 ease-in-out"
       style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
     />
   </div>
 );
+
+// Fonction utilitaire pour compresser une image
+const compressImage = async (
+  base64: string,
+  maxWidth: number = MAX_IMAGE_DIMENSION,
+  quality: number = IMAGE_QUALITY
+): Promise<string> => {
+  console.log('🗜️ Compression d\'image démarrée...');
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+
+      console.log('📐 Dimensions originales:', { width, height });
+
+      // Calculer les nouvelles dimensions en gardant le ratio
+      if (width > maxWidth || height > maxWidth) {
+        if (width > height) {
+          height = (height / width) * maxWidth;
+          width = maxWidth;
+        } else {
+          width = (width / height) * maxWidth;
+          height = maxWidth;
+        }
+        console.log('📐 Nouvelles dimensions:', { width, height });
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Impossible de créer le contexte canvas'));
+        return;
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      const compressed = canvas.toDataURL('image/jpeg', quality);
+      const originalSize = (base64.length * 3) / 4 / 1024 / 1024;
+      const compressedSize = (compressed.length * 3) / 4 / 1024 / 1024;
+      const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+      
+      console.log('✅ Compression terminée:', {
+        original: `${originalSize.toFixed(2)}MB`,
+        compressed: `${compressedSize.toFixed(2)}MB`,
+        reduction: `${reduction}%`
+      });
+      
+      resolve(compressed);
+    };
+    img.onerror = () => {
+      console.error('❌ Erreur de chargement de l\'image pour compression');
+      reject(new Error('Erreur de chargement de l\'image'));
+    };
+    img.src = base64;
+  });
+};
+
+// Fonction de validation d'image
+const validateImage = (file: File): { valid: boolean; error?: string } => {
+  console.log('🔍 Validation du fichier:', {
+    name: file.name,
+    type: file.type,
+    size: `${(file.size / 1024 / 1024).toFixed(2)}MB`
+  });
+  
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    return { valid: false, error: 'Format non supporté. Utilisez JPG ou PNG.' };
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    return { valid: false, error: `Taille maximale: ${MAX_IMAGE_SIZE / 1024 / 1024}MB` };
+  }
+  return { valid: true };
+};
 
 interface ONECIFormProps {
   onSubmit?: () => void;
@@ -30,16 +118,32 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [verificationResult, setVerificationResult] = useState<{
     verified: boolean;
     similarityScore: string;
     message: string;
     canRetry: boolean;
+    resultText?: string;
   } | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // Nettoyage lors du démontage du composant
+  useEffect(() => {
+    return () => {
+      console.log('🧹 Nettoyage du composant ONECIForm');
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+          console.log('⏹️ Track arrêté:', track.label);
+        });
+        streamRef.current = null;
+      }
+    };
+  }, []);
 
   const startCamera = async () => {
     try {
@@ -212,17 +316,98 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
     }
   };
 
-  const handleCniUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCniUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCniImage(reader.result as string);
-        toast.success('Photo de CNI chargée !');
-      };
-      reader.readAsDataURL(file);
+    if (!file) {
+      console.log('⚠️ Aucun fichier sélectionné');
+      return;
     }
-  };
+
+    console.log('📁 Fichier sélectionné:', {
+      name: file.name,
+      type: file.type,
+      size: `${(file.size / 1024 / 1024).toFixed(2)}MB`
+    });
+
+    // Validation
+    const validation = validateImage(file);
+    if (!validation.valid) {
+      console.error('❌ Validation échouée:', validation.error);
+      toast.error('Fichier invalide', { description: validation.error });
+      event.target.value = ''; // Reset input
+      return;
+    }
+
+    console.log('✅ Validation réussie, début de la lecture...');
+    setUploadProgress(0);
+    
+    try {
+      const reader = new FileReader();
+      
+      reader.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const progress = (e.loaded / e.total) * 100;
+          setUploadProgress(progress);
+          console.log(`📊 Progression: ${progress.toFixed(1)}%`);
+        }
+      };
+
+      reader.onloadend = async () => {
+        try {
+          console.log('📥 Fichier chargé, début de la compression...');
+          let imageData = reader.result as string;
+          
+          const originalSize = (imageData.length * 3) / 4 / 1024 / 1024;
+          console.log(`📦 Taille originale: ${originalSize.toFixed(2)}MB`);
+          
+          // Compresser l'image
+          imageData = await compressImage(imageData);
+          
+          const compressedSize = (imageData.length * 3) / 4 / 1024 / 1024;
+          console.log(`📦 Taille compressée: ${compressedSize.toFixed(2)}MB`);
+          
+          console.log('✅ setCniImage appelé avec image compressée');
+          setCniImage(imageData);
+          setUploadProgress(100);
+          
+          toast.success('Photo de CNI chargée !', {
+            description: `Taille: ${compressedSize.toFixed(2)}MB`
+          });
+          
+          // Reset progress après 1 seconde
+          setTimeout(() => {
+            setUploadProgress(0);
+            console.log('🔄 Progress bar réinitialisée');
+          }, 1000);
+        } catch (error) {
+          console.error('❌ Erreur de compression:', error);
+          toast.error('Erreur de traitement', {
+            description: 'Impossible de traiter l\'image'
+          });
+          setUploadProgress(0);
+        }
+      };
+
+      reader.onerror = (error) => {
+        console.error('❌ Erreur de lecture du fichier:', error);
+        toast.error('Erreur de lecture', {
+          description: 'Impossible de lire le fichier'
+        });
+        setUploadProgress(0);
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement:', error);
+      toast.error('Erreur', {
+        description: 'Impossible de charger le fichier'
+      });
+      setUploadProgress(0);
+    }
+    
+    // Reset input pour permettre le re-upload du même fichier
+    event.target.value = '';
+  }, []);
 
   const handleVerify = async () => {
     if (!cniImage || !selfieImage) {
@@ -314,37 +499,53 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
               Téléchargez une photo claire du recto de votre CNI
             </p>
             {cniImage ? (
-              <div className="relative">
+              <div className="relative group">
                 <img 
                   src={cniImage} 
-                  alt="CNI" 
-                  className="w-full h-48 object-cover rounded-lg border-2 border-primary"
+                  alt="Carte Nationale d'Identité" 
+                  className="w-full h-48 object-cover rounded-lg border-2 border-primary shadow-sm"
                 />
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="absolute top-2 right-2"
-                  onClick={() => setCniImage(null)}
-                >
-                  Retirer
-                </Button>
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      console.log('🗑️ Suppression de la photo CNI');
+                      setCniImage(null);
+                      setVerificationResult(null);
+                    }}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Retirer
+                  </Button>
+                </div>
+                <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Chargée
+                </div>
               </div>
             ) : (
-              <label 
-                htmlFor="cni-upload"
-                className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors bg-muted/30"
-              >
-                <Upload className="h-10 w-10 mb-3 text-primary" />
-                <span className="text-sm font-medium">Cliquez pour télécharger</span>
-                <span className="text-xs text-muted-foreground mt-1">Format accepté : JPG, PNG</span>
-                <input
-                  id="cni-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleCniUpload}
-                />
-              </label>
+              <div className="space-y-2">
+                <label 
+                  htmlFor="cni-upload"
+                  className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all bg-muted/30"
+                >
+                  <Upload className="h-10 w-10 mb-3 text-primary" />
+                  <span className="text-sm font-medium">Cliquez pour télécharger</span>
+                  <span className="text-xs text-muted-foreground mt-1">JPG, PNG (max 5MB)</span>
+                  <input
+                    id="cni-upload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png"
+                    className="hidden"
+                    onChange={handleCniUpload}
+                    aria-label="Télécharger photo de CNI"
+                  />
+                </label>
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <SimpleProgress value={uploadProgress} />
+                )}
+              </div>
             )}
           </div>
 
@@ -357,20 +558,31 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
               Prenez une photo de votre visage pour vérification biométrique
             </p>
             {selfieImage ? (
-              <div className="relative">
+              <div className="relative group">
                 <img 
                   src={selfieImage} 
-                  alt="Selfie" 
-                  className="w-full h-48 object-cover rounded-lg border-2 border-primary"
+                  alt="Selfie de vérification" 
+                  className="w-full h-48 object-cover rounded-lg border-2 border-primary shadow-sm"
                 />
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="absolute top-2 right-2"
-                  onClick={() => setSelfieImage(null)}
-                >
-                  Retirer
-                </Button>
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      console.log('🗑️ Suppression du selfie');
+                      setSelfieImage(null);
+                      setVerificationResult(null);
+                      stopCamera();
+                    }}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Retirer
+                  </Button>
+                </div>
+                <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Capturé
+                </div>
               </div>
             ) : isCapturing ? (
               <div className="space-y-2">
@@ -397,7 +609,12 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
                     className="flex-1"
                     disabled={isVideoLoading}
                   >
-                    {isVideoLoading ? 'Chargement...' : 'Capturer'}
+                    {isVideoLoading ? 'Chargement...' : (
+                      <>
+                        <Camera className="mr-2 h-4 w-4" />
+                        Capturer
+                      </>
+                    )}
                   </Button>
                   <Button onClick={stopCamera} variant="outline">
                     Annuler
@@ -448,14 +665,14 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         <div className="flex flex-col gap-3">
           <Button
             onClick={handleVerify}
-            disabled={!cniImage || !selfieImage || isVerifying}
+            disabled={!cniImage || !selfieImage || isVerifying || uploadProgress > 0}
             size="lg"
             className="w-full"
           >
             {isVerifying ? (
               <>
-                <CheckCircle className="mr-2 h-5 w-5 animate-pulse" />
-                Vérification en cours via Smile ID...
+                <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                Vérification en cours...
               </>
             ) : (
               <>
@@ -466,7 +683,14 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
           </Button>
           
           {(cniImage || selfieImage || verificationResult) && (
-            <Button onClick={reset} variant="outline" size="lg" className="w-full">
+            <Button 
+              onClick={reset} 
+              variant="outline" 
+              size="lg" 
+              className="w-full"
+              disabled={isVerifying}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
               Recommencer la vérification
             </Button>
           )}
