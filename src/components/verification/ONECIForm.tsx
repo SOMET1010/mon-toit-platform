@@ -28,6 +28,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   const [cniImage, setCniImage] = useState<string | null>(null);
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<{
     verified: boolean;
@@ -42,6 +43,9 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
 
   const startCamera = async () => {
     try {
+      console.log('🎥 Démarrage de la caméra...');
+      setIsVideoLoading(true);
+      
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('L\'API MediaDevices n\'est pas supportée par ce navigateur');
       }
@@ -54,51 +58,157 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         } 
       });
       
+      console.log('📹 Stream vidéo obtenu:', stream.getVideoTracks()[0].getSettings());
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
-        setIsCapturing(true);
+        
+        // Attendre que la vidéo soit prête
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) {
+            reject(new Error('Référence vidéo perdue'));
+            return;
+          }
+
+          const video = videoRef.current;
+          
+          const onLoadedMetadata = () => {
+            console.log('✅ Métadonnées vidéo chargées:', {
+              width: video.videoWidth,
+              height: video.videoHeight
+            });
+            
+            if (video.videoWidth > 0 && video.videoHeight > 0) {
+              setIsCapturing(true);
+              setIsVideoLoading(false);
+              resolve();
+            } else {
+              reject(new Error('Dimensions vidéo invalides'));
+            }
+          };
+
+          const onError = () => {
+            reject(new Error('Erreur de chargement de la vidéo'));
+          };
+
+          video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+          video.addEventListener('error', onError, { once: true });
+          
+          // Timeout de sécurité
+          setTimeout(() => {
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            
+            if (video.videoWidth > 0 && video.videoHeight > 0) {
+              setIsCapturing(true);
+              setIsVideoLoading(false);
+              resolve();
+            } else {
+              reject(new Error('Timeout: la vidéo n\'a pas chargé'));
+            }
+          }, 5000);
+        });
+
+        console.log('🎬 Caméra prête à capturer');
+        toast.success('Caméra activée !');
       }
     } catch (error) {
       logger.error('Error accessing camera', { error });
+      console.error('❌ Erreur caméra:', error);
+      setIsVideoLoading(false);
+      setIsCapturing(false);
+      
       let errorMessage = 'Impossible d\'accéder à la caméra';
+      let errorDescription = 'Vérifiez vos permissions et réessayez';
+      
       if (error instanceof Error) {
         if (error.name === 'NotAllowedError') {
-          errorMessage = 'Autorisation caméra refusée.';
+          errorMessage = 'Autorisation caméra refusée';
+          errorDescription = 'Autorisez l\'accès à la caméra dans les paramètres de votre navigateur';
         } else if (error.name === 'NotFoundError') {
           errorMessage = 'Aucune caméra trouvée';
+          errorDescription = 'Vérifiez qu\'une caméra est connectée à votre appareil';
         } else if (error.name === 'NotReadableError') {
           errorMessage = 'La caméra est déjà utilisée';
+          errorDescription = 'Fermez les autres applications utilisant la caméra';
+        } else if (error.message.includes('Timeout')) {
+          errorMessage = 'La caméra n\'a pas pu se charger';
+          errorDescription = 'Réessayez ou rechargez la page';
         }
       }
-      toast.error(errorMessage);
+      
+      toast.error(errorMessage, { description: errorDescription });
+      
+      // Nettoyer le stream en cas d'erreur
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
     }
   };
 
   const stopCamera = useCallback(() => {
+    console.log('⏹️ Arrêt de la caméra');
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
     setIsCapturing(false);
+    setIsVideoLoading(false);
   }, []);
 
   const captureSelfie = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        setSelfieImage(imageData);
-        stopCamera();
-        toast.success('Selfie capturé !');
-      }
+    console.log('📸 Tentative de capture du selfie...');
+    
+    if (!videoRef.current || !canvasRef.current) {
+      toast.error('Erreur de capture', { description: 'Références vidéo manquantes' });
+      return;
+    }
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    // Vérifier que la vidéo a des dimensions valides
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.error('❌ Dimensions vidéo invalides:', {
+        width: video.videoWidth,
+        height: video.videoHeight
+      });
+      toast.error('Vidéo non prête', { 
+        description: 'Attendez que la caméra charge complètement' 
+      });
+      return;
+    }
+
+    // Vérifier que le stream est actif
+    if (!streamRef.current || streamRef.current.getTracks().length === 0) {
+      console.error('❌ Aucun stream actif');
+      toast.error('Caméra inactive', { 
+        description: 'Relancez la caméra et réessayez' 
+      });
+      return;
+    }
+
+    console.log('✅ Capture du selfie:', {
+      width: video.videoWidth,
+      height: video.videoHeight
+    });
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0);
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      setSelfieImage(imageData);
+      stopCamera();
+      console.log('🎉 Selfie capturé avec succès');
+      toast.success('Selfie capturé !');
+    } else {
+      console.error('❌ Impossible d\'obtenir le contexte canvas');
+      toast.error('Erreur de capture', { description: 'Impossible de traiter l\'image' });
     }
   };
 
@@ -264,15 +374,30 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
               </div>
             ) : isCapturing ? (
               <div className="space-y-2">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-48 object-cover rounded-lg border-2 border-primary"
-                />
+                <div className="relative">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-48 object-cover rounded-lg border-2 border-primary"
+                  />
+                  {isVideoLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                      <div className="text-center text-white">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-2" />
+                        <p className="text-sm">Chargement de la caméra...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2">
-                  <Button onClick={captureSelfie} className="flex-1">
-                    Capturer
+                  <Button 
+                    onClick={captureSelfie} 
+                    className="flex-1"
+                    disabled={isVideoLoading}
+                  >
+                    {isVideoLoading ? 'Chargement...' : 'Capturer'}
                   </Button>
                   <Button onClick={stopCamera} variant="outline">
                     Annuler
