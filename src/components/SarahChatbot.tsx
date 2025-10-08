@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,7 +24,7 @@ export const SarahChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "👋 Bonjour ! Je suis Sarah, votre assistante Mon Toit. Comment puis-je vous aider aujourd'hui ?"
+      content: "👋 Bonjour ! Je suis Sarrah, votre assistante Mon Toit. Comment puis-je vous aider aujourd'hui ?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -141,10 +141,10 @@ export const SarahChatbot = () => {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50 bg-gradient-to-br from-primary to-purple-600"
         size="icon"
       >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {isOpen ? <X className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
       </Button>
 
       {/* Chat Window */}
@@ -152,11 +152,13 @@ export const SarahChatbot = () => {
         <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-background border rounded-lg shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-5">
           {/* Header */}
           <div className="flex items-center gap-3 p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback className="bg-primary-foreground text-primary">S</AvatarFallback>
+            <Avatar className="h-10 w-10 bg-gradient-to-br from-primary to-purple-600">
+              <AvatarFallback className="bg-transparent text-primary-foreground">
+                <Bot className="h-6 w-6" />
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="font-semibold">Sarah</h3>
+              <h3 className="font-semibold">Sarrah</h3>
               <p className="text-xs opacity-90">Assistante Mon Toit</p>
             </div>
           </div>
@@ -172,9 +174,9 @@ export const SarahChatbot = () => {
                   }`}
                 >
                   {message.role === 'assistant' && (
-                    <Avatar className="h-8 w-8 mt-1">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        S
+                    <Avatar className="h-8 w-8 mt-1 bg-gradient-to-br from-primary to-purple-600">
+                      <AvatarFallback className="bg-transparent text-primary-foreground">
+                        <Bot className="h-5 w-5" />
                       </AvatarFallback>
                     </Avatar>
                   )}
@@ -191,9 +193,9 @@ export const SarahChatbot = () => {
               ))}
               {isLoading && (
                 <div className="flex gap-2 justify-start">
-                  <Avatar className="h-8 w-8 mt-1">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                      S
+                  <Avatar className="h-8 w-8 mt-1 bg-gradient-to-br from-primary to-purple-600">
+                    <AvatarFallback className="bg-transparent text-primary-foreground">
+                      <Bot className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-muted rounded-lg p-3">
