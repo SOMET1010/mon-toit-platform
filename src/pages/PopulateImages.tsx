@@ -54,75 +54,19 @@ export default function PopulateImages() {
 
       setProgress(prev => ({ ...prev, total: properties.length }));
 
-      const LOVABLE_API_KEY = import.meta.env.VITE_LOVABLE_API_KEY || 'lva_...';
-
+      // Générer les images via l'edge function
       for (const property of properties) {
         try {
-          const imagePrompt = getImagePrompt(property);
-
-          // Générer l'image avec Lovable AI
-          const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              model: "google/gemini-2.5-flash-image-preview",
-              messages: [
-                {
-                  role: "user",
-                  content: imagePrompt
-                }
-              ],
-              modalities: ["image", "text"]
-            })
+          const { data, error } = await supabase.functions.invoke('generate-property-images', {
+            body: {
+              propertyId: property.id,
+              propertyType: property.property_type,
+              city: property.city
+            }
           });
 
-          if (!imageResponse.ok) {
-            throw new Error(`Image generation failed: ${await imageResponse.text()}`);
-          }
-
-          const imageData = await imageResponse.json();
-          const base64Image = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-          if (!base64Image) {
-            throw new Error('No image generated');
-          }
-
-          // Convertir base64 en blob
-          const base64Data = base64Image.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'image/png' });
-
-          // Upload vers Supabase Storage
-          const fileName = `property-${property.id}-${Date.now()}.png`;
-          const { error: uploadError } = await supabase.storage
-            .from('property-images')
-            .upload(fileName, blob, {
-              contentType: 'image/png',
-              upsert: false
-            });
-
-          if (uploadError) throw uploadError;
-
-          // Obtenir l'URL publique
-          const { data: urlData } = supabase.storage
-            .from('property-images')
-            .getPublicUrl(fileName);
-
-          // Mettre à jour la propriété
-          const { error: updateError } = await supabase
-            .from('properties')
-            .update({ main_image: urlData.publicUrl })
-            .eq('id', property.id);
-
-          if (updateError) throw updateError;
+          if (error) throw error;
+          if (!data.success) throw new Error(data.error || 'Failed to generate image');
 
           setProgress(prev => ({
             ...prev,

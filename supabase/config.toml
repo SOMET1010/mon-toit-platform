@@ -56,3 +56,6 @@ verify_jwt = true
 
 [functions.cryptoneo-verify-signature]
 verify_jwt = false
+
+[functions.generate-property-images]
+verify_jwt = true
