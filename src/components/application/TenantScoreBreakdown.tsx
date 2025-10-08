@@ -5,9 +5,8 @@ import { Shield, Briefcase, CreditCard, TrendingUp, FileText, User } from 'lucid
 
 interface ScoreBreakdown {
   identity_verification: number;
-  employment_verification: number;
+  face_verification: number;
   payment_history: number;
-  income_ratio: number;
   documents: number;
   profile_completeness: number;
 }
@@ -34,43 +33,29 @@ export const TenantScoreBreakdown = ({ score, breakdown, recommendation }: Tenan
       icon: Shield, 
       label: 'Vérification identité ONECI', 
       score: breakdown.identity_verification, 
-      max: 25,
+      max: 40,
       color: 'text-blue-600'
     },
     { 
-      icon: Briefcase, 
-      label: 'Vérification emploi CNAM', 
-      score: breakdown.employment_verification, 
-      max: 20,
+      icon: User, 
+      label: 'Vérification faciale', 
+      score: breakdown.face_verification, 
+      max: 30,
       color: 'text-green-600'
-    },
-    { 
-      icon: CreditCard, 
-      label: 'Historique de paiements', 
-      score: breakdown.payment_history, 
-      max: 20,
-      color: 'text-purple-600'
-    },
-    { 
-      icon: TrendingUp, 
-      label: 'Ratio revenus/loyer', 
-      score: breakdown.income_ratio, 
-      max: 15,
-      color: 'text-orange-600'
     },
     { 
       icon: FileText, 
       label: 'Documents fournis', 
       score: breakdown.documents, 
-      max: 10,
-      color: 'text-pink-600'
+      max: 20,
+      color: 'text-purple-600'
     },
     { 
-      icon: User, 
-      label: 'Profil complet', 
-      score: breakdown.profile_completeness, 
+      icon: CreditCard, 
+      label: 'Historique de paiements', 
+      score: breakdown.payment_history, 
       max: 10,
-      color: 'text-cyan-600'
+      color: 'text-orange-600'
     },
   ] : [];
 

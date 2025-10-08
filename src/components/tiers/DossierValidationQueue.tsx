@@ -281,12 +281,11 @@ const DossierValidationQueue = ({ onUpdate }: DossierValidationQueueProps) => {
                     <TenantScoreBreakdown 
                       score={app.application_score}
                       breakdown={{
-                        identity_verification: 15,
-                        employment_verification: 15,
-                        payment_history: 15,
-                        income_ratio: 20,
-                        documents: 15,
-                        profile_completeness: 10
+                        identity_verification: 20,
+                        face_verification: 15,
+                        payment_history: 20,
+                        documents: 25,
+                        profile_completeness: 20
                       }}
                       recommendation={
                         app.application_score >= 70 ? 'approved' :

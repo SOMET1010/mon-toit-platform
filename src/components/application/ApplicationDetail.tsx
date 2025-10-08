@@ -20,9 +20,8 @@ interface ScoringData {
   factors: Record<string, unknown>;
   breakdown?: {
     identity_verification: number;
-    employment_verification: number;
+    face_verification: number;
     payment_history: number;
-    income_ratio: number;
     documents: number;
     profile_completeness: number;
   };
