@@ -1882,8 +1882,6 @@ export type Database = {
           face_verified: boolean
           oneci_status: string
           oneci_verified: boolean
-          passport_status: string
-          passport_verified: boolean
           tenant_score: number
         }[]
       }

@@ -11,11 +11,9 @@ import { TenantScoreExplanation } from './TenantScoreExplanation';
 interface VerificationData {
   oneci_status: string;
   cnam_status: string;
-  passport_status: string;
   oneci_verified: boolean;
   cnam_verified: boolean;
   face_verified: boolean;
-  passport_verified: boolean;
   face_verification_status: string;
   tenant_score: number;
   admin_review_notes: string;
@@ -100,17 +98,6 @@ const VerificationStatus = () => {
               </div>
             </div>
             {getStatusBadge(verification?.oneci_status || 'pending')}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {getStatusIcon(verification?.passport_status || 'pending')}
-              <div>
-                <h3 className="font-semibold">Vérification Passeport</h3>
-                <p className="text-sm text-muted-foreground">Pour ressortissants étrangers</p>
-              </div>
-            </div>
-            {getStatusBadge(verification?.passport_status || 'pending')}
           </div>
 
           <div className="flex items-center justify-between">

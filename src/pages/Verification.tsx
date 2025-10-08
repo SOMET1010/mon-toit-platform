@@ -46,12 +46,9 @@ const Verification = () => {
             <VerificationStatus />
 
             <Tabs defaultValue="oneci" className="mt-8">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="oneci">
                   ONECI (Ivoiriens)
-                </TabsTrigger>
-                <TabsTrigger value="passport">
-                  Passeport (Étrangers)
                 </TabsTrigger>
                 <TabsTrigger value="face">
                   Vérification Faciale
@@ -60,20 +57,6 @@ const Verification = () => {
 
               <TabsContent value="oneci">
                 <ONECIForm />
-              </TabsContent>
-
-              <TabsContent value="passport">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Vérification Passeport</CardTitle>
-                    <CardDescription>
-                      Pour les ressortissants étrangers non-ivoiriens
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <PassportVerificationForm />
-                  </CardContent>
-                </Card>
               </TabsContent>
 
               <TabsContent value="face">
