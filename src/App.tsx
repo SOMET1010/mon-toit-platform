@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { SarahChatbot } from "@/components/SarahChatbot";
 import Index from "./pages/Index";
 import Certification from "./pages/Certification";
 import Auth from "./pages/Auth";
@@ -48,6 +49,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <SarahChatbot />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recherche" element={<Search />} />
