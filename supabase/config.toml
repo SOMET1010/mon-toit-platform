@@ -41,3 +41,18 @@ verify_jwt = true
 
 [functions.seed-demo-data]
 verify_jwt = true
+
+[functions.smile-id-verification]
+verify_jwt = true
+
+[functions.cryptoneo-auth]
+verify_jwt = false
+
+[functions.cryptoneo-generate-certificate]
+verify_jwt = true
+
+[functions.cryptoneo-sign-document]
+verify_jwt = true
+
+[functions.cryptoneo-verify-signature]
+verify_jwt = false
