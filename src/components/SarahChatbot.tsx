@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Loader2, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -144,7 +144,7 @@ export const SarahChatbot = () => {
         className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50 bg-gradient-to-br from-primary to-purple-600"
         size="icon"
       >
-        {isOpen ? <X className="h-6 w-6" /> : <Sparkles className="h-6 w-6" />}
+        {isOpen ? <X className="h-6 w-6" /> : <span className="text-2xl">✨</span>}
       </Button>
 
       {/* Chat Window */}
@@ -154,7 +154,7 @@ export const SarahChatbot = () => {
           <div className="flex items-center gap-3 p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
             <Avatar className="h-10 w-10 bg-gradient-to-br from-primary to-purple-600">
               <AvatarFallback className="bg-transparent text-primary-foreground">
-                <Sparkles className="h-6 w-6" />
+                <span className="text-2xl">✨</span>
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -176,7 +176,7 @@ export const SarahChatbot = () => {
                   {message.role === 'assistant' && (
                     <Avatar className="h-8 w-8 mt-1 bg-gradient-to-br from-primary to-purple-600">
                       <AvatarFallback className="bg-transparent text-primary-foreground">
-                        <Sparkles className="h-5 w-5" />
+                        <span className="text-xl">✨</span>
                       </AvatarFallback>
                     </Avatar>
                   )}
@@ -195,7 +195,7 @@ export const SarahChatbot = () => {
                 <div className="flex gap-2 justify-start">
                   <Avatar className="h-8 w-8 mt-1 bg-gradient-to-br from-primary to-purple-600">
                     <AvatarFallback className="bg-transparent text-primary-foreground">
-                      <Sparkles className="h-5 w-5" />
+                      <span className="text-xl">✨</span>
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-muted rounded-lg p-3">
