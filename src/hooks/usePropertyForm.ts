@@ -179,16 +179,40 @@ export const usePropertyForm = (propertyId?: string) => {
           .select('id')
           .single();
 
-        if (error || !newProperty) {
-          logger.error('Failed to create property', { error });
-          throw new AppError('PROPERTY_CREATE_FAILED');
+        if (error) {
+          logger.error('Failed to create property', { error, propertyData });
+          
+          // Identifier le champ manquant ou problématique
+          let specificError = 'Échec de la création de la propriété';
+          
+          if (error.message?.includes('null value')) {
+            const field = error.message.match(/column "(\w+)"/)?.[1];
+            specificError = field 
+              ? `Le champ "${field}" est requis mais n'a pas été fourni.`
+              : 'Un champ requis n\'a pas été fourni.';
+          } else if (error.message?.includes('violates')) {
+            specificError = 'Les données fournies ne respectent pas les contraintes de validation.';
+          } else if (error.message) {
+            specificError = error.message;
+          }
+          
+          throw new Error(specificError);
+        }
+
+        if (!newProperty) {
+          throw new Error('La propriété a été créée mais aucune donnée n\'a été retournée.');
         }
 
         handleSuccess('PROPERTY_CREATED');
         return newProperty.id;
       }
     } catch (error) {
-      handleError(error, propertyId ? ERROR_MESSAGES.PROPERTY_UPDATE_FAILED : ERROR_MESSAGES.PROPERTY_CREATE_FAILED);
+      // Améliorer les messages d'erreur selon le type d'erreur
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (propertyId ? ERROR_MESSAGES.PROPERTY_UPDATE_FAILED : ERROR_MESSAGES.PROPERTY_CREATE_FAILED);
+      
+      handleError(error, errorMessage);
       throw error;
     } finally {
       setSubmitting(false);

@@ -22,23 +22,55 @@ serve(async (req) => {
       timestamp: new Date().toISOString() 
     });
 
-    // Validation
+    // Validation des champs requis
     if (!cniNumber || !lastName || !firstName || !birthDate) {
       return new Response(
-        JSON.stringify({ error: 'Tous les champs sont requis' }),
+        JSON.stringify({ 
+          valid: false,
+          error: 'Tous les champs sont requis pour effectuer la vérification.',
+          status: 'VALIDATION_ERROR'
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Format CNI validation (CI + 9 or 10 digits)
+    // Validation du format CNI (CI + 9 ou 10 chiffres)
     const cniRegex = /^CI\d{9,10}$/;
     if (!cniRegex.test(cniNumber)) {
       return new Response(
         JSON.stringify({ 
           valid: false,
-          error: 'Format CNI invalide. Attendu: CI + 9 ou 10 chiffres'
+          error: 'Le format du numéro CNI est invalide. Format attendu : CI suivi de 9 ou 10 chiffres (ex: CI1234567890).',
+          status: 'VALIDATION_ERROR'
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validation de la date de naissance
+    const birthDateObj = new Date(birthDate);
+    const today = new Date();
+    const age = today.getFullYear() - birthDateObj.getFullYear();
+    
+    if (isNaN(birthDateObj.getTime())) {
+      return new Response(
+        JSON.stringify({ 
+          valid: false,
+          error: 'La date de naissance fournie est invalide.',
+          status: 'VALIDATION_ERROR'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (age < 18 || age > 120) {
+      return new Response(
+        JSON.stringify({ 
+          valid: false,
+          error: 'La date de naissance indique un âge invalide.',
+          status: 'VALIDATION_ERROR'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -69,9 +101,11 @@ serve(async (req) => {
       isValid = true; // Temporary
     } else {
       // Neither DEMO nor API configured → error 503
+      console.error('[ERROR] ONECI service not configured - DEMO_MODE and API_KEY both missing');
       return new Response(
         JSON.stringify({
-          error: 'Service de vérification ONECI temporairement indisponible',
+          valid: false,
+          error: 'Le service de vérification d\'identité ONECI est temporairement indisponible. Veuillez réessayer dans quelques instants.',
           status: 'SERVICE_UNAVAILABLE'
         }),
         { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -136,26 +170,40 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in oneci-verification:', error);
     
-    // Determine HTTP status code based on error type
+    // Determine HTTP status code and user-friendly message based on error type
     let statusCode = 500;
-    let errorMessage = 'Une erreur est survenue lors de la vérification';
+    let errorMessage = 'Une erreur inattendue s\'est produite lors de la vérification. Veuillez réessayer.';
+    let errorStatus = 'ERROR';
     
     if (error instanceof Error) {
-      if (error.message.includes('non authentifié')) {
+      if (error.message.includes('non authentifié') || error.message.includes('not authenticated')) {
         statusCode = 401;
-        errorMessage = 'Session expirée. Veuillez vous reconnecter.';
-      } else if (error.message.includes('Format CNI')) {
+        errorMessage = 'Votre session a expiré. Veuillez vous reconnecter et réessayer.';
+        errorStatus = 'AUTH_ERROR';
+      } else if (error.message.includes('Format CNI') || error.message.includes('invalid')) {
         statusCode = 400;
-        errorMessage = error.message;
-      } else {
-        errorMessage = error.message;
+        errorMessage = 'Les informations fournies sont incorrectes. Vérifiez le format de votre numéro CNI.';
+        errorStatus = 'VALIDATION_ERROR';
+      } else if (error.message.includes('network') || error.message.includes('timeout')) {
+        statusCode = 503;
+        errorMessage = 'Impossible de joindre le service de vérification. Vérifiez votre connexion internet et réessayez.';
+        errorStatus = 'NETWORK_ERROR';
       }
+      
+      // Log detailed error for debugging (server-side only)
+      console.error('[ONECI Verification Error Details]', {
+        message: error.message,
+        stack: error.stack,
+        statusCode,
+        timestamp: new Date().toISOString()
+      });
     }
     
     return new Response(
       JSON.stringify({ 
+        valid: false,
         error: errorMessage,
-        status: statusCode === 503 ? 'SERVICE_UNAVAILABLE' : 'ERROR'
+        status: errorStatus
       }),
       { status: statusCode, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -87,20 +87,36 @@ const Application = () => {
 
     setSubmitting(true);
 
-      try {
-        const { data, error } = await supabase
-          .from('rental_applications')
-          .upsert({
-            property_id: propertyId,
-            applicant_id: user.id,
-            documents: documents,
-            status: 'pending',
-          }, {
-            onConflict: 'property_id,applicant_id',
-            ignoreDuplicates: false
-          })
-          .select()
-          .single();
+    try {
+      // Vérifier si une candidature existe déjà
+      const { data: existingApplication } = await supabase
+        .from('rental_applications')
+        .select('id, status')
+        .eq('property_id', propertyId)
+        .eq('applicant_id', user.id)
+        .maybeSingle();
+
+      if (existingApplication) {
+        toast({
+          title: 'Candidature déjà soumise',
+          description: `Vous avez déjà soumis une candidature pour ce logement (statut: ${existingApplication.status}). Vous ne pouvez pas soumettre une nouvelle candidature.`,
+          variant: 'destructive',
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      // Créer une nouvelle candidature
+      const { data, error } = await supabase
+        .from('rental_applications')
+        .insert({
+          property_id: propertyId,
+          applicant_id: user.id,
+          documents: documents,
+          status: 'pending',
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -133,9 +149,21 @@ const Application = () => {
       navigate(`/property/${propertyId}`);
     } catch (error: any) {
       console.error('Error submitting application:', error);
+      
+      let errorMessage = 'Impossible de soumettre la candidature';
+      
+      // Gérer les différents types d'erreurs
+      if (error.message?.includes('duplicate key')) {
+        errorMessage = 'Vous avez déjà soumis une candidature pour ce logement.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Erreur de connexion. Vérifiez votre connexion internet et réessayez.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: 'Erreur',
-        description: error.message || 'Impossible de soumettre la candidature',
+        title: 'Erreur de soumission',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

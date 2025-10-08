@@ -231,19 +231,52 @@ const Auth = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
+      
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw error;
       }
-    });
 
-    if (error) {
+      if (!data.url) {
+        throw new Error('Aucune URL de redirection OAuth reçue');
+      }
+
+      // La redirection vers Google se fera automatiquement
+      console.log('Redirection vers Google OAuth...');
+      
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      
+      let errorMessage = 'Impossible de se connecter avec Google';
+      
+      if (error.message?.includes('OAuth')) {
+        errorMessage = 'Le service Google OAuth n\'est pas configuré ou temporairement indisponible. Veuillez utiliser l\'email et le mot de passe pour vous connecter.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Erreur de connexion. Vérifiez votre connexion internet et réessayez.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Erreur",
-        description: error.message,
+        title: "Erreur de connexion Google",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
