@@ -40,15 +40,16 @@ export default function TestCryptoNeo() {
 
     setLoading(true);
 
-    // Charger le bail test
-    const { data: lease } = await supabase
+    // Chercher un bail où l'utilisateur est impliqué
+    const { data: leases } = await supabase
       .from('leases')
       .select('*')
-      .eq('id', '6ee90a17-9a28-4565-bb3d-3c53f6009dd7')
-      .single();
+      .or(`landlord_id.eq.${user.id},tenant_id.eq.${user.id}`)
+      .order('created_at', { ascending: false })
+      .limit(1);
 
-    if (lease) {
-      setTestLease(lease as TestLease);
+    if (leases && leases.length > 0) {
+      setTestLease(leases[0] as TestLease);
     }
 
     // Charger le certificat de l'utilisateur
@@ -105,10 +106,10 @@ export default function TestCryptoNeo() {
   if (!testLease) {
     return (
       <div className="container mx-auto py-8">
-        <Alert variant="destructive">
+        <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Bail de test introuvable. Veuillez en créer un.
+            Aucun bail trouvé pour votre compte. Créez d'abord un bail via la page "Baux" ou assurez-vous d'être propriétaire ou locataire d'un bail existant.
           </AlertDescription>
         </Alert>
       </div>
