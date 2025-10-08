@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,12 +39,16 @@ type ValidationErrors = Partial<Record<'email' | 'password' | 'fullName' | 'user
 const Auth = () => {
   const { signUp, signIn, user, hasRole } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Lire le type depuis l'URL
+  const userTypeFromUrl = searchParams.get('type') as 'locataire' | 'proprietaire' | 'agence' | null;
 
   // Sign Up form
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [userType, setUserType] = useState<'locataire' | 'proprietaire' | 'agence'>('locataire');
+  const [userType, setUserType] = useState<'locataire' | 'proprietaire' | 'agence'>(userTypeFromUrl || 'locataire');
   const [signUpErrors, setSignUpErrors] = useState<ValidationErrors>({});
 
   // Sign In form

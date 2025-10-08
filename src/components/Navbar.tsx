@@ -87,7 +87,9 @@ const Navbar = () => {
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <VerificationProgress />
+                <div className="hidden md:block">
+                  <VerificationProgress />
+                </div>
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -164,23 +166,13 @@ const Navbar = () => {
                 </DropdownMenu>
               </>
             ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="hidden md:flex border-primary text-primary hover:bg-primary/5" 
-                  asChild
-                >
-                  <Link to="/auth?type=locataire">Je suis locataire</Link>
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="hidden md:flex" 
-                  asChild
-                >
-                  <Link to="/auth?type=proprietaire">Je suis propriétaire</Link>
-                </Button>
-              </>
+              <Button 
+                size="sm" 
+                className="hidden md:flex" 
+                asChild
+              >
+                <Link to="/auth">Créer un compte / Se connecter</Link>
+              </Button>
             )}
             
             {/* Mobile Menu */}

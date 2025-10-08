@@ -10,8 +10,8 @@ const Publier = () => {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        // Non connecté → redirection vers auth avec returnUrl
-        navigate("/auth?returnUrl=/ajouter-bien");
+        // Non connecté → redirection vers auth avec returnUrl et type propriétaire
+        navigate("/auth?type=proprietaire&returnUrl=/ajouter-bien");
       } else if (profile?.user_type === 'locataire') {
         // Locataire → pas autorisé
         navigate("/dashboard");

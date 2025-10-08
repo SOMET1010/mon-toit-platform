@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import ContextBar from "@/components/ContextBar";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
+import RoleSelector from "@/components/RoleSelector";
 import KeyStats from "@/components/KeyStats";
 import Features from "@/components/Features";
 import Testimonials from "@/components/Testimonials";
@@ -21,6 +22,7 @@ const Index = () => {
         <Hero />
         <ExploreMap />
         <HowItWorks />
+        <RoleSelector />
         <KeyStats />
         <Features />
         <Testimonials />

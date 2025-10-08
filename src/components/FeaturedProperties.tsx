@@ -6,9 +6,11 @@ import { PropertyCard } from '@/components/properties/PropertyCard';
 import { propertyService } from '@/services/propertyService';
 import { Property } from '@/types';
 import { useFavorites } from '@/hooks/useFavorites';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { AlertCircle, RefreshCw, ArrowRight } from 'lucide-react';
 import { handleError } from '@/lib/errorHandler';
 import { logger } from '@/services/logger';
+import { toast } from 'sonner';
 
 const FeaturedProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -16,6 +18,7 @@ const FeaturedProperties = () => {
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { user } = useAuth();
 
   const fetchFeaturedProperties = useCallback(async () => {
     try {
@@ -26,7 +29,7 @@ const FeaturedProperties = () => {
       const featured = data
         .filter(p => p.status === 'disponible')
         .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-        .slice(0, 4);
+        .slice(0, 6);
       
       setProperties(featured);
     } catch (err) {
@@ -80,8 +83,8 @@ const FeaturedProperties = () => {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i}>{SkeletonCard}</div>
             ))}
           </div>
@@ -131,13 +134,17 @@ const FeaturedProperties = () => {
               Découvrez notre sélection de biens les plus consultés
             </p>
           </div>
-          <Button asChild variant="outline" className="mt-6 md:mt-0">
-            <Link to="/recherche">Voir tous les biens</Link>
-          </Button>
+          <Link 
+            to="/recherche" 
+            className="hidden md:flex items-center gap-2 text-primary hover:underline font-medium mt-6 md:mt-0"
+          >
+            Voir toutes les annonces
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
         
         <div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           role="list"
           aria-label="Biens immobiliers en vedette"
         >
@@ -145,12 +152,27 @@ const FeaturedProperties = () => {
             <div key={property.id} role="listitem">
               <PropertyCard
                 property={property}
-                onFavoriteClick={toggleFavorite}
-                isFavorite={isFavorite(property.id)}
+                onFavoriteClick={(id) => {
+                  if (!user) {
+                    toast.error("Connectez-vous pour ajouter des favoris");
+                    return;
+                  }
+                  toggleFavorite(id);
+                }}
+                isFavorite={user ? isFavorite(property.id) : false}
                 variant="compact"
               />
             </div>
           ))}
+        </div>
+        
+        <div className="text-center mt-8">
+          <Button asChild size="lg" className="md:hidden">
+            <Link to="/recherche" className="flex items-center gap-2">
+              Voir toutes les annonces
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

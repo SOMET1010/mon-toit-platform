@@ -59,8 +59,8 @@ const Hero = () => {
             Gratuit pour les locataires, sécurisé pour tous. La première plateforme de location certifiée en Côte d'Ivoire.
           </p>
 
-          {/* Primary CTA Button */}
-          <div className="mb-10">
+          {/* Primary CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-10">
             <Button 
               size="lg" 
               className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-secondary hover:bg-secondary/90 text-white rounded-full inline-flex items-center gap-2"
@@ -68,6 +68,14 @@ const Hero = () => {
             >
               <Search className="h-5 w-5" />
               Rechercher un logement
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="h-14 px-10 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary text-primary hover:bg-primary/5 rounded-full inline-flex items-center gap-2"
+              onClick={() => navigate('/auth')}
+            >
+              Créer un compte
             </Button>
           </div>
 

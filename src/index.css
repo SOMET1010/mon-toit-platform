@@ -9,15 +9,15 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 20 14% 10%;
+    --foreground: 0 0% 15%; /* Gris anthracite */
 
     --card: 0 0% 100%;
-    --card-foreground: 20 14% 10%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14% 10%;
+    --popover-foreground: 0 0% 15%;
 
-    /* Primary palette - Bleu ANSUT Officiel #2256a3 */
+    /* Primary palette - Bleu ANSUT Officiel #2256a3 - CONSERVÉ */
     --primary-50: 218 65.5% 97%;
     --primary-100: 218 65.5% 92%;
     --primary: 218 65.5% 38.6%;
@@ -27,13 +27,13 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-glow: 218 65.5% 48.6%;
 
-    /* Secondary palette - Orange ANSUT Officiel #f08224 */
-    --secondary-50: 28 87% 97%;
-    --secondary-100: 28 87% 92%;
-    --secondary: 28 87% 54%;
-    --secondary-500: 28 87% 54%;
-    --secondary-700: 28 87% 44%;
-    --secondary-900: 28 87% 30%;
+    /* Secondary palette - Terre cuite adoucie (au lieu d'orange vif) */
+    --secondary-50: 25 55% 95%;
+    --secondary-100: 25 55% 90%;
+    --secondary: 25 55% 55%; /* #d97136 */
+    --secondary-500: 25 55% 55%;
+    --secondary-700: 25 55% 45%;
+    --secondary-900: 25 55% 35%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -44,11 +44,11 @@ All colors MUST be HSL.
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --muted: 20 20% 96%;
-    --muted-foreground: 20 10% 45%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 218 65.5% 38.6%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 40 30% 65%; /* Beige doré #c89f6f */
+    --accent-foreground: 0 0% 15%;
     
     /* ANSUT Additional Colors from Official Charter */
     --ansut-black: 0 7% 11%;      /* #1D1D1B */

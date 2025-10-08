@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PropertyFiltersComponent, { PropertyFilters } from '@/components/PropertyFilters';
@@ -14,6 +14,7 @@ import { usePropertyFilters } from '@/hooks/usePropertyFilters';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { hasCoordinates } from '@/lib/geo';
+import { toast } from 'sonner';
 
 type ViewMode = 'grid' | 'list' | 'map';
 
@@ -52,11 +53,27 @@ const Search = () => {
     );
   }
 
+  const handleFavoriteClick = (propertyId: string) => {
+    if (!user) {
+      toast.error("Connectez-vous pour ajouter des favoris");
+      return;
+    }
+    toggleFavorite(propertyId);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
+          {!user && (
+            <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 mb-6">
+              <p className="text-center text-sm">
+                💡 <Link to="/auth" className="text-primary hover:underline font-medium">Créez un compte</Link> pour postuler et accéder à toutes les fonctionnalités
+              </p>
+            </div>
+          )}
+          
           {user && (
             <div className="mb-8">
               <RecommendationsSection userId={user.id} type="properties" limit={5} />
@@ -118,8 +135,8 @@ const Search = () => {
                     <PropertyCard
                       key={property.id}
                       property={property}
-                      onFavoriteClick={toggleFavorite}
-                      isFavorite={isFavorite(property.id)}
+                      onFavoriteClick={handleFavoriteClick}
+                      isFavorite={user ? isFavorite(property.id) : false}
                     />
                   ))}
                 </div>
