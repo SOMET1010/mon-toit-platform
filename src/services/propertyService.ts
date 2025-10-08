@@ -133,33 +133,38 @@ export const propertyService = {
 
   /**
    * Fetch a single property by ID
-   * First tries secure RPC (public access), then falls back to direct query (for owners)
+   * SECURITY: If user is authenticated, try direct query first (allows owners to see pending properties)
+   * Otherwise, use public RPC for approved properties
    */
   async fetchById(id: string): Promise<Property | null> {
-    // SECURITY: Try public RPC first (hides owner_id)
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // If authenticated, try direct query first (RLS will grant access if user is owner/admin)
+    if (user) {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      
+      // If success and data exists, return (owner can see their pending property)
+      if (!error && data) {
+        return data;
+      }
+    }
+    
+    // Otherwise, try public RPC (for approved properties)
     const { data: publicData, error: publicError } = await supabase.rpc('get_public_property', {
       p_property_id: id
     });
 
     if (!publicError && publicData && publicData.length > 0) {
-      // Note: owner_id is intentionally excluded by RPC for security
       return publicData[0] as unknown as Property;
     }
 
-    // If RPC fails (not public or user is owner/admin), try direct query
-    // RLS will allow access if user is owner or admin
-    const { data, error } = await supabase
-      .from('properties')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error fetching property:', error);
-      throw error;
-    }
-
-    return data;
+    // No method found the property
+    return null;
   },
 
   /**

@@ -41,9 +41,14 @@ export const usePropertyDetail = (propertyId: string | undefined) => {
 
       // Fetch property
       const propertyData = await propertyService.fetchById(propertyId);
+      
+      // If property not found, simply set to null (UI will display "Bien introuvable")
       if (!propertyData) {
-        throw new Error('Property not found');
+        logger.warn('Property not found', { propertyId });
+        setProperty(null);
+        return;
       }
+      
       setProperty(propertyData);
       
       // Set images
