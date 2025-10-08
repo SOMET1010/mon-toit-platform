@@ -37,6 +37,7 @@ import MentionsLegales from "./pages/MentionsLegales";
 import TiersDeConfianceDashboard from "./pages/TiersDeConfianceDashboard";
 import CertificationFAQ from "./pages/CertificationFAQ";
 import Tarifs from "./pages/Tarifs";
+import PopulateImages from "./pages/PopulateImages";
 
 const queryClient = new QueryClient();
 
@@ -198,6 +199,14 @@ const App = () => (
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/certification-faq" element={<CertificationFAQ />} />
             <Route path="/tarifs" element={<Tarifs />} />
+            <Route 
+              path="/populate-images" 
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
+                  <PopulateImages />
+                </ProtectedRoute>
+              } 
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
