@@ -39,6 +39,7 @@ import TiersDeConfianceDashboard from "./pages/TiersDeConfianceDashboard";
 import CertificationFAQ from "./pages/CertificationFAQ";
 import Tarifs from "./pages/Tarifs";
 import PopulateImages from "./pages/PopulateImages";
+import TestCryptoNeo from "./pages/TestCryptoNeo";
 
 const queryClient = new QueryClient();
 
@@ -206,6 +207,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
                   <PopulateImages />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/test-cryptoneo" 
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
+                  <TestCryptoNeo />
                 </ProtectedRoute>
               } 
             />
