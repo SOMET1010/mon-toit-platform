@@ -102,8 +102,8 @@ serve(async (req) => {
       timestamp: timestamp,
       signature: signature,
       country: "CI", // Côte d'Ivoire
-      id_type: "NATIONAL_ID",
-      id_number: "", // Will be extracted
+      id_type: "DRIVERS_LICENSE", // Type accepté par Smile ID pour CI
+      id_number: "", // Will be extracted from document
       job_type: 5, // Enhanced Document Verification
       user_id: user.id,
       images: [
@@ -122,7 +122,12 @@ serve(async (req) => {
       }
     };
 
-    console.log('Calling Smile ID API...');
+    console.log('Calling Smile ID API with payload:', {
+      country: smileIdPayload.country,
+      id_type: smileIdPayload.id_type,
+      job_type: smileIdPayload.job_type,
+      partner_id: partnerId
+    });
 
     // Call Smile ID API
     const smileResponse = await fetch(`${baseUrl}/id_verification`, {
