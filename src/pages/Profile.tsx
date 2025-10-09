@@ -20,6 +20,7 @@ import { TenantScoreExplanation } from '@/components/verification/TenantScoreExp
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
+import { RoleSelector } from '@/components/profile/RoleSelector';
 
 const Profile = () => {
   const { user, profile, refreshProfile, hasRole } = useAuth();
@@ -231,6 +232,9 @@ const Profile = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Role Management */}
+          <RoleSelector />
 
           {/* Verification Status */}
           <Card>

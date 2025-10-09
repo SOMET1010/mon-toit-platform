@@ -1529,6 +1529,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_active_roles: {
+        Row: {
+          available_roles: Database["public"]["Enums"]["user_type"][]
+          created_at: string
+          current_role: Database["public"]["Enums"]["user_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_roles?: Database["public"]["Enums"]["user_type"][]
+          created_at?: string
+          current_role: Database["public"]["Enums"]["user_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_roles?: Database["public"]["Enums"]["user_type"][]
+          created_at?: string
+          current_role?: Database["public"]["Enums"]["user_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorites: {
         Row: {
           created_at: string
@@ -1757,6 +1781,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_available_role: {
+        Args: {
+          p_new_role: Database["public"]["Enums"]["user_type"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       approve_verification: {
         Args: {
           p_review_notes?: string
