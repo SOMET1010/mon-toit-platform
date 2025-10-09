@@ -57,10 +57,11 @@ const Hero = () => {
           <div className="mb-6 w-20 h-1 bg-gradient-to-r from-primary to-secondary rounded-full" />
           
           {/* Main Title - Bold and Large */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-foreground leading-tight uppercase tracking-tight">
-            Trouvez votre logement ou louez{" "}
-            <span className="block mt-2">en toute sécurité</span>{" "}
-            <span className="block mt-2">avec Mon Toit</span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-foreground leading-tight tracking-tight">
+            Votre logement{" "}
+            <span className="block mt-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              en toute sécurité
+            </span>
           </h1>
           
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-xl font-medium">
@@ -99,7 +100,7 @@ const Hero = () => {
               <div className="flex flex-col items-center text-center">
                 <Users className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-primary mb-2" />
                 <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">12 000+</p>
-                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1">
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-semibold mt-1">
                   locataires certifiés
                 </p>
               </div>
@@ -109,7 +110,7 @@ const Hero = () => {
               <div className="flex flex-col items-center text-center">
                 <Building2 className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-secondary mb-2" />
                 <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">3 500+</p>
-                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1">
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-semibold mt-1">
                   logements vérifiés
                 </p>
               </div>
@@ -119,7 +120,7 @@ const Hero = () => {
               <div className="flex flex-col items-center text-center">
                 <Star className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-secondary fill-secondary mb-2" />
                 <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">4,8/5</p>
-                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1">
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-semibold mt-1">
                   Sur 200+ avis
                 </p>
               </div>
