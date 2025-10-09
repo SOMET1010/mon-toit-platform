@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { VideoPlayer } from "./VideoPlayer";
 import { PanoramaViewer } from "./PanoramaViewer";
 import { FloorPlanViewer } from "./FloorPlanViewer";
+import { ProgressiveImage } from "./ProgressiveImage";
 import { Image, Video, Globe, Layout } from "lucide-react";
 
 interface MediaGalleryProps {
@@ -78,7 +79,7 @@ export const MediaGallery = ({
               className="relative aspect-video w-full overflow-hidden rounded-lg cursor-pointer group"
               onClick={() => openLightbox(0)}
             >
-              <img
+              <ProgressiveImage
                 src={images[0]}
                 alt="Photo principale"
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
@@ -96,7 +97,7 @@ export const MediaGallery = ({
                   className="relative aspect-video overflow-hidden rounded-md cursor-pointer group"
                   onClick={() => openLightbox(index + 1)}
                 >
-                  <img
+                  <ProgressiveImage
                     src={image}
                     alt={`Photo ${index + 2}`}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"

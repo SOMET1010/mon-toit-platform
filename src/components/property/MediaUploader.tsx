@@ -126,6 +126,8 @@ export const MediaUploader = ({
               <img
                 src={preview}
                 alt={`Preview ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover rounded-md"
               />
               <Button
@@ -206,6 +208,8 @@ export const MediaUploader = ({
               <img
                 src={preview}
                 alt={`Panorama ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover rounded-md"
               />
               <Button
@@ -250,6 +254,8 @@ export const MediaUploader = ({
               <img
                 src={preview}
                 alt={`Plan ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover rounded-md"
               />
               <Button
