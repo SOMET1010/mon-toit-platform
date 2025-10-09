@@ -62,3 +62,6 @@ verify_jwt = true
 
 [functions.switch-role]
 verify_jwt = true
+
+[functions.add-role]
+verify_jwt = true
