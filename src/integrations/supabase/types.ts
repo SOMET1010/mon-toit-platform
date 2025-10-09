@@ -1064,6 +1064,7 @@ export type Database = {
           is_verified: boolean | null
           oneci_verified: boolean | null
           phone: string | null
+          ui_density: string | null
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
         }
@@ -1079,6 +1080,7 @@ export type Database = {
           is_verified?: boolean | null
           oneci_verified?: boolean | null
           phone?: string | null
+          ui_density?: string | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
         }
@@ -1094,6 +1096,7 @@ export type Database = {
           is_verified?: boolean | null
           oneci_verified?: boolean | null
           phone?: string | null
+          ui_density?: string | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
         }
