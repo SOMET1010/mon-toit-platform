@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/services/logger';
 import { useAuth } from './useAuth';
@@ -29,12 +29,15 @@ export const useRecommendations = ({
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const fetchedRef = useRef(false);
 
   const fetchRecommendations = useCallback(async () => {
-    if (!user) {
+    if (!user || fetchedRef.current) {
       setRecommendations([]);
       return;
     }
+
+    fetchedRef.current = true;
 
     setLoading(true);
     setError(null);
@@ -128,10 +131,14 @@ export const useRecommendations = ({
   }, [user]);
 
   useEffect(() => {
-    if (autoFetch && user) {
-      fetchRecommendations();
+    if (autoFetch && user?.id) {
+      const timeoutId = setTimeout(() => {
+        fetchRecommendations();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [autoFetch, user, fetchRecommendations]);
+  }, [autoFetch, user?.id]);
 
   return {
     recommendations,

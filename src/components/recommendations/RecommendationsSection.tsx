@@ -66,7 +66,10 @@ export const RecommendationsSection = ({
         opts={{
           align: "start",
           loop: false,
+          watchDrag: true,
+          skipSnaps: false,
         }}
+        plugins={[]}
         className="w-full"
       >
         <CarouselContent className="-ml-4">

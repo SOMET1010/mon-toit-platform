@@ -77,9 +77,13 @@ const Search = () => {
             </div>
           )}
           
-          {user && (
+          {user && properties.length > 0 && !isLoading && (
             <div className="mb-8">
-              <RecommendationsSection userId={user.id} type="properties" limit={5} />
+              <RecommendationsSection 
+                userId={user.id} 
+                type="properties" 
+                limit={5}
+              />
             </div>
           )}
 
