@@ -13,6 +13,7 @@ import { CheckCircle2, XCircle, Clock, User, FileText, Shield, Globe } from 'luc
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { handleError } from '@/lib/errorHandler';
 
 interface VerificationWithUser {
   user_id: string;
@@ -77,17 +78,12 @@ export default function AdminVerificationQueue() {
       // Fetch passport verifications
       const { data: passportData, error: passportError } = await supabase.rpc('get_passport_verifications_for_admin' as any);
       if (passportError) {
-        console.error('Passport verification fetch error:', passportError);
+        // Passport verifications might not be available for all users
       } else {
         setPassportVerifications((passportData as any) || []);
       }
     } catch (error: any) {
-      console.error('Erreur lors du chargement des vérifications:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les vérifications en attente',
-        variant: 'destructive',
-      });
+      handleError(error, 'Impossible de charger les vérifications en attente');
     } finally {
       setLoading(false);
     }
@@ -136,12 +132,7 @@ export default function AdminVerificationQueue() {
       setReviewNotes('');
       fetchPendingVerifications();
     } catch (error: any) {
-      console.error('Erreur:', error);
-      toast({
-        title: 'Erreur',
-        description: error.message || 'Une erreur est survenue',
-        variant: 'destructive',
-      });
+      handleError(error);
     } finally {
       setSubmitting(false);
     }

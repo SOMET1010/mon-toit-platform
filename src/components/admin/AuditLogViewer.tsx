@@ -17,6 +17,8 @@ import { Download, Search, ChevronDown, ChevronRight, Calendar as CalendarIcon, 
 import { format, startOfToday, subDays, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { handleError } from '@/lib/errorHandler';
+import { logger } from '@/services/logger';
 
 interface AuditLog {
   id: string;
@@ -140,11 +142,7 @@ export function AuditLogViewer() {
         setLogs([]);
       }
     } catch (error: any) {
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les logs d\'audit',
-        variant: 'destructive',
-      });
+      handleError(error, 'Impossible de charger les logs d\'audit');
     } finally {
       setLoading(false);
     }
@@ -262,10 +260,10 @@ export function AuditLogViewer() {
       });
 
       if (error) {
-        console.error('Error sending suspicious activity alerts:', error);
+        logger.error('Error sending suspicious activity alerts', { error });
       }
     } catch (error) {
-      console.error('Failed to invoke alert function:', error);
+      logger.error('Failed to invoke alert function', { error });
     }
   };
 

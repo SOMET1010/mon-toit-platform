@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CheckCircle, XCircle } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { handleError } from '@/lib/errorHandler';
 
 type User = {
   id: string;
@@ -35,12 +35,7 @@ const AdminUsers = () => {
       if (error) throw error;
       setUsers(data || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les utilisateurs',
-        variant: 'destructive',
-      });
+      handleError(error, 'Impossible de charger les utilisateurs');
     } finally {
       setLoading(false);
     }

@@ -13,6 +13,7 @@ import {
   Shield,
   Award
 } from 'lucide-react';
+import { handleError } from '@/lib/errorHandler';
 import { toast } from '@/hooks/use-toast';
 
 interface VerificationStats {
@@ -89,12 +90,7 @@ export const AdminVerificationStats = () => {
         avg_tenant_score: avgScore,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les statistiques',
-        variant: 'destructive',
-      });
+      handleError(error, 'Impossible de charger les statistiques');
     } finally {
       setLoading(false);
     }
@@ -139,12 +135,7 @@ export const AdminVerificationStats = () => {
         description: 'Les données ont été exportées en CSV',
       });
     } catch (error) {
-      console.error('Error exporting CSV:', error);
-      toast({
-        title: 'Erreur',
-        description: "Impossible d'exporter les données",
-        variant: 'destructive',
-      });
+      handleError(error, "Impossible d'exporter les données");
     }
   };
 

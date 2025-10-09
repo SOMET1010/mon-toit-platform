@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { Home, Users, FileText, CheckCircle, AlertTriangle, Shield } from 'lucide-react';
+import { handleError } from '@/lib/errorHandler';
 
 const AdminStats = () => {
   const [stats, setStats] = useState({
@@ -71,7 +72,7 @@ const AdminStats = () => {
           : null,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      handleError(error, 'Impossible de charger les statistiques');
     } finally {
       setLoading(false);
     }
