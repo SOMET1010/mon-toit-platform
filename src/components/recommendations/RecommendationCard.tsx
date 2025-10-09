@@ -1,8 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Home } from 'lucide-react';
+import { Star, MapPin, Wrench, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { StatusBadge } from '@/components/properties/StatusBadge';
 
 interface RecommendationCardProps {
   item: any;
@@ -39,13 +40,26 @@ export const RecommendationCard = ({ item, type, score, reasons }: Recommendatio
             alt={property.title}
             className="w-full h-full object-cover"
           />
-          <Badge className={`absolute top-2 right-2 ${getScoreColor(score)}`}>
-            <Star className="h-3 w-3 mr-1" />
-            {score}% Match
-          </Badge>
+          <div className="absolute top-2 right-2 flex flex-col gap-2">
+            <Badge className={getScoreColor(score)}>
+              <Star className="h-3 w-3 mr-1" />
+              {score}% Match
+            </Badge>
+            {property.work_status && property.work_status !== 'aucun_travail' && (
+              <Badge variant="secondary" className="bg-orange-600 hover:bg-orange-700 text-white">
+                <Wrench className="h-3 w-3 mr-1" />
+                Travaux
+              </Badge>
+            )}
+          </div>
         </div>
         <CardContent className="p-4">
-          <h3 className="font-semibold text-lg mb-2 line-clamp-1">{property.title}</h3>
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="font-semibold text-lg line-clamp-1 flex-1">{property.title}</h3>
+            {property.status && (
+              <StatusBadge status={property.status} variant="compact" />
+            )}
+          </div>
           <div className="flex items-center text-muted-foreground text-sm mb-2">
             <MapPin className="h-4 w-4 mr-1" />
             {property.city}

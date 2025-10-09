@@ -1,4 +1,4 @@
-import { Heart, MapPin, Share2 } from 'lucide-react';
+import { Heart, MapPin, Share2, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Property } from '@/types';
@@ -29,9 +29,17 @@ export const PropertyHeader = ({ property, isFavorite, onFavoriteToggle }: Prope
   return (
     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
       <div className="flex-1">
-        <div className="flex items-start gap-3 mb-3">
+        <div className="flex items-start gap-3 mb-3 flex-wrap">
           <h1 className="text-3xl font-bold flex-1">{property.title}</h1>
-          <StatusBadge status={property.status} />
+          <div className="flex gap-2">
+            <StatusBadge status={property.status} />
+            {property.work_status && property.work_status !== 'aucun_travail' && (
+              <Badge className="bg-orange-600 hover:bg-orange-700 text-white">
+                <Wrench className="h-4 w-4 mr-1" />
+                Travaux {property.work_status === 'travaux_en_cours' ? 'en cours' : 'à effectuer'}
+              </Badge>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center text-muted-foreground mb-4">
