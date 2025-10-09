@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -6,9 +7,30 @@ import { Shield, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { TenantScoreMeter } from './TenantScoreMeter';
+import { supabase } from '@/integrations/supabase/client';
 
 export const ProfileScoreCard = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const [tenantScore, setTenantScore] = useState(0);
+
+  useEffect(() => {
+    const fetchTenantScore = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('user_verifications')
+        .select('tenant_score')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (data?.tenant_score) {
+        setTenantScore(data.tenant_score);
+      }
+    };
+
+    fetchTenantScore();
+  }, [user]);
 
   // Calculate profile completion
   const calculateCompletion = () => {
@@ -68,6 +90,13 @@ export const ProfileScoreCard = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Tenant Score Meter */}
+        {tenantScore > 0 && (
+          <div className="flex justify-center">
+            <TenantScoreMeter score={tenantScore} />
+          </div>
+        )}
+
         {/* Profile Completion */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">

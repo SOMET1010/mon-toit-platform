@@ -15,6 +15,7 @@ import SmartReminders from '@/components/dashboard/SmartReminders';
 import { ProfileScoreCard } from '@/components/dashboard/ProfileScoreCard';
 import { QuickActionsGrid } from '@/components/dashboard/QuickActionsGrid';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
+import { ApplicationsOverview } from '@/components/dashboard/ApplicationsOverview';
 
 const Dashboard = () => {
   const { profile, loading, user } = useAuth();
@@ -111,6 +112,9 @@ const Dashboard = () => {
                   <QuickActionsGrid />
                 </div>
               </div>
+
+              {/* Applications Overview */}
+              <ApplicationsOverview />
 
               {/* Smart Reminders */}
               <SmartReminders />
