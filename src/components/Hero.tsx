@@ -36,7 +36,15 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative container mx-auto px-4 py-20 md:py-28 max-w-7xl z-10">
-        <div className="max-w-2xl lg:max-w-xl">
+        <div className="max-w-2xl lg:max-w-xl animate-fade-in-slow">
+          {/* Badge Nouveauté */}
+          <div className="inline-flex items-center gap-2 bg-warning/10 border-2 border-warning px-4 py-2 rounded-full mb-4 animate-badge-appear">
+            <span className="text-xl">🔥</span>
+            <span className="text-sm font-bold text-warning uppercase tracking-wide">
+              Nouveau : État des travaux affiché
+            </span>
+          </div>
+
           {/* Badge Gratuit */}
           <div className="inline-flex items-center gap-2 bg-secondary/10 border-2 border-secondary px-4 py-2 rounded-full mb-6">
             <CheckCircle2 className="h-5 w-5 text-secondary" />
@@ -49,13 +57,13 @@ const Hero = () => {
           <div className="mb-6 w-20 h-1 bg-gradient-to-r from-primary to-secondary rounded-full" />
           
           {/* Main Title - Bold and Large */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-foreground leading-tight uppercase tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-foreground leading-tight uppercase tracking-tight">
             Trouvez votre logement ou louez{" "}
             <span className="block mt-2">en toute sécurité</span>{" "}
             <span className="block mt-2">avec Mon Toit</span>
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl font-medium">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-xl font-medium">
             Gratuit pour les locataires, sécurisé pour tous. La première plateforme de location certifiée en Côte d'Ivoire.
           </p>
 
@@ -86,32 +94,32 @@ const Hero = () => {
           </div>
 
           {/* Social Proof Stats - White Cards */}
-          <div className="grid grid-cols-3 gap-4 md:gap-6">
-            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-primary/10 hover:shadow-xl transition-all duration-300">
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+            <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6 border border-primary/10 hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="flex flex-col items-center text-center">
-                <Users className="h-8 w-8 md:h-10 md:w-10 text-primary mb-2" />
-                <p className="text-2xl md:text-3xl font-black text-foreground">12 000+</p>
-                <p className="text-xs md:text-sm text-muted-foreground font-medium mt-1">
+                <Users className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-primary mb-2" />
+                <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">12 000+</p>
+                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1">
                   locataires certifiés
                 </p>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-secondary/10 hover:shadow-xl transition-all duration-300">
+            <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6 border border-secondary/10 hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="flex flex-col items-center text-center">
-                <Building2 className="h-8 w-8 md:h-10 md:w-10 text-secondary mb-2" />
-                <p className="text-2xl md:text-3xl font-black text-foreground">3 500+</p>
-                <p className="text-xs md:text-sm text-muted-foreground font-medium mt-1">
+                <Building2 className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-secondary mb-2" />
+                <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">3 500+</p>
+                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1">
                   logements vérifiés
                 </p>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-secondary/10 hover:shadow-xl transition-all duration-300">
+            <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6 border border-secondary/10 hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="flex flex-col items-center text-center">
-                <Star className="h-8 w-8 md:h-10 md:w-10 text-secondary fill-secondary mb-2" />
-                <p className="text-2xl md:text-3xl font-black text-foreground">4,8/5</p>
-                <p className="text-xs md:text-sm text-muted-foreground font-medium mt-1">
+                <Star className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-secondary fill-secondary mb-2" />
+                <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">4,8/5</p>
+                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1">
                   Sur 200+ avis
                 </p>
               </div>

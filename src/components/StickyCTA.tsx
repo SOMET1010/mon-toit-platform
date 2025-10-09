@@ -54,20 +54,61 @@ const StickyCTA = () => {
 
   // Si connecté comme locataire sans certification
   if (profile?.user_type === "locataire") {
+    const hasVerification = profile?.oneci_verified || profile?.cnam_verified;
+    
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-secondary to-secondary-600 text-white shadow-2xl animate-slide-in-up">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-secondary to-secondary-600 text-white shadow-2xl animate-slide-up">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-center md:text-left">
-              <ShieldCheck className="h-6 w-6 flex-shrink-0" />
+              {hasVerification ? (
+                <>
+                  <span className="text-2xl">🎯</span>
+                  <div>
+                    <p className="font-semibold text-lg">Profil certifié ! Continuez vos recherches</p>
+                    <p className="text-sm text-white/90">Vous avez accès à tous les biens disponibles</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="h-6 w-6 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-lg">Complétez votre certification ANSUT</p>
+                    <p className="text-sm text-white/90">Démarquez-vous et postulez en 1 clic</p>
+                  </div>
+                </>
+              )}
+            </div>
+            {!hasVerification && (
+              <Button asChild variant="secondary" size="lg" className="bg-white text-secondary hover:bg-white/90">
+                <Link to="/verification">
+                  Compléter mon profil
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Si connecté comme propriétaire
+  if (profile?.user_type === "proprietaire") {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-primary to-primary-700 text-primary-foreground shadow-2xl animate-slide-up">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-center md:text-left">
+              <span className="text-2xl">⚠️</span>
               <div>
-                <p className="font-semibold text-lg">Complétez votre certification ANSUT</p>
-                <p className="text-sm text-white/90">Démarquez-vous et postulez en 1 clic</p>
+                <p className="font-semibold text-lg">Pensez à l'état des travaux</p>
+                <p className="text-sm text-primary-foreground/90">Précisez l'état lors de la publication pour plus de transparence</p>
               </div>
             </div>
-            <Button asChild variant="secondary" size="lg">
-              <Link to="/verification">
-                Compléter mon profil
+            <Button asChild variant="secondary" size="lg" className="bg-white text-primary hover:bg-white/90">
+              <Link to="/publier">
+                <Home className="h-4 w-4 mr-2" />
+                Publier un bien
               </Link>
             </Button>
           </div>
