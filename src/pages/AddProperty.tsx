@@ -18,6 +18,7 @@ import { PropertyCharacteristicsForm } from '@/components/property/form/Property
 import { PropertyPricing } from '@/components/property/form/PropertyPricing';
 import { PropertyWorkStatus } from '@/components/property/form/PropertyWorkStatus';
 import { LocationPicker } from '@/components/property/LocationPicker';
+import { TitleDeedUploader } from '@/components/property/TitleDeedUploader';
 
 const AddProperty = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const AddProperty = () => {
   });
 
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [propertyId] = useState<string>(() => crypto.randomUUID());
 
   const onSubmit = async (data: PropertyFormData) => {
     // Validate media files
@@ -122,6 +124,23 @@ const AddProperty = () => {
               <PropertyCharacteristicsForm form={form} />
               <PropertyPricing form={form} />
               <PropertyWorkStatus form={form} />
+
+              {/* Titre de propriété */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>📄 Titre de propriété (optionnel)</CardTitle>
+                  <CardDescription>
+                    Document officiel attestant de votre propriété du bien (PDF, JPEG, PNG)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TitleDeedUploader
+                    propertyId={propertyId}
+                    onUploadSuccess={(url) => form.setValue("title_deed_url", url)}
+                    existingUrl={form.watch("title_deed_url")}
+                  />
+                </CardContent>
+              </Card>
 
               {/* Multimedia */}
               <Card>

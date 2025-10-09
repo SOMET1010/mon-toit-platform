@@ -1561,6 +1561,47 @@ export type Database = {
         }
         Relationships: []
       }
+      title_deed_access_log: {
+        Row: {
+          access_granted: boolean
+          access_reason: string | null
+          accessed_at: string | null
+          id: string
+          ip_address: string | null
+          property_id: string | null
+          requester_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_granted: boolean
+          access_reason?: string | null
+          accessed_at?: string | null
+          id?: string
+          ip_address?: string | null
+          property_id?: string | null
+          requester_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_granted?: boolean
+          access_reason?: string | null
+          accessed_at?: string | null
+          id?: string
+          ip_address?: string | null
+          property_id?: string | null
+          requester_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "title_deed_access_log_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trusted_third_parties: {
         Row: {
           created_at: string | null

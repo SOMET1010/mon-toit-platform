@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Lock, CheckCircle } from "lucide-react";
+import { FileText, Download, Lock, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -16,68 +16,133 @@ interface TitleDeedSectionProps {
 export const TitleDeedSection = ({ propertyId, titleDeedUrl, ownerId }: TitleDeedSectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-
-  // Vérifier si l'utilisateur peut accéder au titre
-  const isOwner = user?.id === ownerId;
+  const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [canAccess, setCanAccess] = useState(false);
-  const [isActiveTenant, setIsActiveTenant] = useState(false);
+  const [accessReason, setAccessReason] = useState<string>("");
 
-  // Vérifier l'accès au chargement
-  useState(() => {
+  // ✅ CORRECTION : useEffect au lieu de useState
+  useEffect(() => {
     const checkAccess = async () => {
-      if (!user || !titleDeedUrl) return;
+      if (!user || !titleDeedUrl) {
+        setLoading(false);
+        return;
+      }
 
-      // Vérifier si locataire actif
-      const { data: lease } = await supabase
-        .from("leases")
-        .select("*")
-        .eq("property_id", propertyId)
-        .eq("tenant_id", user.id)
-        .eq("status", "active")
-        .single();
+      try {
+        // Vérifier si propriétaire
+        if (user.id === ownerId) {
+          setCanAccess(true);
+          setAccessReason("owner");
+          setLoading(false);
+          return;
+        }
 
-      if (lease) {
-        setIsActiveTenant(true);
-        setCanAccess(true);
-      } else if (isOwner) {
-        setCanAccess(true);
+        // Vérifier si admin
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .in("role", ["admin", "super_admin"]);
+
+        if (roles && roles.length > 0) {
+          setCanAccess(true);
+          setAccessReason("admin");
+          setLoading(false);
+          return;
+        }
+
+        // Vérifier si locataire actif
+        const { data: lease, error } = await supabase
+          .from("leases")
+          .select("id, status")
+          .eq("property_id", propertyId)
+          .eq("tenant_id", user.id)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (lease) {
+          setCanAccess(true);
+          setAccessReason("tenant");
+        }
+      } catch (error) {
+        console.error("Error checking access:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     checkAccess();
-  });
+  }, [user, titleDeedUrl, propertyId, ownerId]);
 
   const handleDownload = async () => {
-    if (!titleDeedUrl) return;
+    if (!titleDeedUrl || !canAccess) return;
 
-    setLoading(true);
+    setDownloading(true);
     try {
-      // Logger l'accès
+      // ✅ Logger l'accès AVANT le téléchargement
+      await supabase.from("title_deed_access_log").insert({
+        property_id: propertyId,
+        requester_id: user?.id,
+        access_granted: true,
+        access_reason: accessReason,
+      });
+
       await supabase.from("admin_audit_logs").insert({
         admin_id: user?.id,
-        action_type: "title_deed_downloaded",
+        action_type: "title_deed_accessed",
         target_type: "property",
         target_id: propertyId,
-        notes: "Téléchargement du titre de propriété",
+        notes: `Accès titre de propriété (raison: ${accessReason})`,
       });
 
-      // Ouvrir le document
-      window.open(titleDeedUrl, "_blank");
+      // ✅ SÉCURISÉ : Utiliser signedUrl avec expiration si c'est dans le bucket
+      if (titleDeedUrl.includes('property-documents')) {
+        const pathParts = titleDeedUrl.split('/property-documents/')[1];
+        const { data, error } = await supabase.storage
+          .from('property-documents')
+          .createSignedUrl(pathParts, 60);
+
+        if (error) throw error;
+        window.open(data.signedUrl, "_blank");
+      } else {
+        // Ancien système (URL directe)
+        window.open(titleDeedUrl, "_blank");
+      }
       
       toast({
-        title: "Téléchargement du titre de propriété",
-        description: "Le document s'ouvrira dans un nouvel onglet",
+        title: "✅ Accès autorisé",
+        description: "Le titre de propriété s'ouvrira dans un nouvel onglet",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error downloading title deed:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de télécharger le titre de propriété",
-        variant: "destructive",
+      
+      // Logger échec
+      await supabase.from("title_deed_access_log").insert({
+        property_id: propertyId,
+        requester_id: user?.id,
+        access_granted: false,
+        access_reason: `denied: ${error.message}`,
       });
+      
+      // Gestion des erreurs RLS
+      if (error.message?.includes("RLS") || error.message?.includes("policy")) {
+        toast({
+          title: "🔒 Accès refusé",
+          description: "Vous n'avez pas les droits pour accéder à ce document",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "❌ Erreur",
+          description: "Impossible de télécharger le titre de propriété",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setLoading(false);
+      setDownloading(false);
     }
   };
 
@@ -95,24 +160,39 @@ export const TitleDeedSection = ({ propertyId, titleDeedUrl, ownerId }: TitleDee
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {canAccess ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : canAccess ? (
           <div className="space-y-4">
             <Alert className="border-success bg-success/10">
               <CheckCircle className="h-4 w-4 text-success" />
               <AlertDescription>
-                {isActiveTenant 
+                {accessReason === "tenant" 
                   ? "En tant que locataire actif, vous avez accès au titre de propriété"
+                  : accessReason === "admin"
+                  ? "En tant qu'administrateur, vous avez accès au titre de propriété"
                   : "En tant que propriétaire, vous avez accès au titre de propriété"}
               </AlertDescription>
             </Alert>
             
             <Button 
               onClick={handleDownload}
-              disabled={loading}
+              disabled={downloading}
               className="w-full"
             >
-              <Download className="h-4 w-4 mr-2" />
-              {loading ? "Chargement..." : "Télécharger le titre de propriété"}
+              {downloading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Chargement...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Télécharger le titre de propriété
+                </>
+              )}
             </Button>
           </div>
         ) : (
