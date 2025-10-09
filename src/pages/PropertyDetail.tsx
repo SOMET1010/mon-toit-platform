@@ -21,6 +21,7 @@ import { toast } from '@/hooks/use-toast';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { MediaGallery } from '@/components/property/MediaGallery';
 import { VerificationGuard } from '@/components/application/VerificationGuard';
+import { GuestContactForm } from '@/components/messaging/GuestContactForm';
 import { logger } from '@/services/logger';
 import type { Property, Application, PropertyStats } from '@/types';
 
@@ -524,13 +525,13 @@ const PropertyDetail = () => {
 
                   <Separator />
 
-                  {!isOwner && (
+                  {!isOwner && user && (
                     <div className="space-y-2">
                       <Button className="w-full gap-2" onClick={handleContact}>
                         <MessageCircle className="h-4 w-4" />
                         Contacter le propriétaire
                       </Button>
-                      {user && property.status === 'disponible' && (
+                      {property.status === 'disponible' && (
                         <VerificationGuard propertyId={property.id}>
                           <Button variant="outline" className="w-full gap-2">
                             <Calendar className="h-4 w-4" />
@@ -542,6 +543,15 @@ const PropertyDetail = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Guest Contact Form (for non-authenticated users) */}
+              {!isOwner && !user && property.status === 'disponible' && owner && (
+                <GuestContactForm 
+                  propertyId={property.id}
+                  ownerId={owner.id}
+                  propertyTitle={property.title}
+                />
+              )}
 
               {/* Owner card */}
               {owner && !isOwner && (

@@ -65,3 +65,6 @@ verify_jwt = true
 
 [functions.add-role]
 verify_jwt = true
+
+[functions.send-guest-message]
+verify_jwt = false

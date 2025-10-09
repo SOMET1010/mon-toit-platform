@@ -11,6 +11,7 @@ import { verificationSuccessTemplate } from "./_templates/verification-success.t
 import { faceVerificationSuccessTemplate } from "./_templates/face-verification-success.ts";
 import { leaseContractGeneratedTemplate } from "./_templates/lease-contract-generated.ts";
 import { roleChangeConfirmationTemplate, roleChangeConfirmationTextTemplate } from "./_templates/role-change-confirmation.ts";
+import { guestMessageNotificationTemplate } from "./_templates/guest-message-notification.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -79,6 +80,9 @@ const handler = async (req: Request): Promise<Response> => {
       case "role-change-confirmation":
         html = roleChangeConfirmationTemplate(data);
         textContent = roleChangeConfirmationTextTemplate(data);
+        break;
+      case "guest-message-notification":
+        html = guestMessageNotificationTemplate(data);
         break;
       default:
         throw new Error(`Unknown template: ${template}`);

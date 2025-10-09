@@ -28,6 +28,7 @@ import Applications from "./pages/Applications";
 import Leases from "./pages/Leases";
 import Payments from "./pages/Payments";
 import Verification from "./pages/Verification";
+import { GuestMessagesInbox } from "@/components/owner/GuestMessagesInbox";
 import NotFound from "./pages/NotFound";
 import UserReviews from "./pages/UserReviews";
 import Publier from "./pages/Publier";
@@ -103,6 +104,14 @@ const App = () => (
             element={
               <ProtectedRoute requiredRoles={['tiers_de_confiance']}>
                 <TiersDeConfianceDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/owner/guest-messages" 
+            element={
+              <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
+                <GuestMessagesInbox />
               </ProtectedRoute>
             } 
           />

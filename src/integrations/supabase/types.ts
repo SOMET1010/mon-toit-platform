@@ -306,6 +306,59 @@ export type Database = {
           },
         ]
       }
+      guest_messages: {
+        Row: {
+          browser_fingerprint: string | null
+          created_at: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          ip_address: string
+          message_content: string
+          owner_id: string
+          property_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          browser_fingerprint?: string | null
+          created_at?: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          ip_address: string
+          message_content: string
+          owner_id: string
+          property_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          browser_fingerprint?: string | null
+          created_at?: string | null
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          ip_address?: string
+          message_content?: string
+          owner_id?: string
+          property_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_messages_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lease_certification_history: {
         Row: {
           action: string
@@ -1823,6 +1876,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_guest_rate_limit: {
+        Args: { _email: string; _fingerprint: string; _ip: string }
+        Returns: Json
+      }
       check_login_rate_limit: {
         Args: { _email: string; _ip_address: string }
         Returns: Json
@@ -1840,6 +1897,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_old_audit_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_guest_messages: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
