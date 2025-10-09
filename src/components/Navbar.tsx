@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, Search, PlusCircle } from "lucide-react";
+import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, Search, PlusCircle, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -81,6 +81,13 @@ const Navbar = () => {
               className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
             >
               Tarifs
+            </Link>
+            <Link 
+              to="/guide" 
+              className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span>Aide</span>
             </Link>
           </div>
 

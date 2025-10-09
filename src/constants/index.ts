@@ -26,6 +26,30 @@ export const PROPERTY_STATUS_COLORS: Record<string, string> = {
   refuse: 'bg-red-500',
 } as const;
 
+// Status semantic variants for StatusBadge
+export const STATUS_VARIANTS = {
+  disponible: 'success',
+  loué: 'info',
+  loue: 'info',
+  en_attente: 'warning',
+  retiré: 'neutral',
+  retire: 'neutral',
+  refuse: 'danger',
+} as const;
+
+// Status icons mapping
+import { CheckCircle, Clock, Lock, XCircle, AlertTriangle, type LucideIcon } from 'lucide-react';
+
+export const STATUS_ICONS: Record<string, LucideIcon> = {
+  disponible: CheckCircle,
+  loué: Lock,
+  loue: Lock,
+  en_attente: Clock,
+  retiré: XCircle,
+  retire: XCircle,
+  refuse: AlertTriangle,
+} as const;
+
 export const APPLICATION_STATUS_LABELS: Record<string, string> = {
   pending: 'En attente',
   approved: 'Approuvée',

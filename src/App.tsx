@@ -41,6 +41,7 @@ import CertificationFAQ from "./pages/CertificationFAQ";
 import Tarifs from "./pages/Tarifs";
 import PopulateImages from "./pages/PopulateImages";
 import TestCryptoNeo from "./pages/TestCryptoNeo";
+import Guide from "./pages/Guide";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/certification" element={<Certification />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/guide" element={<Guide />} />
             <Route
               path="/profil" 
               element={

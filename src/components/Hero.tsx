@@ -67,15 +67,15 @@ const Hero = () => {
               onClick={() => navigate('/recherche')}
             >
               <Search className="h-5 w-5" />
-              Rechercher un logement
+              Je cherche un logement
             </Button>
             <Button 
               size="lg" 
               variant="outline"
               className="h-14 px-10 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary text-primary hover:bg-primary/5 rounded-full inline-flex items-center gap-2"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/auth?type=proprietaire')}
             >
-              Créer un compte
+              Je mets en location
             </Button>
           </div>
 

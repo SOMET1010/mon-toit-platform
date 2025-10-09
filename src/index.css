@@ -63,6 +63,18 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* Status Colors */
+    --status-success: 142 71% 45%;
+    --status-success-foreground: 0 0% 100%;
+    --status-warning: 25 95% 53%;
+    --status-warning-foreground: 0 0% 100%;
+    --status-danger: 0 84% 60%;
+    --status-danger-foreground: 0 0% 100%;
+    --status-info: 217 91% 60%;
+    --status-info-foreground: 0 0% 100%;
+    --status-neutral: 215 16% 47%;
+    --status-neutral-foreground: 0 0% 100%;
+
     /* Gradients - ANSUT Official Colors */
     --gradient-primary: linear-gradient(135deg, hsl(218 65.5% 38.6%), hsl(218 65.5% 48.6%));
     --gradient-secondary: linear-gradient(135deg, hsl(28 87% 54%), hsl(28 87% 64%));

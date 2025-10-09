@@ -84,6 +84,16 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "status-success": "hsl(var(--status-success))",
+        "status-success-foreground": "hsl(var(--status-success-foreground))",
+        "status-warning": "hsl(var(--status-warning))",
+        "status-warning-foreground": "hsl(var(--status-warning-foreground))",
+        "status-danger": "hsl(var(--status-danger))",
+        "status-danger-foreground": "hsl(var(--status-danger-foreground))",
+        "status-info": "hsl(var(--status-info))",
+        "status-info-foreground": "hsl(var(--status-info-foreground))",
+        "status-neutral": "hsl(var(--status-neutral))",
+        "status-neutral-foreground": "hsl(var(--status-neutral-foreground))",
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
@@ -150,6 +160,10 @@ export default {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        "badge-appear": {
+          "0%": { opacity: "0", transform: "scale(0.8)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
         "gradient-shift": {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
@@ -188,6 +202,8 @@ export default {
         },
       },
       animation: {
+        "badge-appear": "badge-appear 0.3s ease-out",
+        "pulse-soft": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "float": "float 6s ease-in-out infinite",
