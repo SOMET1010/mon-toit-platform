@@ -4,15 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import PropertyStats from '@/components/dashboard/PropertyStats';
+import { PropertyStatsCompact } from '@/components/dashboard/PropertyStatsCompact';
 import ViewsChart from '@/components/dashboard/ViewsChart';
 import ApplicationsChart from '@/components/dashboard/ApplicationsChart';
 import MarketComparison from '@/components/dashboard/MarketComparison';
-import TopProperties from '@/components/dashboard/TopProperties';
-import UrgentActionsCard from '@/components/dashboard/UrgentActionsCard';
+import { TopPropertiesTable } from '@/components/dashboard/TopPropertiesTable';
+import { UrgentActionsCardCompact } from '@/components/dashboard/UrgentActionsCardCompact';
 import RevenueForecast from '@/components/dashboard/RevenueForecast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { StickyHeader } from '@/components/ui/sticky-header';
 
 const OwnerDashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
@@ -220,43 +221,44 @@ const OwnerDashboard = () => {
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <StickyHeader className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold">Tableau de Bord</h1>
-              <p className="text-muted-foreground mt-2">
+              <h1 className="text-3xl font-bold">Tableau de Bord</h1>
+              <p className="text-sm text-muted-foreground">
                 Analysez les performances de vos biens
               </p>
             </div>
-            <Button onClick={fetchDashboardData} variant="outline">
+            <Button onClick={fetchDashboardData} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
               Actualiser
             </Button>
-          </div>
+          </StickyHeader>
 
-          {/* Urgent Actions */}
-          <UrgentActionsCard />
+          {/* Stats Overview Compact */}
+          <PropertyStatsCompact stats={stats} />
 
-          {/* Stats Overview */}
-          <PropertyStats stats={stats} />
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ViewsChart data={viewsData} />
-            <ApplicationsChart data={applicationsData} />
+          {/* Urgent Actions + Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <UrgentActionsCardCompact className="lg:col-span-1" />
+            <div className="lg:col-span-2 grid grid-cols-2 gap-4 h-[320px]">
+              <ViewsChart data={viewsData} className="h-full" />
+              <ApplicationsChart data={applicationsData} className="h-full" />
+            </div>
           </div>
 
           {/* Revenue & Market Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[280px]">
             <RevenueForecast 
               currentRevenue={stats.averageRent * stats.totalProperties} 
               occupancyRate={stats.occupancyRate}
+              className="h-full"
             />
-            <MarketComparison data={marketData} />
+            <MarketComparison data={marketData} className="h-full" />
           </div>
 
-          {/* Top Properties */}
-          <TopProperties properties={topProperties} />
+          {/* Top Properties Table */}
+          <TopPropertiesTable properties={topProperties} />
         </div>
       </main>
 

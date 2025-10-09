@@ -12,9 +12,10 @@ interface MarketData {
 
 interface MarketComparisonProps {
   data: MarketData[];
+  className?: string;
 }
 
-const MarketComparison = ({ data }: MarketComparisonProps) => {
+const MarketComparison = ({ data, className }: MarketComparisonProps) => {
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
@@ -36,7 +37,7 @@ const MarketComparison = ({ data }: MarketComparisonProps) => {
   };
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle>Comparaison de Marché</CardTitle>
         <CardDescription>Vos prix vs prix du marché par type de bien</CardDescription>

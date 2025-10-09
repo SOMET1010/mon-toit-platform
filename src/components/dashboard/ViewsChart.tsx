@@ -9,9 +9,10 @@ interface ViewsChartProps {
     views: number;
     favorites: number;
   }>;
+  className?: string;
 }
 
-const ViewsChart = ({ data }: ViewsChartProps) => {
+const ViewsChart = ({ data, className }: ViewsChartProps) => {
   const [period, setPeriod] = useState<'7d' | '30d' | '3m' | '1y'>('30d');
   const [showViews, setShowViews] = useState(true);
   const [showFavorites, setShowFavorites] = useState(true);
@@ -24,7 +25,7 @@ const ViewsChart = ({ data }: ViewsChartProps) => {
   ] as const;
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>

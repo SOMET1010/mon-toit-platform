@@ -10,9 +10,10 @@ interface ApplicationsChartProps {
     approved: number;
     rejected: number;
   }>;
+  className?: string;
 }
 
-const ApplicationsChart = ({ data }: ApplicationsChartProps) => {
+const ApplicationsChart = ({ data, className }: ApplicationsChartProps) => {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
 
   const selectedData = data.find(d => d.property === selectedProperty);
@@ -22,7 +23,7 @@ const ApplicationsChart = ({ data }: ApplicationsChartProps) => {
 
   return (
     <>
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle>Candidatures par Bien</CardTitle>
           <CardDescription>Cliquez sur une barre pour voir les détails</CardDescription>

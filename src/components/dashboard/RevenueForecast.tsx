@@ -12,9 +12,10 @@ interface ForecastData {
 interface RevenueForecastProps {
   currentRevenue: number;
   occupancyRate: number;
+  className?: string;
 }
 
-const RevenueForecast = ({ currentRevenue, occupancyRate }: RevenueForecastProps) => {
+const RevenueForecast = ({ currentRevenue, occupancyRate, className }: RevenueForecastProps) => {
   // Generate 3-month forecast
   const generateForecast = (): ForecastData[] => {
     const months = ['Mois 1', 'Mois 2', 'Mois 3'];
@@ -37,7 +38,7 @@ const RevenueForecast = ({ currentRevenue, occupancyRate }: RevenueForecastProps
   const projectedGrowth = ((realisticTotal - currentTotal) / currentTotal) * 100;
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Prévisions de Revenus
