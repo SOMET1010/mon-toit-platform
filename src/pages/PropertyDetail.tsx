@@ -22,6 +22,7 @@ import { RecommendationsSection } from '@/components/recommendations/Recommendat
 import { MediaGallery } from '@/components/property/MediaGallery';
 import { VerificationGuard } from '@/components/application/VerificationGuard';
 import { GuestContactForm } from '@/components/messaging/GuestContactForm';
+import { TitleDeedSection } from '@/components/property/TitleDeedSection';
 import { logger } from '@/services/logger';
 import type { Property, Application, PropertyStats } from '@/types';
 
@@ -416,6 +417,13 @@ const PropertyDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Title Deed Section */}
+              <TitleDeedSection 
+                propertyId={property.id}
+                titleDeedUrl={property.title_deed_url}
+                ownerId={property.owner_id}
+              />
             </div>
 
             {/* Sidebar */}

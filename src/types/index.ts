@@ -40,6 +40,10 @@ export interface Property {
   owner_id: string;
   latitude?: number | null;
   longitude?: number | null;
+  work_status?: string | null;
+  work_description?: string | null;
+  work_images?: any;
+  title_deed_url?: string | null;
 }
 
 export interface Profile {

@@ -21,6 +21,7 @@ import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo'
 import { PropertyLocation } from '@/components/property/form/PropertyLocation';
 import { PropertyCharacteristicsForm } from '@/components/property/form/PropertyCharacteristicsForm';
 import { PropertyPricing } from '@/components/property/form/PropertyPricing';
+import { PropertyWorkStatus } from '@/components/property/form/PropertyWorkStatus';
 import { LocationPicker } from '@/components/property/LocationPicker';
 
 const EditProperty = () => {
@@ -197,6 +198,7 @@ const EditProperty = () => {
 
               <PropertyCharacteristicsForm form={form} />
               <PropertyPricing form={form} />
+              <PropertyWorkStatus form={form} />
 
               <Card>
                 <CardHeader>
