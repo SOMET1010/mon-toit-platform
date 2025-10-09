@@ -60,6 +60,7 @@ const Messages = () => {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Record<string, UserProfile>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
+  const loadingCompleted = useRef(false);
 
   // Stop loading if user is not connected
   useEffect(() => {
@@ -75,7 +76,7 @@ const Messages = () => {
       
       // Safety timeout: 10 seconds max
       const timeoutId = setTimeout(() => {
-        if (loading) {
+        if (!loadingCompleted.current) {
           setLoading(false);
           toast({
             title: 'Chargement lent',
@@ -95,6 +96,41 @@ const Messages = () => {
       markAsRead(selectedConversation);
     }
   }, [selectedConversation]);
+
+  // Auto-create conversation if recipientId is provided
+  useEffect(() => {
+    if (user && recipientId && !loading) {
+      const existingConv = conversations.find(c => c.id === recipientId);
+      
+      if (!existingConv && !profiles[recipientId]) {
+        const fetchRecipientProfile = async () => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .eq('id', recipientId)
+            .maybeSingle();
+          
+          if (profile) {
+            setConversations(prev => [{
+              id: profile.id,
+              user_id: profile.id,
+              user_name: profile.full_name || 'Utilisateur',
+              last_message: '',
+              last_message_time: new Date().toISOString(),
+              unread_count: 0
+            }, ...prev]);
+            
+            setProfiles(prev => ({
+              ...prev,
+              [profile.id]: profile
+            }));
+          }
+        };
+        
+        fetchRecipientProfile();
+      }
+    }
+  }, [recipientId, user, conversations, loading, profiles]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -225,7 +261,8 @@ const Messages = () => {
         variant: 'destructive'
       });
     } finally {
-      setLoading(false); // ALWAYS called
+      setLoading(false);
+      loadingCompleted.current = true;
     }
   };
 
@@ -366,10 +403,16 @@ const Messages = () => {
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="h-[500px]">
-                  {conversations.length === 0 ? (
+                  {loading ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                      <p>Chargement des conversations...</p>
+                    </div>
+                  ) : conversations.length === 0 ? (
                     <div className="p-4 text-center text-muted-foreground">
                       <MessageCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
                       <p>Aucune conversation</p>
+                      <p className="text-xs mt-2">Commencez à discuter avec un propriétaire</p>
                     </div>
                   ) : (
                     <div className="space-y-1">
@@ -413,11 +456,11 @@ const Messages = () => {
 
             {/* Messages */}
             <Card className="md:col-span-2">
-              {selectedConversation ? (
+              {selectedConversation && profiles[selectedConversation] ? (
                 <>
                   <CardHeader>
                     <CardTitle>
-                      {profiles[selectedConversation]?.full_name || 'Utilisateur inconnu'}
+                      {profiles[selectedConversation].full_name}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
