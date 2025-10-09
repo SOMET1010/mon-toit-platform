@@ -19,7 +19,7 @@ import NotificationBell from "@/components/NotificationBell";
 import CertificationNotificationBadge from "@/components/admin/CertificationNotificationBadge";
 import { VerificationProgress } from "@/components/navigation/VerificationProgress";
 import { MobileMenu } from "@/components/navigation/MobileMenu";
-import { RoleSwitcher } from "@/components/navigation/RoleSwitcher";
+import { RoleSwitcherCompact } from "@/components/navigation/RoleSwitcherCompact";
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
@@ -91,7 +91,7 @@ const Navbar = () => {
                 <div className="hidden md:block">
                   <VerificationProgress />
                 </div>
-                <RoleSwitcher />
+                <RoleSwitcherCompact />
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

@@ -19,6 +19,7 @@ export const useRoleSwitch = () => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [activeRoles, setActiveRoles] = useState<UserActiveRoles | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchActiveRoles = async () => {
     if (!user) return;
@@ -47,6 +48,7 @@ export const useRoleSwitch = () => {
       return;
     }
 
+    setError(null);
     setIsLoading(true);
 
     try {
@@ -54,11 +56,21 @@ export const useRoleSwitch = () => {
         body: { newRole }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Gestion d'erreurs spécifiques
+        if (error.message.includes('Rate limit')) {
+          throw new Error('Trop de changements récents. Réessayez dans 1h.');
+        }
+        if (error.message.includes('not available')) {
+          throw new Error(`Le rôle ${newRole} n'est pas disponible.`);
+        }
+        throw error;
+      }
 
       toast({
         title: "✅ Rôle changé",
         description: data.message || `Vous êtes maintenant ${newRole}`,
+        duration: 3000,
       });
 
       await refreshProfile();
@@ -71,6 +83,7 @@ export const useRoleSwitch = () => {
 
     } catch (error: any) {
       console.error('Error switching role:', error);
+      setError(error.message);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de changer de rôle",
@@ -117,6 +130,7 @@ export const useRoleSwitch = () => {
     currentRole: activeRoles?.current_role,
     availableRoles: activeRoles?.available_roles || [],
     isLoading,
+    error,
     switchRole,
     addAvailableRole,
     fetchActiveRoles,
