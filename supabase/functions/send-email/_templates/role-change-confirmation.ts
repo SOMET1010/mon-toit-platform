@@ -9,11 +9,11 @@ interface RoleChangeData {
 // Fonction utilitaire pour échapper le HTML et prévenir les injections XSS
 const escapeHtml = (text: string): string => {
   const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
   };
   return text.replace(/[&<>"']/g, (m) => map[m]);
 };
@@ -21,29 +21,29 @@ const escapeHtml = (text: string): string => {
 // Constantes de style pour faciliter la maintenance
 const EMAIL_STYLES = {
   colors: {
-    primary: '#10b981',
-    primaryLight: '#f0fdf4',
-    text: '#484848',
-    textLight: '#6b7280',
-    textDark: '#374151',
-    background: '#f6f9fc',
-    white: '#ffffff',
-    border: '#e5e7eb',
-    danger: '#ef4444',
-    dangerBg: '#fef2f2',
-    dangerText: '#991b1b'
+    primary: "#10b981",
+    primaryLight: "#f0fdf4",
+    text: "#484848",
+    textLight: "#6b7280",
+    textDark: "#374151",
+    background: "#f6f9fc",
+    white: "#ffffff",
+    border: "#e5e7eb",
+    danger: "#ef4444",
+    dangerBg: "#fef2f2",
+    dangerText: "#991b1b",
   },
   spacing: {
-    small: '16px',
-    medium: '24px',
-    large: '32px',
-    xlarge: '40px'
+    small: "16px",
+    medium: "24px",
+    large: "32px",
+    xlarge: "40px",
   },
   logo: {
-    url: 'https://btxhuqtirylvkgvoutoc.supabase.co/storage/v1/object/public/assets/mon-toit-logo.png',
-    width: '120',
-    height: 'auto'
-  }
+    url: "https://btxhuqtirylvkgvoutoc.supabase.co/storage/v1/object/public/assets/mon-toit-logo.png",
+    width: "120",
+    height: "auto",
+  },
 } as const;
 
 export const roleChangeConfirmationTemplate = (data: RoleChangeData): string => {
