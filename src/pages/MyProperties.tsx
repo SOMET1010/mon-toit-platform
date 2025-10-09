@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
@@ -16,6 +16,8 @@ import ViewToggle from '@/components/properties/ViewToggle';
 import PropertySearchBar from '@/components/properties/PropertySearchBar';
 import BulkActionsBar from '@/components/properties/BulkActionsBar';
 import PropertyCardEnhanced from '@/components/properties/PropertyCardEnhanced';
+import { PropertyTableView } from '@/components/properties/PropertyTableView';
+import { StickyHeader } from '@/components/ui/sticky-header';
 
 type Property = Pick<PropertyType, 
   'id' | 'title' | 'description' | 'property_type' | 'status' | 
@@ -31,10 +33,11 @@ type Property = Pick<PropertyType,
 
 const MyProperties = () => {
   const { user, profile, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeStatus, setActiveStatus] = useState('all');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [view, setView] = useState<'grid' | 'list' | 'table'>('table');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('created_desc');
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
@@ -197,6 +200,23 @@ const MyProperties = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Bien supprimé');
+      fetchProperties();
+    } catch (error) {
+      logger.error('Failed to delete property', { error });
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -241,15 +261,21 @@ const MyProperties = () => {
           />
 
           {/* Search and View Controls */}
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-            <PropertySearchBar
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-            />
-            <ViewToggle view={view} onViewChange={setView} />
-          </div>
+          <StickyHeader>
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center w-full">
+              <PropertySearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+              />
+              <ViewToggle 
+                view={view} 
+                onViewChange={setView}
+                options={['grid', 'list', 'table']}
+              />
+            </div>
+          </StickyHeader>
 
           {/* Properties Display */}
           {filteredAndSortedProperties.length === 0 ? (
@@ -271,6 +297,14 @@ const MyProperties = () => {
                 )}
               </div>
             </Card>
+          ) : view === 'table' ? (
+            <PropertyTableView
+              properties={filteredAndSortedProperties}
+              selectedProperties={selectedProperties}
+              onToggleSelect={handleToggleSelect}
+              onEdit={(id) => navigate(`/modifier-bien/${id}`)}
+              onDelete={handleDelete}
+            />
           ) : (
             <div className={
               view === 'grid'

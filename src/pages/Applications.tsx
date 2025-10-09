@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
@@ -8,10 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Eye, FileText } from 'lucide-react';
 import ApplicationDetail from '@/components/application/ApplicationDetail';
 import { ApplicationStatusTracker } from '@/components/application/ApplicationStatusTracker';
+import { ApplicationsTableView } from '@/components/application/ApplicationsTableView';
+import ViewToggle from '@/components/properties/ViewToggle';
 
 import type { ApplicationStatus } from '@/types';
 
@@ -51,6 +54,8 @@ const Applications = () => {
   const [applications, setApplications] = useState<ApplicationDisplay[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<ApplicationDisplay | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
+  const [activeFilter, setActiveFilter] = useState('all');
 
   useEffect(() => {
     if (user) {
@@ -172,22 +177,16 @@ const Applications = () => {
 
   const isOwner = profile?.user_type === 'proprietaire' || profile?.user_type === 'agence';
 
+  const filteredApplications = useMemo(() => {
+    if (activeFilter === 'all') return applications;
+    return applications.filter(a => a.status === activeFilter);
+  }, [applications, activeFilter]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-    );
-  }
-
-  if (selectedApplication) {
-    return (
-      <ApplicationDetail
-        application={selectedApplication}
-        onClose={() => setSelectedApplication(null)}
-        onStatusUpdate={updateApplicationStatus}
-        isOwner={isOwner}
-      />
     );
   }
 
@@ -210,44 +209,56 @@ const Applications = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList>
-            <TabsTrigger value="all">Toutes ({applications.length})</TabsTrigger>
-            <TabsTrigger value="pending">
-              En attente ({applications.filter(a => a.status === 'pending').length})
-            </TabsTrigger>
-            <TabsTrigger value="approved">
-              Approuvées ({applications.filter(a => a.status === 'approved').length})
-            </TabsTrigger>
-          </TabsList>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-auto">
+              <TabsList>
+                <TabsTrigger value="all">Toutes ({applications.length})</TabsTrigger>
+                <TabsTrigger value="pending">
+                  En attente ({applications.filter(a => a.status === 'pending').length})
+                </TabsTrigger>
+                <TabsTrigger value="approved">
+                  Approuvées ({applications.filter(a => a.status === 'approved').length})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            <ViewToggle 
+              view={viewMode === 'cards' ? 'list' : 'table'} 
+              onViewChange={(v) => setViewMode(v === 'list' ? 'cards' : 'table')}
+              options={['list', 'table']}
+            />
+          </div>
 
-          <TabsContent value="all" className="mt-6">
-            <ApplicationsList 
-              applications={applications}
-              onSelect={setSelectedApplication}
+          {viewMode === 'table' ? (
+            <ApplicationsTableView
+              applications={filteredApplications}
+              onSelect={(app: ApplicationDisplay) => setSelectedApplication(app)}
+              isOwner={isOwner}
+            />
+          ) : (
+            <ApplicationsList
+              applications={filteredApplications}
+              onSelect={(app: ApplicationDisplay) => setSelectedApplication(app)}
               getStatusBadge={getStatusBadge}
               isOwner={isOwner}
             />
-          </TabsContent>
+          )}
+        </div>
 
-          <TabsContent value="pending" className="mt-6">
-            <ApplicationsList 
-              applications={applications.filter(a => a.status === 'pending')}
-              onSelect={setSelectedApplication}
-              getStatusBadge={getStatusBadge}
-              isOwner={isOwner}
-            />
-          </TabsContent>
-
-          <TabsContent value="approved" className="mt-6">
-            <ApplicationsList 
-              applications={applications.filter(a => a.status === 'approved')}
-              onSelect={setSelectedApplication}
-              getStatusBadge={getStatusBadge}
-              isOwner={isOwner}
-            />
-          </TabsContent>
-        </Tabs>
+        {/* Dialog pour ApplicationDetail */}
+        <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+            {selectedApplication && (
+              <ApplicationDetail
+                application={selectedApplication}
+                onClose={() => setSelectedApplication(null)}
+                onStatusUpdate={updateApplicationStatus}
+                isOwner={isOwner}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
 
       <Footer />
