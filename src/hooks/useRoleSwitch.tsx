@@ -14,12 +14,19 @@ export interface UserActiveRoles {
   updated_at: string;
 }
 
+interface RoleSwitchError {
+  type: 'rate_limit' | 'unavailable' | 'network' | 'unauthorized' | 'unknown';
+  message: string;
+  retryAfter?: number;
+}
+
 export const useRoleSwitch = () => {
   const { user, refreshProfile } = useAuth();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [activeRoles, setActiveRoles] = useState<UserActiveRoles | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<RoleSwitchError | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const fetchActiveRoles = async () => {
     if (!user) return;
@@ -38,11 +45,56 @@ export const useRoleSwitch = () => {
     setActiveRoles(data);
   };
 
-  const switchRole = async (newRole: UserType) => {
+  const parseError = (error: any): RoleSwitchError => {
+    const message = error?.message || '';
+    
+    if (message.includes('Rate limit') || message.includes('Too many')) {
+      const match = message.match(/(\d+)\s*(hour|minute)/i);
+      const retryAfter = match ? parseInt(match[1]) * (match[2].toLowerCase() === 'hour' ? 60 : 1) : 60;
+      return {
+        type: 'rate_limit',
+        message: 'Trop de changements récents. Veuillez patienter.',
+        retryAfter
+      };
+    }
+    
+    if (message.includes('not available') || message.includes('pas disponible')) {
+      return {
+        type: 'unavailable',
+        message: 'Ce rôle n\'est pas disponible pour votre compte.'
+      };
+    }
+    
+    if (message.includes('NetworkError') || message.includes('Failed to fetch')) {
+      return {
+        type: 'network',
+        message: 'Problème de connexion. Vérifiez votre réseau.'
+      };
+    }
+    
+    if (message.includes('Unauthorized') || message.includes('not authenticated')) {
+      return {
+        type: 'unauthorized',
+        message: 'Session expirée. Veuillez vous reconnecter.'
+      };
+    }
+    
+    return {
+      type: 'unknown',
+      message: message || 'Une erreur inattendue s\'est produite.'
+    };
+  };
+
+  const switchRole = async (newRole: UserType, retry = false) => {
     if (!user) {
+      const authError: RoleSwitchError = {
+        type: 'unauthorized',
+        message: 'Vous devez être connecté'
+      };
+      setError(authError);
       toast({
         title: "Erreur",
-        description: "Vous devez être connecté",
+        description: authError.message,
         variant: "destructive",
       });
       return;
@@ -57,16 +109,12 @@ export const useRoleSwitch = () => {
       });
 
       if (error) {
-        // Gestion d'erreurs spécifiques
-        if (error.message.includes('Rate limit')) {
-          throw new Error('Trop de changements récents. Réessayez dans 1h.');
-        }
-        if (error.message.includes('not available')) {
-          throw new Error(`Le rôle ${newRole} n'est pas disponible.`);
-        }
         throw error;
       }
 
+      // Succès : réinitialiser le compteur de retry
+      setRetryCount(0);
+      
       toast({
         title: "✅ Rôle changé",
         description: data.message || `Vous êtes maintenant ${newRole}`,
@@ -82,17 +130,40 @@ export const useRoleSwitch = () => {
       }, 500);
 
     } catch (error: any) {
-      console.error('Error switching role:', error);
-      setError(error.message);
+      const parsedError = parseError(error);
+      setError(parsedError);
+      
+      // Auto-retry pour les erreurs réseau (max 2 tentatives)
+      if (parsedError.type === 'network' && retryCount < 2 && !retry) {
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => {
+          switchRole(newRole, true);
+        }, 2000);
+        
+        toast({
+          title: "Reconnexion...",
+          description: `Tentative ${retryCount + 1}/2`,
+        });
+        return;
+      }
+      
+      // Afficher le message d'erreur approprié
+      const toastDescription = parsedError.retryAfter
+        ? `${parsedError.message} Réessayez dans ${parsedError.retryAfter} minute${parsedError.retryAfter > 1 ? 's' : ''}.`
+        : parsedError.message;
+      
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de changer de rôle",
+        description: toastDescription,
         variant: "destructive",
+        duration: parsedError.type === 'rate_limit' ? 5000 : 4000,
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const clearError = () => setError(null);
 
   const addAvailableRole = async (newRole: UserType) => {
     if (!user) return;
@@ -131,9 +202,11 @@ export const useRoleSwitch = () => {
     availableRoles: activeRoles?.available_roles || [],
     isLoading,
     error,
+    retryCount,
     switchRole,
     addAvailableRole,
     fetchActiveRoles,
+    clearError,
     hasMultipleRoles: (activeRoles?.available_roles?.length || 0) > 1,
   };
 };
