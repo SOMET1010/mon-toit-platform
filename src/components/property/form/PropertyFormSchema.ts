@@ -31,6 +31,10 @@ export const propertySchema = z.object({
   has_ac: z.boolean().default(false),
   has_parking: z.boolean().default(false),
   has_garden: z.boolean().default(false),
+  work_status: z.enum(["aucun_travail", "travaux_a_effectuer"]).default("aucun_travail"),
+  work_description: z.string().optional(),
+  work_images: z.array(z.string()).optional().default([]),
+  title_deed_url: z.string().optional(),
 });
 
 export type PropertyFormData = z.infer<typeof propertySchema>;

@@ -1119,10 +1119,14 @@ export type Database = {
           status: string
           surface_area: number | null
           title: string
+          title_deed_url: string | null
           updated_at: string
           video_url: string | null
           view_count: number | null
           virtual_tour_url: string | null
+          work_description: string | null
+          work_images: Json | null
+          work_status: string | null
         }
         Insert: {
           address: string
@@ -1157,10 +1161,14 @@ export type Database = {
           status?: string
           surface_area?: number | null
           title: string
+          title_deed_url?: string | null
           updated_at?: string
           video_url?: string | null
           view_count?: number | null
           virtual_tour_url?: string | null
+          work_description?: string | null
+          work_images?: Json | null
+          work_status?: string | null
         }
         Update: {
           address?: string
@@ -1195,10 +1203,14 @@ export type Database = {
           status?: string
           surface_area?: number | null
           title?: string
+          title_deed_url?: string | null
           updated_at?: string
           video_url?: string | null
           view_count?: number | null
           virtual_tour_url?: string | null
+          work_description?: string | null
+          work_images?: Json | null
+          work_status?: string | null
         }
         Relationships: []
       }
@@ -1975,6 +1987,47 @@ export type Database = {
           oneci_status: string
           oneci_verified: boolean
           tenant_score: number
+        }[]
+      }
+      get_property_with_title_deed: {
+        Args: { p_property_id: string }
+        Returns: {
+          address: string
+          bathrooms: number
+          bedrooms: number
+          charges_amount: number
+          city: string
+          created_at: string
+          deposit_amount: number
+          description: string
+          floor_number: number
+          floor_plans: Json
+          has_ac: boolean
+          has_garden: boolean
+          has_parking: boolean
+          id: string
+          images: string[]
+          is_furnished: boolean
+          latitude: number
+          longitude: number
+          main_image: string
+          media_metadata: Json
+          moderation_status: string
+          monthly_rent: number
+          neighborhood: string
+          panoramic_images: Json
+          property_type: string
+          status: string
+          surface_area: number
+          title: string
+          title_deed_url: string
+          updated_at: string
+          video_url: string
+          view_count: number
+          virtual_tour_url: string
+          work_description: string
+          work_images: Json
+          work_status: string
         }[]
       }
       get_public_profile: {
