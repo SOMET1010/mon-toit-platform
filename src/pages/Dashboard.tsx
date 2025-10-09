@@ -16,6 +16,7 @@ import { ProfileScoreCard } from '@/components/dashboard/ProfileScoreCard';
 import { QuickActionsGrid } from '@/components/dashboard/QuickActionsGrid';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
 import { ApplicationsOverview } from '@/components/dashboard/ApplicationsOverview';
+import { MarketInsightsWidget } from '@/components/dashboard/MarketInsightsWidget';
 
 const Dashboard = () => {
   const { profile, loading, user } = useAuth();
@@ -126,8 +127,9 @@ const Dashboard = () => {
                 limit={8}
               />
 
-              {/* Bottom Section - Activity & Search History */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Bottom Section - Market Insights, Activity & Search History */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <MarketInsightsWidget />
                 <ActivityTimeline />
                 <SearchHistory />
               </div>
