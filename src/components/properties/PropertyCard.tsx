@@ -48,14 +48,17 @@ export const PropertyCard = ({
   }, [property.id]);
 
   return (
-    <Card className="group relative overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200">
+    <Card className="group relative overflow-hidden bg-white shadow-card hover:shadow-card-hover transition-all duration-300 border border-border rounded-2xl animate-scale-in">
       <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
-          <img
-            src={property.main_image}
-            alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          <>
+            <img
+              src={property.main_image}
+              alt={`Photo du bien: ${property.title} - ${property.property_type} à ${property.city}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-br from-muted to-muted/50">
             <div className="text-center">
@@ -69,15 +72,16 @@ export const PropertyCard = ({
           <Button
             size="icon"
             variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
-            className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+            className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200"
             onClick={() => {
               onFavoriteClick(property.id);
               toast({
-                description: isFavorite ? "Bien retiré des favoris" : "Bien ajouté aux favoris !",
+                description: isFavorite ? "❤️ Bien retiré des favoris" : "💙 Bien ajouté aux favoris !",
+                duration: 2000,
               });
             }}
           >
-            <Heart className={`h-4 w-4 transition-all ${isFavorite ? 'fill-current scale-110' : ''}`} />
+            <Heart className={`h-4 w-4 transition-all duration-300 ${isFavorite ? 'fill-current scale-110' : ''}`} />
           </Button>
         )}
         
@@ -114,14 +118,14 @@ export const PropertyCard = ({
         )}
       </div>
 
-      <CardHeader className="pb-3">
-        <CardTitle className="line-clamp-2 text-lg">{property.title}</CardTitle>
-        <p className="text-2xl font-bold text-primary mt-2">
+      <CardHeader className="p-4 sm:p-6 pb-3">
+        <CardTitle className="line-clamp-2 text-lg sm:text-xl">{property.title}</CardTitle>
+        <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
           {formatPrice(property.monthly_rent)} <span className="text-base font-normal">/mois</span>
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 sm:p-6 pt-0">
         <div className="flex items-center text-muted-foreground">
           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
           <span className="line-clamp-1">{property.city}</span>

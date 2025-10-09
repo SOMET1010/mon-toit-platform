@@ -494,3 +494,22 @@ export function getVerificationStatusVariant(
 ): 'default' | 'secondary' | 'destructive' | 'outline' {
   return VERIFICATION_STATUS_VARIANTS[status] || 'outline';
 }
+
+// ============= 10. DESIGN TOKENS =============
+
+export const DESIGN_TOKENS = {
+  borderRadius: {
+    card: '16px',
+    button: '12px',
+    input: '8px',
+    badge: '9999px', // full rounded
+  },
+  shadow: {
+    sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+    md: '0 4px 6px rgba(0, 0, 0, 0.07)',
+    lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+    xl: '0 20px 25px rgba(0, 0, 0, 0.1)',
+    card: '0 2px 8px rgba(0, 0, 0, 0.08)',
+    cardHover: '0 8px 24px rgba(0, 0, 0, 0.12)',
+  },
+} as const;

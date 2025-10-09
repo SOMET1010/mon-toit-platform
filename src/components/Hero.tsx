@@ -35,7 +35,7 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 py-20 md:py-28 max-w-7xl z-10">
+      <div className="relative container mx-auto px-6 sm:px-8 md:px-4 py-20 md:py-28 max-w-7xl z-10 animate-fade-in">
         <div className="max-w-2xl lg:max-w-xl animate-fade-in-slow">
           {/* Badge Nouveauté */}
           <div className="inline-flex items-center gap-2 bg-warning/10 border-2 border-warning px-4 py-2 rounded-full mb-4 animate-badge-appear">
