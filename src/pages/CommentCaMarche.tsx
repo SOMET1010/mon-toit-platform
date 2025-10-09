@@ -1,10 +1,14 @@
+import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import HowItWorks from "@/components/HowItWorks";
-import Features from "@/components/Features";
-import Testimonials from "@/components/Testimonials";
 import { Card, CardContent } from "@/components/ui/card";
-import { HelpCircle, Shield, FileCheck, Home, UserCheck } from "lucide-react";
+import { Shield, FileCheck, Home, UserCheck } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load des sections
+const HowItWorks = lazy(() => import("@/components/HowItWorks"));
+const Features = lazy(() => import("@/components/Features"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
 
 const CommentCaMarche = () => {
   return (
@@ -14,7 +18,7 @@ const CommentCaMarche = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-16">
+            <div className="text-center mb-16 animate-fade-in">
               <h1 className="text-h1 mb-4">
                 Comment ça <span className="text-primary">marche</span> ?
               </h1>
@@ -24,17 +28,25 @@ const CommentCaMarche = () => {
             </div>
 
             {/* Processus détaillé */}
-            <HowItWorks />
+            <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg mb-20" />}>
+              <div className="animate-fade-in">
+                <HowItWorks />
+              </div>
+            </Suspense>
 
             {/* Fonctionnalités clés */}
-            <div className="my-20">
-              <Features />
-            </div>
+            <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg my-20" />}>
+              <div className="my-20 animate-fade-in">
+                <Features />
+              </div>
+            </Suspense>
 
             {/* Témoignages */}
-            <div className="my-20">
-              <Testimonials />
-            </div>
+            <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg my-20" />}>
+              <div className="my-20 animate-fade-in">
+                <Testimonials />
+              </div>
+            </Suspense>
 
             {/* FAQ Section */}
             <section className="py-16">

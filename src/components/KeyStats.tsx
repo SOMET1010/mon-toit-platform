@@ -31,8 +31,12 @@ const KeyStats = () => {
               "bg-secondary";
             
             return (
-              <div key={index} className="flex flex-col items-center gap-4">
-                <div className={`p-4 rounded-full ${iconBgColor}`}>
+              <div 
+                key={index} 
+                className="flex flex-col items-center gap-4 hover-scale"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className={`p-4 rounded-full ${iconBgColor} transition-all duration-300 hover:shadow-lg`}>
                   <Icon className="h-8 w-8 text-white" />
                 </div>
                 <div>

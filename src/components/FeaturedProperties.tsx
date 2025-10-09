@@ -126,7 +126,7 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
   return (
     <section className="py-20 md:py-28 px-4 bg-gradient-to-b from-white via-primary/3 to-white border-t border-primary/10 pattern-bogolan" aria-labelledby="featured-properties-heading">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 animate-fade-in">
           <div>
             <h2 
               id="featured-properties-heading"
@@ -152,8 +152,13 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
           role="list"
           aria-label="Biens immobiliers en vedette"
         >
-          {properties.map((property) => (
-            <div key={property.id} role="listitem">
+          {properties.map((property, index) => (
+            <div 
+              key={property.id} 
+              role="listitem"
+              className="animate-fade-in hover-scale"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <PropertyCard
                 property={property}
                 onFavoriteClick={(id) => {
