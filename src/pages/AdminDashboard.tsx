@@ -6,7 +6,10 @@ import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LayoutDashboard, Home, Users, FileText, Settings, Shield, Clock } from 'lucide-react';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { StickyHeader } from '@/components/ui/sticky-header';
+import { Shield } from 'lucide-react';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminProperties from '@/components/admin/AdminProperties';
 import AdminUsers from '@/components/admin/AdminUsers';
@@ -124,189 +127,159 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Administration ANSUT
-          </h1>
-          <p className="text-muted-foreground">
-            Gestion et validation de la plateforme Mon Toit
-          </p>
-        </div>
+      <SidebarProvider>
+        <div className="flex w-full min-h-screen">
+          <AdminSidebar 
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            badges={{
+              certifications: pendingCertifications,
+              disputes: openDisputes,
+              properties: pendingProperties,
+              overdueApplications: overdueApplications,
+            }}
+          />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-12 mb-8">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              Vue d'ensemble
-            </TabsTrigger>
-            <TabsTrigger value="certifications" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Certifications
-              {pendingCertifications > 0 && (
-                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
-                  {pendingCertifications}
-                </Badge>
+          <SidebarInset className="flex-1">
+            <main className="container mx-auto px-6 py-8">
+              <StickyHeader>
+                <h1 className="text-2xl font-bold">Administration ANSUT</h1>
+                <p className="text-sm text-muted-foreground">
+                  Gestion et validation de la plateforme Mon Toit
+                </p>
+              </StickyHeader>
+
+              {/* Vue d'ensemble */}
+              {activeTab === 'overview' && (
+                <div className="space-y-6">
+                  <SeedDemoDataButton />
+                  <AdminStats />
+                </div>
               )}
-            </TabsTrigger>
-            <TabsTrigger value="verifications">Vérifications</TabsTrigger>
-            <TabsTrigger value="processing" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Traitement
-              {overdueApplications > 0 && (
-                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
-                  {overdueApplications}
-                </Badge>
+
+              {/* Certifications */}
+              {activeTab === 'certifications' && (
+                <LeaseCertificationQueue />
               )}
-            </TabsTrigger>
-            <TabsTrigger value="security">Sécurité</TabsTrigger>
-            <TabsTrigger value="audit">Audit</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="disputes" className="flex items-center gap-2">
-              Litiges
-              {openDisputes > 0 && (
-                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
-                  {openDisputes}
-                </Badge>
+
+              {/* Vérifications */}
+              {activeTab === 'verifications' && (
+                <AdminVerificationQueue />
               )}
-            </TabsTrigger>
-            <TabsTrigger value="moderation">Modération</TabsTrigger>
-            <TabsTrigger value="reporting">Rapports</TabsTrigger>
-            <TabsTrigger value="electronic-signatures">Signatures Électroniques</TabsTrigger>
-            <TabsTrigger value="properties" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Biens
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Utilisateurs
-            </TabsTrigger>
-            <TabsTrigger value="leases" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Baux
-            </TabsTrigger>
-            <TabsTrigger value="mfa" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Sécurité 2FA
-            </TabsTrigger>
-          </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <SeedDemoDataButton />
-            <AdminStats />
-          </TabsContent>
+              {/* Traitement */}
+              {activeTab === 'processing' && (
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <ProcessingConfigPanel />
+                  <ProcessingAnalytics />
+                </div>
+              )}
 
-          <TabsContent value="certifications" className="space-y-6">
-            <LeaseCertificationQueue />
-          </TabsContent>
+              {/* Sécurité - Accès sensibles */}
+              {activeTab === 'security' && (
+                <SensitiveDataAccessMonitor />
+              )}
 
-          <TabsContent value="verifications" className="space-y-6">
-            <AdminVerificationQueue />
-          </TabsContent>
+              {/* Sécurité 2FA */}
+              {activeTab === 'mfa' && (
+                <MfaSecurityMonitor />
+              )}
 
-          <TabsContent value="processing" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <ProcessingConfigPanel />
-              <div>
-                <ProcessingAnalytics />
-              </div>
-            </div>
-          </TabsContent>
+              {/* Audit */}
+              {activeTab === 'audit' && (
+                <div className="space-y-6">
+                  {!hasRole('super_admin') && !hasRole('admin') && (
+                    <PromoteToSuperAdmin />
+                  )}
+                  <AuditLogViewer />
+                </div>
+              )}
 
-          <TabsContent value="security" className="space-y-6">
-            <SensitiveDataAccessMonitor />
-          </TabsContent>
+              {/* Analytics */}
+              {activeTab === 'analytics' && (
+                <PlatformAnalytics />
+              )}
 
-          <TabsContent value="mfa" className="space-y-6">
-            <MfaSecurityMonitor />
-          </TabsContent>
+              {/* Litiges */}
+              {activeTab === 'disputes' && (
+                <DisputeManager />
+              )}
 
-          <TabsContent value="audit" className="space-y-6">
-            {!hasRole('super_admin') && !hasRole('admin') && (
-              <PromoteToSuperAdmin />
-            )}
-            <AuditLogViewer />
-          </TabsContent>
+              {/* Modération */}
+              {activeTab === 'moderation' && (
+                <ReviewModeration />
+              )}
 
-          <TabsContent value="analytics" className="space-y-6">
-            <PlatformAnalytics />
-          </TabsContent>
+              {/* Rapports */}
+              {activeTab === 'reporting' && (
+                <AdvancedReporting />
+              )}
 
-          <TabsContent value="disputes" className="space-y-6">
-            <DisputeManager />
-          </TabsContent>
+              {/* Signatures Électroniques */}
+              {activeTab === 'electronic-signatures' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Signatures Électroniques CryptoNeo
+                    </CardTitle>
+                    <CardDescription>
+                      Gestion des certificats numériques et signatures électroniques
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Tabs defaultValue="dashboard" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-6">
+                        <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
+                        <TabsTrigger value="certificates">Gestion des certificats</TabsTrigger>
+                      </TabsList>
 
-          <TabsContent value="moderation" className="space-y-6">
-            <ReviewModeration />
-          </TabsContent>
+                      <TabsContent value="dashboard">
+                        <ElectronicSignaturesDashboard />
+                      </TabsContent>
 
-          <TabsContent value="reporting" className="space-y-6">
-            <AdvancedReporting />
-          </TabsContent>
+                      <TabsContent value="certificates">
+                        <CertificateManager />
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              )}
 
-          <TabsContent value="electronic-signatures" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Signatures Électroniques CryptoNeo
-                </CardTitle>
-                <CardDescription>
-                  Gestion des certificats numériques et signatures électroniques
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="dashboard" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
-                    <TabsTrigger value="certificates">Gestion des certificats</TabsTrigger>
+              {/* Biens */}
+              {activeTab === 'properties' && (
+                <AdminProperties />
+              )}
+
+              {/* Utilisateurs */}
+              {activeTab === 'users' && (
+                <AdminUsers />
+              )}
+
+              {/* Baux */}
+              {activeTab === 'leases' && (
+                <Tabs defaultValue="list" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="list">Liste des Baux</TabsTrigger>
+                    <TabsTrigger value="templates">Modèles de Baux</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="dashboard">
-                    <ElectronicSignaturesDashboard />
+                  <TabsContent value="list" className="mt-4">
+                    <AdminLeases />
                   </TabsContent>
 
-                  <TabsContent value="certificates">
-                    <CertificateManager />
+                  <TabsContent value="templates" className="mt-4">
+                    <LeaseTemplateManager />
                   </TabsContent>
                 </Tabs>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="properties" className="space-y-6">
-            <AdminProperties />
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
-            <AdminUsers />
-          </TabsContent>
-
-          <TabsContent value="leases" className="space-y-6">
-            <Tabs defaultValue="list" className="w-full">
-              <TabsList>
-                <TabsTrigger value="list">Liste des Baux</TabsTrigger>
-                <TabsTrigger value="templates">Modèles de Baux</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="list" className="mt-4">
-                <AdminLeases />
-              </TabsContent>
-
-              <TabsContent value="templates" className="mt-4">
-                <LeaseTemplateManager />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-
-          <TabsContent value="integrations" className="space-y-6">
-            <AdminIntegrations />
-          </TabsContent>
-        </Tabs>
-      </main>
+              )}
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
 
       <Footer />
     </div>
