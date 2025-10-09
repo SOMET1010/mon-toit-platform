@@ -28,7 +28,9 @@ export const PropertyCardCompact = ({ property, className }: PropertyCardCompact
             alt={property.title}
             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
           />
-          <StatusBadge status={property.status} className="absolute top-1 left-1 text-xs py-0 px-1.5" />
+          <div className="absolute top-1 left-1">
+            <StatusBadge status={property.status} variant="compact" />
+          </div>
         </div>
 
         {/* Info principale */}
@@ -79,11 +81,7 @@ export const PropertyCardCompact = ({ property, className }: PropertyCardCompact
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Eye className="h-3.5 w-3.5" />
-              <span>{property.views_count || 0}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>{property.applications_count || 0}</span>
+              <span>{property.view_count || 0}</span>
             </div>
           </div>
         </div>

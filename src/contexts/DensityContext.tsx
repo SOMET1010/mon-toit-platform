@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 
 export type UIDensity = 'comfortable' | 'compact' | 'dense';
 
@@ -20,41 +18,19 @@ const spacingMaps: Record<UIDensity, { card: string; section: string; padding: s
   dense: { card: 'space-y-2', section: 'space-y-4', padding: 'p-2' },
 };
 
+const STORAGE_KEY = 'mon-toit-ui-density';
+
 const DensityContext = createContext<DensityContextType | undefined>(undefined);
 
 export const DensityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const [density, setDensityState] = useState<UIDensity>('comfortable');
+  const [density, setDensityState] = useState<UIDensity>(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return (stored as UIDensity) || 'comfortable';
+  });
 
-  // Charger la préférence depuis la DB
-  useEffect(() => {
-    const loadDensity = async () => {
-      if (!user?.id) return;
-
-      const { data } = await supabase
-        .from('profiles')
-        .select('ui_density')
-        .eq('id', user.id)
-        .single();
-
-      if (data?.ui_density) {
-        setDensityState(data.ui_density as UIDensity);
-      }
-    };
-
-    loadDensity();
-  }, [user?.id]);
-
-  // Sauvegarder la préférence dans la DB
-  const setDensity = async (newDensity: UIDensity) => {
+  const setDensity = (newDensity: UIDensity) => {
     setDensityState(newDensity);
-
-    if (user?.id) {
-      await supabase
-        .from('profiles')
-        .update({ ui_density: newDensity })
-        .eq('id', user.id);
-    }
+    localStorage.setItem(STORAGE_KEY, newDensity);
   };
 
   return (
