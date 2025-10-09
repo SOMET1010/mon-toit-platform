@@ -150,6 +150,73 @@ export const PropertyWorkStatus = ({ form }: PropertyWorkStatusProps) => {
                 </FormItem>
               )}
             />
+
+            {/* Estimations optionnelles */}
+            <div className="bg-muted/50 p-4 rounded-lg space-y-4 mt-4">
+              <h4 className="font-semibold text-sm">Estimations (optionnel)</h4>
+              
+              <FormField
+                control={form.control}
+                name="work_estimated_cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Coût estimé (FCFA)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Ex: 500000"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Estimation du coût total des travaux
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="work_estimated_duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Durée estimée</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Ex: 2 semaines, 1 mois" 
+                        {...field}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Temps nécessaire pour réaliser les travaux
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="work_start_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date de début prévue</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date" 
+                        {...field}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Date prévue pour commencer les travaux
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         )}
       </CardContent>

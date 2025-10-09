@@ -1125,7 +1125,10 @@ export type Database = {
           view_count: number | null
           virtual_tour_url: string | null
           work_description: string | null
+          work_estimated_cost: number | null
+          work_estimated_duration: string | null
           work_images: Json | null
+          work_start_date: string | null
           work_status: string | null
         }
         Insert: {
@@ -1167,7 +1170,10 @@ export type Database = {
           view_count?: number | null
           virtual_tour_url?: string | null
           work_description?: string | null
+          work_estimated_cost?: number | null
+          work_estimated_duration?: string | null
           work_images?: Json | null
+          work_start_date?: string | null
           work_status?: string | null
         }
         Update: {
@@ -1209,7 +1215,10 @@ export type Database = {
           view_count?: number | null
           virtual_tour_url?: string | null
           work_description?: string | null
+          work_estimated_cost?: number | null
+          work_estimated_duration?: string | null
           work_images?: Json | null
+          work_start_date?: string | null
           work_status?: string | null
         }
         Relationships: []

@@ -23,6 +23,7 @@ import { MediaGallery } from '@/components/property/MediaGallery';
 import { VerificationGuard } from '@/components/application/VerificationGuard';
 import { GuestContactForm } from '@/components/messaging/GuestContactForm';
 import { TitleDeedSection } from '@/components/property/TitleDeedSection';
+import { WorkStatusSection } from '@/components/property/WorkStatusSection';
 import { logger } from '@/services/logger';
 import type { Property, Application, PropertyStats } from '@/types';
 
@@ -417,6 +418,16 @@ const PropertyDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Work Status Section */}
+              <WorkStatusSection
+                workStatus={property.work_status || 'aucun_travail'}
+                workDescription={property.work_description}
+                workImages={Array.isArray(property.work_images) ? property.work_images : []}
+                workEstimatedCost={property.work_estimated_cost}
+                workEstimatedDuration={property.work_estimated_duration}
+                workStartDate={property.work_start_date}
+              />
 
               {/* Title Deed Section */}
               <TitleDeedSection 

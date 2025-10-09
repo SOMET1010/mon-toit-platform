@@ -34,6 +34,9 @@ export const propertySchema = z.object({
   work_status: z.enum(["aucun_travail", "travaux_a_effectuer"]).default("aucun_travail"),
   work_description: z.string().optional(),
   work_images: z.array(z.string()).optional().default([]),
+  work_estimated_cost: z.number().nullable().optional(),
+  work_estimated_duration: z.string().nullable().optional(),
+  work_start_date: z.string().nullable().optional(),
   title_deed_url: z.string().optional(),
 });
 

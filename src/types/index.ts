@@ -43,6 +43,9 @@ export interface Property {
   work_status?: string | null;
   work_description?: string | null;
   work_images?: any;
+  work_estimated_cost?: number | null;
+  work_estimated_duration?: string | null;
+  work_start_date?: string | null;
   title_deed_url?: string | null;
 }
 
