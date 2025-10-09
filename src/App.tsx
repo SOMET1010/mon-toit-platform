@@ -42,6 +42,8 @@ import Tarifs from "./pages/Tarifs";
 import PopulateImages from "./pages/PopulateImages";
 import TestCryptoNeo from "./pages/TestCryptoNeo";
 import Guide from "./pages/Guide";
+import Explorer from "./pages/Explorer";
+import CommentCaMarche from "./pages/CommentCaMarche";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recherche" element={<Search />} />
+            <Route path="/explorer" element={<Explorer />} />
+            <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/certification" element={<Certification />} />
             <Route path="/auth" element={<Auth />} />

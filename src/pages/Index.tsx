@@ -1,14 +1,9 @@
 import Navbar from "@/components/Navbar";
 import ContextBar from "@/components/ContextBar";
 import Hero from "@/components/Hero";
-import HowItWorks from "@/components/HowItWorks";
-import RoleSelector from "@/components/RoleSelector";
 import KeyStats from "@/components/KeyStats";
-import Features from "@/components/Features";
-import Testimonials from "@/components/Testimonials";
 import FeaturedProperties from "@/components/FeaturedProperties";
-import RightNowSection from "@/components/RightNowSection";
-import ExploreMap from "@/components/ExploreMap";
+import PreFooterCTA from "@/components/PreFooterCTA";
 import Footer from "@/components/Footer";
 import StickyCTA from "@/components/StickyCTA";
 import OnboardingModal from "@/components/OnboardingModal";
@@ -20,14 +15,9 @@ const Index = () => {
       <ContextBar />
       <main className="flex-1">
         <Hero />
-        <ExploreMap />
-        <HowItWorks />
-        <RoleSelector />
         <KeyStats />
-        <Features />
-        <Testimonials />
-        <FeaturedProperties />
-        <RightNowSection />
+        <FeaturedProperties limit={4} />
+        <PreFooterCTA />
       </main>
       <Footer />
       <StickyCTA />

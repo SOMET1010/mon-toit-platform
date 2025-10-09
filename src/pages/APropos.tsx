@@ -1,5 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Features from "@/components/Features";
+import Testimonials from "@/components/Testimonials";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Users, Award, TrendingUp } from "lucide-react";
 
@@ -83,6 +85,22 @@ const APropos = () => {
                 </ul>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Fonctionnalités de la plateforme */}
+          <div className="my-20">
+            <h2 className="text-h2 text-center mb-12">
+              Nos <span className="text-primary">fonctionnalités</span>
+            </h2>
+            <Features />
+          </div>
+
+          {/* Témoignages */}
+          <div className="my-20">
+            <h2 className="text-h2 text-center mb-12">
+              Ce que disent nos <span className="text-primary">utilisateurs</span>
+            </h2>
+            <Testimonials />
           </div>
         </div>
       </main>

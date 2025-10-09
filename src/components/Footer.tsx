@@ -80,8 +80,18 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/explorer" className="text-muted-foreground hover:text-primary transition-colors duration-200">
+                  Explorer la carte
+                </Link>
+              </li>
+              <li>
                 <Link to="/publier" className="text-muted-foreground hover:text-primary transition-colors duration-200">
                   Publier une annonce
+                </Link>
+              </li>
+              <li>
+                <Link to="/comment-ca-marche" className="text-muted-foreground hover:text-primary transition-colors duration-200">
+                  Comment ça marche
                 </Link>
               </li>
               <li>

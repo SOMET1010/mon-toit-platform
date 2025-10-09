@@ -12,7 +12,11 @@ import { handleError } from '@/lib/errorHandler';
 import { logger } from '@/services/logger';
 import { toast } from 'sonner';
 
-const FeaturedProperties = () => {
+interface FeaturedPropertiesProps {
+  limit?: number;
+}
+
+const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +33,7 @@ const FeaturedProperties = () => {
       const featured = data
         .filter(p => p.status === 'disponible')
         .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-        .slice(0, 6);
+        .slice(0, limit);
       
       setProperties(featured);
     } catch (err) {
@@ -41,7 +45,7 @@ const FeaturedProperties = () => {
       setLoading(false);
       setIsRetrying(false);
     }
-  }, []);
+  }, [limit]);
 
   useEffect(() => {
     fetchFeaturedProperties();
@@ -84,7 +88,7 @@ const FeaturedProperties = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {Array.from({ length: limit }).map((_, i) => (
               <div key={i}>{SkeletonCard}</div>
             ))}
           </div>
