@@ -85,7 +85,7 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                   <Label>Ville</Label>
                   <Select onValueChange={(value) => handleFilterChange('city', value)} value={filters.city}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Toutes les villes" />
+                      <SelectValue placeholder="Ex: Abidjan, Yopougon, Cocody..." />
                     </SelectTrigger>
                     <SelectContent>
                       {CITIES.map(city => (
@@ -100,7 +100,7 @@ const PropertyFiltersComponent = ({ onFilterChange, onReset }: PropertyFiltersPr
                   <Label>Type de bien</Label>
                   <Select onValueChange={(value) => handleFilterChange('propertyType', value)} value={filters.propertyType}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Tous les types" />
+                      <SelectValue placeholder="Ex: Appartement, Villa, Studio..." />
                     </SelectTrigger>
                     <SelectContent>
                       {PROPERTY_TYPES.map(type => (

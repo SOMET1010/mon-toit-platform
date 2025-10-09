@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, CheckCircle2, Users, Building2, Star } from "lucide-react";
+import { Search, CheckCircle2, Users, Building2, Star, PlusCircle } from "lucide-react";
 import heroImage from "@/assets/hero-slide-1.jpg";
 
 const Hero = () => {
@@ -65,7 +65,7 @@ const Hero = () => {
           </h1>
           
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-xl font-medium">
-            Gratuit pour les locataires, sécurisé pour tous. La première plateforme de location certifiée en Côte d'Ivoire.
+            <span className="text-foreground font-semibold">Trouvez, louez ou publiez votre logement</span> en toute confiance avec la première plateforme certifiée ANSUT en Côte d'Ivoire.
           </p>
 
           {/* Primary CTAs */}
@@ -78,14 +78,14 @@ const Hero = () => {
               <Search className="h-5 w-5" />
               Je cherche un logement
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="h-14 px-10 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary text-primary hover:bg-primary/5 rounded-full inline-flex items-center gap-2"
-              onClick={() => navigate('/auth?type=proprietaire')}
-            >
-              Je mets en location
-            </Button>
+          <Button 
+            size="lg" 
+            className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-white rounded-full inline-flex items-center gap-2"
+            onClick={() => navigate('/auth?type=proprietaire')}
+          >
+            <PlusCircle className="h-5 w-5" />
+            Je mets en location
+          </Button>
           </div>
 
           {/* Note ANSUT */}

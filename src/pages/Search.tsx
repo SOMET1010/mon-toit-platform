@@ -6,7 +6,7 @@ import PropertyFiltersComponent, { PropertyFilters } from '@/components/Property
 import PropertyMap from '@/components/PropertyMap';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Grid, List, Map } from 'lucide-react';
+import { Grid, List, Map, Search as SearchIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useProperties } from '@/hooks/useProperties';
@@ -47,8 +47,11 @@ const Search = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary"></div>
+        <p className="text-lg font-medium text-muted-foreground animate-pulse">
+          Chargement des biens disponibles...
+        </p>
       </div>
     );
   }
@@ -126,8 +129,21 @@ const Search = () => {
           ) : (
             <>
               {filteredProperties.length === 0 ? (
-                <Card className="p-12 text-center">
-                  <p className="text-muted-foreground">Aucun bien ne correspond à vos critères</p>
+                <Card className="p-12 text-center border-2 border-dashed border-muted-foreground/20">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+                      <SearchIcon className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">Aucun résultat trouvé</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Essayez d'ajuster vos filtres ou de rechercher dans une autre ville
+                      </p>
+                      <Button variant="outline" onClick={handleReset}>
+                        Réinitialiser les filtres
+                      </Button>
+                    </div>
+                  </div>
                 </Card>
               ) : (
                 <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6' : 'space-y-4 mt-6'}>
