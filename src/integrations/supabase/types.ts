@@ -161,6 +161,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "digital_certificates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       disputes: {
@@ -302,6 +309,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "electronic_signature_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1280,6 +1294,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "recommendation_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rental_applications: {
@@ -1337,6 +1358,13 @@ export type Database = {
             columns: ["applicant_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -1533,6 +1561,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "search_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1754,6 +1789,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_reminders: {
@@ -1893,7 +1935,67 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          cnam_verified: boolean | null
+          created_at: string | null
+          face_verified: boolean | null
+          full_name: string | null
+          id: string | null
+          is_verified: boolean | null
+          oneci_verified: boolean | null
+          updated_at: string | null
+          user_type: Database["public"]["Enums"]["user_type"] | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          cnam_verified?: boolean | null
+          created_at?: string | null
+          face_verified?: boolean | null
+          full_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          oneci_verified?: boolean | null
+          updated_at?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          cnam_verified?: boolean | null
+          created_at?: string | null
+          face_verified?: boolean | null
+          full_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          oneci_verified?: boolean | null
+          updated_at?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+        }
+        Relationships: []
+      }
+      sensitive_data_access_monitoring: {
+        Row: {
+          access_granted: boolean | null
+          accessed_at: string | null
+          data_type: string | null
+          id: string | null
+          metadata: Json | null
+          mfa_status: string | null
+          relationship_type: string | null
+          requester_id: string | null
+          requester_name: string | null
+          target_name: string | null
+          target_user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_available_role: {
@@ -1902,6 +2004,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      admin_has_2fa_enabled: {
+        Args: { _admin_id: string }
+        Returns: boolean
       }
       approve_verification: {
         Args: {
@@ -1984,6 +2090,18 @@ export type Database = {
           admin_id: string
           time_window_end: string
           time_window_start: string
+        }[]
+      }
+      detect_suspicious_sensitive_data_access: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          access_count: number
+          admin_id: string
+          admin_name: string
+          data_types: string[]
+          first_access: string
+          has_2fa: boolean
+          last_access: string
         }[]
       }
       get_failed_login_attempts: {
@@ -2087,13 +2205,11 @@ export type Database = {
           bio: string
           city: string
           cnam_verified: boolean
-          created_at: string
           face_verified: boolean
           full_name: string
           id: string
           is_verified: boolean
           oneci_verified: boolean
-          updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
         }[]
       }
