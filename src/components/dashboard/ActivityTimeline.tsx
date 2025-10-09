@@ -15,7 +15,11 @@ interface Activity {
   color: string;
 }
 
-export const ActivityTimeline = () => {
+interface ActivityTimelineProps {
+  className?: string;
+}
+
+export const ActivityTimeline = ({ className }: ActivityTimelineProps) => {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,7 +124,7 @@ export const ActivityTimeline = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -146,7 +150,7 @@ export const ActivityTimeline = () => {
 
   if (!activities.length) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -163,7 +167,7 @@ export const ActivityTimeline = () => {
   }
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />

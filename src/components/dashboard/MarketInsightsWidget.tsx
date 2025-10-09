@@ -22,7 +22,11 @@ interface MarketInsightsData {
   message?: string;
 }
 
-export const MarketInsightsWidget = () => {
+interface MarketInsightsWidgetProps {
+  className?: string;
+}
+
+export const MarketInsightsWidget = ({ className }: MarketInsightsWidgetProps) => {
   const { user } = useAuth();
   const [insights, setInsights] = useState<MarketInsightsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +63,7 @@ export const MarketInsightsWidget = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
@@ -76,7 +80,7 @@ export const MarketInsightsWidget = () => {
 
   if (error) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
@@ -92,7 +96,7 @@ export const MarketInsightsWidget = () => {
 
   if (!insights || insights.trends.length === 0) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
@@ -107,7 +111,7 @@ export const MarketInsightsWidget = () => {
   }
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />

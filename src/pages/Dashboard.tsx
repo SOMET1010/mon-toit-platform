@@ -8,15 +8,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Home, Building2, Users, BarChart3, Plus, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
+import { RecommendationsCarousel } from '@/components/recommendations/RecommendationsCarousel';
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 import SearchHistory from '@/components/dashboard/SearchHistory';
 import SmartReminders from '@/components/dashboard/SmartReminders';
-import { ProfileScoreCard } from '@/components/dashboard/ProfileScoreCard';
-import { QuickActionsGrid } from '@/components/dashboard/QuickActionsGrid';
+import { ProfileScoreCardCompact } from '@/components/dashboard/ProfileScoreCardCompact';
+import { QuickActionsGridCompact } from '@/components/dashboard/QuickActionsGridCompact';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
-import { ApplicationsOverview } from '@/components/dashboard/ApplicationsOverview';
+import { ApplicationsOverviewCompact } from '@/components/dashboard/ApplicationsOverviewCompact';
 import { MarketInsightsWidget } from '@/components/dashboard/MarketInsightsWidget';
+import { CollapsibleSection } from '@/components/ui/collapsible-section';
+import { StickyHeader } from '@/components/ui/sticky-header';
 
 const Dashboard = () => {
   const { profile, loading, user } = useAuth();
@@ -75,63 +77,71 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
-        <div className="max-w-6xl mx-auto space-y-8">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+        <div className="max-w-7xl mx-auto space-y-4">
           <DynamicBreadcrumb />
           
           {/* Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold">{content.title}</h1>
-              <p className="text-muted-foreground mt-2">Bienvenue, {profile.full_name}</p>
+          <StickyHeader>
+            <div className="flex justify-between items-center w-full">
+              <div>
+                <h1 className="text-3xl font-bold">{content.title}</h1>
+                <p className="text-sm text-muted-foreground mt-1">Bienvenue, {profile.full_name}</p>
+              </div>
+              <div className="flex gap-2">
+                {profile.user_type === 'locataire' && (
+                  <Button variant="outline" size="sm" onClick={() => setPreferencesOpen(true)}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Préférences
+                  </Button>
+                )}
+                {profile.user_type === 'proprietaire' && (
+                  <Button asChild size="sm">
+                    <Link to="/ajouter-bien">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Ajouter un bien
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="flex gap-2">
-              {profile.user_type === 'locataire' && (
-                <Button variant="outline" onClick={() => setPreferencesOpen(true)}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Mes préférences
-                </Button>
-              )}
-              {profile.user_type === 'proprietaire' && (
-                <Button asChild>
-                  <Link to="/ajouter-bien">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Ajouter un bien
-                  </Link>
-                </Button>
-              )}
-            </div>
-          </div>
+          </StickyHeader>
 
-          {/* Tenant Dashboard - Enhanced Layout */}
+          {/* Tenant Dashboard - Optimized Layout */}
           {user && profile.user_type === 'locataire' && (
-            <div className="space-y-8">
-              {/* Hero Section - Profile Score & Quick Actions */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <ProfileScoreCard />
-                <div className="lg:col-span-2">
-                  <QuickActionsGrid />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              {/* Sidebar gauche */}
+              <div className="lg:col-span-1 space-y-4">
+                <ProfileScoreCardCompact />
+                <QuickActionsGridCompact />
               </div>
 
-              {/* Applications Overview */}
-              <ApplicationsOverview />
+              {/* Contenu principal */}
+              <div className="lg:col-span-3 space-y-4">
+                <ApplicationsOverviewCompact />
+                
+                <CollapsibleSection 
+                  title="Rappels intelligents" 
+                  defaultOpen={false}
+                  storageKey="dashboard-reminders"
+                >
+                  <SmartReminders />
+                </CollapsibleSection>
 
-              {/* Smart Reminders */}
-              <SmartReminders />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[280px]">
+                  <MarketInsightsWidget className="h-full" />
+                  <ActivityTimeline className="h-full overflow-auto" />
+                </div>
 
-              {/* Recommendations Carousel */}
-              <RecommendationsSection
-                userId={user.id}
-                type="properties"
-                limit={8}
-              />
+                <RecommendationsCarousel userId={user.id} limit={8} />
 
-              {/* Bottom Section - Market Insights, Activity & Search History */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <MarketInsightsWidget />
-                <ActivityTimeline />
-                <SearchHistory />
+                <CollapsibleSection 
+                  title="Historique de recherches" 
+                  defaultOpen={false}
+                  storageKey="dashboard-search-history"
+                >
+                  <SearchHistory />
+                </CollapsibleSection>
               </div>
             </div>
           )}
