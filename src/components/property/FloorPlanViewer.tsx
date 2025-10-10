@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ZoomIn, ZoomOut, Maximize2, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OptimizedImage } from "./OptimizedImage";
 
 interface FloorPlan {
   url: string;
@@ -77,7 +78,7 @@ export const FloorPlanViewer = ({ plans }: FloorPlanViewerProps) => {
               wrapperClass="!w-full !h-[600px] bg-muted rounded-lg overflow-hidden"
               contentClass="!w-full !h-full flex items-center justify-center"
             >
-              <img
+              <OptimizedImage
                 src={activePlan.url}
                 alt={activePlan.title}
                 className="max-w-full max-h-full object-contain"

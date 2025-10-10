@@ -1,3 +1,11 @@
+/**
+ * @deprecated Use OptimizedImage instead for better security and performance
+ * This component will be removed in a future version
+ * OptimizedImage provides:
+ * - URL validation (only Supabase Storage allowed)
+ * - WebP format support
+ * - Better security against malicious URLs
+ */
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
