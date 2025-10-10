@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { SarahChatbot } from "@/components/SarahChatbot";
+import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import Index from "./pages/Index";
 import Certification from "./pages/Certification";
 import Auth from "./pages/Auth";
@@ -47,15 +48,14 @@ import CommentCaMarche from "./pages/CommentCaMarche";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <SarahChatbot />
-          <Routes>
+const AppContent = () => {
+  // ✅ Préchargement intelligent des routes
+  usePrefetchRoutes();
+  
+  return (
+    <>
+      <SarahChatbot />
+      <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recherche" element={<Search />} />
             <Route path="/explorer" element={<Explorer />} />
@@ -236,6 +236,18 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+    </>
+  );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <AppContent />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

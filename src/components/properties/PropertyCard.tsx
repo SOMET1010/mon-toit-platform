@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 import { useTimeAgo } from '@/hooks/useTimeAgo';
 import { toast } from '@/hooks/use-toast';
+import { OptimizedImage } from '@/components/property/OptimizedImage';
 
 interface PropertyCardProps {
   property: Property;
@@ -52,10 +53,11 @@ export const PropertyCard = ({
       <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
           <>
-            <img
+            <OptimizedImage
               src={property.main_image}
               alt={`Photo du bien: ${property.title} - ${property.property_type} à ${property.city}`}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              priority={false}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
           </>

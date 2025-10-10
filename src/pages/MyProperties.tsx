@@ -17,6 +17,7 @@ import PropertySearchBar from '@/components/properties/PropertySearchBar';
 import BulkActionsBar from '@/components/properties/BulkActionsBar';
 import PropertyCardEnhanced from '@/components/properties/PropertyCardEnhanced';
 import { PropertyTableView } from '@/components/properties/PropertyTableView';
+import { PropertyCardSkeleton } from '@/components/properties/PropertyCardSkeleton';
 import { StickyHeader } from '@/components/ui/sticky-header';
 
 type Property = Pick<PropertyType, 

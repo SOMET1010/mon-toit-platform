@@ -12,6 +12,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useProperties } from '@/hooks/useProperties';
 import { usePropertyFilters } from '@/hooks/usePropertyFilters';
 import { PropertyCard } from '@/components/properties/PropertyCard';
+import { PropertyCardSkeleton } from '@/components/properties/PropertyCardSkeleton';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { hasCoordinates } from '@/lib/geo';
 import { toast } from 'sonner';
@@ -47,11 +48,19 @@ const Search = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary"></div>
-        <p className="text-lg font-medium text-muted-foreground animate-pulse">
-          Chargement des biens disponibles...
-        </p>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6">Recherche de biens</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <PropertyCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }

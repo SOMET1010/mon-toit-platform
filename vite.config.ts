@@ -121,19 +121,49 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    sourcemap: false, // ✅ SÉCURITÉ : Pas de sourcemaps en production
     rollupOptions: {
       output: {
         manualChunks: {
-          // Split vendor libraries into separate chunks
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'supabase-vendor': ['@supabase/supabase-js'],
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-toast', '@radix-ui/react-tabs'],
-          'chart-vendor': ['recharts'],
-          'map-vendor': ['mapbox-gl'],
+          // Core dependencies
+          'react-core': ['react', 'react-dom', 'react-router-dom'],
+          
+          // ✅ SÉCURITÉ : Supabase isolé pour faciliter les mises à jour de sécurité
+          'supabase': ['@supabase/supabase-js'],
+          
+          // UI components
+          'ui-primitives': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+          ],
+          
+          // Feature chunks
+          'maps': ['mapbox-gl', '@mapbox/mapbox-gl-geocoder'],
+          'charts': ['recharts'],
+          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'media': ['react-player', 'yet-another-react-lightbox'],
+          
+          // Admin features (lazy loaded)
+          'admin': [
+            'canvas-confetti',
+            'jscpd'
+          ],
         },
-      },
+        // ✅ SÉCURITÉ : Noms de chunks obfusqués
+        chunkFileNames: (chunkInfo) => {
+          return `assets/[name]-[hash].js`;
+        },
+        // ✅ SÉCURITÉ : Séparation des assets par type
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.css')) {
+            return 'assets/styles-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        }
+      }
     },
-    chunkSizeWarningLimit: 1000, // Augmenter la limite d'avertissement à 1 MB
+    chunkSizeWarningLimit: 600
   },
 }));

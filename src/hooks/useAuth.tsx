@@ -173,6 +173,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
       setRoles([]);
+      
+      // ✅ SÉCURITÉ : Nettoyer le cache lors de la déconnexion
+      const { clearCacheOnLogout } = await import('@/lib/queryClient');
+      clearCacheOnLogout();
+      
       toast({
         title: "Déconnexion",
         description: "À bientôt sur Mon Toit !",
