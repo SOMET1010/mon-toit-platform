@@ -267,8 +267,6 @@ const MyProperties = () => {
               <PropertySearchBar
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
               />
               <ViewToggle 
                 view={view} 
