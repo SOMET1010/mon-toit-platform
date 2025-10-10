@@ -2,7 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { SarahChatbot } from "@/components/SarahChatbot";
@@ -53,10 +55,33 @@ const AppContent = () => {
   // ✅ Préchargement intelligent des routes
   usePrefetchRoutes();
   
+  const location = useLocation();
+  const prevLocation = useRef(location.pathname);
+  const [direction, setDirection] = useState<'left' | 'right'>('right');
+
+  useEffect(() => {
+    const routes = ['/', '/recherche', '/favoris', '/messages', '/profil'];
+    const currentIndex = routes.indexOf(location.pathname);
+    const prevIndex = routes.indexOf(prevLocation.current);
+    
+    if (currentIndex !== -1 && prevIndex !== -1) {
+      setDirection(currentIndex > prevIndex ? 'right' : 'left');
+    }
+    
+    prevLocation.current = location.pathname;
+  }, [location.pathname]);
+  
   return (
     <>
       <SarahChatbot />
-      <Routes>
+      <div 
+        key={location.pathname}
+        className={cn(
+          "animate-in duration-200",
+          direction === 'right' ? 'slide-in-from-right-4' : 'slide-in-from-left-4'
+        )}
+      >
+        <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recherche" element={<Search />} />
             <Route path="/explorer" element={<Explorer />} />
@@ -236,7 +261,8 @@ const AppContent = () => {
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
+        </Routes>
+      </div>
       <BottomNavigation />
     </>
   );
