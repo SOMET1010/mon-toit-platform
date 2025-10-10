@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -123,14 +124,15 @@ export const PropertyCard = ({
         )}
         
         {onFavoriteClick && (
-          <Button
-            size="icon"
-            variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
-            className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 active:scale-90"
+          <motion.button
+            className="absolute top-3 right-3 rounded-lg shadow-md"
+            whileTap={{ scale: 1.2 }}
+            animate={isFavorite ? { scale: [1, 1.3, 1] } : {}}
+            transition={{ duration: 0.3 }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              triggerHapticFeedback('light');
+              triggerHapticFeedback('heavy');
               onFavoriteClick(property.id);
               toast({
                 description: isFavorite ? "❤️ Bien retiré des favoris" : "💙 Bien ajouté aux favoris !",
@@ -138,8 +140,22 @@ export const PropertyCard = ({
               });
             }}
           >
-            <Heart className={`h-4 w-4 transition-all duration-300 ${isFavorite ? 'fill-current scale-110' : ''}`} />
-          </Button>
+            <Button
+              size="icon"
+              variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
+              className="pointer-events-none"
+              asChild
+            >
+              <motion.div
+                animate={{
+                  rotate: isFavorite ? [0, -15, 15, -15, 0] : 0,
+                }}
+                transition={{ duration: 0.5 }}
+              >
+                <Heart className={`h-4 w-4 transition-all duration-300 ${isFavorite ? 'fill-current' : ''}`} />
+              </motion.div>
+            </Button>
+          </motion.button>
         )}
         
         {/* Time badge - top left */}

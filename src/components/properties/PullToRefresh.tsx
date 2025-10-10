@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Loader2, ChevronDown } from 'lucide-react';
+import { useSpring, animated } from '@react-spring/web';
 import { triggerHapticFeedback } from '@/utils/haptics';
 import { toast } from '@/hooks/use-toast';
 
@@ -9,12 +10,14 @@ interface PullToRefreshProps {
 }
 
 export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
-  const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const lastRefresh = useRef(Date.now());
   const startY = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const hapticTriggered = useRef(false);
+  
+  // Use react-spring for elastic animation
+  const [{ y }, api] = useSpring(() => ({ y: 0 }));
 
   useEffect(() => {
     const container = containerRef.current;
@@ -34,13 +37,16 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startY.current;
 
-      // Only pull down, and cap at 120px
+      // Only pull down with progressive resistance
       if (deltaY > 0) {
-        const distance = Math.min(deltaY * 0.5, 120); // Damping effect
-        setPullDistance(distance);
+        // Progressive resistance (harder to pull as you go further)
+        const resistance = Math.pow(deltaY / 300, 0.7);
+        const adjustedY = Math.min(deltaY * resistance, 120);
+        
+        api.start({ y: adjustedY, immediate: true });
 
         // Trigger haptic at threshold
-        if (distance > 80 && !hapticTriggered.current) {
+        if (adjustedY > 80 && !hapticTriggered.current) {
           triggerHapticFeedback('medium');
           hapticTriggered.current = true;
         }
@@ -53,7 +59,9 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
     };
 
     const handleTouchEnd = async () => {
-      if (pullDistance > 80 && !isRefreshing) {
+      const currentY = y.get();
+      
+      if (currentY > 80 && !isRefreshing) {
         const timeSinceLastRefresh = Date.now() - lastRefresh.current;
 
         // Throttle: minimum 5 seconds between refreshes
@@ -62,11 +70,13 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
             description: "⏳ Veuillez patienter avant de rafraîchir à nouveau",
             duration: 2000,
           });
-          setPullDistance(0);
+          api.start({ y: 0, config: { tension: 200, friction: 20 } });
           startY.current = 0;
           return;
         }
 
+        // Snap to refresh position
+        api.start({ y: 60 });
         setIsRefreshing(true);
         lastRefresh.current = Date.now();
         
@@ -87,7 +97,11 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
         }
       }
 
-      setPullDistance(0);
+      // Elastic bounce back
+      api.start({ 
+        y: 0, 
+        config: { tension: 200, friction: 20 }
+      });
       startY.current = 0;
       hapticTriggered.current = false;
     };
@@ -101,39 +115,39 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [pullDistance, isRefreshing, onRefresh]);
+  }, [isRefreshing, onRefresh, api, y]);
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Pull indicator */}
-      <div
-        className="absolute top-0 left-0 right-0 flex justify-center items-center transition-opacity duration-200 -translate-y-full"
+      {/* Pull indicator with elastic animation */}
+      <animated.div
+        className="absolute top-0 left-0 right-0 flex justify-center items-center -translate-y-full"
         style={{
-          opacity: pullDistance > 0 ? 1 : 0,
-          height: `${pullDistance}px`,
+          opacity: y.to(val => val > 0 ? 1 : 0),
+          height: y.to(val => `${val}px`),
         }}
       >
         {isRefreshing ? (
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         ) : (
-          <ChevronDown
-            className="h-6 w-6 text-primary transition-transform duration-200"
+          <animated.div
             style={{
-              transform: `rotate(${Math.min(pullDistance / 80 * 180, 180)}deg)`,
+              transform: y.to(val => `rotate(${Math.min(val / 80 * 180, 180)}deg) rotate(${val * 3}deg)`),
             }}
-          />
+          >
+            <ChevronDown className="h-6 w-6 text-primary" />
+          </animated.div>
         )}
-      </div>
+      </animated.div>
 
-      {/* Content */}
-      <div
-        className="transition-transform duration-300 ease-out"
+      {/* Content with elastic pull */}
+      <animated.div
         style={{
-          transform: `translateY(${pullDistance}px)`,
+          transform: y.to(val => `translateY(${val}px)`),
         }}
       >
         {children}
-      </div>
+      </animated.div>
     </div>
   );
 };
