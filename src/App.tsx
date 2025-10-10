@@ -3,34 +3,41 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { SarahChatbot } from "@/components/SarahChatbot";
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+import { PageSkeleton, PropertyDetailSkeleton } from "@/components/LoadingFallback";
+
+// Eager load critical pages
 import Index from "./pages/Index";
-import Certification from "./pages/Certification";
 import Auth from "./pages/Auth";
+import Search from "./pages/Search";
+
+// Lazy load heavy pages
+const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminCertifications = lazy(() => import("./pages/AdminCertifications"));
+const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const MyProperties = lazy(() => import("./pages/MyProperties"));
+const AddProperty = lazy(() => import("./pages/AddProperty"));
+const EditProperty = lazy(() => import("./pages/EditProperty"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Application = lazy(() => import("./pages/Application"));
+const Applications = lazy(() => import("./pages/Applications"));
+const Leases = lazy(() => import("./pages/Leases"));
+const Payments = lazy(() => import("./pages/Payments"));
+
+// Load other pages normally
+import Certification from "./pages/Certification";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
-import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminCertifications from "./pages/AdminCertifications";
-import OwnerDashboard from "./pages/OwnerDashboard";
-import MyProperties from "./pages/MyProperties";
-import AddProperty from "./pages/AddProperty";
-import EditProperty from "./pages/EditProperty";
-import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
-import PropertyDetail from "./pages/PropertyDetail";
 import PropertyApplications from "./pages/PropertyApplications";
-import Messages from "./pages/Messages";
-import Application from "./pages/Application";
-import Applications from "./pages/Applications";
-import Leases from "./pages/Leases";
-import Payments from "./pages/Payments";
 import Verification from "./pages/Verification";
 import { GuestMessagesInbox } from "@/components/owner/GuestMessagesInbox";
 import NotFound from "./pages/NotFound";
@@ -86,7 +93,11 @@ const AppContent = () => {
             <Route path="/recherche" element={<Search />} />
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
-            <Route path="/property/:id" element={<PropertyDetail />} />
+            <Route path="/property/:id" element={
+              <Suspense fallback={<PropertyDetailSkeleton />}>
+                <PropertyDetail />
+              </Suspense>
+            } />
             <Route path="/certification" element={<Certification />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -103,7 +114,9 @@ const AppContent = () => {
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Dashboard />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -111,7 +124,9 @@ const AppContent = () => {
               path="/admin" 
               element={
                 <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
-                  <AdminDashboard />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <AdminDashboard />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -119,7 +134,9 @@ const AppContent = () => {
               path="/admin/certifications" 
               element={
                 <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
-                  <AdminCertifications />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <AdminCertifications />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -127,7 +144,9 @@ const AppContent = () => {
               path="/analytics" 
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
-                  <OwnerDashboard />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <OwnerDashboard />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -159,7 +178,9 @@ const AppContent = () => {
               path="/messages" 
               element={
                 <ProtectedRoute>
-                  <Messages />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Messages />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -167,7 +188,9 @@ const AppContent = () => {
               path="/mes-biens" 
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
-                  <MyProperties />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <MyProperties />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -175,7 +198,9 @@ const AppContent = () => {
               path="/ajouter-bien" 
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
-                  <AddProperty />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <AddProperty />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -183,7 +208,9 @@ const AppContent = () => {
               path="/biens/:id/modifier" 
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
-                  <EditProperty />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <EditProperty />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -199,7 +226,9 @@ const AppContent = () => {
               path="/application/:propertyId" 
               element={
                 <ProtectedRoute>
-                  <Application />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Application />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -207,7 +236,9 @@ const AppContent = () => {
               path="/candidatures" 
               element={
                 <ProtectedRoute>
-                  <Applications />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Applications />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -215,7 +246,9 @@ const AppContent = () => {
               path="/baux" 
               element={
                 <ProtectedRoute>
-                  <Leases />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Leases />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
@@ -223,7 +256,9 @@ const AppContent = () => {
               path="/payments" 
               element={
                 <ProtectedRoute>
-                  <Payments />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Payments />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />

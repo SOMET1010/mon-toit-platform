@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface OptimizedImageProps {
@@ -18,6 +18,8 @@ export const OptimizedImage = ({
 }: OptimizedImageProps) => {
   const [currentSrc, setCurrentSrc] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(priority);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // ✅ SÉCURITÉ : Validation de l'URL avant affichage
   const sanitizeUrl = (url: string): string => {
@@ -42,7 +44,33 @@ export const OptimizedImage = ({
     return url;
   };
 
+  // Intersection Observer for lazy loading
   useEffect(() => {
+    if (priority) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '50px' }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [priority]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
     const safeSrc = sanitizeUrl(src);
     setIsLoading(true);
     
@@ -69,25 +97,32 @@ export const OptimizedImage = ({
     };
 
     lowResImg.src = lowResSrc;
-  }, [src]);
+  }, [src, isVisible]);
 
   return (
-    <picture>
-      <source
-        srcSet={`${currentSrc}?format=webp`}
-        type="image/webp"
-      />
-      <img
-        src={currentSrc || src}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        className={cn(
-          "transition-opacity duration-500",
-          isLoading ? "blur-sm opacity-50" : "blur-0 opacity-100",
-          className
-        )}
-      />
+    <picture ref={imgRef}>
+      {isVisible && currentSrc && (
+        <>
+          <source
+            srcSet={`${currentSrc}?format=webp`}
+            type="image/webp"
+          />
+          <img
+            src={currentSrc}
+            alt={alt}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            className={cn(
+              "transition-opacity duration-500",
+              isLoading ? "blur-sm opacity-50" : "blur-0 opacity-100",
+              className
+            )}
+          />
+        </>
+      )}
+      {!isVisible && (
+        <div className={cn("bg-muted animate-pulse", className)} />
+      )}
     </picture>
   );
 };

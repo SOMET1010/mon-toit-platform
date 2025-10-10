@@ -15,6 +15,7 @@ import { toast } from '@/hooks/use-toast';
 import { OptimizedImage } from '@/components/property/OptimizedImage';
 import { useLongPress } from '@/hooks/useLongPress';
 import { triggerHapticFeedback } from '@/utils/haptics';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 interface PropertyCardProps {
   property: Property;
@@ -36,6 +37,10 @@ export const PropertyCard = ({
   const [hasCertifiedLease, setHasCertifiedLease] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const timeAgo = useTimeAgo(property.created_at);
+  const { effectiveType, saveData } = useNetworkStatus();
+
+  // Adapt image quality based on network
+  const imageQuality = effectiveType === '4g' && !saveData;
 
   useEffect(() => {
     const checkCertification = async () => {
