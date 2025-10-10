@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import { memo, useState } from 'react';
 import { Clock } from 'lucide-react';
 import { Widget } from './Widget';
 

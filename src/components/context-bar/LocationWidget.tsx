@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { Widget } from './Widget';
 import type { GeolocationData } from './types';
