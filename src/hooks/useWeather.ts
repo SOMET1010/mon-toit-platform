@@ -89,14 +89,21 @@ export const useWeather = (): WeatherReturn => {
     }
   }, []);
 
+  // Initial fetch on mount
   useEffect(() => {
     fetchWeather();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // Auto-refresh every 30 minutes
-    const intervalId = setInterval(fetchWeather, AUTO_REFRESH_INTERVAL);
+  // Auto-refresh every 30 minutes (separate effect to avoid infinite loop)
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchWeather();
+    }, AUTO_REFRESH_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [fetchWeather]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     weather,

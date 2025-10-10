@@ -1,5 +1,26 @@
-// Version de test ultra-simplifiée pour diagnostic
+import { useCurrentTime } from '@/hooks/useCurrentTime';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { useWeather } from '@/hooks/useWeather';
+import { LocationWidget } from './context-bar/LocationWidget';
+import { WeatherWidget } from './context-bar/WeatherWidget';
+import { ClockWidget } from './context-bar/ClockWidget';
+import { toast } from 'sonner';
+
 const ContextBar = () => {
+  const { formatTime, formatDate, dayPeriod } = useCurrentTime();
+  const { location, isLoading: locationLoading, error: locationError, refresh: refreshLocation } = useGeolocation();
+  const { weather, isLoading: weatherLoading, error: weatherError, refresh: refreshWeather } = useWeather();
+
+  const handleLocationRefresh = async () => {
+    await refreshLocation();
+    toast.success('Localisation actualisée');
+  };
+
+  const handleWeatherRefresh = async () => {
+    await refreshWeather();
+    toast.success('Météo actualisée');
+  };
+
   return (
     <div 
       className="w-full bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 border-b border-border/50 backdrop-blur-md sticky top-16 z-40"
@@ -8,9 +29,32 @@ const ContextBar = () => {
     >
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="h-10 flex items-center justify-center gap-4 md:gap-6 text-sm">
-          <p className="text-sm font-medium text-foreground">
-            🧪 ContextBar Test - Si vous voyez ceci, le composant fonctionne
-          </p>
+          
+          <LocationWidget
+            location={location}
+            isLoading={locationLoading}
+            error={locationError}
+            onRefresh={handleLocationRefresh}
+          />
+
+          <span className="text-border/40" aria-hidden="true">•</span>
+
+          <WeatherWidget
+            weather={weather}
+            isLoading={weatherLoading}
+            error={weatherError}
+            onRefresh={handleWeatherRefresh}
+          />
+
+          <span className="text-border/40 hidden md:inline" aria-hidden="true">•</span>
+
+          <div className="hidden md:block">
+            <ClockWidget
+              formatTime={formatTime}
+              formatDate={formatDate}
+              dayPeriod={dayPeriod}
+            />
+          </div>
         </div>
       </div>
     </div>

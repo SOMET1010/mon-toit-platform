@@ -114,7 +114,8 @@ export const useGeolocation = (): GeolocationReturn => {
 
   useEffect(() => {
     fetchLocation();
-  }, [fetchLocation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Execute once on mount to avoid infinite loop
 
   return {
     location,
