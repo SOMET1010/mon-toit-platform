@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import useEmblaCarousel from 'embla-carousel-react';
 import type { Property } from '@/types';
+import { logger } from '@/services/logger';
 
 interface RecommendationsCarouselProps {
   userId: string;
@@ -59,7 +60,7 @@ export const RecommendationsCarousel = ({ userId, limit = 8 }: RecommendationsCa
         if (error) throw error;
         setProperties(data || []);
       } catch (error) {
-        console.error('Error fetching recommendations:', error);
+        logger.logError(error, { context: 'RecommendationsCarousel', action: 'fetch', userId });
       } finally {
         setLoading(false);
       }

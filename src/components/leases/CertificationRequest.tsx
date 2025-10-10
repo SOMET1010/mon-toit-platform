@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/services/logger';
 import {
   Dialog,
   DialogContent,
@@ -56,7 +57,7 @@ const CertificationRequest = ({ leaseId, certificationStatus, onRequestSubmitted
       setNotes('');
       onRequestSubmitted?.();
     } catch (error: any) {
-      console.error('Error requesting certification:', error);
+      logger.logError(error, { context: 'CertificationRequest', action: 'submit' });
       toast({
         title: 'Erreur',
         description: error.message || 'Impossible de soumettre la demande',

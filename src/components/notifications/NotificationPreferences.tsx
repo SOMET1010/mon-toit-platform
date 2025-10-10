@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Bell, Mail, MessageSquare, Home, FileText, DollarSign } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 interface NotificationPreference {
   id: string;
@@ -71,7 +72,7 @@ const NotificationPreferences = () => {
         setPreferences(data || []);
       }
     } catch (error) {
-      console.error('Error fetching preferences:', error);
+      logger.logError(error, { context: 'NotificationPreferences', action: 'fetch' });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les préférences',
@@ -109,7 +110,7 @@ const NotificationPreferences = () => {
         description: 'Vos préférences de notifications ont été enregistrées',
       });
     } catch (error) {
-      console.error('Error updating preference:', error);
+      logger.logError(error, { context: 'NotificationPreferences', action: 'update' });
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour les préférences',

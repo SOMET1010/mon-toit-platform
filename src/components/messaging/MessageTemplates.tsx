@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { FileText, Plus, Trash2, Edit } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { logger } from '@/services/logger';
 
 interface Template {
   id: string;
@@ -44,7 +45,7 @@ const MessageTemplates = ({ onUseTemplate }: MessageTemplatesProps) => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching templates:', error);
+      logger.logError(error, { context: 'MessageTemplates', action: 'fetch' });
     } else {
       setTemplates(data || []);
     }
@@ -97,7 +98,7 @@ const MessageTemplates = ({ onUseTemplate }: MessageTemplatesProps) => {
       resetForm();
       setOpen(false);
     } catch (error) {
-      console.error('Error saving template:', error);
+      logger.logError(error, { context: 'MessageTemplates', action: 'save' });
       toast({
         title: 'Erreur',
         description: 'Impossible de sauvegarder le modèle',

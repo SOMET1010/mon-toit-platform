@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, Clock, Image, FileWarning } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 interface UrgentAction {
   id: string;
@@ -62,7 +63,7 @@ const UrgentActionsCard = () => {
 
       setActions(urgentActions);
     } catch (error) {
-      console.error('Error fetching urgent actions:', error);
+      logger.logError(error, { context: 'UrgentActionsCard', action: 'fetch' });
     } finally {
       setLoading(false);
     }

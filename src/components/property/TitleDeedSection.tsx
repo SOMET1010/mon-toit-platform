@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { logger } from "@/services/logger";
 
 interface TitleDeedSectionProps {
   propertyId: string;
@@ -68,7 +69,7 @@ export const TitleDeedSection = ({ propertyId, titleDeedUrl, ownerId }: TitleDee
           setAccessReason("tenant");
         }
       } catch (error) {
-        console.error("Error checking access:", error);
+        logger.logError(error, { context: 'TitleDeedSection', action: 'checkAccess', propertyId });
       } finally {
         setLoading(false);
       }
@@ -117,7 +118,7 @@ export const TitleDeedSection = ({ propertyId, titleDeedUrl, ownerId }: TitleDee
         description: "Le titre de propriété s'ouvrira dans un nouvel onglet",
       });
     } catch (error: any) {
-      console.error("Error downloading title deed:", error);
+      logger.logError(error, { context: 'TitleDeedSection', action: 'download', propertyId });
       
       // Logger échec
       await supabase.from("title_deed_access_log").insert({

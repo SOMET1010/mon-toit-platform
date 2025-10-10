@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { logger } from '@/services/logger';
 
 export interface MfaStatus {
   mfaEnabled: boolean;
@@ -85,7 +86,7 @@ export const useMfaStatus = () => {
           loading: false,
         });
       } catch (error) {
-        console.error('Error fetching MFA status:', error);
+        logger.logError(error, { context: 'useMfaStatus', action: 'fetch' });
         setStatus(prev => ({ ...prev, loading: false }));
       }
     };

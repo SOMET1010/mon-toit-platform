@@ -8,6 +8,7 @@ import { useRecommendations } from '@/hooks/useRecommendations';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 interface PreferencesModalProps {
   open: boolean;
@@ -97,7 +98,7 @@ export const PreferencesModal = ({ open, onOpenChange }: PreferencesModalProps) 
         description: "Vos recommandations ont été mises à jour",
       });
     } catch (error) {
-      console.error('Error saving preferences:', error);
+      logger.logError(error, { context: 'PreferencesModal', action: 'save' });
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les préférences",

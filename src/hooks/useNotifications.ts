@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { logger } from '@/services/logger';
 
 // Local notification type for the hook
 interface NotificationData {
@@ -99,7 +100,7 @@ export const useNotifications = () => {
       setNotifications(data || []);
       setUnreadCount(data?.filter((n) => !n.is_read).length || 0);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      logger.logError(error, { context: 'useNotifications', action: 'fetch' });
     } finally {
       setLoading(false);
     }
@@ -138,7 +139,7 @@ export const useNotifications = () => {
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logger.logError(error, { context: 'useNotifications', action: 'markAsRead' });
     }
   };
 
@@ -163,7 +164,7 @@ export const useNotifications = () => {
       );
       setUnreadCount(0);
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      logger.logError(error, { context: 'useNotifications', action: 'markAllAsRead' });
     }
   };
 

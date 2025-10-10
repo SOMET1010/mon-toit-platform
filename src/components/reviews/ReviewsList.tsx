@@ -6,6 +6,7 @@ import { Star, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/services/logger';
 
 interface Review {
   id: string;
@@ -70,7 +71,7 @@ export const ReviewsList = ({ userId, reviewType = 'all' }: ReviewsListProps) =>
 
       setReviews(transformedData);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      logger.logError(error, { context: 'ReviewsList', action: 'fetch', userId });
     } finally {
       setLoading(false);
     }

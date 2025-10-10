@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, MailOpen, AlertTriangle, Ban, ExternalLink, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { logger } from '@/services/logger';
 
 interface GuestMessage {
   id: string;
@@ -55,7 +56,7 @@ export const GuestMessagesInbox = () => {
 
       setMessages((data || []) as GuestMessage[]);
     } catch (error: any) {
-      console.error('Error fetching guest messages:', error);
+      logger.logError(error, { context: 'GuestMessagesInbox', action: 'fetch' });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les messages',
@@ -87,7 +88,7 @@ export const GuestMessagesInbox = () => {
         description: `Message marqué comme "${getStatusLabel(newStatus)}"`,
       });
     } catch (error: any) {
-      console.error('Error updating message status:', error);
+      logger.logError(error, { context: 'GuestMessagesInbox', action: 'updateStatus' });
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour le statut',

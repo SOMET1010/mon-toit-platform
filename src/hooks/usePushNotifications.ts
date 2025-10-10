@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 export const usePushNotifications = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -36,7 +37,7 @@ export const usePushNotifications = () => {
         });
       }
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      logger.logError(error, { context: 'usePushNotifications', action: 'requestPermission' });
       toast({
         title: "Erreur",
         description: "Impossible d'activer les notifications",
@@ -69,7 +70,7 @@ export const usePushNotifications = () => {
         });
       }
     } catch (error) {
-      console.error('Error subscribing to push notifications:', error);
+      logger.logError(error, { context: 'usePushNotifications', action: 'subscribe' });
     }
   };
 
@@ -93,7 +94,7 @@ export const usePushNotifications = () => {
         });
       }
     } catch (error) {
-      console.error('Error unsubscribing from push notifications:', error);
+      logger.logError(error, { context: 'usePushNotifications', action: 'unsubscribe' });
     }
   };
 

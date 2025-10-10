@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Bell, X, ExternalLink, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 import {
   Dialog,
   DialogContent,
@@ -53,7 +54,7 @@ const SmartReminders = () => {
 
       setReminders(data || []);
     } catch (error) {
-      console.error('Error fetching reminders:', error);
+      logger.logError(error, { context: 'SmartReminders', action: 'fetch' });
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ const SmartReminders = () => {
         description: "Le rappel a été masqué avec succès",
       });
     } catch (error) {
-      console.error('Error dismissing reminder:', error);
+      logger.logError(error, { context: 'SmartReminders', action: 'dismiss' });
       toast({
         title: "Erreur",
         description: "Impossible de masquer le rappel",
@@ -100,7 +101,7 @@ const SmartReminders = () => {
         description: "La fréquence du rappel a été modifiée",
       });
     } catch (error) {
-      console.error('Error updating frequency:', error);
+      logger.logError(error, { context: 'SmartReminders', action: 'updateFrequency' });
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour la fréquence",

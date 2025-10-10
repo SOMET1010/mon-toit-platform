@@ -4,6 +4,7 @@ import { useAuth } from './useAuth';
 import { getClientIP } from '@/lib/ipUtils';
 import { useToast } from '@/hooks/use-toast';
 import { formatRetryAfter } from '@/lib/ipUtils';
+import { logger } from '@/services/logger';
 
 interface RateLimitResult {
   allowed: boolean;
@@ -41,7 +42,7 @@ export const useRateLimitProtection = (
       });
 
       if (error) {
-        console.error('Erreur vérification rate limit:', error);
+        logger.logError(error, { context: 'useRateLimitProtection', action: 'check', endpoint });
         // En cas d'erreur, on autorise l'action pour ne pas bloquer les utilisateurs légitimes
         return { allowed: true };
       }
@@ -61,7 +62,7 @@ export const useRateLimitProtection = (
 
       return { allowed: true };
     } catch (error) {
-      console.error('Erreur rate limiting:', error);
+      logger.logError(error, { context: 'useRateLimitProtection', action: 'checkLimit', endpoint });
       // En cas d'erreur, on autorise l'action
       return { allowed: true };
     } finally {

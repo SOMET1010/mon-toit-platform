@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { logger } from "@/services/logger";
 
 interface ValidationCheck {
   check_name: string;
@@ -41,7 +42,7 @@ export const PreCertificationChecklist = ({ leaseId }: PreCertificationChecklist
       if (error) throw error;
       setValidation(data as unknown as ValidationResult);
     } catch (error) {
-      console.error('Erreur validation:', error);
+      logger.logError(error, { context: 'PreCertificationChecklist', action: 'validate' });
     } finally {
       setLoading(false);
     }

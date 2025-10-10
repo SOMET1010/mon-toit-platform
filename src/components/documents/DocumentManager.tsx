@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/services/logger';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -90,7 +91,7 @@ export const DocumentManager = ({ leaseId, landlordId, tenantId }: DocumentManag
 
       setDocuments(transformedData);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      logger.logError(error, { context: 'DocumentManager', action: 'fetch' });
     } finally {
       setLoading(false);
     }

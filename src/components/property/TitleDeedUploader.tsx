@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, FileText, X, Loader2, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { logger } from "@/services/logger";
 
 interface TitleDeedUploaderProps {
   propertyId: string;
@@ -71,7 +72,7 @@ export const TitleDeedUploader = ({
         description: "Le document a été uploadé avec succès",
       });
     } catch (error: any) {
-      console.error("Error uploading title deed:", error);
+      logger.logError(error, { context: 'TitleDeedUploader', action: 'upload', propertyId });
       toast({
         title: "❌ Erreur d'upload",
         description: error.message || "Impossible d'uploader le fichier",
@@ -101,7 +102,7 @@ export const TitleDeedUploader = ({
         description: "Le titre de propriété a été retiré",
       });
     } catch (error: any) {
-      console.error("Error removing title deed:", error);
+      logger.logError(error, { context: 'TitleDeedUploader', action: 'remove', propertyId });
       toast({
         title: "❌ Erreur",
         description: "Impossible de supprimer le fichier",

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { logger } from '@/services/logger';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
@@ -50,7 +51,7 @@ export const TwoFactorSetup = () => {
         // Limit QR code to just the URI without extra data
         const uri = data.totp.uri || '';
         if (uri.length > 500) {
-          console.warn('QR URI too long, truncating');
+          logger.warn('QR URI too long, truncating', { uriLength: uri.length });
         }
         setQrCode(uri.substring(0, 500));
         setSecret(data.totp.secret);

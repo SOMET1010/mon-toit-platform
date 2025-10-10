@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getDeviceFingerprint } from '@/lib/ipUtils';
 import { MessageCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 const guestContactSchema = z.object({
   guestName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(100),
@@ -75,7 +76,7 @@ export const GuestContactForm = ({ propertyId, ownerId, propertyTitle }: GuestCo
   const onSubmit = async (values: GuestContactFormValues) => {
     // Vérifier le honeypot (anti-bot)
     if (values.honeypot) {
-      console.warn('Bot detected');
+      logger.warn('Bot detected in guest contact form', { propertyId });
       return;
     }
 
@@ -137,7 +138,7 @@ export const GuestContactForm = ({ propertyId, ownerId, propertyTitle }: GuestCo
       }, 5000);
 
     } catch (error: any) {
-      console.error('Error sending guest message:', error);
+      logger.logError(error, { context: 'GuestContactForm', action: 'submit', propertyId });
       toast({
         title: 'Erreur',
         description: error.message || 'Une erreur est survenue lors de l\'envoi du message',

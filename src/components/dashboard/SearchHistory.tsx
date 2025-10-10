@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 interface SearchHistoryItem {
   id: string;
@@ -48,7 +49,7 @@ const SearchHistory = () => {
       setHistory(data || []);
       calculateStats(data || []);
     } catch (error) {
-      console.error('Error fetching search history:', error);
+      logger.logError(error, { context: 'SearchHistory', action: 'fetch' });
     } finally {
       setLoading(false);
     }

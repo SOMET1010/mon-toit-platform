@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from './use-toast';
+import { logger } from '@/services/logger';
 
 type UserType = 'locataire' | 'proprietaire' | 'agence' | 'admin_ansut';
 
@@ -38,7 +39,7 @@ export const useRoleSwitch = () => {
       .single();
     
     if (error) {
-      console.error('Error fetching active roles:', error);
+      logger.logError(error, { context: 'useRoleSwitch', action: 'fetchActiveRoles' });
       return;
     }
     

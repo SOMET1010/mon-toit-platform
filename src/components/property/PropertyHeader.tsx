@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Property } from '@/types';
 import { StatusBadge } from '@/components/properties/StatusBadge';
 import { formatPrice } from '@/constants';
+import { logger } from '@/services/logger';
 
 interface PropertyHeaderProps {
   property: Property;
@@ -21,7 +22,7 @@ export const PropertyHeader = ({ property, isFavorite, onFavoriteToggle }: Prope
           url: window.location.href,
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        logger.logError(error, { context: 'PropertyHeader', action: 'share' });
       }
     }
   };

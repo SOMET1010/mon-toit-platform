@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, MapPin, Clock, DollarSign, Home } from 'lucid
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/services/logger';
 
 interface MarketTrend {
   city: string;
@@ -51,7 +52,7 @@ export const MarketInsightsWidget = ({ className }: MarketInsightsWidgetProps) =
 
         setInsights(data);
       } catch (err: any) {
-        console.error('Error fetching market insights:', err);
+        logger.logError(err, { context: 'MarketInsightsWidget', action: 'fetch' });
         setError(err.message || 'Impossible de charger les insights du marché');
       } finally {
         setLoading(false);

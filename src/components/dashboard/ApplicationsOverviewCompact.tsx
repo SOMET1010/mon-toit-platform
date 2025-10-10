@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { logger } from '@/services/logger';
 
 export const ApplicationsOverviewCompact = () => {
   const { user } = useAuth();
@@ -33,8 +34,8 @@ export const ApplicationsOverviewCompact = () => {
 
         setStats({ pending, accepted, total });
       } catch (error) {
-        console.error('Error fetching application stats:', error);
-      } finally {
+        logger.logError(error, { context: 'ApplicationsOverviewCompact', action: 'fetch' });
+      } finally{
         setLoading(false);
       }
     };

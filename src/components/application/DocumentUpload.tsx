@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Upload, X, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/services/logger';
 
 type DocumentType = 'id_card' | 'pay_slip' | 'tax_notice' | 'employment_contract' | 'bank_statement' | 'other';
 
@@ -79,7 +80,7 @@ const DocumentUpload = ({ documents, onDocumentsChange, userId }: DocumentUpload
         description: 'Le fichier a été ajouté à votre dossier',
       });
     } catch (error: any) {
-      console.error('Error uploading file:', error);
+      logger.logError(error, { context: 'DocumentUpload', action: 'upload' });
       toast({
         title: 'Erreur d\'upload',
         description: error.message || 'Impossible d\'uploader le fichier',

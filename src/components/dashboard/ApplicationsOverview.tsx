@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 import { Link } from 'react-router-dom';
 import { Clock, CheckCircle, XCircle, Eye, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -92,7 +93,7 @@ export const ApplicationsOverview = () => {
       if (error) throw error;
       setApplications(data as any);
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      logger.logError(error, { context: 'ApplicationsOverview', action: 'fetch' });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger vos candidatures',
@@ -119,7 +120,7 @@ export const ApplicationsOverview = () => {
 
       fetchApplications();
     } catch (error) {
-      console.error('Error withdrawing application:', error);
+      logger.logError(error, { context: 'ApplicationsOverview', action: 'withdraw' });
       toast({
         title: 'Erreur',
         description: 'Impossible de retirer la candidature',

@@ -4,6 +4,7 @@ import { Clock, Eye, Heart, FileText, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { logger } from '@/services/logger';
 
 interface Activity {
   id: string;
@@ -102,7 +103,7 @@ export const ActivityTimeline = ({ className }: ActivityTimelineProps) => {
 
         setActivities(combinedActivities.slice(0, 5));
       } catch (error) {
-        console.error('Error fetching activities:', error);
+        logger.logError(error, { context: 'ActivityTimeline', action: 'fetch' });
       } finally {
         setLoading(false);
       }

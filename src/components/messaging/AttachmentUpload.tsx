@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { Paperclip, X, FileText, Image as ImageIcon, File } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { logger } from '@/services/logger';
 
 interface Attachment {
   name: string;
@@ -78,7 +79,7 @@ const AttachmentUpload = ({ attachments, onAttachmentsChange }: AttachmentUpload
         description: `${uploadedFiles.length} fichier(s) ajouté(s) avec succès`,
       });
     } catch (error) {
-      console.error('Error uploading files:', error);
+      logger.logError(error, { context: 'AttachmentUpload', action: 'upload' });
       toast({
         title: 'Erreur',
         description: 'Impossible de télécharger les fichiers',
