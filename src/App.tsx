@@ -12,6 +12,7 @@ import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import { PageSkeleton, PropertyDetailSkeleton } from "@/components/LoadingFallback";
+import ContextBar from "@/components/ContextBar";
 
 // Eager load critical pages
 import Index from "./pages/Index";
@@ -89,6 +90,7 @@ const AppContent = () => {
         Aller au contenu principal
       </a>
       
+      <ContextBar />
       <SarahChatbot />
       <main id="main-content" tabIndex={-1}>
         <div 

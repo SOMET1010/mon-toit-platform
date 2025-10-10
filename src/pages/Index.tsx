@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
-import ContextBar from "@/components/ContextBar";
 import Hero from "@/components/Hero";
 import KeyStats from "@/components/KeyStats";
 import Footer from "@/components/Footer";
@@ -17,7 +16,6 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <header role="banner">
         <Navbar />
-        <ContextBar />
       </header>
       
       <main role="main" className="flex-1">
