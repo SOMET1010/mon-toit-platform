@@ -100,9 +100,9 @@ export const OptimizedImage = ({
   }, [src, isVisible]);
 
   return (
-    <picture ref={imgRef}>
-      {isVisible && currentSrc && (
-        <>
+    <div ref={imgRef as any}>
+      {isVisible && currentSrc ? (
+        <picture>
           <source
             srcSet={`${currentSrc}?format=webp`}
             type="image/webp"
@@ -118,11 +118,10 @@ export const OptimizedImage = ({
               className
             )}
           />
-        </>
-      )}
-      {!isVisible && (
+        </picture>
+      ) : (
         <div className={cn("bg-muted animate-pulse", className)} />
       )}
-    </picture>
+    </div>
   );
 };
