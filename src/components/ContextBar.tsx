@@ -2,6 +2,7 @@ import { MapPin, Cloud, CloudRain, CloudLightning, CloudSun, CloudMoon, Sun, Moo
 import { useCurrentTime } from '@/hooks/useCurrentTime';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useWeather } from '@/hooks/useWeather';
+import { cn } from '@/lib/utils';
 
 const WEATHER_ICONS = {
   'sun': Sun,
@@ -21,42 +22,45 @@ const ContextBar = () => {
   const WeatherIcon = WEATHER_ICONS[weather.icon as keyof typeof WEATHER_ICONS] || Sun;
 
   return (
-    <div className="w-full bg-accent/30 border-b border-border backdrop-blur-sm sticky top-16 z-40">
+    <div className="w-full bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 border-b border-border/50 backdrop-blur-md sticky top-16 z-40">
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="h-9 flex items-center justify-center gap-3 md:gap-4 text-xs md:text-sm text-foreground/80 font-medium">{/* Location */}
-          {/* Location */}
-          <div className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
+        <div className="h-10 flex items-center justify-center gap-4 md:gap-6 text-sm text-foreground/90 font-medium">
+          
+          {/* Location Widget */}
+          <div className="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 hover:bg-background/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+            <MapPin className="h-4 w-4 text-primary animate-pulse group-hover:animate-none" />
             {locationLoading ? (
-              <span>Abidjan</span>
+              <span className="animate-fade-in">Abidjan</span>
             ) : (
-              <span>{location.city}</span>
+              <span className="font-semibold">{location.city}</span>
             )}
           </div>
 
-          <span className="text-border">|</span>
+          <span className="text-border/40">•</span>
 
-          {/* Weather */}
-          <div className="flex items-center gap-1.5">
+          {/* Weather Widget */}
+          <div className="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 hover:bg-background/60 transition-all duration-300 hover:scale-105 cursor-pointer">
             {weatherLoading ? (
               <>
-                <Sun className="h-3.5 w-3.5 md:h-4 md:w-4 text-warning" />
-                <span>Chargement...</span>
+                <Sun className="h-4 w-4 text-warning animate-spin" />
+                <span>...</span>
               </>
             ) : (
               <>
-                <WeatherIcon className="h-3.5 w-3.5 md:h-4 md:w-4 text-warning" />
-                <span>{weather.temperature}°C, {weather.description}</span>
+                <WeatherIcon className="h-4 w-4 text-warning group-hover:scale-110 transition-transform" />
+                <span className="font-semibold">{weather.temperature}°C</span>
+                <span className="text-muted-foreground hidden sm:inline">{weather.description}</span>
               </>
             )}
           </div>
 
-          <span className="text-border hidden md:inline">|</span>
+          <span className="text-border/40 hidden md:inline">•</span>
 
-          {/* Time & Date */}
-          <div className="hidden md:flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-primary" />
-            <span>{formatDate()}, {formatTime()}</span>
+          {/* Time & Date Widget */}
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 hover:bg-background/60 transition-all duration-300 hover:scale-105 cursor-pointer group">
+            <Clock className="h-4 w-4 text-primary group-hover:rotate-12 transition-transform" />
+            <span className="font-semibold">{formatTime()}</span>
+            <span className="text-muted-foreground text-xs">{formatDate()}</span>
           </div>
         </div>
       </div>
