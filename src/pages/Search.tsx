@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PropertyFiltersComponent, { PropertyFilters } from '@/components/PropertyFilters';
+import MobileFilters from '@/components/properties/MobileFilters';
+import { PullToRefresh } from '@/components/properties/PullToRefresh';
 import PropertyMap from '@/components/PropertyMap';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useProperties } from '@/hooks/useProperties';
 import { usePropertyFilters } from '@/hooks/usePropertyFilters';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyCardSkeleton } from '@/components/properties/PropertyCardSkeleton';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
@@ -24,8 +27,9 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { data: properties = [], isLoading } = useProperties();
+  const { data: properties = [], isLoading, refetch } = useProperties();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const isMobile = useIsMobile();
   
   const { filteredProperties, handleFilterChange, handleLocationSearch, handleReset } = 
     usePropertyFilters(properties);
@@ -128,7 +132,14 @@ const Search = () => {
             </div>
           </div>
 
-          <PropertyFiltersComponent onFilterChange={handleFilterChange as any} onReset={handleReset} />
+          {isMobile ? (
+            <MobileFilters 
+              onFilterChange={handleFilterChange as any} 
+              onReset={handleReset}
+            />
+          ) : (
+            <PropertyFiltersComponent onFilterChange={handleFilterChange as any} onReset={handleReset} />
+          )}
 
           {viewMode === 'map' ? (
             <div className="mt-6 h-[600px] rounded-lg overflow-hidden border">
@@ -158,6 +169,19 @@ const Search = () => {
                     </div>
                   </div>
                 </Card>
+              ) : isMobile ? (
+                <PullToRefresh onRefresh={async () => { await refetch(); }}>
+                  <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6' : 'space-y-4 mt-6'}>
+                    {filteredProperties.map(property => (
+                      <PropertyCard
+                        key={property.id}
+                        property={property}
+                        onFavoriteClick={handleFavoriteClick}
+                        isFavorite={user ? isFavorite(property.id) : false}
+                      />
+                    ))}
+                  </div>
+                </PullToRefresh>
               ) : (
                 <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6' : 'space-y-4 mt-6'}>
                   {filteredProperties.map(property => (

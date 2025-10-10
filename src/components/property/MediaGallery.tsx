@@ -9,6 +9,8 @@ import { VideoPlayer } from "./VideoPlayer";
 import { PanoramaViewer } from "./PanoramaViewer";
 import { FloorPlanViewer } from "./FloorPlanViewer";
 import { OptimizedImage } from "./OptimizedImage";
+import { SwipeGallery } from "./SwipeGallery";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Image, Video, Globe, Layout } from "lucide-react";
 
 interface MediaGalleryProps {
@@ -28,6 +30,7 @@ export const MediaGallery = ({
 }: MediaGalleryProps) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const isMobile = useIsMobile();
 
   const hasVideo = !!videoUrl;
   const has360 = panoramicImages.length > 0;
@@ -73,44 +76,55 @@ export const MediaGallery = ({
         </TabsList>
 
         <TabsContent value="photos" className="space-y-4">
-          {/* Main image */}
-          {images.length > 0 && (
-            <div
-              className="relative aspect-video w-full overflow-hidden rounded-lg cursor-pointer group"
-              onClick={() => openLightbox(0)}
-            >
-              <OptimizedImage
-                src={images[0]}
-                alt="Photo principale"
-                priority={true}
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </div>
-          )}
-
-          {/* Thumbnail grid */}
-          {images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {images.slice(1, 5).map((image, index) => (
+          {isMobile ? (
+            /* Mobile: SwipeGallery */
+            <SwipeGallery 
+              images={images}
+              onImageChange={(idx) => setLightboxIndex(idx)}
+            />
+          ) : (
+            /* Desktop: Original layout */
+            <>
+              {/* Main image */}
+              {images.length > 0 && (
                 <div
-                  key={index + 1}
-                  className="relative aspect-video overflow-hidden rounded-md cursor-pointer group"
-                  onClick={() => openLightbox(index + 1)}
+                  className="relative aspect-video w-full overflow-hidden rounded-lg cursor-pointer group"
+                  onClick={() => openLightbox(0)}
                 >
                   <OptimizedImage
-                    src={image}
-                    alt={`Photo ${index + 2}`}
+                    src={images[0]}
+                    alt="Photo principale"
+                    priority={true}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
-                  {index === 3 && images.length > 5 && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
-                      +{images.length - 5} photos
-                    </div>
-                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                 </div>
-              ))}
-            </div>
+              )}
+
+              {/* Thumbnail grid */}
+              {images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {images.slice(1, 5).map((image, index) => (
+                    <div
+                      key={index + 1}
+                      className="relative aspect-video overflow-hidden rounded-md cursor-pointer group"
+                      onClick={() => openLightbox(index + 1)}
+                    >
+                      <OptimizedImage
+                        src={image}
+                        alt={`Photo ${index + 2}`}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      />
+                      {index === 3 && images.length > 5 && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
+                          +{images.length - 5} photos
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </TabsContent>
 

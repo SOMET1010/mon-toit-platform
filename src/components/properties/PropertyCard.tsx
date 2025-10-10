@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useSwipeable } from 'react-swipeable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock, Wrench } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock, Wrench, ExternalLink } from 'lucide-react';
 import { Property } from '@/types';
 import { getPropertyStatusLabel, formatPrice } from '@/constants';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +13,8 @@ import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 import { useTimeAgo } from '@/hooks/useTimeAgo';
 import { toast } from '@/hooks/use-toast';
 import { OptimizedImage } from '@/components/property/OptimizedImage';
+import { useLongPress } from '@/hooks/useLongPress';
+import { triggerHapticFeedback } from '@/utils/haptics';
 
 interface PropertyCardProps {
   property: Property;
@@ -30,6 +34,7 @@ export const PropertyCard = ({
   showRemoveButton = false
 }: PropertyCardProps) => {
   const [hasCertifiedLease, setHasCertifiedLease] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const timeAgo = useTimeAgo(property.created_at);
 
   useEffect(() => {
@@ -48,8 +53,50 @@ export const PropertyCard = ({
     checkCertification();
   }, [property.id]);
 
+  // Long press for preview
+  const longPressProps = useLongPress({
+    onLongPress: () => {
+      setShowPreview(true);
+      triggerHapticFeedback('heavy');
+    },
+    onClick: () => {}, // Empty, we use Link for navigation
+    delay: 500,
+  });
+
+  // Swipe to favorite/unfavorite
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: () => {
+      if (!isFavorite && onFavoriteClick) {
+        triggerHapticFeedback('heavy');
+        onFavoriteClick(property.id);
+        toast({
+          title: "💙 Ajouté aux favoris !",
+          description: "Glissez vers la gauche pour retirer",
+          duration: 2000,
+        });
+      }
+    },
+    onSwipedLeft: () => {
+      if (isFavorite && onFavoriteClick) {
+        triggerHapticFeedback('medium');
+        onFavoriteClick(property.id);
+        toast({
+          description: "❤️ Retiré des favoris",
+          duration: 2000,
+        });
+      }
+    },
+    trackMouse: false,
+    delta: 100,
+  });
+
   return (
-    <Card className="group relative overflow-hidden bg-white shadow-card hover:shadow-card-hover transition-all duration-300 border border-border rounded-2xl animate-scale-in">
+    <>
+      <Card 
+        {...swipeHandlers}
+        {...longPressProps}
+        className="group relative overflow-hidden bg-white shadow-card hover:shadow-card-hover transition-all duration-300 border border-border rounded-2xl animate-scale-in active:scale-95"
+      >
       <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
           <>
@@ -74,8 +121,11 @@ export const PropertyCard = ({
           <Button
             size="icon"
             variant={showRemoveButton ? "destructive" : isFavorite ? "default" : "secondary"}
-            className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200"
-            onClick={() => {
+            className="absolute top-3 right-3 rounded-lg shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 active:scale-90"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              triggerHapticFeedback('light');
               onFavoriteClick(property.id);
               toast({
                 description: isFavorite ? "❤️ Bien retiré des favoris" : "💙 Bien ajouté aux favoris !",
@@ -159,10 +209,58 @@ export const PropertyCard = ({
           </div>
         )}
 
-        <Button asChild className="w-full rounded-xl h-11 font-semibold shadow-md">
+        <Button asChild className="w-full rounded-xl h-11 font-semibold shadow-md active:scale-95">
           <Link to={`/property/${property.id}`}>Voir les détails</Link>
         </Button>
       </CardContent>
     </Card>
+
+    {/* Preview Modal */}
+    <Dialog open={showPreview} onOpenChange={setShowPreview}>
+      <DialogContent className="max-w-md">
+        {property.main_image && (
+          <OptimizedImage
+            src={property.main_image}
+            alt={property.title}
+            className="w-full rounded-lg"
+            priority={false}
+          />
+        )}
+        <h3 className="text-xl font-bold">{property.title}</h3>
+        <p className="text-2xl text-primary font-bold">
+          {formatPrice(property.monthly_rent)} <span className="text-base font-normal">/mois</span>
+        </p>
+        <div className="flex items-center text-muted-foreground mb-2">
+          <MapPin className="h-4 w-4 mr-2" />
+          {property.city}
+        </div>
+        <div className="flex gap-2">
+          {onFavoriteClick && (
+            <Button
+              variant={isFavorite ? "default" : "outline"}
+              onClick={() => {
+                triggerHapticFeedback('light');
+                onFavoriteClick(property.id);
+                toast({
+                  description: isFavorite ? "❤️ Retiré des favoris" : "💙 Ajouté aux favoris",
+                  duration: 2000,
+                });
+              }}
+              className="flex-1"
+            >
+              <Heart className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+              Favoris
+            </Button>
+          )}
+          <Button asChild className="flex-1">
+            <Link to={`/property/${property.id}`}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Voir
+            </Link>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </>
   );
 };
