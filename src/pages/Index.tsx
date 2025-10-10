@@ -15,16 +15,27 @@ const PreFooterCTA = lazy(() => import("@/components/PreFooterCTA"));
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <ContextBar />
-      <main className="flex-1">
-        <Hero />
+      <header role="banner">
+        <Navbar />
+        <ContextBar />
+      </header>
+      
+      <main role="main" className="flex-1">
+        <section aria-labelledby="hero-heading">
+          <Hero />
         
-        <div className="animate-fade-in">
-          <KeyStats />
-        </div>
+        </section>
         
-        <Suspense fallback={
+        <section aria-labelledby="stats-heading">
+          <h2 id="stats-heading" className="sr-only">Statistiques de la plateforme</h2>
+          <div className="animate-fade-in">
+            <KeyStats />
+          </div>
+        </section>
+        
+        <section aria-labelledby="featured-heading">
+          <h2 id="featured-heading" className="sr-only">Biens en vedette</h2>
+          <Suspense fallback={
           <div className="container mx-auto px-4 py-20">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((i) => (
@@ -37,18 +48,25 @@ const Index = () => {
             </div>
           </div>
         }>
-          <div className="animate-fade-in">
-            <FeaturedProperties limit={4} />
-          </div>
-        </Suspense>
+            <div className="animate-fade-in">
+              <FeaturedProperties limit={4} />
+            </div>
+          </Suspense>
+        </section>
         
-        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-          <div className="animate-fade-in">
-            <PreFooterCTA />
-          </div>
-        </Suspense>
+        <section aria-labelledby="cta-heading">
+          <h2 id="cta-heading" className="sr-only">Appel à l'action</h2>
+          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+            <div className="animate-fade-in">
+              <PreFooterCTA />
+            </div>
+          </Suspense>
+        </section>
       </main>
-      <Footer />
+      
+      <footer role="contentinfo">
+        <Footer />
+      </footer>
       <StickyCTA />
       <OnboardingModal />
     </div>

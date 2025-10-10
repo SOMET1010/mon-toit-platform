@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode } from 'react';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -41,7 +42,18 @@ export const PageTransition = ({
   direction = 'forward',
   className 
 }: PageTransitionProps) => {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   const getVariant = () => {
+    // Si reduced motion, pas d'animation
+    if (prefersReducedMotion) {
+      return {
+        enter: { opacity: 1, x: 0, scale: 1 },
+        center: { opacity: 1, x: 0, scale: 1 },
+        exit: { opacity: 1, x: 0, scale: 1 },
+      };
+    }
+
     if (direction === 'fade') return variants.fade;
     if (direction === 'scale') return variants.scale;
     return direction === 'forward' ? variants.slideRight : variants.slideLeft;
@@ -55,7 +67,10 @@ export const PageTransition = ({
       animate="center"
       exit="exit"
       variants={variant}
-      transition={transition}
+      transition={{ 
+        ...transition, 
+        duration: prefersReducedMotion ? 0 : transition.duration 
+      }}
       className={className}
     >
       {children}

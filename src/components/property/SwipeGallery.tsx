@@ -110,7 +110,17 @@ export const SwipeGallery = ({ images, onImageChange }: SwipeGalleryProps) => {
   };
 
   return (
-    <div className="relative w-full">
+    <div 
+      className="relative w-full"
+      role="region"
+      aria-label="Galerie de photos du bien"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <span className="sr-only">
+        Image {currentIndex + 1} sur {images.length}
+      </span>
+      
       {/* Main image container */}
       <div
         {...swipeHandlers}

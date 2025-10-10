@@ -79,8 +79,11 @@ const Search = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+      <header role="banner">
+        <Navbar />
+      </header>
+      
+      <main role="main" className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
           {!user && (
             <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 mb-6">
@@ -198,7 +201,10 @@ const Search = () => {
           )}
         </div>
       </main>
-      <Footer />
+      
+      <footer role="contentinfo">
+        <Footer />
+      </footer>
     </div>
   );
 };

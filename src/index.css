@@ -330,4 +330,65 @@ All colors MUST be HSL.
       transparent 100%
     );
   }
+
+  /* Accessibilité - Focus visible ultra-clair */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary ring-2 ring-primary/20;
+  }
+
+  /* Screen reader only (visible pour lecteurs, caché visuellement) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Skip to main content link */
+  .skip-to-main {
+    @apply absolute -top-10 left-0 bg-primary text-primary-foreground px-4 py-2 z-50 rounded-md font-semibold;
+    @apply focus:top-4 focus:left-4 transition-all;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --primary: 218 100% 30%; /* Bleu plus foncé */
+    --muted: 220 10% 90%; /* Gris plus clair */
+    --border: 220 20% 20%; /* Bordures plus visibles */
+  }
+  
+  /* Augmenter épaisseur des bordures */
+  * {
+    border-width: 2px !important;
+  }
+  
+  /* Supprimer transparences */
+  .bg-opacity-50,
+  [class*="bg-"][class*="/"] {
+    opacity: 1 !important;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Désactiver shimmer effect */
+  .shimmer-effect {
+    animation: none !important;
+  }
 }

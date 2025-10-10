@@ -102,6 +102,9 @@ export const PropertyCard = ({
         {...swipeHandlers}
         {...longPressProps}
         className="group relative overflow-hidden bg-white shadow-card hover:shadow-card-hover transition-all duration-300 border border-border rounded-2xl animate-scale-in active:scale-95"
+        role="article"
+        aria-labelledby={`property-title-${property.id}`}
+        aria-describedby={`property-description-${property.id}`}
       >
       <div className="relative h-56 bg-muted overflow-hidden">
         {property.main_image ? (
@@ -166,12 +169,16 @@ export const PropertyCard = ({
         
         <div className="absolute top-14 left-3 flex flex-col gap-2">
           {showStatus && (
-            <Badge className={`rounded-lg font-semibold shadow-md flex items-center gap-1 ${
-              property.status === 'disponible' 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-gray-500 text-white'
-            }`}>
-              {property.status === 'loué' && <Lock className="h-3 w-3" />}
+            <Badge 
+              className={`rounded-lg font-semibold shadow-md flex items-center gap-1 ${
+                property.status === 'disponible' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-gray-500 text-white'
+              }`}
+              role="status"
+              aria-live="polite"
+            >
+              {property.status === 'loué' && <Lock className="h-3 w-3" aria-hidden="true" />}
               {getPropertyStatusLabel(property.status)}
             </Badge>
           )}
@@ -191,8 +198,17 @@ export const PropertyCard = ({
         )}
       </div>
 
+      {/* Screen reader description */}
+      <div id={`property-description-${property.id}`} className="sr-only">
+        Bien de {property.bedrooms} chambres, {property.bathrooms} salles de bain, 
+        situé à {property.city}, pour {formatPrice(property.monthly_rent)} par mois.
+        Statut : {getPropertyStatusLabel(property.status)}.
+      </div>
+
       <CardHeader className="p-4 sm:p-6 pb-3">
-        <CardTitle className="line-clamp-2 text-lg sm:text-xl">{property.title}</CardTitle>
+        <CardTitle id={`property-title-${property.id}`} className="line-clamp-2 text-lg sm:text-xl">
+          {property.title}
+        </CardTitle>
         <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
           {formatPrice(property.monthly_rent)} <span className="text-base font-normal">/mois</span>
         </p>
@@ -230,7 +246,7 @@ export const PropertyCard = ({
           </div>
         )}
 
-        <Button asChild className="w-full rounded-xl h-11 font-semibold shadow-md active:scale-95">
+        <Button asChild className="w-full rounded-xl min-h-[44px] font-semibold shadow-md active:scale-95">
           <Link to={`/property/${property.id}`}>Voir les détails</Link>
         </Button>
       </CardContent>

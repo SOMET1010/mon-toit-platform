@@ -54,7 +54,7 @@ const NavButton = memo(({ item, isActive }: NavButtonProps) => {
       to={item.path}
       {...longPressProps}
       className={cn(
-        "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 active:scale-95 relative min-w-[64px] group touch-feedback",
+        "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 active:scale-95 relative min-h-[44px] min-w-[44px] group touch-feedback",
         isActive 
           ? "text-primary bg-primary/10" 
           : "text-muted-foreground hover:text-foreground hover:bg-muted/50 active:bg-muted"
@@ -68,7 +68,8 @@ const NavButton = memo(({ item, isActive }: NavButtonProps) => {
             "h-5 w-5 transition-all duration-200",
             isActive && "scale-110",
             !isActive && "group-hover:scale-105"
-          )} 
+          )}
+          aria-hidden="true"
         />
         
         {/* Badge de notification */}
@@ -76,7 +77,10 @@ const NavButton = memo(({ item, isActive }: NavButtonProps) => {
           <Badge 
             variant="destructive" 
             className="absolute -top-2 -right-2 h-4 min-w-4 px-1 flex items-center justify-center text-[10px] font-semibold animate-in zoom-in-50"
+            role="status"
+            aria-live="polite"
           >
+            <span className="sr-only">{item.badge} notifications non lues</span>
             {item.badge > 99 ? "99+" : item.badge}
           </Badge>
         )}

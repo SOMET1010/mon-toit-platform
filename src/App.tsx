@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { SarahChatbot } from "@/components/SarahChatbot";
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import { PageSkeleton, PropertyDetailSkeleton } from "@/components/LoadingFallback";
 
@@ -62,6 +63,9 @@ const AppContent = () => {
   // ✅ Préchargement intelligent des routes
   usePrefetchRoutes();
   
+  // ✅ Raccourcis clavier globaux (accessibilité)
+  useKeyboardShortcuts();
+  
   const location = useLocation();
   const prevLocation = useRef(location.pathname);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
@@ -80,15 +84,21 @@ const AppContent = () => {
   
   return (
     <>
+      {/* Skip link pour accessibilité */}
+      <a href="#main-content" className="skip-to-main">
+        Aller au contenu principal
+      </a>
+      
       <SarahChatbot />
-      <div 
-        key={location.pathname}
-        className={cn(
-          "animate-in duration-200",
-          direction === 'right' ? 'slide-in-from-right-4' : 'slide-in-from-left-4'
-        )}
-      >
-        <Routes>
+      <main id="main-content" tabIndex={-1}>
+        <div 
+          key={location.pathname}
+          className={cn(
+            "animate-in duration-200",
+            direction === 'right' ? 'slide-in-from-right-4' : 'slide-in-from-left-4'
+          )}
+        >
+          <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/recherche" element={<Search />} />
             <Route path="/explorer" element={<Explorer />} />
@@ -296,8 +306,9 @@ const AppContent = () => {
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+          </Routes>
+        </div>
+      </main>
       <BottomNavigation />
     </>
   );

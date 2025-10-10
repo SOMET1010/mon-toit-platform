@@ -3,6 +3,7 @@ import { Loader2, ChevronDown } from 'lucide-react';
 import { useSpring, animated } from '@react-spring/web';
 import { triggerHapticFeedback } from '@/utils/haptics';
 import { toast } from '@/hooks/use-toast';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;
@@ -15,6 +16,7 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
   const startY = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const hapticTriggered = useRef(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
   
   // Use react-spring for elastic animation
   const [{ y }, api] = useSpring(() => ({ y: 0 }));
@@ -97,10 +99,12 @@ export const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
         }
       }
 
-      // Elastic bounce back
+      // Elastic bounce back (instant if reduced motion)
       api.start({ 
         y: 0, 
-        config: { tension: 200, friction: 20 }
+        config: prefersReducedMotion 
+          ? { tension: 500, friction: 50 } // Instant
+          : { tension: 200, friction: 20 }  // Elastic
       });
       startY.current = 0;
       hapticTriggered.current = false;

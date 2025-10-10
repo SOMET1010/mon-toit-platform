@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +22,7 @@ interface MobileFiltersProps {
 const MobileFilters = ({ onFilterChange, onReset, currentFilters = {} }: MobileFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
+  const containerRef = useFocusTrap(isOpen);
   const [filters, setFilters] = useState<PropertyFilters>(currentFilters);
   const [priceRange, setPriceRange] = useState<[number, number]>([
     currentFilters.minPrice ?? 0,
@@ -122,8 +124,12 @@ const MobileFilters = ({ onFilterChange, onReset, currentFilters = {} }: MobileF
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="relative">
-          <Filter className="h-4 w-4 mr-2" />
+        <Button 
+          variant="outline" 
+          className="relative"
+          aria-label="Ouvrir les filtres de recherche"
+        >
+          <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
           Filtres
           {activeFiltersCount > 0 && (
             <Badge className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center">
@@ -132,9 +138,14 @@ const MobileFilters = ({ onFilterChange, onReset, currentFilters = {} }: MobileF
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[90vh] flex flex-col">
+      <SheetContent 
+        ref={containerRef}
+        side="bottom" 
+        className="h-[90vh] flex flex-col"
+        aria-labelledby="filters-title"
+      >
         <SheetHeader>
-          <SheetTitle>Filtres de recherche</SheetTitle>
+          <SheetTitle id="filters-title">Filtres de recherche</SheetTitle>
           
           {/* Progress Stepper */}
           <div className="flex justify-between items-center pt-4">
