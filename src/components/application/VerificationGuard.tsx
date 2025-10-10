@@ -70,7 +70,7 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
       setVerification(data as UserVerification);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur de chargement';
-      console.error('Error checking verification status:', err);
+      logger.logError(err, { context: 'VerificationGuard', action: 'checkVerificationStatus' });
       setError(errorMessage);
       toast({
         title: "Erreur",
