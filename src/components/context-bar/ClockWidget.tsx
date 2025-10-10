@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { useState } from 'react';
 import { Clock } from 'lucide-react';
 import { Widget } from './Widget';
 
@@ -8,7 +8,7 @@ interface ClockWidgetProps {
   dayPeriod: string;
 }
 
-export const ClockWidget = memo(({ 
+export const ClockWidget = ({ 
   formatTime, 
   formatDate, 
   dayPeriod 
@@ -32,6 +32,4 @@ export const ClockWidget = memo(({
       </span>
     </Widget>
   );
-});
-
-ClockWidget.displayName = 'ClockWidget';
+};

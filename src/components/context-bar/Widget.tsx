@@ -1,10 +1,9 @@
-import { memo } from 'react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
 import type { WidgetProps } from './types';
 
-export const Widget = memo(({ 
+export const Widget = ({ 
   isLoading, 
   hasError, 
   onClick, 
@@ -40,6 +39,4 @@ export const Widget = memo(({
       )}
     </button>
   );
-});
-
-Widget.displayName = 'Widget';
+};

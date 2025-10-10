@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { 
   Sun, 
   Cloud, 
@@ -30,7 +29,7 @@ interface WeatherWidgetProps {
   onRefresh: () => void;
 }
 
-export const WeatherWidget = memo(({ 
+export const WeatherWidget = ({ 
   weather, 
   isLoading, 
   error,
@@ -52,6 +51,4 @@ export const WeatherWidget = memo(({
       </span>
     </Widget>
   );
-});
-
-WeatherWidget.displayName = 'WeatherWidget';
+};

@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { MapPin } from 'lucide-react';
 import { Widget } from './Widget';
 import type { GeolocationData } from './types';
@@ -10,7 +9,7 @@ interface LocationWidgetProps {
   onRefresh: () => void;
 }
 
-export const LocationWidget = memo(({ 
+export const LocationWidget = ({ 
   location, 
   isLoading, 
   error,
@@ -32,6 +31,4 @@ export const LocationWidget = memo(({
       )}
     </Widget>
   );
-});
-
-LocationWidget.displayName = 'LocationWidget';
+};
