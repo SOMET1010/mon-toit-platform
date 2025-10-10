@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Mail, CreditCard, Save, CheckCircle, XCircle, Scan } from "lucide-react";
+import { Shield, Mail, CreditCard, Save, CheckCircle, XCircle, Scan, AlertTriangle, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface IntegrationConfig {
   name: string;
@@ -30,26 +32,95 @@ const AdminIntegrations = () => {
   const [azureEndpoint, setAzureEndpoint] = useState("");
   const [azureApiKey, setAzureApiKey] = useState("");
   
+  // Loading states
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isCheckingRole, setIsCheckingRole] = useState(true);
+  
   const integrations: IntegrationConfig[] = [
     {
       name: "CinetPay",
-      status: "not_configured",
+      status: cinetpayApiKey ? "configured" : "not_configured",
       icon: CreditCard,
       description: "Paiements Mobile Money (Orange, MTN, Wave, Moov)"
     },
     {
       name: "Brevo",
-      status: "not_configured",
+      status: brevoApiKey ? "configured" : "not_configured",
       icon: Mail,
       description: "Emails transactionnels et notifications"
     },
     {
       name: "Azure Face API",
-      status: "configured",
+      status: azureApiKey ? "configured" : "not_configured",
       icon: Scan,
       description: "Vérification faciale biométrique"
     }
   ];
+
+  // Vérifier les rôles au chargement
+  useEffect(() => {
+    checkSuperAdminRole();
+  }, []);
+
+  const checkSuperAdminRole = async () => {
+    setIsCheckingRole(true);
+    try {
+      const { data, error } = await supabase.rpc('verify_user_role', {
+        _role: 'super_admin'
+      });
+      
+      if (error) throw error;
+      setIsSuperAdmin(data === true);
+      
+      // Si super admin, charger les secrets
+      if (data === true) {
+        loadIntegrationSecrets();
+      }
+    } catch (error) {
+      console.error('Error checking role:', error);
+      setIsSuperAdmin(false);
+    } finally {
+      setIsCheckingRole(false);
+    }
+  };
+
+  const loadIntegrationSecrets = async () => {
+    try {
+      // CinetPay
+      const { data: cinetpayData } = await supabase.rpc('get_integration_secret', {
+        p_integration_name: 'cinetpay'
+      });
+      
+      if (cinetpayData) {
+        setCinetpayApiKey(cinetpayData.apiKey || '');
+        setCinetpaySiteId(cinetpayData.siteId || '');
+        setCinetpaySecretKey(cinetpayData.apiSecret || '');
+      }
+
+      // Brevo
+      const { data: brevoData } = await supabase.rpc('get_integration_secret', {
+        p_integration_name: 'brevo'
+      });
+      
+      if (brevoData) {
+        setBrevoApiKey(brevoData.apiKey || '');
+      }
+
+      // Azure Face API
+      const { data: azureData } = await supabase.rpc('get_integration_secret', {
+        p_integration_name: 'azure_face'
+      });
+      
+      if (azureData) {
+        setAzureEndpoint(azureData.endpoint || '');
+        setAzureApiKey(azureData.apiKey || '');
+      }
+    } catch (error) {
+      // Silently fail - secrets may not exist yet
+      console.log('No existing secrets found');
+    }
+  };
 
   const saveCinetPayConfig = async () => {
     if (!cinetpayApiKey || !cinetpaySiteId || !cinetpaySecretKey) {
@@ -61,25 +132,32 @@ const AdminIntegrations = () => {
       return;
     }
 
+    setLoading(prev => ({ ...prev, cinetpay: true }));
+
     try {
-      // Store in localStorage for now (in production, this should be stored securely in Supabase)
-      localStorage.setItem("cinetpay_config", JSON.stringify({
-        apiKey: cinetpayApiKey,
-        siteId: cinetpaySiteId,
-        secretKey: cinetpaySecretKey,
-        configuredAt: new Date().toISOString()
-      }));
+      const { error } = await supabase.rpc('save_integration_secret', {
+        p_integration_name: 'cinetpay',
+        p_encrypted_config: {
+          apiKey: cinetpayApiKey,
+          siteId: cinetpaySiteId,
+          apiSecret: cinetpaySecretKey
+        }
+      });
+
+      if (error) throw error;
 
       toast({
         title: "Configuration sauvegardée",
-        description: "Les paramètres CinetPay ont été enregistrés avec succès"
+        description: "Les clés CinetPay ont été enregistrées de manière sécurisée"
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erreur",
-        description: "Impossible de sauvegarder la configuration",
+        description: error.message || "Impossible de sauvegarder la configuration",
         variant: "destructive"
       });
+    } finally {
+      setLoading(prev => ({ ...prev, cinetpay: false }));
     }
   };
 
@@ -93,22 +171,30 @@ const AdminIntegrations = () => {
       return;
     }
 
+    setLoading(prev => ({ ...prev, brevo: true }));
+
     try {
-      localStorage.setItem("brevo_config", JSON.stringify({
-        apiKey: brevoApiKey,
-        configuredAt: new Date().toISOString()
-      }));
+      const { error } = await supabase.rpc('save_integration_secret', {
+        p_integration_name: 'brevo',
+        p_encrypted_config: {
+          apiKey: brevoApiKey
+        }
+      });
+
+      if (error) throw error;
 
       toast({
         title: "Configuration sauvegardée",
-        description: "Les paramètres Brevo ont été enregistrés avec succès"
+        description: "La clé API Brevo a été enregistrée de manière sécurisée"
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erreur",
-        description: "Impossible de sauvegarder la configuration",
+        description: error.message || "Impossible de sauvegarder la configuration",
         variant: "destructive"
       });
+    } finally {
+      setLoading(prev => ({ ...prev, brevo: false }));
     }
   };
 
@@ -122,25 +208,54 @@ const AdminIntegrations = () => {
       return;
     }
 
+    setLoading(prev => ({ ...prev, azure: true }));
+
     try {
-      localStorage.setItem("azure_face_config", JSON.stringify({
-        endpoint: azureEndpoint,
-        apiKey: azureApiKey,
-        configuredAt: new Date().toISOString()
-      }));
+      const { error } = await supabase.rpc('save_integration_secret', {
+        p_integration_name: 'azure_face',
+        p_encrypted_config: {
+          endpoint: azureEndpoint,
+          apiKey: azureApiKey
+        }
+      });
+
+      if (error) throw error;
 
       toast({
         title: "Configuration sauvegardée",
-        description: "Les paramètres Azure Face API ont été enregistrés avec succès"
+        description: "Les clés Azure Face API ont été enregistrées de manière sécurisée"
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erreur",
-        description: "Impossible de sauvegarder la configuration",
+        description: error.message || "Impossible de sauvegarder la configuration",
         variant: "destructive"
       });
+    } finally {
+      setLoading(prev => ({ ...prev, azure: false }));
     }
   };
+
+  // Loading state
+  if (isCheckingRole) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Access denied
+  if (!isSuperAdmin) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          Seuls les super-administrateurs peuvent accéder à la configuration des intégrations.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -150,6 +265,14 @@ const AdminIntegrations = () => {
           Gérez les intégrations et services externes de la plateforme
         </p>
       </div>
+
+      <Alert>
+        <Shield className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Sécurité renforcée :</strong> Les clés API sont stockées de manière chiffrée dans la base de données. 
+          Tous les accès sont audités dans les logs d'administration.
+        </AlertDescription>
+      </Alert>
 
       {/* Status Overview */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -254,9 +377,22 @@ const AdminIntegrations = () => {
                 </ol>
               </div>
 
-              <Button onClick={saveCinetPayConfig} className="w-full">
-                <Save className="mr-2 h-4 w-4" />
-                Sauvegarder la configuration CinetPay
+              <Button 
+                onClick={saveCinetPayConfig} 
+                className="w-full"
+                disabled={loading.cinetpay}
+              >
+                {loading.cinetpay ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sauvegarde en cours...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Sauvegarder la configuration CinetPay
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -285,16 +421,29 @@ const AdminIntegrations = () => {
               <div className="bg-muted p-4 rounded-lg space-y-2">
                 <h4 className="font-medium text-sm">Comment obtenir votre clé API Brevo ?</h4>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                  <li>Connectez-vous à votre compte Brevo (galadrim@ansut.ci)</li>
+                  <li>Connectez-vous à votre compte Brevo</li>
                   <li>Accédez à Paramètres → Clés API SMTP & API</li>
                   <li>Créez une nouvelle clé API ou copiez une clé existante</li>
                   <li>Collez-la dans le champ ci-dessus</li>
                 </ol>
               </div>
 
-              <Button onClick={saveBrevoConfig} className="w-full">
-                <Save className="mr-2 h-4 w-4" />
-                Sauvegarder la configuration Brevo
+              <Button 
+                onClick={saveBrevoConfig} 
+                className="w-full"
+                disabled={loading.brevo}
+              >
+                {loading.brevo ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sauvegarde en cours...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Sauvegarder la configuration Brevo
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -330,18 +479,6 @@ const AdminIntegrations = () => {
                 />
               </div>
 
-              <div className="bg-muted p-4 rounded-lg space-y-2">
-                <h4 className="font-medium text-sm">Configuration actuelle</h4>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>✅ Endpoint: Configuré dans les secrets Lovable Cloud</p>
-                  <p>✅ API Key: Configurée dans les secrets Lovable Cloud</p>
-                  <p className="pt-2 text-xs">
-                    Les clés Azure sont stockées de manière sécurisée dans Lovable Cloud.
-                    Cette section est informative uniquement.
-                  </p>
-                </div>
-              </div>
-
               <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg space-y-2">
                 <h4 className="font-medium text-sm">Fonctionnalités activées</h4>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
@@ -352,9 +489,22 @@ const AdminIntegrations = () => {
                 </ul>
               </div>
 
-              <Button onClick={saveAzureConfig} className="w-full" disabled>
-                <Save className="mr-2 h-4 w-4" />
-                Configuration gérée par Lovable Cloud
+              <Button 
+                onClick={saveAzureConfig} 
+                className="w-full"
+                disabled={loading.azure}
+              >
+                {loading.azure ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sauvegarde en cours...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Sauvegarder la configuration Azure
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>

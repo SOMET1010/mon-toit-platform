@@ -59,6 +59,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_integration_secrets: {
+        Row: {
+          created_at: string
+          created_by: string
+          encrypted_config: Json
+          id: string
+          integration_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          encrypted_config: Json
+          id?: string
+          integration_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          encrypted_config?: Json
+          id?: string
+          integration_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       api_rate_limits: {
         Row: {
           created_at: string
@@ -2115,6 +2142,10 @@ export type Database = {
           last_attempt: string
         }[]
       }
+      get_integration_secret: {
+        Args: { p_integration_name: string }
+        Returns: Json
+      }
       get_mfa_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2202,6 +2233,21 @@ export type Database = {
         }[]
       }
       get_public_profile: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city: string
+          cnam_verified: boolean
+          face_verified: boolean
+          full_name: string
+          id: string
+          is_verified: boolean
+          oneci_verified: boolean
+          user_type: Database["public"]["Enums"]["user_type"]
+        }[]
+      }
+      get_public_profile_safe: {
         Args: { target_user_id: string }
         Returns: {
           avatar_url: string
@@ -2391,6 +2437,10 @@ export type Database = {
           p_user_id: string
           p_verification_type: string
         }
+        Returns: undefined
+      }
+      save_integration_secret: {
+        Args: { p_encrypted_config: Json; p_integration_name: string }
         Returns: undefined
       }
       unblock_ip: {
