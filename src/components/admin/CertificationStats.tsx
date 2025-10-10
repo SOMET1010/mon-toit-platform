@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/services/logger';
 
 interface CertificationMetrics {
   totalCertified: number;
@@ -84,7 +85,7 @@ const CertificationStats = () => {
         thisMonthCertified,
       });
     } catch (error) {
-      console.error('Error fetching certification metrics:', error);
+      logger.error('Error fetching certification metrics', { error });
     } finally {
       setLoading(false);
     }

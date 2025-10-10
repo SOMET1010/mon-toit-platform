@@ -40,7 +40,7 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
 
   const startCamera = async () => {
     try {
-      console.log('Démarrage de la caméra...');
+      logger.info('Starting camera...');
       
       // Vérifier si mediaDevices est disponible
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -55,16 +55,15 @@ const FaceVerification = ({ onSuccess, onSkip }: FaceVerificationProps) => {
         } 
       });
       
-      console.log('Stream obtenu:', stream);
+      logger.info('Camera stream obtained successfully');
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
-        console.log('Caméra activée avec succès');
+        logger.info('Camera activated successfully');
       }
     } catch (error) {
-      console.error('Erreur caméra détaillée:', error);
       logger.error('Error accessing camera', { error });
       
       let errorMessage = 'Impossible d\'accéder à la caméra';

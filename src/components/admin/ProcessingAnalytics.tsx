@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, TrendingUp, Download, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { AuditLogViewer } from './AuditLogViewer';
+import { logger } from '@/services/logger';
 
 interface AnalyticsKPI {
   totalProcessed: number;
@@ -91,7 +92,7 @@ export const ProcessingAnalytics = () => {
         autoProcessed: autoProcessed || 0
       });
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      logger.error('Error fetching processing analytics', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les analytics',
@@ -154,7 +155,7 @@ export const ProcessingAnalytics = () => {
         description: `${data.length} dossier(s) exporté(s) avec succès.`,
       });
     } catch (error) {
-      console.error('Error exporting:', error);
+      logger.error('Error exporting processing analytics', { error });
       toast({
         title: 'Erreur d\'export',
         description: 'Impossible d\'exporter les dossiers',

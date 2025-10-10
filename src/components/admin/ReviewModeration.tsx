@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, AlertTriangle, Star, Loader2, Filter } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { logger } from '@/services/logger';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -81,7 +82,7 @@ const ReviewModeration = () => {
       if (error) throw error;
       setReviews((data || []) as unknown as Review[]);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      logger.error('Error fetching reviews for moderation', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les avis',
@@ -109,7 +110,7 @@ const ReviewModeration = () => {
       
       setAnalysis(data.moderationResult);
     } catch (error) {
-      console.error('Error analyzing review:', error);
+      logger.error('Error analyzing review with AI', { error });
       toast({
         title: 'Erreur',
         description: "Impossible d'analyser l'avis",
@@ -147,7 +148,7 @@ const ReviewModeration = () => {
       setModerationNotes('');
       setAnalysis(null);
     } catch (error) {
-      console.error('Error moderating review:', error);
+      logger.error('Error moderating review', { error });
       toast({
         title: 'Erreur',
         description: "Impossible de modérer l'avis",

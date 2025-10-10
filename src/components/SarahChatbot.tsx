@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/services/logger";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -119,7 +120,7 @@ export const SarahChatbot = () => {
         }
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending Sarah chat message', { error });
       setMessages(prev => [
         ...prev.slice(0, -1),
         {

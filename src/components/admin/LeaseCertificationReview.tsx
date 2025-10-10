@@ -165,7 +165,7 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
           },
         });
       } catch (emailError) {
-        console.error('Error sending email:', emailError);
+        logger.error('Error sending certification email', { error: emailError });
         // Ne pas bloquer la certification si l'email échoue
       }
 

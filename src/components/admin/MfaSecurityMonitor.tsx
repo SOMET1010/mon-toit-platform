@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Shield, AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { logger } from '@/services/logger';
 
 interface MfaMetrics {
   total_admins: number;
@@ -86,7 +87,7 @@ export const MfaSecurityMonitor = () => {
           setAdminStatuses(statuses);
         }
       } catch (error) {
-        console.error('Error fetching MFA security data:', error);
+        logger.error('Error fetching MFA security data', { error });
       } finally {
         setLoading(false);
       }

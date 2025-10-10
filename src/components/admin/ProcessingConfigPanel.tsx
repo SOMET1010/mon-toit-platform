@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Settings, AlertTriangle, Save, Clock } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 export const ProcessingConfigPanel = () => {
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export const ProcessingConfigPanel = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching config:', error);
+      logger.error('Error fetching processing config', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger la configuration',
@@ -93,7 +94,7 @@ export const ProcessingConfigPanel = () => {
         description: 'Les paramètres de traitement ont été mis à jour avec succès.',
       });
     } catch (error) {
-      console.error('Error saving config:', error);
+      logger.error('Error saving processing config', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de sauvegarder la configuration',

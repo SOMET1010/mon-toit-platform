@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
+import { logger } from '@/services/logger';
 
 type SeedStatus = 'idle' | 'seeding' | 'success' | 'error';
 
@@ -145,7 +146,7 @@ export const SeedDemoDataButton = () => {
         description: `${merged.users} utilisateurs, ${merged.properties} propriétés, ${merged.applications} candidatures, ${merged.leases} baux créés.`
       });
     } catch (err: unknown) {
-      console.error('Error seeding data:', err);
+      logger.error('Error seeding demo data', { error: err });
       const message =
         err instanceof Error
           ? err.message

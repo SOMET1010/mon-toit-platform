@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import LeaseCertificationReview from '@/components/admin/LeaseCertificationReview';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/services/logger';
 
 interface LeaseCertificationQueueProps {
   status?: 'pending' | 'in_review' | 'certified' | 'rejected';
@@ -72,7 +73,7 @@ const LeaseCertificationQueue = ({ status = 'pending' }: LeaseCertificationQueue
       if (error) throw error;
       setPendingLeases(data as any || []);
     } catch (error) {
-      console.error('Error fetching leases:', error);
+      logger.error('Error fetching leases for certification', { error });
     } finally {
       setLoading(false);
     }

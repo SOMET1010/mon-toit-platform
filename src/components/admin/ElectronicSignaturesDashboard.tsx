@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
 import { DataTable } from './DataTable';
+import { logger } from '@/services/logger';
 
 interface SignatureMetrics {
   totalCertificates: number;
@@ -96,7 +97,7 @@ export const ElectronicSignaturesDashboard = () => {
         avgProcessingTime: avgTime
       });
     } catch (error) {
-      console.error('Error fetching metrics:', error);
+      logger.error('Error fetching signature metrics', { error });
     } finally {
       setLoading(false);
     }

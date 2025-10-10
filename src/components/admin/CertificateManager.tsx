@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable } from './DataTable';
 import { MoreVertical, Shield, AlertTriangle, RefreshCw, Download, Filter, X, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { logger } from '@/services/logger';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -83,7 +84,7 @@ export const CertificateManager = () => {
         setCertificates(data as Certificate[]);
       }
     } catch (error) {
-      console.error('Error fetching certificates:', error);
+      logger.error('Error fetching certificates', { error });
       toast({
         title: 'Erreur de chargement',
         description: 'Impossible de charger les certificats.',
@@ -164,7 +165,7 @@ export const CertificateManager = () => {
       
       fetchCertificates();
     } catch (error) {
-      console.error('Error revoking certificate:', error);
+      logger.error('Error revoking certificate', { error });
       toast({
         title: 'Erreur',
         description: 'Impossible de révoquer le certificat.',
@@ -191,7 +192,7 @@ export const CertificateManager = () => {
       
       setTimeout(fetchCertificates, REFRESH_DELAY);
     } catch (error) {
-      console.error('Error regenerating certificate:', error);
+      logger.error('Error regenerating certificate', { error });
       toast({
         title: 'Erreur de régénération',
         description: 'Impossible de régénérer le certificat.',
@@ -231,7 +232,7 @@ export const CertificateManager = () => {
         description: `${filteredCertificates.length} certificat(s) exporté(s)`
       });
     } catch (error) {
-      console.error('Error exporting CSV:', error);
+      logger.error('Error exporting CSV', { error });
       toast({
         title: 'Erreur export',
         description: 'Impossible d\'exporter les données',

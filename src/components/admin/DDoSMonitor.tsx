@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { logger } from '@/services/logger';
 
 interface BlockedIP {
   id: string;
@@ -45,7 +46,7 @@ export const DDoSMonitor = () => {
       .order('blocked_at', { ascending: false });
 
     if (error) {
-      console.error('Erreur chargement IPs bloquées:', error);
+      logger.error('Error loading blocked IPs', { error });
       return;
     }
 
@@ -56,7 +57,7 @@ export const DDoSMonitor = () => {
     const { data, error } = await supabase.rpc('detect_ddos_pattern');
 
     if (error) {
-      console.error('Erreur détection DDoS:', error);
+      logger.error('Error detecting DDoS patterns', { error });
       return;
     }
 
