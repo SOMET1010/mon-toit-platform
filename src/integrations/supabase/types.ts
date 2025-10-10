@@ -2035,6 +2035,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_get_guest_messages: {
+        Args: { p_limit?: number; p_property_id?: string }
+        Returns: {
+          created_at: string
+          guest_email: string
+          guest_name: string
+          guest_phone: string
+          id: string
+          ip_address: string
+          message_content: string
+          owner_id: string
+          property_id: string
+          status: string
+          updated_at: string
+        }[]
+      }
       admin_has_2fa_enabled: {
         Args: { _admin_id: string }
         Returns: boolean
@@ -2189,6 +2205,20 @@ export type Database = {
           oneci_status: string
           oneci_verified: boolean
           tenant_score: number
+        }[]
+      }
+      get_property_owner_public_info: {
+        Args: { property_id_param: string }
+        Returns: {
+          avatar_url: string
+          city: string
+          cnam_verified: boolean
+          face_verified: boolean
+          full_name: string
+          id: string
+          is_verified: boolean
+          oneci_verified: boolean
+          user_type: Database["public"]["Enums"]["user_type"]
         }[]
       }
       get_property_with_title_deed: {
