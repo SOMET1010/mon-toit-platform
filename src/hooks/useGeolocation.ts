@@ -1,10 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface GeolocationData {
   city: string;
   neighborhood?: string;
+  country?: string;
   latitude?: number;
   longitude?: number;
+}
+
+interface GeolocationReturn {
+  location: GeolocationData;
+  isLoading: boolean;
+  error: Error | null;
+  refresh: () => Promise<void>;
 }
 
 const ABIDJAN_NEIGHBORHOODS = [
@@ -20,6 +28,10 @@ const ABIDJAN_NEIGHBORHOODS = [
   { name: 'Attécoubé', lat: 5.3333, lng: -4.0500, bounds: { latMin: 5.31, latMax: 5.36, lngMin: -4.08, lngMax: -4.03 } }
 ];
 
+const CACHE_KEY = 'user_location';
+const CACHE_TIMESTAMP_KEY = 'user_location_timestamp';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 const detectNeighborhood = (lat: number, lng: number): string | undefined => {
   for (const neighborhood of ABIDJAN_NEIGHBORHOODS) {
     if (
@@ -34,50 +46,80 @@ const detectNeighborhood = (lat: number, lng: number): string | undefined => {
   return undefined;
 };
 
-export const useGeolocation = () => {
+export const useGeolocation = (): GeolocationReturn => {
   const [location, setLocation] = useState<GeolocationData>({
     city: 'Abidjan',
+    country: 'Côte d\'Ivoire',
     neighborhood: undefined
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const savedLocation = localStorage.getItem('user_location');
-    
-    if (savedLocation) {
-      setLocation(JSON.parse(savedLocation));
-      setIsLoading(false);
-      return;
-    }
+  const fetchLocation = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const neighborhood = detectNeighborhood(latitude, longitude);
-          
-          const locationData: GeolocationData = {
-            city: 'Abidjan',
-            neighborhood,
-            latitude,
-            longitude
-          };
-          
-          setLocation(locationData);
-          localStorage.setItem('user_location', JSON.stringify(locationData));
+    try {
+      // Check cache first (5 min)
+      const cachedLocation = localStorage.getItem(CACHE_KEY);
+      const cachedTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      
+      if (cachedLocation && cachedTime) {
+        const cacheAge = Date.now() - parseInt(cachedTime);
+        if (cacheAge < CACHE_DURATION) {
+          setLocation(JSON.parse(cachedLocation));
           setIsLoading(false);
-        },
-        () => {
-          // Fallback to default
-          setLocation({ city: 'Abidjan' });
-          setIsLoading(false);
+          return;
         }
-      );
-    } else {
-      setLocation({ city: 'Abidjan' });
+      }
+
+      if ('geolocation' in navigator) {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 5000,
+            maximumAge: CACHE_DURATION
+          });
+        });
+
+        const { latitude, longitude } = position.coords;
+        const neighborhood = detectNeighborhood(latitude, longitude);
+        
+        const locationData: GeolocationData = {
+          city: 'Abidjan',
+          country: 'Côte d\'Ivoire',
+          neighborhood,
+          latitude,
+          longitude
+        };
+        
+        setLocation(locationData);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(locationData));
+        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      } else {
+        setLocation({ 
+          city: 'Abidjan',
+          country: 'Côte d\'Ivoire'
+        });
+      }
+    } catch (err) {
+      setError(err as Error);
+      setLocation({ 
+        city: 'Abidjan',
+        country: 'Côte d\'Ivoire'
+      });
+    } finally {
       setIsLoading(false);
     }
   }, []);
 
-  return { location, isLoading };
+  useEffect(() => {
+    fetchLocation();
+  }, [fetchLocation]);
+
+  return {
+    location,
+    isLoading,
+    error,
+    refresh: fetchLocation
+  };
 };

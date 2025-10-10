@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/services/logger';
 
@@ -8,68 +8,100 @@ interface WeatherData {
   icon: string;
   humidity?: number;
   windSpeed?: number;
+  feelsLike?: number;
+}
+
+interface WeatherReturn {
+  weather: WeatherData;
+  isLoading: boolean;
+  error: Error | null;
+  refresh: () => Promise<void>;
 }
 
 const FALLBACK_WEATHER: WeatherData = {
   temperature: 28,
   description: 'Ensoleillé',
-  icon: 'sun'
+  icon: 'sun',
+  humidity: 75,
+  windSpeed: 12
 };
+
+const CACHE_KEY = 'weather_data';
+const CACHE_TIMESTAMP_KEY = 'weather_timestamp';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const AUTO_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
 /**
  * Hook to fetch weather data for Abidjan with localStorage caching
- * Cache duration: 15 minutes
+ * Cache duration: 30 minutes
+ * Auto-refresh: every 30 minutes
  * Falls back to default sunny weather if API fails
  */
-
-export const useWeather = () => {
+export const useWeather = (): WeatherReturn => {
   const [weather, setWeather] = useState<WeatherData>(FALLBACK_WEATHER);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        // Check cache first (15 min)
-        const cachedWeather = localStorage.getItem('weather_data');
-        const cachedTime = localStorage.getItem('weather_timestamp');
-        
-        if (cachedWeather && cachedTime) {
-          const cacheAge = Date.now() - parseInt(cachedTime);
-          if (cacheAge < 15 * 60 * 1000) { // 15 minutes
-            setWeather(JSON.parse(cachedWeather));
-            setIsLoading(false);
-            return;
-          }
-        }
+  const fetchWeather = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-        const { data, error } = await supabase.functions.invoke('get-weather', {
-          body: { city: 'Abidjan' }
-        });
-
-        if (error) {
-          logger.warn('Weather API error', { error });
-          setWeather(FALLBACK_WEATHER);
+    try {
+      // Check cache first (30 min)
+      const cachedWeather = localStorage.getItem(CACHE_KEY);
+      const cachedTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      
+      if (cachedWeather && cachedTime) {
+        const cacheAge = Date.now() - parseInt(cachedTime);
+        if (cacheAge < CACHE_DURATION) {
+          setWeather(JSON.parse(cachedWeather));
           setIsLoading(false);
           return;
         }
-
-        if (data?.weather) {
-          setWeather(data.weather);
-          localStorage.setItem('weather_data', JSON.stringify(data.weather));
-          localStorage.setItem('weather_timestamp', Date.now().toString());
-        } else {
-          setWeather(FALLBACK_WEATHER);
-        }
-      } catch (error) {
-        logger.warn('Weather fetch error', { error });
-        setWeather(FALLBACK_WEATHER);
-      } finally {
-        setIsLoading(false);
       }
-    };
 
-    fetchWeather();
+      const { data, error: apiError } = await supabase.functions.invoke('get-weather', {
+        body: { city: 'Abidjan' }
+      });
+
+      if (apiError) {
+        throw new Error('Weather API error');
+      }
+
+      if (data?.weather) {
+        const weatherData: WeatherData = {
+          ...data.weather,
+          feelsLike: data.weather.feelsLike || data.weather.temperature
+        };
+        
+        setWeather(weatherData);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(weatherData));
+        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      } else {
+        setWeather(FALLBACK_WEATHER);
+      }
+    } catch (err) {
+      logger.warn('Weather fetch error', { error: err });
+      setError(err as Error);
+      setWeather(FALLBACK_WEATHER);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { weather, isLoading };
+  useEffect(() => {
+    fetchWeather();
+
+    // Auto-refresh every 30 minutes
+    const intervalId = setInterval(fetchWeather, AUTO_REFRESH_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [fetchWeather]);
+
+  return {
+    weather,
+    isLoading,
+    error,
+    refresh: fetchWeather
+  };
 };

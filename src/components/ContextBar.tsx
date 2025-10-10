@@ -1,71 +1,70 @@
-import { MapPin, Cloud, CloudRain, CloudLightning, CloudSun, CloudMoon, Sun, Moon, Clock } from 'lucide-react';
+import React, { memo } from 'react';
 import { useCurrentTime } from '@/hooks/useCurrentTime';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useWeather } from '@/hooks/useWeather';
-import { cn } from '@/lib/utils';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { LocationWidget } from './context-bar/LocationWidget';
+import { WeatherWidget } from './context-bar/WeatherWidget';
+import { ClockWidget } from './context-bar/ClockWidget';
+import { toast } from 'sonner';
 
-const WEATHER_ICONS = {
-  'sun': Sun,
-  'moon': Moon,
-  'cloud': Cloud,
-  'cloud-sun': CloudSun,
-  'cloud-moon': CloudMoon,
-  'cloud-rain': CloudRain,
-  'cloud-lightning': CloudLightning,
-};
+const ContextBar = memo(() => {
+  const { formatTime, formatDate, dayPeriod } = useCurrentTime();
+  const { location, isLoading: locationLoading, error: locationError, refresh: refreshLocation } = useGeolocation();
+  const { weather, isLoading: weatherLoading, error: weatherError, refresh: refreshWeather } = useWeather();
 
-const ContextBar = () => {
-  const { formatTime, formatDate } = useCurrentTime();
-  const { location, isLoading: locationLoading } = useGeolocation();
-  const { weather, isLoading: weatherLoading } = useWeather();
+  const handleLocationRefresh = async () => {
+    await refreshLocation();
+    toast.success('Localisation actualisée');
+  };
 
-  const WeatherIcon = WEATHER_ICONS[weather.icon as keyof typeof WEATHER_ICONS] || Sun;
+  const handleWeatherRefresh = async () => {
+    await refreshWeather();
+    toast.success('Météo actualisée');
+  };
 
   return (
-    <div className="w-full bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 border-b border-border/50 backdrop-blur-md sticky top-16 z-40">
+    <div 
+      className="w-full bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 border-b border-border/50 backdrop-blur-md sticky top-16 z-40"
+      role="banner"
+      aria-label="Barre d'informations contextuelles"
+    >
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="h-10 flex items-center justify-center gap-4 md:gap-6 text-sm text-foreground/90 font-medium">
-          
-          {/* Location Widget */}
-          <div className="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 hover:bg-background/60 transition-all duration-300 hover:scale-105 cursor-pointer">
-            <MapPin className="h-4 w-4 text-primary animate-pulse group-hover:animate-none" />
-            {locationLoading ? (
-              <span className="animate-fade-in">Abidjan</span>
-            ) : (
-              <span className="font-semibold">{location.city}</span>
-            )}
+        <TooltipProvider delayDuration={300}>
+          <div className="h-10 flex items-center justify-center gap-4 md:gap-6 text-sm">
+            
+            <LocationWidget
+              location={location}
+              isLoading={locationLoading}
+              error={locationError}
+              onRefresh={handleLocationRefresh}
+            />
+
+            <span className="text-border/40" aria-hidden="true">•</span>
+
+            <WeatherWidget
+              weather={weather}
+              isLoading={weatherLoading}
+              error={weatherError}
+              onRefresh={handleWeatherRefresh}
+            />
+
+            <span className="text-border/40 hidden md:inline" aria-hidden="true">•</span>
+
+            <div className="hidden md:block">
+              <ClockWidget
+                formatTime={formatTime}
+                formatDate={formatDate}
+                dayPeriod={dayPeriod}
+              />
+            </div>
           </div>
-
-          <span className="text-border/40">•</span>
-
-          {/* Weather Widget */}
-          <div className="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 hover:bg-background/60 transition-all duration-300 hover:scale-105 cursor-pointer">
-            {weatherLoading ? (
-              <>
-                <Sun className="h-4 w-4 text-warning animate-spin" />
-                <span>...</span>
-              </>
-            ) : (
-              <>
-                <WeatherIcon className="h-4 w-4 text-warning group-hover:scale-110 transition-transform" />
-                <span className="font-semibold">{weather.temperature}°C</span>
-                <span className="text-muted-foreground hidden sm:inline">{weather.description}</span>
-              </>
-            )}
-          </div>
-
-          <span className="text-border/40 hidden md:inline">•</span>
-
-          {/* Time & Date Widget */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/40 hover:bg-background/60 transition-all duration-300 hover:scale-105 cursor-pointer group">
-            <Clock className="h-4 w-4 text-primary group-hover:rotate-12 transition-transform" />
-            <span className="font-semibold">{formatTime()}</span>
-            <span className="text-muted-foreground text-xs">{formatDate()}</span>
-          </div>
-        </div>
+        </TooltipProvider>
       </div>
     </div>
   );
-};
+});
+
+ContextBar.displayName = 'ContextBar';
 
 export default ContextBar;
