@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { UserPreferences } from '@/types/supabase-extended';
 import { useToast } from '@/hooks/use-toast';
 
 export type WidgetType = 
@@ -58,20 +59,21 @@ export const useDashboardLayout = (userType: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_preferences')
         .select('dashboard_layout, enabled_widgets')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
 
       if (data) {
-        if (data.dashboard_layout && Object.keys(data.dashboard_layout).length > 0) {
-          setLayouts(data.dashboard_layout as DashboardLayout[]);
+        const prefs = data as unknown as UserPreferences;
+        if (prefs.dashboard_layout && Object.keys(prefs.dashboard_layout).length > 0) {
+          setLayouts(prefs.dashboard_layout as DashboardLayout[]);
         }
-        if (data.enabled_widgets && Array.isArray(data.enabled_widgets)) {
-          setEnabledWidgets(data.enabled_widgets as WidgetType[]);
+        if (prefs.enabled_widgets && Array.isArray(prefs.enabled_widgets)) {
+          setEnabledWidgets(prefs.enabled_widgets as WidgetType[]);
         }
       }
     } catch (error) {
@@ -88,7 +90,7 @@ export const useDashboardLayout = (userType: string) => {
 
       setLayouts(newLayouts);
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_preferences')
         .upsert({
           user_id: user.id,
@@ -118,7 +120,7 @@ export const useDashboardLayout = (userType: string) => {
 
       setEnabledWidgets(newEnabledWidgets);
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_preferences')
         .upsert({
           user_id: user.id,
@@ -153,7 +155,7 @@ export const useDashboardLayout = (userType: string) => {
       setLayouts(defaultLayout);
       setEnabledWidgets(defaultWidgets);
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_preferences')
         .upsert({
           user_id: user.id,

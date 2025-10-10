@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { HelpInteraction } from '@/types/supabase-extended';
 
 export interface HelpContent {
   id: string;
@@ -22,7 +23,7 @@ export const useHelpSystem = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      await supabase.from('help_interactions').insert({
+      await (supabase as any).from('help_interactions').insert({
         user_id: user.id,
         help_type: helpType,
         content_id: contentId,

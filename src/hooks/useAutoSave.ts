@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { FormDraft } from '@/types/supabase-extended';
 
 export type AutoSaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
 
@@ -36,12 +37,12 @@ export const useAutoSave = <T extends Record<string, any>>({
       if (!user) return;
 
       // Check Supabase
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('form_drafts')
         .select('*')
         .eq('user_id', user.id)
         .eq('form_type', formType)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setHasDraft(true);
@@ -83,17 +84,30 @@ export const useAutoSave = <T extends Record<string, any>>({
 
         // Save to Supabase if online
         if (user) {
-          const { error } = await supabase
+          // First try to update existing draft
+          const { data: existing } = await (supabase as any)
             .from('form_drafts')
-            .upsert({
-              user_id: user.id,
-              form_type: formType,
-              draft_data: formData,
-            }, {
-              onConflict: 'user_id,form_type'
-            });
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('form_type', formType)
+            .maybeSingle();
 
-          if (error) throw error;
+          if (existing) {
+            const { error } = await (supabase as any)
+              .from('form_drafts')
+              .update({ draft_data: formData })
+              .eq('id', existing.id);
+            if (error) throw error;
+          } else {
+            const { error } = await (supabase as any)
+              .from('form_drafts')
+              .insert({
+                user_id: user.id,
+                form_type: formType,
+                draft_data: formData,
+              });
+            if (error) throw error;
+          }
         }
 
         setStatus('saved');
@@ -128,15 +142,15 @@ export const useAutoSave = <T extends Record<string, any>>({
       }
 
       // Try Supabase first
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('form_drafts')
         .select('draft_data')
         .eq('user_id', user.id)
         .eq('form_type', formType)
-        .single();
+        .maybeSingle();
 
       if (data) {
-        return data.draft_data as T;
+        return (data as any).draft_data as T;
       }
 
       // Fallback to LocalStorage
@@ -166,7 +180,7 @@ export const useAutoSave = <T extends Record<string, any>>({
 
       // Clear Supabase
       if (user) {
-        await supabase
+        await (supabase as any)
           .from('form_drafts')
           .delete()
           .eq('user_id', user.id)
