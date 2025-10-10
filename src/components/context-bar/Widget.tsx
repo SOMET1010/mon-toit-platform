@@ -43,7 +43,7 @@ export const Widget = memo(({
 
   if (tooltip && !isLoading && !hasError) {
     return (
-      <Tooltip>
+      <Tooltip delayDuration={300}>
         <TooltipTrigger asChild>
           {content}
         </TooltipTrigger>
