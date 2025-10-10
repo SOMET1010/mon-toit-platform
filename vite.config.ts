@@ -147,8 +147,7 @@ export default defineConfig(({ mode }) => ({
           
           // Admin features (lazy loaded)
           'admin': [
-            'canvas-confetti',
-            'jscpd'
+            'canvas-confetti'
           ],
         },
         // ✅ SÉCURITÉ : Noms de chunks obfusqués
