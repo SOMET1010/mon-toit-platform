@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ApplicantPhoneDisplay } from '@/components/application/ApplicantPhoneDisplay';
+import { logger } from '@/services/logger';
 
 type Application = {
   id: string;
@@ -134,7 +135,7 @@ const PropertyApplications = () => {
 
       setApplications(enrichedApplications);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      logger.logError(error, { context: 'PropertyApplications', action: 'fetchData', propertyId });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les données',
@@ -180,7 +181,7 @@ const PropertyApplications = () => {
       setRejectionNote('');
       setSelectedApplication(null);
     } catch (error: any) {
-      console.error('Error updating application:', error);
+      logger.logError(error, { context: 'PropertyApplications', action: 'updateApplication', applicationId });
       toast({
         title: 'Erreur',
         description: error.message,

@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Property, SearchFilters } from '@/types';
+import { logger } from '@/services/logger';
 
 /**
  * Parse Supabase/Postgres errors into user-friendly messages
@@ -71,7 +72,7 @@ export const propertyService = {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching certified properties:', error);
+        logger.logError(error, { context: 'propertyService', action: 'fetchCertifiedProperties' });
         throw error;
       }
       
@@ -98,7 +99,7 @@ export const propertyService = {
     });
 
     if (error) {
-      console.error('Error fetching properties:', error);
+      logger.logError(error, { context: 'propertyService', action: 'fetchAllProperties' });
       throw error;
     }
 
@@ -178,7 +179,7 @@ export const propertyService = {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching owner properties:', error);
+      logger.logError(error, { context: 'propertyService', action: 'fetchByOwner', ownerId });
       throw error;
     }
 
@@ -197,7 +198,7 @@ export const propertyService = {
       .single();
 
     if (error) {
-      console.error('Error updating property:', error);
+      logger.logError(error, { context: 'propertyService', action: 'updateProperty', propertyId: id });
       const userMessage = parsePropertyError(error);
       throw new Error(userMessage);
     }
@@ -215,7 +216,7 @@ export const propertyService = {
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting property:', error);
+      logger.logError(error, { context: 'propertyService', action: 'deleteProperty', propertyId: id });
       const userMessage = parsePropertyError(error);
       throw new Error(userMessage);
     }
@@ -239,7 +240,7 @@ export const propertyService = {
         .eq('id', id);
 
       if (error) {
-        console.error('Error incrementing view count:', error);
+        logger.logError(error, { context: 'propertyService', action: 'incrementViewCount', propertyId: id });
         throw error;
       }
     }

@@ -1,3 +1,5 @@
+import { logger } from '@/services/logger';
+
 interface ErrorHandling {
   userMessage: string;
   action: 'regenerate_certificate' | 'redirect_verification' | 'async_verification' | 'fallback_simple_signature' | 'log_and_notify_admin' | 'retry';
@@ -86,7 +88,11 @@ export const handleCryptoNeoError = (error: any): ErrorHandling => {
       };
 
     default:
-      console.error('Unhandled CryptoNeo error:', error);
+      logger.error('Unhandled CryptoNeo error', { 
+        error, 
+        errorCode: error?.code || 'UNKNOWN',
+        context: 'cryptoneo-error-handler' 
+      });
       return {
         userMessage: 'Une erreur inattendue s\'est produite. Vous pouvez continuer avec la signature simple.',
         action: 'log_and_notify_admin',

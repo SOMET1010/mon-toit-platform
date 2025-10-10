@@ -7,13 +7,15 @@
  * Récupère l'IP du client via un service externe
  * Fallback sur '0.0.0.0' en cas d'échec
  */
+import { logger } from '@/services/logger';
+
 export const getClientIP = async (): Promise<string> => {
   try {
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
     return data.ip || '0.0.0.0';
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'IP:', error);
+    logger.logError(error, { context: 'ipUtils', action: 'getClientIP' });
     return '0.0.0.0';
   }
 };

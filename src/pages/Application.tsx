@@ -15,6 +15,7 @@ import DocumentUpload from '@/components/application/DocumentUpload';
 import { ApplicationStatusTracker } from '@/components/application/ApplicationStatusTracker';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 type Property = {
   id: string;
@@ -62,7 +63,7 @@ const Application = () => {
         setVerification(verificationData);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      logger.logError(error, { context: 'Application', action: 'fetchData', propertyId });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les informations',
@@ -137,7 +138,7 @@ const Application = () => {
             .eq('id', data.id);
         }
       } catch (scoringError) {
-        console.error('Error calculating score:', scoringError);
+        logger.logError(scoringError, { context: 'Application', action: 'calculateScore', propertyId });
         // Don't block application if scoring fails
       }
 
@@ -148,7 +149,7 @@ const Application = () => {
 
       navigate(`/property/${propertyId}`);
     } catch (error: any) {
-      console.error('Error submitting application:', error);
+      logger.logError(error, { context: 'Application', action: 'submitApplication', propertyId });
       
       let errorMessage = 'Impossible de soumettre la candidature';
       

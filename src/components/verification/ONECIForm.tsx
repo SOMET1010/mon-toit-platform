@@ -534,7 +534,6 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
                     size="sm"
                     variant="destructive"
                     onClick={() => {
-                      console.log('🗑️ Suppression de la photo CNI');
                       setCniImage(null);
                       setVerificationResult(null);
                     }}
@@ -593,7 +592,6 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
                     size="sm"
                     variant="destructive"
                     onClick={() => {
-                      console.log('🗑️ Suppression du selfie');
                       setSelfieImage(null);
                       setVerificationResult(null);
                       stopCamera();

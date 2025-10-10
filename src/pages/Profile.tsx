@@ -21,6 +21,7 @@ import NotificationPreferences from '@/components/notifications/NotificationPref
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 import { RoleSelectorFull } from '@/components/profile/RoleSelectorFull';
+import { logger } from '@/services/logger';
 
 const Profile = () => {
   const { user, profile, refreshProfile, hasRole } = useAuth();
@@ -121,7 +122,7 @@ const Profile = () => {
           : 'Les notifications de recommandations sont désactivées',
       });
     } catch (error) {
-      console.error('Error updating notification preferences:', error);
+      logger.logError(error, { context: 'Profile', action: 'updateNotificationPreferences' });
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour les préférences',

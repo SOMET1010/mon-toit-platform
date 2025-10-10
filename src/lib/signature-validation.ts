@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from '@/services/logger';
 
 interface ValidationResult {
   canSign: boolean;
@@ -90,7 +91,12 @@ export const canSignElectronically = async (
     return { canSign: true };
 
   } catch (error) {
-    console.error('Error checking electronic signature eligibility:', error);
+    logger.logError(error, { 
+      context: 'signature-validation', 
+      action: 'canSignElectronically',
+      userId,
+      leaseId 
+    });
     return {
       canSign: false,
       reason: 'Erreur lors de la vérification des prérequis'

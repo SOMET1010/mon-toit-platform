@@ -14,6 +14,7 @@ import RevenueForecast from '@/components/dashboard/RevenueForecast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { StickyHeader } from '@/components/ui/sticky-header';
+import { logger } from '@/services/logger';
 
 const OwnerDashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
@@ -198,7 +199,7 @@ const OwnerDashboard = () => {
       setUrgentActions(actions);
 
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      logger.logError(error, { context: 'OwnerDashboard', action: 'fetchDashboardData' });
     } finally {
       setLoading(false);
     }

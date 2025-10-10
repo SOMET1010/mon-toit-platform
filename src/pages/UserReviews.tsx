@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ReputationBadge } from '@/components/reviews/ReputationBadge';
 import { ReviewsList } from '@/components/reviews/ReviewsList';
 import { Award, Home, User } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 interface UserProfile {
   id: string;
@@ -61,7 +62,7 @@ const UserReviews = () => {
 
       setReputation(reputationData);
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      logger.logError(error, { context: 'UserReviews', action: 'fetchUserData' });
     } finally {
       setLoading(false);
     }

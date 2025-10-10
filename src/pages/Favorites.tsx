@@ -9,6 +9,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { Link } from 'react-router-dom';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Property } from '@/types';
+import { logger } from '@/services/logger';
 
 const Favorites = () => {
   const { favorites, toggleFavorite, loading: favoritesLoading } = useFavorites();
@@ -34,7 +35,7 @@ const Favorites = () => {
       if (error) throw error;
       setProperties(data || []);
     } catch (error) {
-      console.error('Error fetching favorite properties:', error);
+      logger.logError(error, { context: 'Favorites', action: 'fetchFavoriteProperties' });
     } finally {
       setLoading(false);
     }

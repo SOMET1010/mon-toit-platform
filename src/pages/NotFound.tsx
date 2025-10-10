@@ -4,6 +4,7 @@ import { Home, Search, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { logger } from '@/services/logger';
 
 const NotFound = () => {
   const location = useLocation();
@@ -11,7 +12,10 @@ const NotFound = () => {
   const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    logger.warn('404 Error: User accessed non-existent route', { 
+      pathname: location.pathname,
+      referrer: document.referrer 
+    });
   }, [location.pathname]);
 
   // Auto-redirection après 10 secondes

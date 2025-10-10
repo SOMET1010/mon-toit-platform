@@ -15,6 +15,7 @@ import { TwoFactorVerify } from '@/components/auth/TwoFactorVerify';
 import { toast } from '@/hooks/use-toast';
 import { getClientIP, getDeviceFingerprint, formatRetryAfter } from '@/lib/ipUtils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { logger } from '@/services/logger';
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -189,7 +190,7 @@ const Auth = () => {
         navigate('/');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      logger.logError(err, { context: 'Auth', action: 'signIn', email: signInEmail });
       setLoading(false);
     }
   };
@@ -250,7 +251,7 @@ const Auth = () => {
       });
       
       if (error) {
-        console.error('Google OAuth error:', error);
+        logger.logError(error, { context: 'Auth', action: 'googleOAuth', stage: 'initial' });
         throw error;
       }
 
@@ -259,10 +260,10 @@ const Auth = () => {
       }
 
       // La redirection vers Google se fera automatiquement
-      console.log('Redirection vers Google OAuth...');
+      logger.debug('Redirection vers Google OAuth', { url: data.url });
       
     } catch (error: any) {
-      console.error('Google sign-in error:', error);
+      logger.logError(error, { context: 'Auth', action: 'googleSignIn', stage: 'complete' });
       
       let errorMessage = 'Impossible de se connecter avec Google';
       

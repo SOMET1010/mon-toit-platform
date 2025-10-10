@@ -15,6 +15,7 @@ import ApplicationDetail from '@/components/application/ApplicationDetail';
 import { ApplicationStatusTracker } from '@/components/application/ApplicationStatusTracker';
 import { ApplicationsTableView } from '@/components/application/ApplicationsTableView';
 import ViewToggle from '@/components/properties/ViewToggle';
+import { logger } from '@/services/logger';
 
 import type { ApplicationStatus } from '@/types';
 
@@ -117,7 +118,7 @@ const Applications = () => {
 
       setApplications(enrichedApplications);
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      logger.logError(error, { context: 'Applications', action: 'fetchApplications' });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les candidatures',
@@ -148,7 +149,7 @@ const Applications = () => {
       fetchApplications();
       setSelectedApplication(null);
     } catch (error) {
-      console.error('Error updating application:', error);
+      logger.logError(error, { context: 'Applications', action: 'updateStatus', applicationId });
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la candidature',
