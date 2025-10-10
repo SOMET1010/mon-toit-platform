@@ -9,6 +9,11 @@ import { ClockWidget } from './context-bar/ClockWidget';
 import { toast } from 'sonner';
 
 const ContextBar = memo(() => {
+  console.log('[ContextBar] Rendering...');
+  console.log('[ContextBar] LocationWidget:', LocationWidget);
+  console.log('[ContextBar] WeatherWidget:', WeatherWidget);
+  console.log('[ContextBar] ClockWidget:', ClockWidget);
+  
   const { formatTime, formatDate, dayPeriod } = useCurrentTime();
   const { location, isLoading: locationLoading, error: locationError, refresh: refreshLocation } = useGeolocation();
   const { weather, isLoading: weatherLoading, error: weatherError, refresh: refreshWeather } = useWeather();

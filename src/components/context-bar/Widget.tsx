@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { WidgetProps } from './types';
 
 export const Widget = memo(({ 
@@ -10,10 +9,11 @@ export const Widget = memo(({
   hasError, 
   onClick, 
   children, 
-  ariaLabel,
-  tooltip 
-}: WidgetProps) => {
-  const content = (
+  ariaLabel
+}: Omit<WidgetProps, 'tooltip'>) => {
+  console.log('[Widget] Rendering...');
+  
+  return (
     <button
       onClick={onClick}
       aria-label={ariaLabel}
@@ -40,21 +40,6 @@ export const Widget = memo(({
       )}
     </button>
   );
-
-  if (tooltip && !isLoading && !hasError) {
-    return (
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          {content}
-        </TooltipTrigger>
-        <TooltipContent side="bottom" className="max-w-xs">
-          {tooltip}
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return content;
 });
 
 Widget.displayName = 'Widget';

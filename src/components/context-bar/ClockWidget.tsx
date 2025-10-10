@@ -15,22 +15,10 @@ export const ClockWidget = memo(({
 }: ClockWidgetProps) => {
   const [showSeconds, setShowSeconds] = useState(false);
 
-  const tooltip = (
-    <div className="space-y-1">
-      <p className="font-semibold">{formatDate()}</p>
-      <p className="text-xs text-muted-foreground">Période: {dayPeriod}</p>
-      <p className="text-xs text-muted-foreground">Fuseau: Africa/Abidjan (GMT)</p>
-      <p className="text-xs text-muted-foreground mt-2">
-        Cliquer pour {showSeconds ? 'masquer' : 'afficher'} les secondes
-      </p>
-    </div>
-  );
-
   return (
     <Widget
       onClick={() => setShowSeconds(!showSeconds)}
       ariaLabel="Heure et date actuelles - Cliquer pour basculer l'affichage des secondes"
-      tooltip={tooltip}
     >
       <Clock className="h-4 w-4 text-primary group-hover:rotate-12 transition-transform" />
       <span className="font-semibold text-sm">
