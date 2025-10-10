@@ -35,14 +35,14 @@ const compressImage = async (
   maxWidth: number = MAX_IMAGE_DIMENSION,
   quality: number = IMAGE_QUALITY
 ): Promise<string> => {
-  console.log('🗜️ Compression d\'image démarrée...');
+  logger.debug('Compression image démarrée');
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
       let { width, height } = img;
 
-      console.log('📐 Dimensions originales:', { width, height });
+      logger.debug('Dimensions originales image', { width, height });
 
       // Calculer les nouvelles dimensions en gardant le ratio
       if (width > maxWidth || height > maxWidth) {
@@ -53,7 +53,7 @@ const compressImage = async (
           width = (width / height) * maxWidth;
           height = maxWidth;
         }
-        console.log('📐 Nouvelles dimensions:', { width, height });
+        logger.debug('Nouvelles dimensions', { width, height });
       }
 
       canvas.width = width;
@@ -74,7 +74,7 @@ const compressImage = async (
       const compressedSize = (compressed.length * 3) / 4 / 1024 / 1024;
       const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
       
-      console.log('✅ Compression terminée:', {
+      logger.debug('Compression terminée', {
         original: `${originalSize.toFixed(2)}MB`,
         compressed: `${compressedSize.toFixed(2)}MB`,
         reduction: `${reduction}%`
@@ -83,7 +83,7 @@ const compressImage = async (
       resolve(compressed);
     };
     img.onerror = () => {
-      console.error('❌ Erreur de chargement de l\'image pour compression');
+      logger.error('Erreur chargement image pour compression');
       reject(new Error('Erreur de chargement de l\'image'));
     };
     img.src = base64;
@@ -92,7 +92,7 @@ const compressImage = async (
 
 // Fonction de validation d'image
 const validateImage = (file: File): { valid: boolean; error?: string } => {
-  console.log('🔍 Validation du fichier:', {
+  logger.debug('Validation fichier', {
     name: file.name,
     type: file.type,
     size: `${(file.size / 1024 / 1024).toFixed(2)}MB`
@@ -134,11 +134,11 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   // Nettoyage lors du démontage du composant
   useEffect(() => {
     return () => {
-      console.log('🧹 Nettoyage du composant ONECIForm');
+      logger.debug('Nettoyage composant ONECIForm');
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => {
           track.stop();
-          console.log('⏹️ Track arrêté:', track.label);
+          logger.debug('Track arrêté', { label: track.label });
         });
         streamRef.current = null;
       }
@@ -147,7 +147,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
 
   const startCamera = async () => {
     try {
-      console.log('🎥 Démarrage de la caméra...');
+      logger.info('Démarrage de la caméra');
       setIsVideoLoading(true);
       
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -162,7 +162,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         } 
       });
       
-      console.log('📹 Stream vidéo obtenu:', stream.getVideoTracks()[0].getSettings());
+      logger.debug('Stream vidéo obtenu', { settings: stream.getVideoTracks()[0].getSettings() });
       
       if (!videoRef.current) {
         throw new Error('Référence vidéo non disponible');
@@ -174,7 +174,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       // IMPORTANT: Définir srcObject APRÈS avoir configuré les événements
       const playPromise = new Promise<void>((resolve, reject) => {
         const onCanPlay = () => {
-          console.log('✅ Vidéo prête (canplay):', {
+          logger.debug('Vidéo prête (canplay)', {
             width: video.videoWidth,
             height: video.videoHeight,
             readyState: video.readyState
@@ -183,7 +183,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
           if (video.videoWidth > 0 && video.videoHeight > 0) {
             setIsCapturing(true);
             setIsVideoLoading(false);
-            console.log('🎬 Caméra prête à capturer');
+            logger.info('Caméra prête à capturer');
             toast.success('Caméra activée !', { 
               description: 'Positionnez votre visage au centre' 
             });
@@ -192,7 +192,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         };
 
         const onError = (e: Event) => {
-          console.error('❌ Erreur vidéo:', e);
+          logger.error('Erreur vidéo', { error: e });
           reject(new Error('Erreur de chargement de la vidéo'));
         };
 
@@ -207,7 +207,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
           
           // Vérifier manuellement si la vidéo est prête
           if (video.readyState >= 2 && video.videoWidth > 0) {
-            console.log('⏰ Timeout mais vidéo prête:', {
+            logger.debug('Timeout mais vidéo prête', {
               readyState: video.readyState,
               width: video.videoWidth,
               height: video.videoHeight
@@ -217,7 +217,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
             toast.success('Caméra activée !');
             resolve();
           } else {
-            console.error('⏰ Timeout: vidéo non prête:', {
+            logger.error('Timeout: vidéo non prête', {
               readyState: video.readyState,
               width: video.videoWidth,
               height: video.videoHeight
@@ -233,15 +233,14 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       // Forcer le play (nécessaire sur certains navigateurs)
       try {
         await video.play();
-        console.log('▶️ video.play() appelé avec succès');
+        logger.debug('video.play() appelé avec succès');
       } catch (playError) {
-        console.warn('⚠️ video.play() a échoué (peut-être déjà en lecture):', playError);
+        logger.warn('video.play() a échoué (peut-être déjà en lecture)', { error: playError });
       }
 
       await playPromise;
     } catch (error) {
       logger.error('Error accessing camera', { error });
-      console.error('❌ Erreur caméra:', error);
       setIsVideoLoading(false);
       setIsCapturing(false);
       
@@ -270,7 +269,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => {
           track.stop();
-          console.log('⏹️ Track arrêté (erreur):', track.label);
+          logger.debug('Track arrêté (erreur)', { label: track.label });
         });
         streamRef.current = null;
       }
@@ -278,7 +277,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   };
 
   const stopCamera = useCallback(() => {
-    console.log('⏹️ Arrêt de la caméra');
+    logger.debug('Arrêt de la caméra');
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -288,7 +287,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   }, []);
 
   const captureSelfie = () => {
-    console.log('📸 Tentative de capture du selfie...');
+    logger.debug('Tentative de capture du selfie');
     
     if (!videoRef.current || !canvasRef.current) {
       toast.error('Erreur de capture', { description: 'Références vidéo manquantes' });
@@ -300,7 +299,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
     
     // Vérifier que la vidéo a des dimensions valides
     if (video.videoWidth === 0 || video.videoHeight === 0) {
-      console.error('❌ Dimensions vidéo invalides:', {
+      logger.error('Dimensions vidéo invalides', {
         width: video.videoWidth,
         height: video.videoHeight
       });
@@ -312,14 +311,14 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
 
     // Vérifier que le stream est actif
     if (!streamRef.current || streamRef.current.getTracks().length === 0) {
-      console.error('❌ Aucun stream actif');
+      logger.error('Aucun stream actif');
       toast.error('Caméra inactive', { 
         description: 'Relancez la caméra et réessayez' 
       });
       return;
     }
 
-    console.log('✅ Capture du selfie:', {
+    logger.debug('Capture du selfie', {
       width: video.videoWidth,
       height: video.videoHeight
     });
@@ -333,10 +332,10 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
       setSelfieImage(imageData);
       stopCamera();
-      console.log('🎉 Selfie capturé avec succès');
+      logger.info('Selfie capturé avec succès');
       toast.success('Selfie capturé !');
     } else {
-      console.error('❌ Impossible d\'obtenir le contexte canvas');
+      logger.error('Impossible d\'obtenir le contexte canvas');
       toast.error('Erreur de capture', { description: 'Impossible de traiter l\'image' });
     }
   };
@@ -344,11 +343,11 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
   const handleCniUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
-      console.log('⚠️ Aucun fichier sélectionné');
+      logger.debug('Aucun fichier sélectionné');
       return;
     }
 
-    console.log('📁 Fichier sélectionné:', {
+    logger.debug('Fichier sélectionné', {
       name: file.name,
       type: file.type,
       size: `${(file.size / 1024 / 1024).toFixed(2)}MB`
@@ -357,13 +356,13 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
     // Validation
     const validation = validateImage(file);
     if (!validation.valid) {
-      console.error('❌ Validation échouée:', validation.error);
+      logger.error('Validation échouée', { error: validation.error });
       toast.error('Fichier invalide', { description: validation.error });
       event.target.value = ''; // Reset input
       return;
     }
 
-    console.log('✅ Validation réussie, début de la lecture...');
+    logger.debug('Validation réussie, début de la lecture');
     setUploadProgress(0);
     
     try {
@@ -373,25 +372,25 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
         if (e.lengthComputable) {
           const progress = (e.loaded / e.total) * 100;
           setUploadProgress(progress);
-          console.log(`📊 Progression: ${progress.toFixed(1)}%`);
+          logger.debug(`Progression upload: ${progress.toFixed(1)}%`);
         }
       };
 
       reader.onloadend = async () => {
         try {
-          console.log('📥 Fichier chargé, début de la compression...');
+          logger.debug('Fichier chargé, début de la compression');
           let imageData = reader.result as string;
           
           const originalSize = (imageData.length * 3) / 4 / 1024 / 1024;
-          console.log(`📦 Taille originale: ${originalSize.toFixed(2)}MB`);
+          logger.debug(`Taille originale: ${originalSize.toFixed(2)}MB`);
           
           // Compresser l'image
           imageData = await compressImage(imageData);
           
           const compressedSize = (imageData.length * 3) / 4 / 1024 / 1024;
-          console.log(`📦 Taille compressée: ${compressedSize.toFixed(2)}MB`);
+          logger.debug(`Taille compressée: ${compressedSize.toFixed(2)}MB`);
           
-          console.log('✅ setCniImage appelé avec image compressée');
+          logger.debug('setCniImage appelé avec image compressée');
           setCniImage(imageData);
           setUploadProgress(100);
           
@@ -402,10 +401,10 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
           // Reset progress après 1 seconde
           setTimeout(() => {
             setUploadProgress(0);
-            console.log('🔄 Progress bar réinitialisée');
+            logger.debug('Progress bar réinitialisée');
           }, 1000);
         } catch (error) {
-          console.error('❌ Erreur de compression:', error);
+          logger.error('Erreur de compression', { error });
           toast.error('Erreur de traitement', {
             description: 'Impossible de traiter l\'image'
           });
@@ -414,7 +413,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
       };
 
       reader.onerror = (error) => {
-        console.error('❌ Erreur de lecture du fichier:', error);
+        logger.error('Erreur de lecture du fichier', { error });
         toast.error('Erreur de lecture', {
           description: 'Impossible de lire le fichier'
         });
@@ -423,7 +422,7 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
 
       reader.readAsDataURL(file);
     } catch (error) {
-      console.error('❌ Erreur lors du chargement:', error);
+      logger.error('Erreur lors du chargement', { error });
       toast.error('Erreur', {
         description: 'Impossible de charger le fichier'
       });

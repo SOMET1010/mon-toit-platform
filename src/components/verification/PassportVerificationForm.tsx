@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 interface PassportVerificationFormProps {
   onSubmit?: () => void;
@@ -56,7 +57,7 @@ export default function PassportVerificationForm({ onSubmit }: PassportVerificat
 
       onSubmit?.();
     } catch (error: any) {
-      console.error('Erreur vérification passeport:', error);
+      logger.error('Erreur vérification passeport', { error });
       
       let errorMessage = 'Une erreur est survenue lors de la vérification';
       if (error.message?.includes('Session expirée')) {
