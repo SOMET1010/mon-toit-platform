@@ -20,13 +20,15 @@ import CertificationNotificationBadge from "@/components/admin/CertificationNoti
 import { VerificationProgress } from "@/components/navigation/VerificationProgress";
 import { MobileMenu } from "@/components/navigation/MobileMenu";
 import { RoleSwitcherCompact } from "@/components/navigation/RoleSwitcherCompact";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const { canAccessAdminDashboard } = usePermissions();
+  const isMobile = useIsMobile();
 
   return (<>
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-md border-b border-border shadow-sm">
+    <nav className={`fixed top-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-md border-b border-border shadow-sm ${isMobile && user ? 'mb-16' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

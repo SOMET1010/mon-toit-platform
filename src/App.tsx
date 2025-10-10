@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { SarahChatbot } from "@/components/SarahChatbot";
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
 import Index from "./pages/Index";
 import Certification from "./pages/Certification";
 import Auth from "./pages/Auth";
@@ -236,6 +237,7 @@ const AppContent = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+      <BottomNavigation />
     </>
   );
 };

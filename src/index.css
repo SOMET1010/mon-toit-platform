@@ -286,4 +286,19 @@ All colors MUST be HSL.
       hsl(var(--secondary) / 0.03) 100%
     );
   }
+
+  /* Safe area insets pour iPhone X+ */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Touch feedback */
+  .touch-feedback {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .active-scale {
+    @apply active:scale-95 transition-transform;
+  }
 }
