@@ -5,7 +5,7 @@ import type { SearchFilters } from '@/types';
 /**
  * Hook to fetch all properties with optional filters using TanStack Query
  */
-export const useProperties = (filters?: SearchFilters) => {
+export const useProperties = (filters?: SearchFilters & { currentUserId?: string }) => {
   return useQuery({
     queryKey: ['properties', filters],
     queryFn: () => propertyService.fetchAll(filters),

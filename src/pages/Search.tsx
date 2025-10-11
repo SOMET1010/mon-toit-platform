@@ -28,7 +28,7 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { data: properties = [], isLoading, refetch } = useProperties();
+  const { data: properties = [], isLoading, refetch } = useProperties({ currentUserId: user?.id });
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const isMobile = useIsMobile();
   
