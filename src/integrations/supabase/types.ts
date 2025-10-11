@@ -86,6 +86,122 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_mandates: {
+        Row: {
+          accepted_at: string | null
+          agency_id: string
+          billing_frequency: string | null
+          commission_rate: number | null
+          created_at: string
+          end_date: string | null
+          fixed_fee: number | null
+          id: string
+          mandate_type: string
+          notes: string | null
+          owner_id: string
+          permissions: Json
+          property_id: string | null
+          start_date: string
+          status: string
+          terminated_at: string | null
+          terminated_by: string | null
+          termination_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          agency_id: string
+          billing_frequency?: string | null
+          commission_rate?: number | null
+          created_at?: string
+          end_date?: string | null
+          fixed_fee?: number | null
+          id?: string
+          mandate_type: string
+          notes?: string | null
+          owner_id: string
+          permissions?: Json
+          property_id?: string | null
+          start_date: string
+          status?: string
+          terminated_at?: string | null
+          terminated_by?: string | null
+          termination_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          agency_id?: string
+          billing_frequency?: string | null
+          commission_rate?: number | null
+          created_at?: string
+          end_date?: string | null
+          fixed_fee?: number | null
+          id?: string
+          mandate_type?: string
+          notes?: string | null
+          owner_id?: string
+          permissions?: Json
+          property_id?: string | null
+          start_date?: string
+          status?: string
+          terminated_at?: string | null
+          terminated_by?: string | null
+          termination_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_mandates_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_mandates_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_mandates_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_mandates_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_mandates_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_mandates_terminated_by_fkey"
+            columns: ["terminated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_mandates_terminated_by_fkey"
+            columns: ["terminated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alert_history: {
         Row: {
           alert_data: Json | null
@@ -2353,12 +2469,28 @@ export type Database = {
         Args: { _admin_id: string }
         Returns: boolean
       }
+      agency_can_create_for_owner: {
+        Args: { _agency_id: string; _owner_id: string }
+        Returns: boolean
+      }
+      agency_can_manage_property: {
+        Args: {
+          _agency_id: string
+          _property_id: string
+          _required_permission?: string
+        }
+        Returns: boolean
+      }
       approve_verification: {
         Args: {
           p_review_notes?: string
           p_user_id: string
           p_verification_type: string
         }
+        Returns: undefined
+      }
+      auto_expire_mandates: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       auto_process_overdue_applications: {
