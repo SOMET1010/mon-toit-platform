@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock, Wrench, ExternalLink } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock, Wrench, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Property } from '@/types';
 import { getPropertyStatusLabel, formatPrice } from '@/constants';
 import { supabase } from '@/integrations/supabase/client';
@@ -172,7 +172,7 @@ export const PropertyCard = ({
             <Badge 
               className={`rounded-lg font-semibold shadow-md flex items-center gap-1 ${
                 property.status === 'disponible' 
-                  ? 'bg-green-500 hover:bg-green-600 text-white' 
+                  ? 'bg-green-500 hover:bg-green-600 text-white animate-pulse' 
                   : property.status === 'en_negociation'
                   ? 'bg-orange-500 hover:bg-orange-600 text-white'
                   : 'bg-gray-400 hover:bg-gray-500 text-white'
@@ -185,6 +185,13 @@ export const PropertyCard = ({
             </Badge>
           )}
           
+          {hasCertifiedLease && (
+            <Badge className="rounded-lg font-semibold shadow-md bg-primary/90 text-white flex items-center gap-1">
+              <ShieldCheck className="h-3 w-3" />
+              Certifié ANSUT
+            </Badge>
+          )}
+          
           {property.work_status && property.work_status !== 'aucun_travail' && (
             <Badge className="rounded-lg font-semibold shadow-md bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-1">
               <Wrench className="h-3 w-3" />
@@ -192,12 +199,6 @@ export const PropertyCard = ({
             </Badge>
           )}
         </div>
-        
-        {hasCertifiedLease && (
-          <div className="absolute bottom-3 left-3">
-            <ANSUTCertifiedBadge status="certified" variant="compact" />
-          </div>
-        )}
       </div>
 
       {/* Screen reader description */}
@@ -208,18 +209,21 @@ export const PropertyCard = ({
       </div>
 
       <CardHeader className="p-4 sm:p-6 pb-3">
-        <CardTitle id={`property-title-${property.id}`} className="line-clamp-2 text-lg sm:text-xl">
-          {property.title}
+        <div className="flex items-baseline gap-2 mb-3">
+          <p className="text-3xl sm:text-4xl font-black text-primary">
+            {formatPrice(property.monthly_rent)}
+          </p>
+          <span className="text-sm font-medium text-muted-foreground">/mois</span>
+        </div>
+        <CardTitle id={`property-title-${property.id}`} className="line-clamp-2 text-base sm:text-lg font-bold">
+          {property.property_type} {property.bedrooms}ch. - {property.city}
         </CardTitle>
-        <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
-          {formatPrice(property.monthly_rent)} <span className="text-base font-normal">/mois</span>
-        </p>
       </CardHeader>
 
       <CardContent className="space-y-4 p-4 sm:p-6 pt-0">
         <div className="flex items-center text-muted-foreground">
-          <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-          <span className="line-clamp-1">{property.city}</span>
+          <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-primary" />
+          <span className="line-clamp-1 font-medium">{property.city}</span>
         </div>
 
         <div className="flex items-center gap-4 text-sm bg-muted/50 p-3 rounded-xl">
@@ -248,8 +252,8 @@ export const PropertyCard = ({
           </div>
         )}
 
-        <Button asChild className="w-full rounded-xl min-h-[44px] font-semibold shadow-md active:scale-95">
-          <Link to={`/property/${property.id}`}>Voir les détails</Link>
+        <Button asChild className="w-full rounded-xl min-h-[44px] font-semibold shadow-md active:scale-95 bg-gradient-to-r from-primary to-primary-glow hover:shadow-lg">
+          <Link to={`/property/${property.id}`}>Découvrir ce bien</Link>
         </Button>
       </CardContent>
     </Card>

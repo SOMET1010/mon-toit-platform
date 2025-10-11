@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, Search, PlusCircle, HelpCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import {
@@ -50,13 +50,23 @@ const Navbar = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
-            <Link 
-              to="/recherche" 
+            <button
+              onClick={() => {
+                const heroSection = document.querySelector('.hero-section');
+                if (heroSection) {
+                  heroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  // Focus on search input after scroll
+                  setTimeout(() => {
+                    const searchInput = document.querySelector('input[placeholder*="Cocody"]') as HTMLInputElement;
+                    searchInput?.focus();
+                  }, 500);
+                }
+              }}
               className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md px-2 py-1"
             >
               <Search className="h-4 w-4" />
               <span>Rechercher</span>
-            </Link>
+            </button>
             <Link 
               to="/publier" 
               className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md px-2 py-1"

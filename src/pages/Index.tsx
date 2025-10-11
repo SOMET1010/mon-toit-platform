@@ -5,6 +5,7 @@ import KeyStats from "@/components/KeyStats";
 import Footer from "@/components/Footer";
 import StickyCTA from "@/components/StickyCTA";
 import OnboardingModal from "@/components/OnboardingModal";
+import CertificationBanner from "@/components/CertificationBanner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load des composants lourds
@@ -30,6 +31,11 @@ const Index = () => {
           <h2 id="stats-heading" className="sr-only">Statistiques de la plateforme</h2>
           <KeyStats />
         </section>
+        
+        {/* Certification Banner */}
+        <div className="container mx-auto px-4 max-w-7xl py-8">
+          <CertificationBanner />
+        </div>
         
         <section aria-labelledby="featured-heading">
           <h2 id="featured-heading" className="sr-only">Biens en vedette</h2>

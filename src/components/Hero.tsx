@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, CheckCircle2 } from "lucide-react";
+import { Search, CheckCircle2, Mic, MicOff } from "lucide-react";
 import heroImage from "@/assets/hero-slide-1.jpg";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const Hero = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const { isListening, transcript, isSupported, startListening, stopListening } = useVoiceSearch();
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -21,8 +23,23 @@ const Hero = () => {
     navigate(`/recherche?location=${encodeURIComponent(location)}`);
   };
 
+  const toggleVoiceSearch = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
+  // Update search query when voice transcript changes
+  useState(() => {
+    if (transcript) {
+      setSearchQuery(transcript);
+    }
+  });
+
   return (
-    <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-primary/5 to-secondary/5 pattern-bogolan">
+    <section className="hero-section relative min-h-[700px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-primary/5 to-secondary/5 pattern-bogolan">
       {/* Fixed Background Image - Right Side */}
       <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden lg:block">
         <img 
@@ -68,8 +85,21 @@ const Hero = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="pl-12 h-14 text-lg border-2 border-primary/20 focus:border-primary rounded-full"
+              className="pl-12 pr-14 h-14 text-lg border-2 border-primary/20 focus:border-primary rounded-full"
             />
+            {isSupported && (
+              <button
+                onClick={toggleVoiceSearch}
+                className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all ${
+                  isListening 
+                    ? 'bg-red-500 text-white animate-pulse' 
+                    : 'bg-primary/10 text-primary hover:bg-primary/20'
+                }`}
+                aria-label={isListening ? "Arrêter la recherche vocale" : "Recherche vocale"}
+              >
+                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>
+            )}
           </div>
 
           {/* Primary CTA + Secondary Link */}
@@ -93,15 +123,17 @@ const Hero = () => {
 
           {/* Recherches rapides */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-foreground">Recherches populaires :</span>
-            {['Cocody', 'Yopougon', 'Marcory'].map((location) => (
-              <button
+            <span className="text-sm font-medium text-muted-foreground">Populaire :</span>
+            {['Cocody', 'Yopougon', 'Marcory', 'Plateau'].map((location) => (
+              <Button
                 key={location}
                 onClick={() => handleQuickSearch(location)}
-                className="px-3 py-1 text-sm bg-white border border-primary/20 rounded-full hover:bg-primary/5 hover:border-primary transition-all"
+                variant="outline"
+                size="sm"
+                className="rounded-full border-primary/30 hover:bg-primary hover:text-white transition-all font-medium"
               >
                 {location}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

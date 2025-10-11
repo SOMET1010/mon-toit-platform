@@ -123,28 +123,59 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
     return null;
   }
 
+  const [activeFilter, setActiveFilter] = useState<string>('Tous');
+  
+  const filteredProperties = useMemo(() => {
+    if (activeFilter === 'Tous') return properties;
+    return properties.filter(p => {
+      if (activeFilter === 'Appartements') return p.property_type.toLowerCase().includes('appartement');
+      if (activeFilter === 'Villas') return p.property_type.toLowerCase().includes('villa');
+      if (activeFilter === 'Studios') return p.property_type.toLowerCase().includes('studio');
+      return true;
+    });
+  }, [properties, activeFilter]);
+
   return (
     <section className="py-20 md:py-28 px-4 bg-gradient-to-b from-white via-primary/3 to-white border-t border-primary/10 pattern-bogolan" aria-labelledby="featured-properties-heading">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 animate-fade-in">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 animate-fade-in">
           <div>
             <h2 
               id="featured-properties-heading"
-              className="text-4xl md:text-5xl font-bold mb-4 text-foreground"
+              className="text-4xl md:text-5xl font-bold mb-3 text-foreground"
             >
               Biens en vedette
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              Découvrez notre sélection de biens les plus consultés
+              Découvrez les biens les plus populaires cette semaine
             </p>
           </div>
-          <Link 
-            to="/recherche" 
-            className="hidden md:flex items-center gap-2 text-primary hover:underline font-medium mt-6 md:mt-0"
+          <Button 
+            size="lg" 
+            variant="outline" 
+            asChild
+            className="hidden md:flex items-center gap-2 mt-6 md:mt-0 font-semibold border-2 hover:bg-primary hover:text-white transition-all"
           >
-            Voir toutes les annonces
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+            <Link to="/recherche">
+              Voir les {properties.length} annonces
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+          </Button>
+        </div>
+        
+        {/* Filtres rapides */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+          {['Tous', 'Appartements', 'Villas', 'Studios'].map(filter => (
+            <Button 
+              key={filter} 
+              variant={activeFilter === filter ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveFilter(filter)}
+              className="whitespace-nowrap font-medium"
+            >
+              {filter}
+            </Button>
+          ))}
         </div>
         
         <div 
@@ -152,7 +183,7 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
           role="list"
           aria-label="Biens immobiliers en vedette"
         >
-          {properties.map((property, index) => (
+          {filteredProperties.map((property, index) => (
             <div 
               key={property.id} 
               role="listitem"
@@ -175,11 +206,11 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
           ))}
         </div>
         
-        <div className="text-center mt-8">
-          <Button asChild size="lg" className="md:hidden">
+        <div className="text-center mt-10">
+          <Button asChild size="lg" className="md:hidden font-semibold shadow-lg hover:shadow-xl">
             <Link to="/recherche" className="flex items-center gap-2">
-              Voir toutes les annonces
-              <ArrowRight className="h-4 w-4" />
+              Voir les {properties.length} annonces
+              <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>
         </div>
