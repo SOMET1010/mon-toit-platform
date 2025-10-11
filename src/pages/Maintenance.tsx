@@ -18,7 +18,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { 
   Lock, Wrench, Zap, Droplet, Flame, AlertCircle, 
-  CheckCircle, Clock, XCircle, Plus, Loader2 
+  CheckCircle, Clock, XCircle, Plus, Loader2,
+  Search as SearchIcon, Home
 } from 'lucide-react';
 
 interface MaintenanceRequest {
@@ -169,18 +170,69 @@ const Maintenance = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className="flex-1 container mx-auto px-4 py-8">
-          <Alert variant="destructive">
-            <Lock className="h-4 w-4" />
-            <AlertTitle>Accès restreint</AlertTitle>
-            <AlertDescription>
-              La fonctionnalité "Maintenance" est accessible uniquement si :
-              <ul className="list-disc pl-5 mt-2 space-y-1">
-                <li>Votre dossier locataire a été validé pour ce bien</li>
-                <li>Vous êtes locataire actif de ce bien</li>
-              </ul>
-            </AlertDescription>
-          </Alert>
+        <div className="flex-1 container mx-auto px-4 py-8 pt-24">
+          <div className="max-w-3xl mx-auto">
+            <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white">
+              <CardHeader className="space-y-4">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-orange-100">
+                  <Lock className="h-8 w-8 text-orange-600" />
+                </div>
+                <CardTitle className="text-2xl text-center">
+                  Fonctionnalité réservée aux locataires
+                </CardTitle>
+                <CardDescription className="text-center text-base">
+                  La gestion des demandes de maintenance nécessite un dossier validé
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="space-y-6">
+                {/* Étapes visuelles */}
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-start p-4 rounded-lg bg-white border">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">1</div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Postulez à ce bien</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Créez votre dossier de candidature depuis la page du bien
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 items-start p-4 rounded-lg bg-white border">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">2</div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Attendez la validation</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Le propriétaire étudiera votre dossier sous 48h
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 items-start p-4 rounded-lg bg-white border">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">3</div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Accédez aux fonctionnalités</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Une fois validé, gérez vos demandes de maintenance facilement
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <Button onClick={() => navigate(`/property/${propertyId}`)} className="flex-1" size="lg">
+                    <AlertCircle className="mr-2 h-4 w-4" />
+                    Voir le bien
+                  </Button>
+                  <Button onClick={() => navigate('/recherche')} variant="outline" className="flex-1" size="lg">
+                    <SearchIcon className="mr-2 h-4 w-4" />
+                    Chercher un autre bien
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
         <Footer />
       </div>

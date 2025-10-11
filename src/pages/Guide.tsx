@@ -11,8 +11,21 @@ import {
   Building2, UserCheck, HelpCircle, ExternalLink
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 const Guide = () => {
+  const [faqSearch, setFaqSearch] = useState('');
+
+  const filterFAQItems = (items: Array<{id: string, question: string, answer: string}>) => {
+    if (!faqSearch.trim()) return items;
+    const searchLower = faqSearch.toLowerCase();
+    return items.filter(item => 
+      item.question.toLowerCase().includes(searchLower) ||
+      item.answer.toLowerCase().includes(searchLower)
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
       <Navbar />
@@ -207,76 +220,95 @@ const Guide = () => {
               <p className="text-muted-foreground">Tout ce que vous devez savoir sur Mon Toit</p>
             </div>
             
+            {/* Barre de recherche FAQ */}
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher dans la FAQ (ex: certification, paiement, compte...)"
+                  value={faqSearch}
+                  onChange={(e) => setFaqSearch(e.target.value)}
+                  className="pl-10 h-12 text-base"
+                />
+              </div>
+              {faqSearch && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setFaqSearch('')}
+                    className="h-7 text-xs"
+                  >
+                    Effacer la recherche
+                  </Button>
+                </div>
+              )}
+            </div>
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Catégorie: Compte & Inscription */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    <CardTitle>Compte & Inscription</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="q1">
-                      <AccordionTrigger>Comment créer un compte ?</AccordionTrigger>
-                      <AccordionContent>
-                        Cliquez sur "Se connecter / S'inscrire" en haut à droite, choisissez votre type de profil (Locataire, Propriétaire ou Agence), puis remplissez le formulaire. L'inscription est gratuite et ne prend que 2 minutes.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="q2">
-                      <AccordionTrigger>Puis-je avoir plusieurs rôles ?</AccordionTrigger>
-                      <AccordionContent>
-                        Oui ! Vous pouvez basculer entre plusieurs rôles depuis votre profil. Par exemple, être à la fois locataire et propriétaire. Allez dans "Mon profil" puis "Gestion des rôles".
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="q3">
-                      <AccordionTrigger>Comment réinitialiser mon mot de passe ?</AccordionTrigger>
-                      <AccordionContent>
-                        Sur la page de connexion, cliquez sur "Mot de passe oublié ?" et suivez les instructions envoyées par email. Assurez-vous de vérifier vos spams.
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </CardContent>
-              </Card>
+              {(() => {
+                const compteItems = [
+                  { id: 'q1', question: 'Comment créer un compte ?', answer: 'Cliquez sur "Se connecter / S\'inscrire" en haut à droite, choisissez votre type de profil (Locataire, Propriétaire ou Agence), puis remplissez le formulaire. L\'inscription est gratuite et ne prend que 2 minutes.' },
+                  { id: 'q2', question: 'Puis-je avoir plusieurs rôles ?', answer: 'Oui ! Vous pouvez basculer entre plusieurs rôles depuis votre profil. Par exemple, être à la fois locataire et propriétaire. Allez dans "Mon profil" puis "Gestion des rôles".' },
+                  { id: 'q3', question: 'Comment réinitialiser mon mot de passe ?', answer: 'Sur la page de connexion, cliquez sur "Mot de passe oublié ?" et suivez les instructions envoyées par email. Assurez-vous de vérifier vos spams.' }
+                ];
+                const filteredCompteItems = filterFAQItems(compteItems);
+                
+                return filteredCompteItems.length > 0 ? (
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Users className="h-5 w-5 text-primary" />
+                        <CardTitle>Compte & Inscription</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible>
+                        {filteredCompteItems.map(item => (
+                          <AccordionItem key={item.id} value={item.id}>
+                            <AccordionTrigger>{item.question}</AccordionTrigger>
+                            <AccordionContent>{item.answer}</AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                ) : null;
+              })()}
 
               {/* Catégorie: Certification ANSUT */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="h-5 w-5 text-primary" />
-                    <CardTitle>Certification ANSUT</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="c1">
-                      <AccordionTrigger>Qu'est-ce que la certification ANSUT ?</AccordionTrigger>
-                      <AccordionContent>
-                        C'est une vérification officielle de votre identité par l'ANSUT (Agence Nationale des Systèmes d'Urgence et de Télécommunications). Elle garantit votre sécurité et augmente votre crédibilité sur la plateforme.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="c2">
-                      <AccordionTrigger>La certification est-elle obligatoire ?</AccordionTrigger>
-                      <AccordionContent>
-                        Non, mais elle est fortement recommandée ! Les profils certifiés ont accès à plus de fonctionnalités et inspirent davantage confiance. Pour les propriétaires, c'est indispensable pour publier des annonces.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="c3">
-                      <AccordionTrigger>Combien coûte la certification ?</AccordionTrigger>
-                      <AccordionContent>
-                        La certification ANSUT est totalement GRATUITE pour tous les utilisateurs. C'est un service public financé par l'État ivoirien.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="c4">
-                      <AccordionTrigger>Combien de temps prend la vérification ?</AccordionTrigger>
-                      <AccordionContent>
-                        En moyenne 24-48 heures ouvrées. Vous recevrez un email dès que votre dossier sera traité. Assurez-vous que vos documents sont clairs et lisibles pour accélérer le processus.
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </CardContent>
-              </Card>
+              {(() => {
+                const certifItems = [
+                  { id: 'c1', question: 'Qu\'est-ce que la certification ANSUT ?', answer: 'C\'est une vérification officielle de votre identité par l\'ANSUT (Agence Nationale des Systèmes d\'Urgence et de Télécommunications). Elle garantit votre sécurité et augmente votre crédibilité sur la plateforme.' },
+                  { id: 'c2', question: 'La certification est-elle obligatoire ?', answer: 'Non, mais elle est fortement recommandée ! Les profils certifiés ont accès à plus de fonctionnalités et inspirent davantage confiance. Pour les propriétaires, c\'est indispensable pour publier des annonces.' },
+                  { id: 'c3', question: 'Combien coûte la certification ?', answer: 'La certification ANSUT est totalement GRATUITE pour tous les utilisateurs. C\'est un service public financé par l\'État ivoirien.' },
+                  { id: 'c4', question: 'Combien de temps prend la vérification ?', answer: 'En moyenne 24-48 heures ouvrées. Vous recevrez un email dès que votre dossier sera traité. Assurez-vous que vos documents sont clairs et lisibles pour accélérer le processus.' }
+                ];
+                const filteredCertifItems = filterFAQItems(certifItems);
+                
+                return filteredCertifItems.length > 0 ? (
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="h-5 w-5 text-primary" />
+                        <CardTitle>Certification ANSUT</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible>
+                        {filteredCertifItems.map(item => (
+                          <AccordionItem key={item.id} value={item.id}>
+                            <AccordionTrigger>{item.question}</AccordionTrigger>
+                            <AccordionContent>{item.answer}</AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                ) : null;
+              })()}
 
               {/* Catégorie: Recherche & Location */}
               <Card>

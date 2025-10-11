@@ -31,8 +31,8 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
       setError(null);
       const data = await propertyService.fetchAll();
       
+      // Filter out rented properties - propertyService.fetchAll() already does this
       const featured = data
-        .filter(p => p.status === 'disponible' || p.status === 'en_negociation') // Masquer biens loués
         .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
         .slice(0, limit);
       

@@ -14,7 +14,7 @@ import { OptimizedImage } from "./OptimizedImage";
 import { SwipeGallery } from "./SwipeGallery";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePropertyImageAccess } from "@/hooks/usePropertyImageAccess";
-import { Image, Video, Globe, Layout, Lock } from "lucide-react";
+import { Image, Video, Globe, Layout, Lock, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -98,24 +98,47 @@ export const MediaGallery = ({
         <TabsContent value="photos" className="space-y-4">
           {/* Alert si photos limitées */}
           {!showHDPhotos && (
-            <Alert>
-              <Lock className="h-4 w-4" />
-              <AlertTitle>
-                {showBlur ? 'Aperçu limité' : 'Photos HD verrouillées'}
+            <Alert className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+              <Lock className="h-5 w-5 text-primary" />
+              <AlertTitle className="text-lg font-semibold">
+                {showBlur 
+                  ? '🔒 Aperçu limité - Créez un compte gratuit' 
+                  : '🎯 Débloquez tout le contenu premium'
+                }
               </AlertTitle>
-              <AlertDescription className="space-y-2">
-                <p>
-                  {showBlur 
-                    ? 'Créez un compte pour voir plus de photos et postuler.'
-                    : `Validez votre dossier pour accéder aux ${hiddenImagesCount} photos HD restantes, la visite 3D et les plans du bien.`
-                  }
-                </p>
-                <Button asChild size="sm" className="w-full sm:w-auto">
-                  <Link to={showBlur ? '/auth' : '/verification'}>
-                    <Lock className="mr-2 h-4 w-4" />
-                    {showBlur ? 'Créer un compte' : 'Valider mon dossier'}
-                  </Link>
-                </Button>
+              <AlertDescription className="space-y-3 mt-2">
+                <div className="space-y-2">
+                  <p className="font-medium">
+                    {showBlur 
+                      ? 'Sans compte, vous voyez seulement 4 photos (floues).'
+                      : `Votre dossier n'est pas encore validé. Débloquez :`
+                    }
+                  </p>
+                  {!showBlur && hiddenImagesCount > 0 && (
+                    <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                      <li><strong>{hiddenImagesCount} photos HD</strong> supplémentaires</li>
+                      <li><strong>Visite virtuelle 3D</strong> interactive</li>
+                      <li><strong>Plans détaillés</strong> du bien</li>
+                      <li><strong>Vidéos</strong> de présentation</li>
+                    </ul>
+                  )}
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  <Button asChild size="sm" className="font-semibold">
+                    <Link to={showBlur ? '/auth' : '/verification'}>
+                      <Lock className="mr-2 h-4 w-4" />
+                      {showBlur ? 'Créer un compte gratuit' : 'Valider mon dossier'}
+                    </Link>
+                  </Button>
+                  {!showBlur && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/guide#dossier-locataire">
+                        Comment ça marche ?
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </AlertDescription>
             </Alert>
           )}

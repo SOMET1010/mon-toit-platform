@@ -3,6 +3,18 @@ import type { Property, SearchFilters } from '@/types';
 import { logger } from '@/services/logger';
 
 /**
+ * Helper to determine if a property should be shown to a user
+ */
+export const shouldShowProperty = (property: Property, currentUserId?: string): boolean => {
+  // ALWAYS show to property owner
+  if (currentUserId && property.owner_id === currentUserId) {
+    return true;
+  }
+  // Hide rented properties from everyone else
+  return property.status !== 'loué';
+};
+
+/**
  * Parse Supabase/Postgres errors into user-friendly messages
  */
 export function parsePropertyError(error: any): string {
@@ -106,8 +118,9 @@ export const propertyService = {
     // Apply client-side filters not supported by RPC
     let results = data || [];
     
-    // CRITICAL: Filter out rented properties from public view
-    results = results.filter(p => p.status === 'disponible' || p.status === 'en_negociation');
+    // CRITICAL: Filter out rented properties from public view (unless user is owner)
+    const { data: { user } } = await supabase.auth.getUser();
+    results = results.filter(p => shouldShowProperty(p as any, user?.id));
     
     if (filters?.propertyType && filters.propertyType.length > 1) {
       results = results.filter(p => filters.propertyType?.includes(p.property_type));
