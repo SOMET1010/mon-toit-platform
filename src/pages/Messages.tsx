@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import MessageTemplates from '@/components/messaging/MessageTemplates';
 import AttachmentUpload from '@/components/messaging/AttachmentUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -393,6 +394,7 @@ const Messages = () => {
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
+          <DynamicBreadcrumb />
           <h1 className="text-3xl font-bold mb-6">Messages</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[600px]">

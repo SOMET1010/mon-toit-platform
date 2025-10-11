@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePropertyForm } from '@/hooks/usePropertyForm';
 import { useMediaUpload, type MediaFiles } from '@/hooks/useMediaUpload';
@@ -6,6 +6,8 @@ import { usePropertyPermissions } from '@/hooks/usePropertyPermissions';
 import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
+import { FormProgressIndicator, type Step } from '@/components/forms/FormProgressIndicator';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +22,21 @@ import { PropertyWorkStatus } from '@/components/property/form/PropertyWorkStatu
 import { LocationPicker } from '@/components/property/LocationPicker';
 import { TitleDeedUploader } from '@/components/property/TitleDeedUploader';
 
+const propertyFormSteps: Step[] = [
+  { id: 'basic', label: 'Informations' },
+  { id: 'location', label: 'Localisation' },
+  { id: 'characteristics', label: 'Caractéristiques' },
+  { id: 'pricing', label: 'Tarification' },
+  { id: 'media', label: 'Médias' }
+];
+
 const AddProperty = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const basicInfoRef = useRef<HTMLDivElement>(null);
+  const locationRef = useRef<HTMLDivElement>(null);
+  const characteristicsRef = useRef<HTMLDivElement>(null);
+  const pricingRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { requireOwnerAccess } = usePropertyPermissions();
   const { form, submitting, submitProperty } = usePropertyForm();
@@ -36,6 +52,33 @@ const AddProperty = () => {
 
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
   const [propertyId] = useState<string>(() => crypto.randomUUID());
+
+  // Track scroll position to update current step
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = [
+        { ref: basicInfoRef, step: 0 },
+        { ref: locationRef, step: 1 },
+        { ref: characteristicsRef, step: 2 },
+        { ref: pricingRef, step: 3 },
+        { ref: mediaRef, step: 4 }
+      ];
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section.ref.current) {
+          const rect = section.ref.current.getBoundingClientRect();
+          if (rect.top <= 200) {
+            setCurrentStep(section.step);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const onSubmit = async (data: PropertyFormData) => {
     // Validate media files
@@ -102,8 +145,10 @@ const AddProperty = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-4xl mx-auto">
+          <DynamicBreadcrumb />
+          
           <div className="mb-8">
             <h1 className="text-4xl font-bold">Ajouter un bien</h1>
             <p className="text-muted-foreground mt-2">
@@ -111,18 +156,28 @@ const AddProperty = () => {
             </p>
           </div>
 
+          <FormProgressIndicator steps={propertyFormSteps} currentStep={currentStep} />
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <PropertyBasicInfo form={form} />
-              <PropertyLocation form={form} />
+              <div ref={basicInfoRef} className="scroll-mt-32">
+                <PropertyBasicInfo form={form} />
+              </div>
+              <div ref={locationRef} className="scroll-mt-32">
+                <PropertyLocation form={form} />
+              </div>
               
               <LocationPicker 
                 city={form.watch("city")}
                 onLocationSelect={(lat, lng) => setSelectedLocation({ lat, lng })}
               />
 
-              <PropertyCharacteristicsForm form={form} />
-              <PropertyPricing form={form} />
+              <div ref={characteristicsRef} className="scroll-mt-32">
+                <PropertyCharacteristicsForm form={form} />
+              </div>
+              <div ref={pricingRef} className="scroll-mt-32">
+                <PropertyPricing form={form} />
+              </div>
               <PropertyWorkStatus form={form} />
 
               {/* Titre de propriété */}
@@ -143,7 +198,7 @@ const AddProperty = () => {
               </Card>
 
               {/* Multimedia */}
-              <Card>
+              <Card ref={mediaRef} className="scroll-mt-32">
                 <CardHeader>
                   <CardTitle>Médias</CardTitle>
                   <CardDescription>Ajoutez des photos, vidéos, vues 360° et plans</CardDescription>

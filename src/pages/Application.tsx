@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
+import { FormProgressIndicator, Step } from '@/components/forms/FormProgressIndicator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +27,13 @@ type Property = {
   city: string;
 };
 
+const applicationSteps: Step[] = [
+  { id: 'verification', label: 'Vérification' },
+  { id: 'documents', label: 'Documents' },
+  { id: 'review', label: 'Révision' },
+  { id: 'submit', label: 'Soumission' }
+];
+
 const Application = () => {
   const { propertyId } = useParams();
   const { user, profile } = useAuth();
@@ -35,6 +44,7 @@ const Application = () => {
   const [verification, setVerification] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
     if (propertyId) {
@@ -184,11 +194,26 @@ const Application = () => {
     return <div>Bien non trouvé</div>;
   }
 
+  // Update step based on document count and verification status
+  useEffect(() => {
+    if (profile?.oneci_verified || verification?.oneci_status === 'verified') {
+      if (documents.length > 0) {
+        setCurrentStep(2); // Review step
+      } else {
+        setCurrentStep(1); // Documents step
+      }
+    } else {
+      setCurrentStep(0); // Verification step
+    }
+  }, [profile, verification, documents]);
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-4xl">
+        <DynamicBreadcrumb />
+        
         <div className="mb-8">
           <Button 
             variant="ghost" 
@@ -204,6 +229,9 @@ const Application = () => {
             {property.city} • {property.monthly_rent.toLocaleString()} FCFA/mois
           </p>
         </div>
+
+        {/* Progress Indicator */}
+        <FormProgressIndicator steps={applicationSteps} currentStep={currentStep} />
 
         <div className="space-y-6">
           {/* ONECI Verification Required Alert */}

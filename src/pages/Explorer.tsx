@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { DynamicBreadcrumb } from "@/components/navigation/DynamicBreadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load des composants lourds
@@ -11,9 +12,11 @@ const Explorer = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-24">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-7xl mx-auto">
+            <DynamicBreadcrumb />
+            
             <div className="text-center mb-12 animate-fade-in">
               <h1 className="text-h1 mb-4">
                 Explorez les biens <span className="text-primary">disponibles</span>

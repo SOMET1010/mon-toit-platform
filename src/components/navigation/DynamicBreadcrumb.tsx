@@ -14,10 +14,14 @@ const routeLabels: Record<string, string> = {
   '/dashboard': 'Tableau de bord',
   '/profil': 'Mon Profil',
   '/mes-biens': 'Mes Biens',
+  '/ajouter-bien': 'Publier un bien',
+  '/editer-bien': 'Modifier le bien',
   '/verification': 'Vérification d\'identité',
   '/favoris': 'Mes Favoris',
   '/candidatures': 'Mes Candidatures',
-  '/recherche': 'Recherche',
+  '/candidature': 'Postuler',
+  '/recherche': 'Recherche avancée',
+  '/explorer': 'Explorer la carte',
   '/publier': 'Publier un bien',
   '/baux': 'Mes Baux',
   '/messages': 'Messagerie',
@@ -26,6 +30,7 @@ const routeLabels: Record<string, string> = {
   '/admin': 'Administration',
   '/admin/certifications': 'Certifications',
   '/admin/dashboard': 'Dashboard Admin',
+  '/property': 'Détails du bien',
 };
 
 export const DynamicBreadcrumb = () => {

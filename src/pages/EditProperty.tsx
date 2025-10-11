@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { usePropertyForm } from '@/hooks/usePropertyForm';
@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
+import { FormProgressIndicator, type Step } from '@/components/forms/FormProgressIndicator';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -24,6 +26,14 @@ import { PropertyPricing } from '@/components/property/form/PropertyPricing';
 import { PropertyWorkStatus } from '@/components/property/form/PropertyWorkStatus';
 import { LocationPicker } from '@/components/property/LocationPicker';
 
+const propertyFormSteps: Step[] = [
+  { id: 'basic', label: 'Informations' },
+  { id: 'location', label: 'Localisation' },
+  { id: 'characteristics', label: 'Caractéristiques' },
+  { id: 'pricing', label: 'Tarification' },
+  { id: 'media', label: 'Médias' }
+];
+
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -31,6 +41,13 @@ const EditProperty = () => {
   const { form, loading, submitting, submitProperty } = usePropertyForm(id);
   const { uploading, uploadMedia } = useMediaUpload();
   const { deleting, deleteProperty } = usePropertyDelete();
+  
+  const [currentStep, setCurrentStep] = useState(0);
+  const basicInfoRef = useRef<HTMLDivElement>(null);
+  const locationRef = useRef<HTMLDivElement>(null);
+  const characteristicsRef = useRef<HTMLDivElement>(null);
+  const pricingRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
   
   const [existingMedia, setExistingMedia] = useState<MediaUrls>({
     images: [],
@@ -50,6 +67,33 @@ const EditProperty = () => {
 
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
   const [initialLocation, setInitialLocation] = useState<{lat: number, lng: number} | null>(null);
+
+  // Track scroll position to update current step
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = [
+        { ref: basicInfoRef, step: 0 },
+        { ref: locationRef, step: 1 },
+        { ref: characteristicsRef, step: 2 },
+        { ref: pricingRef, step: 3 },
+        { ref: mediaRef, step: 4 }
+      ];
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section.ref.current) {
+          const rect = section.ref.current.getBoundingClientRect();
+          if (rect.top <= 200) {
+            setCurrentStep(section.step);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Load property data and media
   useEffect(() => {
@@ -156,8 +200,10 @@ const EditProperty = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
+          <DynamicBreadcrumb />
+          
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Modifier le bien</h1>
             <AlertDialog>
@@ -184,10 +230,16 @@ const EditProperty = () => {
             </AlertDialog>
           </div>
 
+          <FormProgressIndicator steps={propertyFormSteps} currentStep={currentStep} />
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <PropertyBasicInfo form={form} />
-              <PropertyLocation form={form} />
+              <div ref={basicInfoRef} className="scroll-mt-32">
+                <PropertyBasicInfo form={form} />
+              </div>
+              <div ref={locationRef} className="scroll-mt-32">
+                <PropertyLocation form={form} />
+              </div>
               
               <LocationPicker 
                 city={form.watch("city")}
@@ -196,11 +248,15 @@ const EditProperty = () => {
                 onLocationSelect={(lat, lng) => setSelectedLocation({ lat, lng })}
               />
 
-              <PropertyCharacteristicsForm form={form} />
-              <PropertyPricing form={form} />
+              <div ref={characteristicsRef} className="scroll-mt-32">
+                <PropertyCharacteristicsForm form={form} />
+              </div>
+              <div ref={pricingRef} className="scroll-mt-32">
+                <PropertyPricing form={form} />
+              </div>
               <PropertyWorkStatus form={form} />
 
-              <Card>
+              <Card ref={mediaRef} className="scroll-mt-32">
                 <CardHeader>
                   <CardTitle>Médias</CardTitle>
                   <CardDescription>Ajoutez ou modifiez les photos, vidéos et plans</CardDescription>

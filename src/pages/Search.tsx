@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import PropertyFiltersComponent, { PropertyFilters } from '@/components/PropertyFilters';
 import MobileFilters from '@/components/properties/MobileFilters';
 import { PullToRefresh } from '@/components/properties/PullToRefresh';
@@ -85,6 +86,7 @@ const Search = () => {
       
       <main role="main" className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
+          <DynamicBreadcrumb />
           {!user && (
             <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 mb-6">
               <p className="text-center text-sm">

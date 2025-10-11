@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/services/logger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { DynamicBreadcrumb } from "@/components/navigation/DynamicBreadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -183,7 +184,9 @@ export default function Payments() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pt-24">
+        <DynamicBreadcrumb />
+        
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Paiements</h1>
           <p className="text-muted-foreground">
