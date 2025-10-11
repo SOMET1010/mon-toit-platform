@@ -25,6 +25,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminCertifications = lazy(() => import("./pages/AdminCertifications"));
 const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const TenantDashboard = lazy(() => import("./pages/TenantDashboard"));
 const MyProperties = lazy(() => import("./pages/MyProperties"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
 const EditProperty = lazy(() => import("./pages/EditProperty"));
@@ -159,6 +160,16 @@ const AppContent = () => {
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
                   <Suspense fallback={<PageSkeleton />}>
                     <OwnerDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard/tenant" 
+              element={
+                <ProtectedRoute allowedUserTypes={['locataire']}>
+                  <Suspense fallback={<PageSkeleton />}>
+                    <TenantDashboard />
                   </Suspense>
                 </ProtectedRoute>
               } 

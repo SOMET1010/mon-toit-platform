@@ -2662,6 +2662,10 @@ export type Database = {
           virtual_tour_url: string
         }[]
       }
+      get_tenant_dashboard_summary: {
+        Args: { p_tenant_id: string }
+        Returns: Json
+      }
       get_user_payments: {
         Args: { target_user_id: string }
         Returns: {

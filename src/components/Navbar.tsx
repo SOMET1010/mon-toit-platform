@@ -139,6 +139,14 @@ const Navbar = () => {
                           <span>Tableau de bord</span>
                         </Link>
                       </DropdownMenuItem>
+                      {profile?.user_type === 'locataire' && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/tenant" className="cursor-pointer flex items-center">
+                            <LayoutDashboard className="mr-3 h-4 w-4 text-primary" />
+                            <span>Dashboard Locataire</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem asChild>
                         <Link to="/profil" className="cursor-pointer flex items-center">
                           <User className="mr-3 h-4 w-4 text-primary" />
