@@ -58,7 +58,7 @@ export const useAutoSave = <T extends Record<string, any>>({
         }
       }
     } catch (error) {
-      logger.debug('Failed to check for drafts', { key });
+      logger.debug('Failed to check for drafts', { storageKey: localStorageKey });
     }
   };
 
@@ -116,7 +116,7 @@ export const useAutoSave = <T extends Record<string, any>>({
         setHasDraft(true);
 
       } catch (error) {
-        logger.warn('Auto-save failed, data saved locally', { key });
+        logger.warn('Auto-save failed, data saved locally', { storageKey: localStorageKey });
         setStatus('error');
         toast({
           title: "Erreur de sauvegarde",
@@ -165,7 +165,7 @@ export const useAutoSave = <T extends Record<string, any>>({
 
       return null;
     } catch (error) {
-      logger.debug('Failed to load draft', { key });
+      logger.debug('Failed to load draft', { storageKey: localStorageKey });
       return null;
     }
   };
@@ -192,7 +192,7 @@ export const useAutoSave = <T extends Record<string, any>>({
       setStatus('idle');
       setLastSaved(null);
     } catch (error) {
-      logger.debug('Failed to clear draft', { key });
+      logger.debug('Failed to clear draft', { storageKey: localStorageKey });
     }
   };
 

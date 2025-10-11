@@ -78,7 +78,7 @@ export const useDashboardLayout = (userType: string) => {
         }
       }
     } catch (error) {
-      logger.error('Failed to load dashboard preferences', { userId: user.id });
+      logger.error('Failed to load dashboard preferences');
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export const useDashboardLayout = (userType: string) => {
 
       if (error) throw error;
     } catch (error) {
-      logger.error('Failed to save dashboard layout', { userId: user.id });
+      logger.error('Failed to save dashboard layout');
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder la disposition",
@@ -136,7 +136,7 @@ export const useDashboardLayout = (userType: string) => {
         description: "Votre dashboard a été mis à jour",
       });
     } catch (error) {
-      logger.error('Failed to toggle widget', { userId: user.id, widget });
+      logger.error('Failed to toggle widget', { widget });
       toast({
         title: "Erreur",
         description: "Impossible de modifier le widget",
@@ -171,7 +171,7 @@ export const useDashboardLayout = (userType: string) => {
         description: "La disposition par défaut a été restaurée",
       });
     } catch (error) {
-      logger.error('Failed to reset dashboard layout', { userId: user.id });
+      logger.error('Failed to reset dashboard layout');
       toast({
         title: "Erreur",
         description: "Impossible de réinitialiser le dashboard",

@@ -98,7 +98,7 @@ export const useSavedSearches = () => {
         description: "La recherche a été retirée de vos favoris",
       });
     } catch (error) {
-      logger.error('Failed to delete saved search', { searchId });
+      logger.error('Failed to delete saved search', { searchId: id });
       toast({
         title: "Erreur",
         description: "Impossible de supprimer la recherche",
