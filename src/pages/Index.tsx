@@ -6,11 +6,10 @@ import Footer from "@/components/Footer";
 import StickyCTA from "@/components/StickyCTA";
 import OnboardingModal from "@/components/OnboardingModal";
 import { Skeleton } from "@/components/ui/skeleton";
-import RoleSelector from "@/components/RoleSelector";
 
 // Lazy load des composants lourds
 const FeaturedProperties = lazy(() => import("@/components/FeaturedProperties"));
-const PreFooterCTA = lazy(() => import("@/components/PreFooterCTA"));
+const UnifiedRoleSelection = lazy(() => import("@/components/UnifiedRoleSelection"));
 
 const Index = () => {
   return (
@@ -22,14 +21,6 @@ const Index = () => {
       <main role="main" className="flex-1">
         <section aria-labelledby="hero-heading">
           <Hero />
-        </section>
-        
-        {/* Role Selector Section */}
-        <section aria-labelledby="role-selector-heading" className="py-12 bg-muted/30">
-          <h2 id="role-selector-heading" className="sr-only">Choisissez votre profil</h2>
-          <div className="animate-fade-in">
-            <RoleSelector />
-          </div>
         </section>
         
         <section aria-labelledby="stats-heading">
@@ -60,11 +51,12 @@ const Index = () => {
           </Suspense>
         </section>
         
+        {/* Unified Role Selection + CTA */}
         <section aria-labelledby="cta-heading">
-          <h2 id="cta-heading" className="sr-only">Appel à l'action</h2>
+          <h2 id="cta-heading" className="sr-only">Prêt à commencer</h2>
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>
             <div className="animate-fade-in">
-              <PreFooterCTA />
+              <UnifiedRoleSelection />
             </div>
           </Suspense>
         </section>
