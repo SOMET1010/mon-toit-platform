@@ -33,6 +33,7 @@ import { SeedDemoDataButton } from '@/components/admin/SeedDemoDataButton';
 import { ElectronicSignaturesDashboard } from '@/components/admin/ElectronicSignaturesDashboard';
 import { CertificateManager } from '@/components/admin/CertificateManager';
 import { PropertyAlertsMonitor } from '@/components/admin/PropertyAlertsMonitor';
+import { ReportGenerator } from '@/components/admin/ReportGenerator';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -217,6 +218,23 @@ const AdminDashboard = () => {
               {/* Rapports */}
               {activeTab === 'reporting' && (
                 <AdvancedReporting />
+              )}
+
+              {/* Rapports Mensuels */}
+              {activeTab === 'reports' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      📊 Générateur de Rapports Mensuels
+                    </CardTitle>
+                    <CardDescription>
+                      Générer et envoyer des rapports de performance aux propriétaires
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ReportGenerator />
+                  </CardContent>
+                </Card>
               )}
 
               {/* Signatures Électroniques */}

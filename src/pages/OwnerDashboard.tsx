@@ -12,8 +12,12 @@ import { TopPropertiesTable } from '@/components/dashboard/TopPropertiesTable';
 import { UrgentActionsCardCompact } from '@/components/dashboard/UrgentActionsCardCompact';
 import RevenueForecast from '@/components/dashboard/RevenueForecast';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { RefreshCw, Eye, Download, FileText } from 'lucide-react';
 import { StickyHeader } from '@/components/ui/sticky-header';
+import { toast } from 'sonner';
 import { logger } from '@/services/logger';
 
 const OwnerDashboard = () => {
@@ -33,6 +37,15 @@ const OwnerDashboard = () => {
   const [marketData, setMarketData] = useState<Array<{ propertyType: string; myAverage: number; marketAverage: number; difference: number; trend: 'up' | 'down' | 'neutral' }>>([]);
   const [topProperties, setTopProperties] = useState<Array<{ id: string; title: string; views: number; favorites: number; applications: number; conversionRate: number }>>([]);
   const [urgentActions, setUrgentActions] = useState<Array<{ id: string; type: 'overdue_application' | 'expiring_lease' | 'incomplete_property'; title: string; description: string; priority: 'critical' | 'important' | 'info'; link: string; daysOverdue?: number }>>([]);
+  const [reports, setReports] = useState<Array<{
+    id: string;
+    period_start: string;
+    period_end: string;
+    report_type: string;
+    generated_at: string;
+    period_label: string;
+    report_data: any;
+  }>>([]);
 
   useEffect(() => {
     if (user && profile) {
@@ -198,11 +211,46 @@ const OwnerDashboard = () => {
 
       setUrgentActions(actions);
 
+      // Fetch report history
+      const { data: reportHistory } = await supabase
+        .from('report_history')
+        .select('*')
+        .eq('owner_id', user.id)
+        .order('generated_at', { ascending: false })
+        .limit(12);
+
+      if (reportHistory) {
+        const formattedReports = reportHistory.map(report => ({
+          ...report,
+          period_label: `${new Date(report.period_start).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} - ${new Date(report.period_end).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}`
+        }));
+        setReports(formattedReports);
+      }
+
     } catch (error) {
       logger.logError(error, { context: 'OwnerDashboard', action: 'fetchDashboardData' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const viewReport = (report: any) => {
+    toast.info('Prévisualisation du rapport', {
+      description: `Rapport ${report.report_type} - ${report.period_label}`
+    });
+  };
+
+  const downloadReport = (report: any) => {
+    const blob = new Blob([JSON.stringify(report.report_data, null, 2)], { 
+      type: 'application/json' 
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rapport-${report.report_type}-${report.period_start}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Rapport téléchargé');
   };
 
   if (authLoading || loading) {
@@ -260,6 +308,73 @@ const OwnerDashboard = () => {
 
           {/* Top Properties Table */}
           <TopPropertiesTable properties={topProperties} />
+
+          {/* Report History */}
+          {reports.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Historique des Rapports
+                </CardTitle>
+                <CardDescription>
+                  Consultez vos rapports de performance des 12 derniers mois
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Période</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Généré le</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {reports.map((report) => (
+                      <TableRow key={report.id}>
+                        <TableCell className="font-medium">
+                          {report.period_label}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {report.report_type === 'monthly' ? 'Mensuel' : 
+                             report.report_type === 'quarterly' ? 'Trimestriel' : 'Annuel'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(report.generated_at).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </TableCell>
+                        <TableCell className="text-right space-x-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => viewReport(report)}
+                            title="Voir le rapport"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => downloadReport(report)}
+                            title="Télécharger"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
 
