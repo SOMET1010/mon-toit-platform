@@ -16,6 +16,7 @@ import { Send, MessageCircle, Paperclip, Download, FileText, Image as ImageIcon,
 import { toast } from '@/hooks/use-toast';
 import { logger } from '@/services/logger';
 import type { Message as MessageType } from '@/types';
+import { Badge } from '@/components/ui/badge';
 
 interface Attachment {
   name: string;
@@ -41,6 +42,7 @@ interface Conversation {
   last_message: string;
   last_message_time: string;
   unread_count: number;
+  conversation_type: 'prospect' | 'applicant' | 'tenant' | 'landlord_support';
 }
 
 interface UserProfile {
@@ -118,7 +120,8 @@ const Messages = () => {
               user_name: profile.full_name || 'Utilisateur',
               last_message: '',
               last_message_time: new Date().toISOString(),
-              unread_count: 0
+              unread_count: 0,
+              conversation_type: 'prospect' as const
             }, ...prev]);
             
             setProfiles(prev => ({
@@ -224,7 +227,8 @@ const Messages = () => {
             user_name: '',
             last_message: msg.content,
             last_message_time: msg.created_at,
-            unread_count: msg.receiver_id === user.id && !msg.is_read ? 1 : 0
+            unread_count: msg.receiver_id === user.id && !msg.is_read ? 1 : 0,
+            conversation_type: (msg.conversation_type as 'prospect' | 'applicant' | 'tenant' | 'landlord_support') || 'prospect'
           });
         } else {
           const conv = conversationMap.get(partnerId)!;
@@ -251,6 +255,19 @@ const Messages = () => {
         conversationMap.forEach((conv, key) => {
           conv.user_name = profileMap[key]?.full_name || 'Utilisateur inconnu';
         });
+      }
+
+      // Determine conversation type for each conversation using RPC
+      for (const [partnerId, conv] of conversationMap) {
+        const { data: convType } = await supabase.rpc('get_conversation_type', {
+          p_sender_id: user.id,
+          p_receiver_id: partnerId,
+          p_property_id: null
+        });
+        
+        if (convType) {
+          conv.conversation_type = convType as 'prospect' | 'applicant' | 'tenant' | 'landlord_support';
+        }
       }
 
       setConversations(Array.from(conversationMap.values()));
@@ -381,6 +398,23 @@ const Messages = () => {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  const getConversationBadge = (type: 'prospect' | 'applicant' | 'tenant' | 'landlord_support') => {
+    const configs = {
+      prospect: { emoji: '🟡', label: 'Prospect', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' },
+      applicant: { emoji: '🟠', label: 'Candidat', className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' },
+      tenant: { emoji: '🟢', label: 'Locataire', className: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' },
+      landlord_support: { emoji: '🔵', label: 'Support', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' }
+    };
+    
+    const config = configs[type];
+    return (
+      <Badge className={`${config.className} text-xs`}>
+        <span className="mr-1">{config.emoji}</span>
+        {config.label}
+      </Badge>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -428,26 +462,29 @@ const Messages = () => {
                               : 'border-transparent'
                           }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <Avatar>
-                              <AvatarFallback>
-                                {conv.user_name.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="font-medium truncate">{conv.user_name}</p>
-                                {conv.unread_count > 0 && (
-                                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-                                    {conv.unread_count}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {conv.last_message}
-                              </p>
-                            </div>
-                          </div>
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarFallback>
+                        {conv.user_name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <p className="font-medium truncate">{conv.user_name}</p>
+                          {getConversationBadge(conv.conversation_type)}
+                        </div>
+                        {conv.unread_count > 0 && (
+                          <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full flex-shrink-0">
+                            {conv.unread_count}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {conv.last_message}
+                      </p>
+                    </div>
+                  </div>
                         </button>
                       ))}
                     </div>

@@ -821,6 +821,7 @@ export type Database = {
           application_id: string | null
           attachments: Json | null
           content: string
+          conversation_type: string | null
           created_at: string
           id: string
           is_read: boolean | null
@@ -831,6 +832,7 @@ export type Database = {
           application_id?: string | null
           attachments?: Json | null
           content: string
+          conversation_type?: string | null
           created_at?: string
           id?: string
           is_read?: boolean | null
@@ -841,6 +843,7 @@ export type Database = {
           application_id?: string | null
           attachments?: Json | null
           content?: string
+          conversation_type?: string | null
           created_at?: string
           id?: string
           is_read?: boolean | null
@@ -2427,6 +2430,14 @@ export type Database = {
           total_alerts_sent_week: number
           users_with_alerts: number
         }[]
+      }
+      get_conversation_type: {
+        Args: {
+          p_property_id?: string
+          p_receiver_id: string
+          p_sender_id: string
+        }
+        Returns: string
       }
       get_failed_login_attempts: {
         Args: { hours_ago?: number }
