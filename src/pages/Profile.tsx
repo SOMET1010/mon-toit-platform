@@ -21,6 +21,7 @@ import NotificationPreferences from '@/components/notifications/NotificationPref
 import { PreferencesModal } from '@/components/recommendations/PreferencesModal';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 import { RoleSelectorFull } from '@/components/profile/RoleSelectorFull';
+import { PropertyAlertsSettings } from '@/components/settings/PropertyAlertsSettings';
 import { logger } from '@/services/logger';
 
 const Profile = () => {
@@ -195,9 +196,10 @@ const Profile = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">Profil</TabsTrigger>
               <TabsTrigger value="preferences">Préférences de recherche</TabsTrigger>
+              <TabsTrigger value="alerts">Alertes</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6 mt-6">
@@ -478,6 +480,10 @@ const Profile = () => {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="alerts" className="space-y-6 mt-6">
+              <PropertyAlertsSettings />
             </TabsContent>
           </Tabs>
         </div>

@@ -86,6 +86,69 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_history: {
+        Row: {
+          alert_data: Json | null
+          alert_id: string | null
+          alert_type: string
+          clicked_at: string | null
+          created_at: string | null
+          delivery_method: string
+          delivery_status: string | null
+          error_message: string | null
+          id: string
+          opened_at: string | null
+          property_id: string | null
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_data?: Json | null
+          alert_id?: string | null
+          alert_type: string
+          clicked_at?: string | null
+          created_at?: string | null
+          delivery_method: string
+          delivery_status?: string | null
+          error_message?: string | null
+          id?: string
+          opened_at?: string | null
+          property_id?: string | null
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_data?: Json | null
+          alert_id?: string | null
+          alert_type?: string
+          clicked_at?: string | null
+          created_at?: string | null
+          delivery_method?: string
+          delivery_status?: string | null
+          error_message?: string | null
+          id?: string
+          opened_at?: string | null
+          property_id?: string | null
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_history_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "property_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_history_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_rate_limits: {
         Row: {
           created_at: string
@@ -1267,6 +1330,48 @@ export type Database = {
         }
         Relationships: []
       }
+      property_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          email_enabled: boolean | null
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          push_enabled: boolean | null
+          search_criteria: Json | null
+          trigger_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          push_enabled?: boolean | null
+          search_criteria?: Json | null
+          trigger_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          push_enabled?: boolean | null
+          search_criteria?: Json | null
+          trigger_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           created_at: string
@@ -2034,6 +2139,20 @@ export type Database = {
           oneci_verified?: boolean | null
           updated_at?: string | null
           user_type?: Database["public"]["Enums"]["user_type"] | null
+        }
+        Relationships: []
+      }
+      property_alerts_analytics: {
+        Row: {
+          alert_type: string | null
+          click_rate: number | null
+          clicked_count: number | null
+          date: string | null
+          delivery_method: string | null
+          delivery_status: string | null
+          open_rate: number | null
+          opened_count: number | null
+          total_sent: number | null
         }
         Relationships: []
       }
