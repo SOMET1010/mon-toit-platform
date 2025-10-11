@@ -117,9 +117,14 @@ export const MediaUploader = ({
     <div className="space-y-6">
       {/* Regular images */}
       <div className="space-y-3">
-        <Label htmlFor="images" className="text-base font-semibold">
-          Photos du bien
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="images" className="text-base font-semibold">
+            Photos du bien
+          </Label>
+          <span className="text-xs text-muted-foreground">
+            {imagePreviews.length}/10 • JPG, PNG • Max 5MB/photo
+          </span>
+        </div>
         <div className="grid grid-cols-4 gap-3">
           {imagePreviews.map((preview, index) => (
             <div key={index} className="relative aspect-video group">
@@ -128,29 +133,33 @@ export const MediaUploader = ({
                 alt={`Preview ${index + 1}`}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-cover rounded-md border-2 border-border"
               />
               <Button
                 type="button"
                 variant="destructive"
                 size="icon"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => removeImage(index)}
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3" />
               </Button>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-md">
+                <p className="text-xs text-white font-medium">Photo {index + 1}</p>
+              </div>
             </div>
           ))}
           {imagePreviews.length < 10 && (
-            <label className="aspect-video border-2 border-dashed rounded-md flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+            <label className="aspect-video border-2 border-dashed border-muted-foreground/25 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all group">
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 multiple
                 onChange={handleImageSelect}
                 className="hidden"
               />
-              <Upload className="h-8 w-8 text-muted-foreground" />
+              <Upload className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors mb-1" />
+              <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">Ajouter</span>
             </label>
           )}
         </div>
@@ -158,14 +167,23 @@ export const MediaUploader = ({
 
       {/* Video upload */}
       <div className="space-y-3">
-        <Label htmlFor="video" className="text-base font-semibold flex items-center gap-2">
-          <Video className="h-5 w-5" />
-          Vidéo de présentation
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="video" className="text-base font-semibold flex items-center gap-2">
+            <Video className="h-5 w-5" />
+            Vidéo de présentation
+          </Label>
+          <span className="text-xs text-muted-foreground">
+            MP4, WebM, MOV • Max 100MB
+          </span>
+        </div>
         <div className="flex items-center gap-4">
           {videoPreview ? (
             <div className="relative flex-1">
-              <video src={videoPreview} controls className="w-full rounded-md" />
+              <video 
+                src={videoPreview} 
+                controls 
+                className="w-full rounded-md border-2 border-border" 
+              />
               <Button
                 type="button"
                 variant="destructive"
@@ -180,16 +198,19 @@ export const MediaUploader = ({
               </Button>
             </div>
           ) : (
-            <label className="flex-1 border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:border-primary transition-colors">
+            <label className="flex-1 border-2 border-dashed border-muted-foreground/25 rounded-md p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all group">
               <input
                 type="file"
                 accept="video/mp4,video/webm,video/quicktime"
                 onChange={handleVideoSelect}
                 className="hidden"
               />
-              <Video className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Cliquez pour ajouter une vidéo (max 100MB)
+              <Video className="h-10 w-10 mx-auto mb-3 text-muted-foreground group-hover:text-primary transition-colors" />
+              <p className="text-sm font-medium text-foreground mb-1">
+                Ajouter une vidéo
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Formats: MP4, WebM, MOV • Taille max: 100 MB
               </p>
             </label>
           )}
