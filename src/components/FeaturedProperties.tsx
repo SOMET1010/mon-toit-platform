@@ -21,6 +21,7 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string>('Tous');
   const { toggleFavorite, isFavorite } = useFavorites();
   const { user } = useAuth();
 
@@ -119,12 +120,6 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
     );
   }
 
-  if (properties.length === 0) {
-    return null;
-  }
-
-  const [activeFilter, setActiveFilter] = useState<string>('Tous');
-  
   const filteredProperties = useMemo(() => {
     if (activeFilter === 'Tous') return properties;
     return properties.filter(p => {
@@ -134,6 +129,10 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
       return true;
     });
   }, [properties, activeFilter]);
+
+  if (properties.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-20 md:py-28 px-4 bg-gradient-to-b from-white via-primary/3 to-white border-t border-primary/10 pattern-bogolan" aria-labelledby="featured-properties-heading">
