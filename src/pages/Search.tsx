@@ -9,7 +9,7 @@ import { PullToRefresh } from '@/components/properties/PullToRefresh';
 import PropertyMap from '@/components/PropertyMap';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Grid, List, Map, Search as SearchIcon } from 'lucide-react';
+import { Grid, List, Map, Search as SearchIcon, Eye, CheckCircle2, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useProperties } from '@/hooks/useProperties';
@@ -88,10 +88,30 @@ const Search = () => {
         <div className="max-w-7xl mx-auto">
           <DynamicBreadcrumb />
           {!user && (
-            <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 mb-6">
-              <p className="text-center text-sm">
-                💡 <Link to="/auth" className="text-primary hover:underline font-medium">Créez un compte</Link> pour postuler et accéder à toutes les fonctionnalités
-              </p>
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 mb-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <Eye className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Accès libre aux annonces</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Parcourez toutes les annonces sans créer de compte. Pour postuler, envoyer des messages 
+                    ou accéder aux photos HD, <Link to="/auth" className="text-primary font-medium hover:underline">inscrivez-vous gratuitement</Link>.
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3 text-green-600" /> Consultation illimitée
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3 text-green-600" /> Filtres avancés
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3 text-orange-600" /> Candidature (compte requis)
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           

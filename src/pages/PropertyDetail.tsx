@@ -544,6 +544,20 @@ const PropertyDetail = () => {
 
                   <Separator />
 
+                  {!isOwner && !user && property.status === 'disponible' && (
+                    <div className="space-y-2">
+                      <Button asChild size="lg" className="w-full gap-2">
+                        <Link to="/auth">
+                          <Users className="h-5 w-5" />
+                          Créer un compte pour postuler
+                        </Link>
+                      </Button>
+                      <p className="text-xs text-center text-muted-foreground">
+                        Inscription gratuite en 2 minutes
+                      </p>
+                    </div>
+                  )}
+                  
                   {!isOwner && user && (
                     <div className="space-y-2">
                       <Button className="w-full gap-2" onClick={handleContact}>
