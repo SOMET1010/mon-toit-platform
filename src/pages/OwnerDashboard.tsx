@@ -5,23 +5,28 @@ import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PropertyStatsCompact } from '@/components/dashboard/PropertyStatsCompact';
+import PropertyStats from '@/components/dashboard/PropertyStats';
 import ViewsChart from '@/components/dashboard/ViewsChart';
 import ApplicationsChart from '@/components/dashboard/ApplicationsChart';
 import MarketComparison from '@/components/dashboard/MarketComparison';
 import { TopPropertiesTable } from '@/components/dashboard/TopPropertiesTable';
+import { PropertyPerformanceTable } from '@/components/dashboard/PropertyPerformanceTable';
 import { UrgentActionsCardCompact } from '@/components/dashboard/UrgentActionsCardCompact';
 import RevenueForecast from '@/components/dashboard/RevenueForecast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Eye, Download, FileText } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RefreshCw, Eye, Download, FileText, BarChart3 } from 'lucide-react';
 import { StickyHeader } from '@/components/ui/sticky-header';
 import { toast } from 'sonner';
 import { logger } from '@/services/logger';
+import { useOwnerAnalytics } from '@/hooks/useOwnerAnalytics';
 
 const OwnerDashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
+  const { analytics, stats: analyticsStats, loading: analyticsLoading } = useOwnerAnalytics();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalProperties: 0,
@@ -284,8 +289,18 @@ const OwnerDashboard = () => {
             </Button>
           </StickyHeader>
 
-          {/* Stats Overview Compact */}
-          <PropertyStatsCompact stats={stats} />
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+              <TabsTrigger value="analytics">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-4">
+              {/* Stats Overview Compact */}
+              <PropertyStatsCompact stats={stats} />
 
           {/* Urgent Actions + Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -309,9 +324,9 @@ const OwnerDashboard = () => {
           {/* Top Properties Table */}
           <TopPropertiesTable properties={topProperties} />
 
-          {/* Report History */}
-          {reports.length > 0 && (
-            <Card>
+              {/* Report History */}
+              {reports.length > 0 && (
+                <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -373,8 +388,32 @@ const OwnerDashboard = () => {
                   </TableBody>
                 </Table>
               </CardContent>
-            </Card>
-          )}
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              {/* Analytics KPIs */}
+              <PropertyStats
+                stats={{
+                  totalProperties: analyticsStats?.total_properties || 0,
+                  totalViews: analyticsStats?.total_views_7d || 0,
+                  totalFavorites: 0,
+                  totalApplications: analyticsStats?.total_applications || 0,
+                  averageRent: 0,
+                  occupancyRate: analyticsStats?.avg_conversion_rate || 0
+                }}
+              />
+
+              {/* Charts Grid */}
+              <div className="grid gap-6 lg:grid-cols-3">
+                <ViewsChart data={[]} loading={analyticsLoading} className="lg:col-span-2" />
+              </div>
+
+              {/* Performance Table */}
+              <PropertyPerformanceTable properties={analytics} loading={analyticsLoading} />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 

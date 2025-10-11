@@ -2529,6 +2529,20 @@ export type Database = {
           tenant_score: number
         }[]
       }
+      get_owner_analytics: {
+        Args: { owner_user_id: string }
+        Returns: {
+          applications_count: number
+          conversion_rate: number
+          monthly_rent: number
+          property_id: string
+          property_image: string
+          property_title: string
+          status: string
+          views_30d: number
+          views_7d: number
+        }[]
+      }
       get_property_owner_public_info: {
         Args: { property_id_param: string }
         Returns: {
