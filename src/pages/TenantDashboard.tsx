@@ -1,9 +1,9 @@
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { ApplicationsStatusWidget } from '@/components/dashboard/tenant/ApplicationsStatusWidget';
 import { ActiveLeaseWidget } from '@/components/dashboard/tenant/ActiveLeaseWidget';
 import { PaymentHistoryWidget } from '@/components/dashboard/tenant/PaymentHistoryWidget';

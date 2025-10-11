@@ -27,6 +27,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { ApplicantPhoneDisplay } from '@/components/application/ApplicantPhoneDisplay';
 import { logger } from '@/services/logger';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 
 type Application = {
   id: string;
@@ -273,8 +274,9 @@ const PropertyApplications = () => {
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-7xl">
+        <DynamicBreadcrumb />
         <div className="mb-8">
-          <Button 
+          <Button
             variant="ghost" 
             onClick={() => navigate(`/property/${propertyId}`)}
             className="mb-4 -ml-2"

@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { logger } from '@/services/logger';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -189,8 +190,9 @@ const Maintenance = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="flex-1 container mx-auto px-4 py-8">
+      <div className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto space-y-6">
+          <DynamicBreadcrumb />
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Demandes de maintenance</h1>
             <Button onClick={() => setShowForm(!showForm)} className="gap-2">

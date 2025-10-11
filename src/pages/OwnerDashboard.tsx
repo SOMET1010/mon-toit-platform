@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { RefreshCw, Eye, Download, FileText, BarChart3 } from 'lucide-react';
 import { StickyHeader } from '@/components/ui/sticky-header';
 import { toast } from 'sonner';
@@ -276,6 +277,7 @@ const OwnerDashboard = () => {
       
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto space-y-4">
+          <DynamicBreadcrumb />
           <StickyHeader className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Tableau de Bord</h1>

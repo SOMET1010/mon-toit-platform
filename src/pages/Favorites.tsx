@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Link } from 'react-router-dom';
+import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Property } from '@/types';
 import { logger } from '@/services/logger';
@@ -54,6 +55,7 @@ const Favorites = () => {
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
+          <DynamicBreadcrumb />
           <div className="mb-10">
             <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
               <Heart className="h-8 w-8 text-primary fill-primary" />

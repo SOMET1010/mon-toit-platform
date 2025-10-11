@@ -12,10 +12,12 @@ import {
 const routeLabels: Record<string, string> = {
   '/': 'Accueil',
   '/dashboard': 'Tableau de bord',
+  '/analytics': 'Analytics',
   '/profil': 'Mon Profil',
   '/mes-biens': 'Mes Biens',
   '/ajouter-bien': 'Publier un bien',
   '/editer-bien': 'Modifier le bien',
+  '/modifier-bien': 'Modifier le bien',
   '/verification': 'Vérification d\'identité',
   '/favoris': 'Mes Favoris',
   '/candidatures': 'Mes Candidatures',
@@ -26,11 +28,19 @@ const routeLabels: Record<string, string> = {
   '/baux': 'Mes Baux',
   '/messages': 'Messagerie',
   '/paiements': 'Paiements',
+  '/maintenance': 'Maintenance',
   '/a-propos': 'À propos',
   '/admin': 'Administration',
   '/admin/certifications': 'Certifications',
   '/admin/dashboard': 'Dashboard Admin',
   '/property': 'Détails du bien',
+  '/certification': 'Certification',
+  '/guide': 'Guide',
+  '/tarifs': 'Tarifs',
+  '/conditions': 'Conditions',
+  '/confidentialite': 'Confidentialité',
+  '/mentions-legales': 'Mentions légales',
+  '/legal': 'Mentions légales',
 };
 
 export const DynamicBreadcrumb = () => {
