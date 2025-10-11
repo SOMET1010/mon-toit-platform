@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Heart, MapPin, Bed, Bath, Maximize, Home, CheckCircle2, 
   ArrowLeft, MessageCircle, Calendar, DollarSign, Edit, Users,
-  Eye, Star, FileText, TrendingUp, Clock, Lock
+  Eye, Star, FileText, TrendingUp, Clock, Lock, ExternalLink
 } from 'lucide-react';
 import { getPropertyStatusLabel } from '@/constants';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -338,10 +338,10 @@ const PropertyDetail = () => {
                 <Badge 
                   className={`absolute top-4 left-4 z-10 flex items-center gap-1 ${
                     property.status === 'disponible' 
-                      ? 'bg-primary text-primary-foreground' 
+                      ? 'bg-green-500 hover:bg-green-600 text-white' 
                       : property.status === 'en_negociation'
-                      ? 'bg-negotiation text-negotiation-foreground'
-                      : 'bg-gray-500 text-white'
+                      ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                      : 'bg-gray-400 hover:bg-gray-500 text-white'
                   }`}
                 >
                   {property.status === 'en_negociation' && <Clock className="h-3 w-3" />}
@@ -439,10 +439,27 @@ const PropertyDetail = () => {
               {property.latitude && property.longitude && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5" />
-                      Localisation
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5" />
+                        Localisation
+                      </CardTitle>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        asChild
+                      >
+                        <a 
+                          href={`https://maps.google.com/?q=${property.latitude},${property.longitude}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="gap-2"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Google Maps
+                        </a>
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <LocationSection 

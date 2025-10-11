@@ -88,14 +88,14 @@ export const propertyService = {
       return uniqueProperties as Property[];
     }
 
-    // Use secure RPC for public browsing
+    // Use secure RPC for public browsing - exclude rented properties
     const { data, error } = await supabase.rpc('get_public_properties', {
       p_city: filters?.city || null,
       p_property_type: filters?.propertyType?.[0] || null,
       p_min_rent: filters?.minPrice || null,
       p_max_rent: filters?.maxPrice || null,
       p_min_bedrooms: filters?.minBedrooms || null,
-      p_status: null, // Show all statuses in search
+      p_status: null, // RPC handles filtering
     });
 
     if (error) {
@@ -105,6 +105,9 @@ export const propertyService = {
 
     // Apply client-side filters not supported by RPC
     let results = data || [];
+    
+    // CRITICAL: Filter out rented properties from public view
+    results = results.filter(p => p.status === 'disponible' || p.status === 'en_negociation');
     
     if (filters?.propertyType && filters.propertyType.length > 1) {
       results = results.filter(p => filters.propertyType?.includes(p.property_type));

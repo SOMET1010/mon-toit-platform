@@ -172,10 +172,10 @@ export const PropertyCard = ({
             <Badge 
               className={`rounded-lg font-semibold shadow-md flex items-center gap-1 ${
                 property.status === 'disponible' 
-                  ? 'bg-primary text-primary-foreground' 
+                  ? 'bg-green-500 hover:bg-green-600 text-white' 
                   : property.status === 'en_negociation'
-                  ? 'bg-negotiation text-negotiation-foreground'
-                  : 'bg-gray-500 text-white'
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                  : 'bg-gray-400 hover:bg-gray-500 text-white'
               }`}
               role="status"
               aria-live="polite"
