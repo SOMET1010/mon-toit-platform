@@ -79,8 +79,8 @@ export const RoleSelectorFull = () => {
         </CardTitle>
         <CardDescription>
           {hasMultipleRoles 
-            ? 'Basculez entre vos différents rôles selon vos besoins'
-            : 'Vous avez actuellement un seul rôle actif'
+            ? 'Basculez entre vos différents rôles sans vous reconnecter'
+            : 'Ajoutez un nouveau rôle pour accéder à plus de fonctionnalités'
           }
         </CardDescription>
       </CardHeader>

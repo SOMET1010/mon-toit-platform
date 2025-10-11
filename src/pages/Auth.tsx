@@ -73,9 +73,19 @@ const Auth = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/');
+      // Si l'utilisateur est déjà connecté et essaie d'accéder à /auth avec un type
+      // (ex: /auth?type=agence), on le redirige vers son profil pour gérer ses rôles
+      if (userTypeFromUrl && userTypeFromUrl !== user.user_metadata?.user_type) {
+        toast({
+          title: "Déjà connecté",
+          description: "Vous êtes déjà connecté. Rendez-vous dans votre profil pour gérer vos rôles.",
+        });
+        navigate('/profil', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, userTypeFromUrl]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -321,6 +331,11 @@ const Auth = () => {
               <CardHeader>
                 <CardTitle>Connexion</CardTitle>
                 <CardDescription>Connectez-vous à votre compte Mon Toit</CardDescription>
+                {userTypeFromUrl && (
+                  <p className="text-xs text-muted-foreground mt-2 bg-muted/50 p-2 rounded">
+                    💡 <strong>Vous avez déjà un compte ?</strong> Connectez-vous puis gérez vos rôles depuis <Link to="/profil" className="text-primary hover:underline font-medium">votre profil</Link>
+                  </p>
+                )}
               </CardHeader>
               <form onSubmit={handleSignIn}>
                 <CardContent className="space-y-4">
@@ -433,7 +448,17 @@ const Auth = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Inscription</CardTitle>
-                <CardDescription>Créez votre compte Mon Toit</CardDescription>
+                <CardDescription>
+                  {userTypeFromUrl === 'agence' && 'Créez votre compte Agence immobilière'}
+                  {userTypeFromUrl === 'proprietaire' && 'Créez votre compte Propriétaire'}
+                  {userTypeFromUrl === 'locataire' && 'Créez votre compte Locataire'}
+                  {!userTypeFromUrl && 'Créez votre compte Mon Toit'}
+                </CardDescription>
+                {userTypeFromUrl && (
+                  <p className="text-xs text-muted-foreground mt-2 bg-muted/50 p-2 rounded">
+                    💡 <strong>Vous voulez ajouter ce rôle à un compte existant ?</strong> Connectez-vous puis <Link to="/profil" className="text-primary hover:underline font-medium">gérez vos rôles depuis votre profil</Link>
+                  </p>
+                )}
               </CardHeader>
               <form onSubmit={handleSignUp}>
                 <CardContent className="space-y-4">
