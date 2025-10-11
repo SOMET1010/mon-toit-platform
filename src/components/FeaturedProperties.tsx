@@ -57,6 +57,16 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
     await fetchFeaturedProperties();
   }, [fetchFeaturedProperties]);
 
+  const filteredProperties = useMemo(() => {
+    if (activeFilter === 'Tous') return properties;
+    return properties.filter(p => {
+      if (activeFilter === 'Appartements') return p.property_type.toLowerCase().includes('appartement');
+      if (activeFilter === 'Villas') return p.property_type.toLowerCase().includes('villa');
+      if (activeFilter === 'Studios') return p.property_type.toLowerCase().includes('studio');
+      return true;
+    });
+  }, [properties, activeFilter]);
+
   // Skeleton loader optimisé pour PropertyCard
   const SkeletonCard = useMemo(() => (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
@@ -119,16 +129,6 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
       </section>
     );
   }
-
-  const filteredProperties = useMemo(() => {
-    if (activeFilter === 'Tous') return properties;
-    return properties.filter(p => {
-      if (activeFilter === 'Appartements') return p.property_type.toLowerCase().includes('appartement');
-      if (activeFilter === 'Villas') return p.property_type.toLowerCase().includes('villa');
-      if (activeFilter === 'Studios') return p.property_type.toLowerCase().includes('studio');
-      return true;
-    });
-  }, [properties, activeFilter]);
 
   if (properties.length === 0) {
     return null;
