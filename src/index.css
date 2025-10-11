@@ -238,7 +238,7 @@ All colors MUST be HSL.
     background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="bogolan" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse"><path d="M0 50 L50 50 L25 75 Z M75 25 L125 25 L100 50 Z M150 50 L200 50 L175 75 Z M25 100 L75 100 M125 100 L175 100 M50 125 L50 175 M100 125 L100 175 M150 125 L150 175 M10 150 L40 180 M160 150 L190 180 M0 0 L20 20 M180 0 L200 20 M0 180 L20 200 M180 180 L200 200" stroke="hsl(218 65.5%25 38.6%25)" stroke-width="2" fill="none"/><circle cx="50" cy="50" r="3" fill="hsl(28 87%25 54%25)"/><circle cx="150" cy="50" r="3" fill="hsl(28 87%25 54%25)"/><circle cx="100" cy="150" r="3" fill="hsl(218 65.5%25 38.6%25)"/><rect x="85" y="85" width="30" height="30" fill="none" stroke="hsl(218 65.5%25 38.6%25)" stroke-width="1.5"/></pattern></defs><rect width="200" height="200" fill="url(%23bogolan)"/></svg>');
     background-size: 200px 200px;
     background-repeat: repeat;
-    opacity: 0.04;
+    opacity: 0.06;
     pointer-events: none;
     z-index: 0;
   }

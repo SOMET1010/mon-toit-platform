@@ -50,9 +50,7 @@ const Testimonials = () => {
   );
 
   return (
-    <section className="py-20 md:py-28 bg-white relative overflow-hidden pattern-bogolan">
-      {/* Decorative pattern background */}
-      <div className="absolute inset-0 opacity-[0.03]" />
+    <section className="py-20 md:py-28 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Ils nous font confiance</h2>
