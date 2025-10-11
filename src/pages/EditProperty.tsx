@@ -5,8 +5,11 @@ import { usePropertyForm } from '@/hooks/usePropertyForm';
 import { useMediaUpload, type MediaFiles, type MediaUrls } from '@/hooks/useMediaUpload';
 import { usePropertyDelete } from '@/hooks/usePropertyDelete';
 import { usePropertyPermissions } from '@/hooks/usePropertyPermissions';
+import { useAgencyMandates } from '@/hooks/useAgencyMandates';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
@@ -37,10 +40,13 @@ const propertyFormSteps: Step[] = [
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, canEditProperty, requireOwnerAccess } = usePropertyPermissions();
+  const { user, canEditProperty, requireOwnerAccess, hasAgencyPermission, activeMandates, asAgency } = usePropertyPermissions();
   const { form, loading, submitting, submitProperty } = usePropertyForm(id);
   const { uploading, uploadMedia } = useMediaUpload();
   const { deleting, deleteProperty } = usePropertyDelete();
+  
+  const [propertyOwnerId, setPropertyOwnerId] = useState<string | null>(null);
+  const [activeMandate, setActiveMandate] = useState<any>(null);
   
   const [currentStep, setCurrentStep] = useState(0);
   const basicInfoRef = useRef<HTMLDivElement>(null);
@@ -116,8 +122,10 @@ const EditProperty = () => {
         return;
       }
 
-      // Check ownership
-      if (!canEditProperty(property.owner_id)) {
+      // Check ownership or agency permissions
+      setPropertyOwnerId(property.owner_id);
+      
+      if (!canEditProperty(property.owner_id, id)) {
         toast({
           title: "Accès refusé",
           description: "Vous ne pouvez pas modifier ce bien",
@@ -125,6 +133,14 @@ const EditProperty = () => {
         });
         navigate('/mes-biens');
         return;
+      }
+
+      // Find active mandate if user is an agency
+      if (user?.id && user.id !== property.owner_id) {
+        const mandate = activeMandates.find(m => 
+          m.property_id === id || (!m.property_id && m.owner_id === property.owner_id)
+        );
+        setActiveMandate(mandate);
       }
 
       // Set existing media
@@ -206,13 +222,14 @@ const EditProperty = () => {
           
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Modifier le bien</h1>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={deleting}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Supprimer le bien
-                </Button>
-              </AlertDialogTrigger>
+            {propertyOwnerId && hasAgencyPermission(id!, propertyOwnerId, 'can_delete_properties') ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" disabled={deleting}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer le bien
+                  </Button>
+                </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
@@ -228,7 +245,30 @@ const EditProperty = () => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            ) : null}
           </div>
+
+          {/* Agency mandate info */}
+          {activeMandate && propertyOwnerId && user?.id !== propertyOwnerId && (
+            <Alert className="mb-6">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Vous gérez ce bien en tant qu'agence</strong>
+                <div className="mt-2 text-sm">
+                  <p className="font-medium mb-1">Permissions accordées :</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {activeMandate.permissions.can_edit_properties && <li>Modification du bien</li>}
+                    {activeMandate.permissions.can_view_applications && <li>Voir les candidatures</li>}
+                    {activeMandate.permissions.can_manage_applications && <li>Gérer les candidatures</li>}
+                    {activeMandate.permissions.can_create_leases && <li>Créer des baux</li>}
+                    {!activeMandate.permissions.can_delete_properties && (
+                      <li className="text-muted-foreground">❌ Suppression non autorisée</li>
+                    )}
+                  </ul>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
 
           <FormProgressIndicator steps={propertyFormSteps} currentStep={currentStep} />
 

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, Search, PlusCircle, HelpCircle } from "lucide-react";
+import { User, LogOut, LayoutDashboard, ShieldCheck, Shield, Search, PlusCircle, HelpCircle, FileText } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -154,6 +154,22 @@ const Navbar = () => {
                           <Link to="/dashboard/tenant" className="cursor-pointer flex items-center">
                             <LayoutDashboard className="mr-3 h-4 w-4 text-primary" />
                             <span>Dashboard Locataire</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      {profile?.user_type === 'agence' && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/agence" className="cursor-pointer flex items-center">
+                            <LayoutDashboard className="mr-3 h-4 w-4 text-primary" />
+                            <span>Dashboard Agence</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      {(profile?.user_type === 'proprietaire' || profile?.user_type === 'agence') && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/my-mandates" className="cursor-pointer flex items-center">
+                            <FileText className="mr-3 h-4 w-4 text-primary" />
+                            <span>Mes Mandats</span>
                           </Link>
                         </DropdownMenuItem>
                       )}

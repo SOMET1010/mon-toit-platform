@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
@@ -22,7 +22,15 @@ import { StickyHeader } from '@/components/ui/sticky-header';
 
 const Dashboard = () => {
   const { profile, loading, user } = useAuth();
+  const navigate = useNavigate();
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+
+  // Redirection intelligente pour les agences
+  useEffect(() => {
+    if (profile?.user_type === 'agence' && !loading) {
+      navigate('/dashboard/agence');
+    }
+  }, [profile?.user_type, loading, navigate]);
 
   if (loading) {
     return (
@@ -147,22 +155,41 @@ const Dashboard = () => {
           )}
 
           {user && profile.user_type === 'proprietaire' && (
-            <Card className="mb-8">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  <CardTitle>Locataires recommandés</CardTitle>
-                </div>
-                <CardDescription>
-                  Consultez vos candidatures pour voir les locataires les mieux notés pour chaque bien
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild>
-                  <Link to="/mes-biens">Voir mes biens et candidatures</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <>
+              <Card className="mb-4">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    <CardTitle>Locataires recommandés</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Consultez vos candidatures pour voir les locataires les mieux notés pour chaque bien
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild>
+                    <Link to="/mes-biens">Voir mes biens et candidatures</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="mb-8">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-primary" />
+                    <CardTitle>Mes Mandats</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Gérez vos mandats avec les agences immobilières
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild>
+                    <Link to="/my-mandates">Voir mes mandats</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </>
           )}
 
           {/* Dashboard Cards */}

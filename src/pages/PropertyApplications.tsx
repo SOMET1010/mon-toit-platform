@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecommendations } from '@/hooks/useRecommendations';
+import { usePropertyPermissions } from '@/hooks/usePropertyPermissions';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,6 +65,7 @@ const PropertyApplications = () => {
   const { propertyId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { hasAgencyPermission, activeMandates } = usePropertyPermissions();
   
   const [property, setProperty] = useState<Property | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -71,6 +75,8 @@ const PropertyApplications = () => {
   const [rejectionNote, setRejectionNote] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'score'>('score');
   const [filterMatch, setFilterMatch] = useState<'all' | 'high' | 'good'>('all');
+  const [isAgencyView, setIsAgencyView] = useState(false);
+  const [canManageApps, setCanManageApps] = useState(false);
 
   const { recommendations, loading: recsLoading } = useRecommendations({
     type: 'tenants',
@@ -94,15 +100,23 @@ const PropertyApplications = () => {
 
       if (propError) throw propError;
       
-      if (propertyData.owner_id !== user?.id) {
+      // Check if user is owner or has agency permissions
+      const isOwner = propertyData.owner_id === user?.id;
+      const hasViewPerm = hasAgencyPermission(propertyId, propertyData.owner_id, 'can_view_applications');
+      const hasManagePerm = hasAgencyPermission(propertyId, propertyData.owner_id, 'can_manage_applications');
+      
+      if (!isOwner && !hasViewPerm) {
         toast({
           title: 'Accès refusé',
-          description: 'Vous n\'êtes pas le propriétaire de ce bien',
+          description: 'Vous n\'avez pas accès aux candidatures de ce bien',
           variant: 'destructive',
         });
         navigate('/');
         return;
       }
+
+      setIsAgencyView(!isOwner && hasViewPerm);
+      setCanManageApps(isOwner || hasManagePerm);
 
       setProperty(propertyData);
 
@@ -276,6 +290,16 @@ const PropertyApplications = () => {
       <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-7xl">
         <DynamicBreadcrumb />
         <div className="mb-8">
+          {isAgencyView && (
+            <Alert className="mb-4">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Vue Agence</strong> - Vous consultez les candidatures pour le compte du propriétaire.
+                {canManageApps ? ' Vous pouvez gérer ces candidatures.' : ' Accès en lecture seule.'}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <Button
             variant="ghost" 
             onClick={() => navigate(`/property/${propertyId}`)}
@@ -491,7 +515,7 @@ const PropertyApplications = () => {
                             Voir détails
                           </Button>
                           
-                          {application.status === 'pending' && (
+                          {application.status === 'pending' && canManageApps && (
                             <>
                               <Button
                                 onClick={() => updateApplicationStatus(application.id, 'approved')}
