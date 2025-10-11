@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { logger } from '@/services/logger';
 
 interface PaymentHistoryWidgetProps {
   data?: {
@@ -49,7 +50,7 @@ export const PaymentHistoryWidget = ({ data }: PaymentHistoryWidgetProps) => {
         description: 'Le reçu a été téléchargé avec succès',
       });
     } catch (error) {
-      console.error('Error downloading receipt:', error);
+      logger.error('Failed to download receipt', { paymentId });
       toast({
         title: 'Erreur',
         description: 'Impossible de télécharger le reçu',

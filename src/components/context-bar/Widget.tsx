@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
 import type { WidgetProps } from './types';
+import { logger } from '@/services/logger';
 
 export const Widget = ({ 
   isLoading, 
@@ -10,7 +11,7 @@ export const Widget = ({
   children, 
   ariaLabel
 }: Omit<WidgetProps, 'tooltip'>) => {
-  console.log('[Widget] Rendering...');
+  logger.debug('Widget rendering');
   
   return (
     <button

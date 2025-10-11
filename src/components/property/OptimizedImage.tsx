@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/services/logger';
 
 interface OptimizedImageProps {
   src: string;
@@ -27,7 +28,7 @@ export const OptimizedImage = ({
       const urlObj = new URL(url);
       // Ne permettre que les URLs Supabase Storage
       if (!urlObj.hostname.includes('supabase.co')) {
-        console.error('URL non autorisée:', url);
+        logger.warn('Unauthorized URL attempted', { hostname: urlObj.hostname });
         return '/placeholder.svg';
       }
       return url;

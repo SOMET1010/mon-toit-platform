@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -108,7 +109,7 @@ const Maintenance = () => {
         description: 'Impossible de créer la demande.',
         variant: 'destructive'
       });
-      console.error(error);
+      logger.error('Failed to create maintenance request', { error });
     }
   });
 

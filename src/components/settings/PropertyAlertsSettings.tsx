@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -53,7 +54,7 @@ export const PropertyAlertsSettings = () => {
       if (error) throw error;
       setAlerts(data || []);
     } catch (error) {
-      console.error('Error fetching alerts:', error);
+      logger.error('Failed to fetch property alerts');
       toast.error('Erreur lors du chargement des alertes');
     } finally {
       setLoading(false);
@@ -92,7 +93,7 @@ export const PropertyAlertsSettings = () => {
       setNewAlert({ city: '', property_type: '', min_rent: '', max_rent: '', min_bedrooms: '' });
       fetchAlerts();
     } catch (error) {
-      console.error('Error creating alert:', error);
+      logger.error('Failed to create property alert');
       toast.error('Erreur lors de la création de l\'alerte');
     }
   };
@@ -109,7 +110,7 @@ export const PropertyAlertsSettings = () => {
       setAlerts(alerts.map(a => a.id === alertId ? { ...a, [field]: value } : a));
       toast.success('Préférences mises à jour');
     } catch (error) {
-      console.error('Error updating alert:', error);
+      logger.error('Failed to update property alert', { alertId, field });
       toast.error('Erreur lors de la mise à jour');
     }
   };
@@ -128,7 +129,7 @@ export const PropertyAlertsSettings = () => {
       setAlerts(alerts.filter(a => a.id !== alertId));
       toast.success('Alerte supprimée');
     } catch (error) {
-      console.error('Error deleting alert:', error);
+      logger.error('Failed to delete property alert', { alertId });
       toast.error('Erreur lors de la suppression');
     }
   };
