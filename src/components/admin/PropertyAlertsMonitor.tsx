@@ -139,7 +139,7 @@ export const PropertyAlertsMonitor = () => {
       setAnalytics(analyticsData || []);
 
     } catch (error: any) {
-      console.error('Error fetching alerts data:', error);
+      logger.error('Failed to fetch property alerts data', { component: 'PropertyAlertsMonitor', error: error.message });
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les données des alertes',

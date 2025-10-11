@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 export const useSearchSuggestions = (query: string) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -36,7 +37,7 @@ export const useSearchSuggestions = (query: string) => {
           setSuggestions(uniqueSuggestions.slice(0, 5));
         }
       } catch (error) {
-        console.error('Error fetching suggestions:', error);
+        logger.debug('Failed to fetch search suggestions', { query });
         setSuggestions([]);
       } finally {
         setIsLoading(false);

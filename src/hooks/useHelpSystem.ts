@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { HelpInteraction } from '@/types/supabase-extended';
+import { logger } from '@/services/logger';
 
 export interface HelpContent {
   id: string;
@@ -29,7 +30,7 @@ export const useHelpSystem = () => {
         content_id: contentId,
       });
     } catch (error) {
-      console.error('Error tracking help interaction:', error);
+      logger.debug('Failed to track help interaction', { helpType, contentId });
     }
   }, []);
 

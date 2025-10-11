@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 interface QueuedAction {
   id: string;
@@ -65,7 +66,7 @@ export const useOfflineSync = () => {
         }
         // Add more action types as needed
       } catch (error) {
-        console.error('Failed to sync action:', error);
+        logger.warn('Failed to sync offline action', { actionType: action.type });
         failedActions.push(action);
       }
     }

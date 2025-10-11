@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 declare global {
   interface Window {
@@ -39,7 +40,7 @@ export const useVoiceSearch = () => {
     };
 
     recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
+      logger.warn('Speech recognition error', { error: event.error });
       setIsListening(false);
       
       if (event.error === 'no-speech') {

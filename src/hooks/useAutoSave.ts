@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { FormDraft } from '@/types/supabase-extended';
+import { logger } from '@/services/logger';
 
 export type AutoSaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
 
@@ -57,7 +58,7 @@ export const useAutoSave = <T extends Record<string, any>>({
         }
       }
     } catch (error) {
-      console.error('Error checking for drafts:', error);
+      logger.debug('Failed to check for drafts', { key });
     }
   };
 
@@ -115,7 +116,7 @@ export const useAutoSave = <T extends Record<string, any>>({
         setHasDraft(true);
 
       } catch (error) {
-        console.error('Auto-save error:', error);
+        logger.warn('Auto-save failed, data saved locally', { key });
         setStatus('error');
         toast({
           title: "Erreur de sauvegarde",
@@ -164,7 +165,7 @@ export const useAutoSave = <T extends Record<string, any>>({
 
       return null;
     } catch (error) {
-      console.error('Error loading draft:', error);
+      logger.debug('Failed to load draft', { key });
       return null;
     }
   };
@@ -191,7 +192,7 @@ export const useAutoSave = <T extends Record<string, any>>({
       setStatus('idle');
       setLastSaved(null);
     } catch (error) {
-      console.error('Error clearing draft:', error);
+      logger.debug('Failed to clear draft', { key });
     }
   };
 

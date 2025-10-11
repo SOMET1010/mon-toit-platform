@@ -8,6 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/services/logger';
 import { Loader2, Send, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -57,7 +58,7 @@ export const ReportGenerator = () => {
 
       toast.success(`Rapport généré et envoyé avec succès ! (${data.successful}/${data.processed})`);
     } catch (error: any) {
-      console.error('Error generating report:', error);
+      logger.error('Failed to generate report', { component: 'ReportGenerator', reportType, error: error.message });
       toast.error(`Erreur: ${error.message}`);
     } finally {
       setLoading(false);

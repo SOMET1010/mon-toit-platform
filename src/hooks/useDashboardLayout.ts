@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { UserPreferences } from '@/types/supabase-extended';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 export type WidgetType = 
   | 'profile_score'
@@ -77,7 +78,7 @@ export const useDashboardLayout = (userType: string) => {
         }
       }
     } catch (error) {
-      console.error('Error loading dashboard preferences:', error);
+      logger.error('Failed to load dashboard preferences', { userId: user.id });
     } finally {
       setLoading(false);
     }
@@ -100,7 +101,7 @@ export const useDashboardLayout = (userType: string) => {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error saving layout:', error);
+      logger.error('Failed to save dashboard layout', { userId: user.id });
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder la disposition",
@@ -135,7 +136,7 @@ export const useDashboardLayout = (userType: string) => {
         description: "Votre dashboard a été mis à jour",
       });
     } catch (error) {
-      console.error('Error toggling widget:', error);
+      logger.error('Failed to toggle widget', { userId: user.id, widget });
       toast({
         title: "Erreur",
         description: "Impossible de modifier le widget",
@@ -170,7 +171,7 @@ export const useDashboardLayout = (userType: string) => {
         description: "La disposition par défaut a été restaurée",
       });
     } catch (error) {
-      console.error('Error resetting layout:', error);
+      logger.error('Failed to reset dashboard layout', { userId: user.id });
       toast({
         title: "Erreur",
         description: "Impossible de réinitialiser le dashboard",

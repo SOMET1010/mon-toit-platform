@@ -1,6 +1,7 @@
 import { useAuth } from './useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 interface ImageAccessResult {
   maxImages: number;
@@ -27,7 +28,7 @@ export const usePropertyImageAccess = (propertyId: string): ImageAccessResult =>
         .maybeSingle();
 
       if (error) {
-        console.error('Error checking dossier:', error);
+        logger.error('Failed to check dossier status', { userId: user.id, propertyId });
         return false;
       }
 

@@ -2202,6 +2202,39 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_access_log: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          admin_id: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          admin_id: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          admin_id?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       profiles_public: {

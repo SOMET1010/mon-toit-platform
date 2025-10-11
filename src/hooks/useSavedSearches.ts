@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 export interface SavedSearch {
   id: string;
@@ -38,7 +39,7 @@ export const useSavedSearches = () => {
       if (error) throw error;
       setSavedSearches(data || []);
     } catch (error) {
-      console.error('Error fetching saved searches:', error);
+      logger.error('Failed to fetch saved searches', { userId: user?.id });
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +73,7 @@ export const useSavedSearches = () => {
 
       await fetchSavedSearches();
     } catch (error) {
-      console.error('Error saving search:', error);
+      logger.error('Failed to save search', { userId: user?.id });
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder la recherche",
@@ -97,7 +98,7 @@ export const useSavedSearches = () => {
         description: "La recherche a été retirée de vos favoris",
       });
     } catch (error) {
-      console.error('Error deleting search:', error);
+      logger.error('Failed to delete saved search', { searchId });
       toast({
         title: "Erreur",
         description: "Impossible de supprimer la recherche",
