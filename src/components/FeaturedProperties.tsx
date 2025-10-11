@@ -31,7 +31,7 @@ const FeaturedProperties = ({ limit = 6 }: FeaturedPropertiesProps) => {
       const data = await propertyService.fetchAll();
       
       const featured = data
-        .filter(p => p.status === 'disponible')
+        .filter(p => p.status === 'disponible' || p.status === 'en_negociation')
         .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
         .slice(0, limit);
       

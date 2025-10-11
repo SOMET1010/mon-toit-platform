@@ -13,8 +13,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Heart, MapPin, Bed, Bath, Maximize, Home, CheckCircle2, 
   ArrowLeft, MessageCircle, Calendar, DollarSign, Edit, Users,
-  Eye, Star, FileText, TrendingUp
+  Eye, Star, FileText, TrendingUp, Clock, Lock
 } from 'lucide-react';
+import { getPropertyStatusLabel } from '@/constants';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
@@ -313,8 +314,18 @@ const PropertyDetail = () => {
                 >
                   <Heart className={`h-5 w-5 ${favorite ? 'fill-current text-destructive' : ''}`} />
                 </Button>
-                <Badge className="absolute top-4 left-4 z-10">
-                  {property.status === 'disponible' ? 'Disponible' : 'Loué'}
+                <Badge 
+                  className={`absolute top-4 left-4 z-10 flex items-center gap-1 ${
+                    property.status === 'disponible' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : property.status === 'en_negociation'
+                      ? 'bg-negotiation text-negotiation-foreground'
+                      : 'bg-gray-500 text-white'
+                  }`}
+                >
+                  {property.status === 'en_negociation' && <Clock className="h-3 w-3" />}
+                  {property.status === 'loué' && <Lock className="h-3 w-3" />}
+                  {getPropertyStatusLabel(property.status)}
                 </Badge>
               </div>
 

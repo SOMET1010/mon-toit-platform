@@ -9,7 +9,7 @@ import { PullToRefresh } from '@/components/properties/PullToRefresh';
 import PropertyMap from '@/components/PropertyMap';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Grid, List, Map, Search as SearchIcon, Eye, CheckCircle2, Users } from 'lucide-react';
+import { Grid, List, Map, Search as SearchIcon, Eye, CheckCircle2, Lock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useProperties } from '@/hooks/useProperties';
@@ -87,6 +87,7 @@ const Search = () => {
       <main role="main" className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
           <DynamicBreadcrumb />
+          
           {!user && (
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 mb-6">
               <div className="flex items-start gap-4">
@@ -107,7 +108,7 @@ const Search = () => {
                       <CheckCircle2 className="h-3 w-3 text-green-600" /> Filtres avancés
                     </span>
                     <span className="flex items-center gap-1">
-                      <Users className="h-3 w-3 text-orange-600" /> Candidature (compte requis)
+                      <Lock className="h-3 w-3 text-orange-600" /> Candidature (compte requis)
                     </span>
                   </div>
                 </div>
