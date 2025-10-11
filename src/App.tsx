@@ -26,6 +26,8 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminCertifications = lazy(() => import("./pages/AdminCertifications"));
 const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
 const TenantDashboard = lazy(() => import("./pages/TenantDashboard"));
+const AgencyDashboard = lazy(() => import("./pages/AgencyDashboard"));
+const MyMandates = lazy(() => import("./pages/MyMandates"));
 const MyProperties = lazy(() => import("./pages/MyProperties"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
 const EditProperty = lazy(() => import("./pages/EditProperty"));
@@ -179,6 +181,26 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRoles={['tiers_de_confiance']}>
                 <TiersDeConfianceDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/agence" 
+            element={
+              <ProtectedRoute allowedUserTypes={['agence']}>
+                <Suspense fallback={<PageSkeleton />}>
+                  <AgencyDashboard />
+                </Suspense>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/my-mandates" 
+            element={
+              <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
+                <Suspense fallback={<PageSkeleton />}>
+                  <MyMandates />
+                </Suspense>
               </ProtectedRoute>
             } 
           />
