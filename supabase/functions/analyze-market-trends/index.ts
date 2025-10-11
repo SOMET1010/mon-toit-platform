@@ -22,64 +22,58 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization');
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
+      authHeader ? {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
-      }
+      } : {}
     );
 
     const {
       data: { user },
-      error: userError,
     } = await supabaseClient.auth.getUser();
 
-    if (userError || !user) {
-      throw new Error('Non authentifié');
-    }
+    console.log('Analyzing market trends', user ? `for user: ${user.id}` : '(anonymous)');
 
-    console.log('Analyzing market trends for user:', user.id);
-
-    // Récupérer l'historique de recherche de l'utilisateur
-    const { data: searchHistory, error: searchError } = await supabaseClient
-      .from('search_history')
-      .select('search_params')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
-
-    if (searchError) {
-      console.error('Error fetching search history:', searchError);
-      throw searchError;
-    }
-
-    // Extraire les villes recherchées
+    // Villes par défaut pour les utilisateurs anonymes
+    const DEFAULT_CITIES = ['Abidjan', 'Yamoussoukro', 'Bouaké', 'San-Pédro', 'Korhogo'];
     const searchedCities = new Set<string>();
-    searchHistory?.forEach((search: any) => {
-      const params = search.search_params;
-      if (params?.city) {
-        searchedCities.add(params.city);
-      }
-    });
 
-    if (searchedCities.size === 0) {
-      // Pas d'historique, retourner des données par défaut
-      return new Response(
-        JSON.stringify({
-          trends: [],
-          message: 'Commencez à rechercher des biens pour voir les tendances du marché',
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
+    if (user) {
+      // Utilisateur authentifié : utiliser son historique de recherche
+      const { data: searchHistory, error: searchError } = await supabaseClient
+        .from('search_history')
+        .select('search_params')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (searchError) {
+        console.error('Error fetching search history:', searchError);
+      }
+
+      // Extraire les villes recherchées
+      searchHistory?.forEach((search: any) => {
+        const params = search.search_params;
+        if (params?.city) {
+          searchedCities.add(params.city);
         }
-      );
+      });
+
+      if (searchedCities.size === 0) {
+        // Pas d'historique, utiliser les villes par défaut
+        DEFAULT_CITIES.forEach(city => searchedCities.add(city));
+      }
+    } else {
+      // Utilisateur anonyme : utiliser les villes populaires
+      DEFAULT_CITIES.forEach(city => searchedCities.add(city));
     }
 
-    console.log('Searched cities:', Array.from(searchedCities));
+    console.log('Cities to analyze:', Array.from(searchedCities));
 
     // Analyser les propriétés pour chaque ville
     const trends: MarketTrend[] = [];

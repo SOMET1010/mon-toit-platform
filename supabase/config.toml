@@ -50,9 +50,6 @@ verify_jwt = true
 [functions.seed-demo-data]
 verify_jwt = true
 
-[functions.smile-id-verification]
-verify_jwt = true
-
 [functions.cryptoneo-auth]
 verify_jwt = false
 
@@ -75,4 +72,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.send-guest-message]
+verify_jwt = false
+
+[functions.analyze-market-trends]
 verify_jwt = false

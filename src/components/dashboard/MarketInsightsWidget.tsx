@@ -35,8 +35,6 @@ export const MarketInsightsWidget = ({ className }: MarketInsightsWidgetProps) =
 
   useEffect(() => {
     const fetchMarketInsights = async () => {
-      if (!user) return;
-
       try {
         setLoading(true);
         setError(null);
@@ -52,7 +50,11 @@ export const MarketInsightsWidget = ({ className }: MarketInsightsWidgetProps) =
 
         setInsights(data);
       } catch (err: any) {
-        logger.logError(err, { context: 'MarketInsightsWidget', action: 'fetch' });
+        logger.logError(err, { 
+          context: 'MarketInsightsWidget', 
+          action: 'fetch',
+          userId: user?.id || 'anonymous'
+        });
         setError(err.message || 'Impossible de charger les insights du marché');
       } finally {
         setLoading(false);
