@@ -1,16 +1,56 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ReportRequest {
-  reportType: 'performance' | 'financial' | 'verification' | 'complete';
-  startDate?: string;
-  endDate?: string;
-  format: 'csv' | 'pdf';
+interface MonthlyOwnerReport {
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  period: {
+    start: string;
+    end: string;
+    label: string;
+  };
+  summary: {
+    total_properties: number;
+    total_views: number;
+    total_favorites: number;
+    total_applications: number;
+    total_revenue: number;
+    occupied_properties: number;
+    vacant_properties: number;
+    occupancy_rate: number;
+    avg_conversion_rate: number;
+  };
+  properties_performance: Array<{
+    id: string;
+    title: string;
+    views: number;
+    favorites: number;
+    applications: number;
+    conversion_rate: number;
+    revenue: number;
+    status: string;
+    days_vacant?: number;
+  }>;
+  applications_breakdown: {
+    pending: number;
+    approved: number;
+    rejected: number;
+    withdrawn: number;
+  };
+  market_insights: {
+    avg_market_rent: number;
+    your_avg_rent: number;
+    price_positioning: 'above' | 'below' | 'at_market';
+  };
+  recommendations: string[];
 }
 
 serve(async (req) => {
@@ -19,213 +59,371 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('Missing authorization header');
-    }
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    if (authError || !user) {
-      throw new Error('Unauthorized');
-    }
+    const { mode, owner_id, start_date, end_date, report_type = 'monthly', scheduled = false } = await req.json();
 
-    // Verify admin role
-    const { data: roles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .single();
+    console.log(`[generate-report] Mode: ${mode}, Type: ${report_type}, Scheduled: ${scheduled}`);
 
-    if (!roles) {
-      throw new Error('Forbidden: Admin role required');
-    }
+    const period = calculatePeriod(start_date, end_date, report_type);
+    console.log(`[generate-report] Period: ${period.start} to ${period.end}`);
 
-    const { reportType, startDate, endDate, format }: ReportRequest = await req.json();
+    const owners = mode === 'auto' 
+      ? await getActiveOwners(supabaseAdmin)
+      : [{ id: owner_id }];
 
-    // Build date filter
-    let dateFilter = {};
-    if (startDate) {
-      dateFilter = { ...dateFilter, gte: startDate };
-    }
-    if (endDate) {
-      dateFilter = { ...dateFilter, lte: endDate };
-    }
+    console.log(`[generate-report] Processing ${owners.length} owners`);
 
-    // Fetch data based on report type
-    let reportData: any = {};
+    let successCount = 0;
+    let failureCount = 0;
 
-    if (reportType === 'performance' || reportType === 'complete') {
-      const { data: profiles } = await supabase.from('profiles').select('*');
-      const { data: properties } = await supabase.from('properties').select('*');
-      const { data: applications } = await supabase.from('rental_applications').select('*');
+    for (const owner of owners) {
+      try {
+        console.log(`[generate-report] Generating report for owner ${owner.id}`);
 
-      reportData.performance = {
-        totalUsers: profiles?.length || 0,
-        totalProperties: properties?.length || 0,
-        totalApplications: applications?.length || 0,
-      };
-    }
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', owner.id)
+          .single();
 
-    if (reportType === 'financial' || reportType === 'complete') {
-      const { data: leases } = await supabase
-        .from('leases')
-        .select('*')
-        .eq('status', 'active');
-
-      const totalRevenue = leases?.reduce((sum, lease) => sum + Number(lease.monthly_rent || 0), 0) || 0;
-      const ansutCommission = totalRevenue * 0.05; // 5% commission
-
-      // Group by property type
-      const { data: properties } = await supabase.from('properties').select('id, property_type');
-      const { data: activeLeasesWithProperty } = await supabase
-        .from('leases')
-        .select('property_id, monthly_rent')
-        .eq('status', 'active');
-
-      const revenueByType: Record<string, number> = {};
-      activeLeasesWithProperty?.forEach(lease => {
-        const property = properties?.find(p => p.id === lease.property_id);
-        if (property) {
-          const type = property.property_type;
-          revenueByType[type] = (revenueByType[type] || 0) + Number(lease.monthly_rent || 0);
+        if (!profile?.email) {
+          console.warn(`[generate-report] Owner ${owner.id} has no email, skipping`);
+          continue;
         }
-      });
 
-      reportData.financial = {
-        totalRevenue,
-        ansutCommission,
-        revenueByType,
-        activeLeases: leases?.length || 0,
-      };
+        const { data: properties } = await supabaseAdmin
+          .from('properties')
+          .select('*')
+          .eq('owner_id', owner.id);
+
+        if (!properties || properties.length === 0) {
+          console.log(`[generate-report] Owner ${owner.id} has no properties, skipping`);
+          continue;
+        }
+
+        const propertyIds = properties.map(p => p.id);
+
+        const [viewsData, favoritesData, applicationsData, revenueData] = await Promise.all([
+          getPropertyViews(supabaseAdmin, propertyIds, period),
+          getFavorites(supabaseAdmin, propertyIds, period),
+          getApplications(supabaseAdmin, propertyIds, period),
+          getRevenue(supabaseAdmin, owner.id, period)
+        ]);
+
+        const summary = calculateSummary(properties, viewsData, applicationsData, revenueData);
+        const propertiesPerformance = buildPropertiesPerformance(properties, viewsData, favoritesData, applicationsData);
+        const applicationsBreakdown = buildApplicationsBreakdown(applicationsData);
+        const marketInsights = await getMarketInsights(supabaseAdmin, properties);
+        const recommendations = generateRecommendations(summary, marketInsights, propertiesPerformance);
+
+        const report: MonthlyOwnerReport = {
+          owner: {
+            id: owner.id,
+            name: profile.full_name,
+            email: profile.email
+          },
+          period,
+          summary,
+          properties_performance: propertiesPerformance,
+          applications_breakdown: applicationsBreakdown,
+          market_insights: marketInsights,
+          recommendations
+        };
+
+        const { data: savedReport, error: saveError } = await supabaseAdmin
+          .from('report_history')
+          .insert({
+            owner_id: owner.id,
+            report_type,
+            period_start: period.start,
+            period_end: period.end,
+            generated_by: mode === 'auto' ? null : req.headers.get('user-id'),
+            sent_status: 'pending',
+            report_data: report
+          })
+          .select()
+          .single();
+
+        if (saveError) {
+          console.error(`[generate-report] Failed to save report for ${owner.id}:`, saveError);
+          failureCount++;
+          continue;
+        }
+
+        console.log(`[generate-report] Sending email to ${profile.email}`);
+        const { data: emailResult, error: emailError } = await supabaseAdmin.functions.invoke('send-email', {
+          body: {
+            to: profile.email,
+            subject: `📊 Rapport ${report_type === 'monthly' ? 'mensuel' : report_type === 'quarterly' ? 'trimestriel' : 'annuel'} - ${period.label}`,
+            template: 'monthly-report',
+            data: { report }
+          }
+        });
+
+        if (emailError) {
+          console.error(`[generate-report] Email failed for ${owner.id}:`, emailError);
+          await supabaseAdmin
+            .from('report_history')
+            .update({ 
+              sent_status: 'failed',
+              error_message: emailError.message
+            })
+            .eq('id', savedReport.id);
+          failureCount++;
+        } else {
+          console.log(`[generate-report] Email sent successfully to ${profile.email}`);
+          await supabaseAdmin
+            .from('report_history')
+            .update({ 
+              sent_status: 'sent',
+              email_sent_at: new Date().toISOString()
+            })
+            .eq('id', savedReport.id);
+          successCount++;
+        }
+
+      } catch (ownerError) {
+        console.error(`[generate-report] Failed to process owner ${owner.id}:`, ownerError);
+        failureCount++;
+      }
     }
 
-    if (reportType === 'verification' || reportType === 'complete') {
-      const { data: verifications } = await supabase.from('user_verifications').select('*');
-      const { data: profiles } = await supabase.from('profiles').select('*');
+    return new Response(
+      JSON.stringify({
+        success: true,
+        processed: owners.length,
+        successful: successCount,
+        failed: failureCount,
+        period
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
-      reportData.verification = {
-        oneci: verifications?.filter(v => v.oneci_status === 'verified').length || 0,
-        cnam: verifications?.filter(v => v.cnam_status === 'verified').length || 0,
-        face: verifications?.filter(v => v.face_verification_status === 'verified').length || 0,
-        total: profiles?.length || 0,
-      };
-    }
-
-    // Generate output based on format
-    if (format === 'csv') {
-      const csv = convertToCSV(reportData);
-      return new Response(csv, {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename="report-${reportType}-${new Date().toISOString()}.csv"`,
-        },
-      });
-    } else {
-      // PDF format
-      const pdfData = generatePDF(reportData, reportType);
-      return new Response(JSON.stringify({ pdf: pdfData, reportData }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-  } catch (error) {
-    console.error('Error generating report:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: errorMessage === 'Unauthorized' ? 401 : errorMessage === 'Forbidden: Admin role required' ? 403 : 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  } catch (error: any) {
+    console.error('[generate-report] Fatal error:', error);
+    return new Response(
+      JSON.stringify({ error: error?.message || 'Unknown error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });
 
-function convertToCSV(data: any): string {
-  const lines: string[] = [];
+function calculatePeriod(startDate?: string, endDate?: string, reportType = 'monthly') {
+  const now = new Date();
+  let start: Date;
+  let end: Date;
+  let label: string;
 
-  if (data.performance) {
-    lines.push('Performance de la plateforme');
-    lines.push('Métrique,Valeur');
-    lines.push(`Utilisateurs totaux,${data.performance.totalUsers}`);
-    lines.push(`Biens totaux,${data.performance.totalProperties}`);
-    lines.push(`Candidatures totales,${data.performance.totalApplications}`);
-    lines.push('');
+  if (startDate && endDate) {
+    start = new Date(startDate);
+    end = new Date(endDate);
+    label = `${start.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} - ${end.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}`;
+  } else if (reportType === 'monthly') {
+    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    label = start.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  } else if (reportType === 'quarterly') {
+    const quarter = Math.floor((now.getMonth() - 1) / 3);
+    start = new Date(now.getFullYear(), quarter * 3, 1);
+    end = new Date(now.getFullYear(), (quarter + 1) * 3, 0, 23, 59, 59);
+    label = `Q${quarter + 1} ${start.getFullYear()}`;
+  } else {
+    start = new Date(now.getFullYear() - 1, 0, 1);
+    end = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
+    label = `${start.getFullYear()}`;
   }
 
-  if (data.financial) {
-    lines.push('Données financières');
-    lines.push('Métrique,Valeur');
-    lines.push(`Revenus totaux (FCFA),${data.financial.totalRevenue}`);
-    lines.push(`Commission ANSUT 5% (FCFA),${data.financial.ansutCommission}`);
-    lines.push(`Baux actifs,${data.financial.activeLeases}`);
-    lines.push('');
-    lines.push('Revenus par type de bien');
-    lines.push('Type,Revenus (FCFA)');
-    Object.entries(data.financial.revenueByType).forEach(([type, revenue]) => {
-      lines.push(`${type},${revenue}`);
-    });
-    lines.push('');
-  }
-
-  if (data.verification) {
-    lines.push('Statistiques de vérification');
-    lines.push('Type,Vérifié,Total');
-    lines.push(`ONECI,${data.verification.oneci},${data.verification.total}`);
-    lines.push(`CNAM,${data.verification.cnam},${data.verification.total}`);
-    lines.push(`Reconnaissance faciale,${data.verification.face},${data.verification.total}`);
-  }
-
-  return lines.join('\n');
+  return {
+    start: start.toISOString(),
+    end: end.toISOString(),
+    label
+  };
 }
 
-function generatePDF(data: any, reportType: string): any {
-  // Return structured data for PDF generation on client side
-  // Client will use jsPDF to generate the actual PDF
+async function getActiveOwners(supabase: any) {
+  const { data } = await supabase
+    .from('properties')
+    .select('owner_id')
+    .not('owner_id', 'is', null);
+
+  const uniqueOwners = [...new Set(data?.map((p: any) => p.owner_id) || [])];
+  return uniqueOwners.map(id => ({ id }));
+}
+
+async function getPropertyViews(supabase: any, propertyIds: string[], period: any) {
+  const { data } = await supabase
+    .from('search_history')
+    .select('property_id')
+    .in('property_id', propertyIds)
+    .gte('created_at', period.start)
+    .lte('created_at', period.end);
+
+  const viewsMap = new Map<string, number>();
+  data?.forEach((item: any) => {
+    viewsMap.set(item.property_id, (viewsMap.get(item.property_id) || 0) + 1);
+  });
+  return viewsMap;
+}
+
+async function getFavorites(supabase: any, propertyIds: string[], period: any) {
+  const { data } = await supabase
+    .from('user_favorites')
+    .select('property_id')
+    .in('property_id', propertyIds)
+    .gte('created_at', period.start)
+    .lte('created_at', period.end);
+
+  const favoritesMap = new Map<string, number>();
+  data?.forEach((item: any) => {
+    favoritesMap.set(item.property_id, (favoritesMap.get(item.property_id) || 0) + 1);
+  });
+  return favoritesMap;
+}
+
+async function getApplications(supabase: any, propertyIds: string[], period: any) {
+  const { data } = await supabase
+    .from('rental_applications')
+    .select('*')
+    .in('property_id', propertyIds)
+    .gte('created_at', period.start)
+    .lte('created_at', period.end);
+
+  return data || [];
+}
+
+async function getRevenue(supabase: any, ownerId: string, period: any) {
+  const { data } = await supabase
+    .from('payments')
+    .select('amount')
+    .eq('receiver_id', ownerId)
+    .eq('status', 'completed')
+    .gte('created_at', period.start)
+    .lte('created_at', period.end);
+
+  return data?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
+}
+
+function calculateSummary(properties: any[], viewsMap: Map<string, number>, applications: any[], revenue: number) {
+  const totalViews = Array.from(viewsMap.values()).reduce((sum, v) => sum + v, 0);
+  const occupiedProperties = properties.filter(p => p.status === 'loué').length;
+  const vacantProperties = properties.filter(p => p.status === 'disponible').length;
+  const occupancyRate = properties.length > 0 ? (occupiedProperties / properties.length) * 100 : 0;
+  
+  const totalApplications = applications.length;
+  const avgConversionRate = totalViews > 0 ? (totalApplications / totalViews) * 100 : 0;
+
   return {
-    title: `Rapport ${reportType} - ANSUT`,
-    date: new Date().toLocaleDateString('fr-FR'),
-    sections: [
-      data.performance && {
-        title: 'Performance de la plateforme',
-        metrics: [
-          { label: 'Utilisateurs totaux', value: data.performance.totalUsers },
-          { label: 'Biens totaux', value: data.performance.totalProperties },
-          { label: 'Candidatures totales', value: data.performance.totalApplications },
-        ],
-      },
-      data.financial && {
-        title: 'Données financières',
-        metrics: [
-          { label: 'Revenus totaux', value: `${data.financial.totalRevenue.toLocaleString('fr-FR')} FCFA` },
-          { label: 'Commission ANSUT (5%)', value: `${data.financial.ansutCommission.toLocaleString('fr-FR')} FCFA` },
-          { label: 'Baux actifs', value: data.financial.activeLeases },
-        ],
-        table: {
-          title: 'Revenus par type de bien',
-          headers: ['Type de bien', 'Revenus (FCFA)'],
-          rows: Object.entries(data.financial.revenueByType).map(([type, revenue]) => [
-            type,
-            (revenue as number).toLocaleString('fr-FR'),
-          ]),
-        },
-      },
-      data.verification && {
-        title: 'Statistiques de vérification',
-        table: {
-          headers: ['Type de vérification', 'Vérifié', 'Total', 'Taux'],
-          rows: [
-            ['ONECI', data.verification.oneci, data.verification.total, `${Math.round((data.verification.oneci / data.verification.total) * 100)}%`],
-            ['CNAM', data.verification.cnam, data.verification.total, `${Math.round((data.verification.cnam / data.verification.total) * 100)}%`],
-            ['Reconnaissance faciale', data.verification.face, data.verification.total, `${Math.round((data.verification.face / data.verification.total) * 100)}%`],
-          ],
-        },
-      },
-    ].filter(Boolean),
+    total_properties: properties.length,
+    total_views: totalViews,
+    total_favorites: 0,
+    total_applications: totalApplications,
+    total_revenue: revenue,
+    occupied_properties: occupiedProperties,
+    vacant_properties: vacantProperties,
+    occupancy_rate: Math.round(occupancyRate * 10) / 10,
+    avg_conversion_rate: Math.round(avgConversionRate * 10) / 10
   };
+}
+
+function buildPropertiesPerformance(properties: any[], viewsMap: Map<string, number>, favoritesMap: Map<string, number>, applications: any[]) {
+  return properties.map((prop: any) => {
+    const views = viewsMap.get(prop.id) || 0;
+    const favorites = favoritesMap.get(prop.id) || 0;
+    const propApplications = applications.filter((a: any) => a.property_id === prop.id);
+    const conversionRate = views > 0 ? (propApplications.length / views) * 100 : 0;
+
+    return {
+      id: prop.id,
+      title: prop.title,
+      views,
+      favorites,
+      applications: propApplications.length,
+      conversion_rate: Math.round(conversionRate * 10) / 10,
+      revenue: 0,
+      status: prop.status,
+      days_vacant: prop.status === 'disponible' ? Math.floor((Date.now() - new Date(prop.created_at).getTime()) / (1000 * 60 * 60 * 24)) : undefined
+    };
+  }).sort((a: any, b: any) => b.views - a.views);
+}
+
+function buildApplicationsBreakdown(applications: any[]) {
+  return {
+    pending: applications.filter((a: any) => a.status === 'pending').length,
+    approved: applications.filter((a: any) => a.status === 'approved').length,
+    rejected: applications.filter((a: any) => a.status === 'rejected').length,
+    withdrawn: applications.filter((a: any) => a.status === 'withdrawn').length
+  };
+}
+
+async function getMarketInsights(supabase: any, properties: any[]): Promise<{
+  avg_market_rent: number;
+  your_avg_rent: number;
+  price_positioning: 'above' | 'below' | 'at_market';
+}> {
+  if (properties.length === 0) {
+    return {
+      avg_market_rent: 0,
+      your_avg_rent: 0,
+      price_positioning: 'at_market'
+    };
+  }
+
+  const city = properties[0]?.city;
+  const { data: marketProps } = await supabase
+    .from('properties')
+    .select('monthly_rent')
+    .eq('city', city)
+    .eq('moderation_status', 'approved')
+    .not('monthly_rent', 'is', null);
+
+  const avgMarketRent = marketProps?.length > 0
+    ? marketProps.reduce((sum: number, p: any) => sum + Number(p.monthly_rent), 0) / marketProps.length
+    : 0;
+
+  const yourAvgRent = properties.reduce((sum: number, p: any) => sum + Number(p.monthly_rent || 0), 0) / properties.length;
+
+  const diff = yourAvgRent - avgMarketRent;
+  const positioning: 'above' | 'below' | 'at_market' = Math.abs(diff) < avgMarketRent * 0.05 
+    ? 'at_market' 
+    : diff > 0 
+      ? 'above' 
+      : 'below';
+
+  return {
+    avg_market_rent: Math.round(avgMarketRent),
+    your_avg_rent: Math.round(yourAvgRent),
+    price_positioning: positioning
+  };
+}
+
+function generateRecommendations(summary: any, market: any, properties: any[]): string[] {
+  const recommendations: string[] = [];
+
+  if (summary.occupancy_rate < 70) {
+    recommendations.push("Votre taux d'occupation est faible. Envisagez de revoir vos prix ou d'améliorer vos photos.");
+  }
+
+  if (summary.avg_conversion_rate < 5) {
+    recommendations.push("Peu de vues se convertissent en candidatures. Vérifiez la qualité des descriptions et des visuels.");
+  }
+
+  if (market.price_positioning === 'above' && summary.total_views < 50) {
+    recommendations.push("Vos prix sont au-dessus du marché avec peu de vues. Considérez un ajustement tarifaire.");
+  }
+
+  const lowViewProps = properties.filter((p: any) => p.views < 10);
+  if (lowViewProps.length > 0) {
+    recommendations.push(`${lowViewProps.length} propriété(s) ont moins de 10 vues. Optimisez leur visibilité.`);
+  }
+
+  const longVacant = properties.filter((p: any) => p.days_vacant && p.days_vacant > 90);
+  if (longVacant.length > 0) {
+    recommendations.push(`${longVacant.length} propriété(s) sont vacantes depuis plus de 3 mois. Analysez les causes.`);
+  }
+
+  return recommendations;
 }

@@ -1511,6 +1511,54 @@ export type Database = {
           },
         ]
       }
+      report_history: {
+        Row: {
+          created_at: string | null
+          email_sent_at: string | null
+          error_message: string | null
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          owner_id: string
+          period_end: string
+          period_start: string
+          report_data: Json
+          report_type: string
+          sent_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_sent_at?: string | null
+          error_message?: string | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          owner_id: string
+          period_end: string
+          period_start: string
+          report_data: Json
+          report_type: string
+          sent_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_sent_at?: string | null
+          error_message?: string | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          owner_id?: string
+          period_end?: string
+          period_start?: string
+          report_data?: Json
+          report_type?: string
+          sent_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       reputation_scores: {
         Row: {
           as_landlord_reviews: number | null
@@ -2153,6 +2201,18 @@ export type Database = {
           open_rate: number | null
           opened_count: number | null
           total_sent: number | null
+        }
+        Relationships: []
+      }
+      report_statistics: {
+        Row: {
+          failed_count: number | null
+          month: string | null
+          report_type: string | null
+          sent_count: number | null
+          success_rate: number | null
+          total_reports: number | null
+          unique_owners: number | null
         }
         Relationships: []
       }
