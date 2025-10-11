@@ -69,12 +69,12 @@ const UnifiedRoleSelection = () => {
     <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight animate-fade-in">
-            Prêt à <span className="text-primary">commencer</span> ?
+        <div className="text-center mb-12 space-y-4">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+            Prêt à vous lancer ?
           </h2>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto animate-fade-in">
-            Rejoignez des milliers d&apos;Ivoiriens qui font confiance à Mon Toit
+          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto">
+            Choisissez votre profil et commencez votre parcours immobilier
           </p>
         </div>
         
@@ -144,26 +144,6 @@ const UnifiedRoleSelection = () => {
               </div>
             );
           })}
-        </div>
-
-        {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center animate-fade-in" style={{ animationDelay: '450ms' }}>
-          <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="text-2xl font-bold text-primary mb-1">15,000+</div>
-            <div className="text-xs text-muted-foreground">Dossiers créés</div>
-          </div>
-          <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="text-2xl font-bold text-primary mb-1">48h</div>
-            <div className="text-xs text-muted-foreground">Vérification moyenne</div>
-          </div>
-          <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="text-2xl font-bold text-primary mb-1">3,500+</div>
-            <div className="text-xs text-muted-foreground">Propriétaires actifs</div>
-          </div>
-          <div className="p-4 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="text-2xl font-bold text-primary mb-1">98%</div>
-            <div className="text-xs text-muted-foreground">Satisfaction</div>
-          </div>
         </div>
 
         {/* Help Section */}

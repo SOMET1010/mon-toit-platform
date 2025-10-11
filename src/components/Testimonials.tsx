@@ -119,35 +119,15 @@ const Testimonials = () => {
           </Carousel>
         </div>
 
-        {/* Footer avec social proof */}
-        <div className="max-w-4xl mx-auto mt-16">
-          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/10 rounded-2xl p-8 md:p-10">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-3 text-center md:text-left">
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-2xl md:text-3xl font-bold text-foreground">98%</div>
-                  <div className="text-sm text-muted-foreground">de nos utilisateurs recommandent Mon Toit</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" variant="default">
-                  <Link to="/auth">Rejoindre la communauté</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/certification">En savoir plus</Link>
-                </Button>
-              </div>
-            </div>
-            
-            <div className="mt-6 pt-6 border-t border-primary/10 text-center">
-              <p className="text-sm text-muted-foreground">
-                Plus de <span className="font-semibold text-foreground">15,000 transactions sécurisées</span> grâce à la certification ANSUT
-              </p>
-            </div>
+        {/* Footer CTA simplifié */}
+        <div className="max-w-4xl mx-auto mt-16 text-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <Button asChild size="lg" variant="default">
+              <Link to="/auth">Rejoindre la communauté</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/certification">En savoir plus</Link>
+            </Button>
           </div>
         </div>
       </div>

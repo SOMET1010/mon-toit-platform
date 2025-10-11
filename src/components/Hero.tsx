@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, CheckCircle2, Users, Building2, Star, PlusCircle } from "lucide-react";
+import { Search, CheckCircle2 } from "lucide-react";
 import heroImage from "@/assets/hero-slide-1.jpg";
 
 const Hero = () => {
@@ -37,14 +37,6 @@ const Hero = () => {
       {/* Content */}
       <div className="relative container mx-auto px-6 sm:px-8 md:px-4 py-20 md:py-28 max-w-7xl z-10 animate-fade-in">
         <div className="max-w-2xl lg:max-w-xl animate-fade-in-slow">
-          {/* Badge Nouveauté */}
-          <div className="inline-flex items-center gap-2 bg-warning/10 border-2 border-warning px-4 py-2 rounded-full mb-4 animate-badge-appear">
-            <span className="text-xl">🔥</span>
-            <span className="text-sm font-bold text-warning uppercase tracking-wide">
-              Nouveau : État des travaux affiché
-            </span>
-          </div>
-
           {/* Badge Gratuit */}
           <div className="inline-flex items-center gap-2 bg-secondary/10 border-2 border-secondary px-4 py-2 rounded-full mb-6">
             <CheckCircle2 className="h-5 w-5 text-secondary" />
@@ -68,63 +60,49 @@ const Hero = () => {
             <span className="text-foreground font-semibold">Trouvez, louez ou publiez votre logement</span> en toute confiance avec la première plateforme certifiée ANSUT en Côte d'Ivoire.
           </p>
 
-          {/* Primary CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-10">
+          {/* Search bar rapide */}
+          <div className="relative max-w-2xl mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Cocody, Yopougon, Marcory..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              className="pl-12 h-14 text-lg border-2 border-primary/20 focus:border-primary rounded-full"
+            />
+          </div>
+
+          {/* Primary CTA + Secondary Link */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
             <Button 
               size="lg" 
               className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-secondary hover:bg-secondary/90 text-white rounded-full inline-flex items-center gap-2"
-              onClick={() => navigate('/recherche')}
+              onClick={handleSearch}
             >
               <Search className="h-5 w-5" />
               Je cherche un logement
             </Button>
-          <Button 
-            size="lg" 
-            className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-white rounded-full inline-flex items-center gap-2"
-            onClick={() => navigate('/auth?type=proprietaire')}
-          >
-            <PlusCircle className="h-5 w-5" />
-            Je mets en location
-          </Button>
+            
+            <Link 
+              to="/auth?type=proprietaire" 
+              className="text-primary hover:text-primary/80 font-semibold underline underline-offset-4 transition-colors"
+            >
+              Je suis propriétaire
+            </Link>
           </div>
 
-          {/* Note ANSUT */}
-          <div className="flex items-center gap-2 mb-8 text-sm text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 text-secondary" />
-            <span>✨ Service financé par l'ANSUT</span>
-          </div>
-
-          {/* Social Proof Stats - White Cards */}
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-            <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6 border border-primary/10 hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div className="flex flex-col items-center text-center">
-                <Users className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-primary mb-2" />
-                <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">12 000+</p>
-                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-semibold mt-1">
-                  locataires certifiés
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6 border border-secondary/10 hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div className="flex flex-col items-center text-center">
-                <Building2 className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-secondary mb-2" />
-                <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">3 500+</p>
-                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-semibold mt-1">
-                  logements vérifiés
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6 border border-secondary/10 hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div className="flex flex-col items-center text-center">
-                <Star className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-secondary fill-secondary mb-2" />
-                <p className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">4,8/5</p>
-                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-semibold mt-1">
-                  Sur 200+ avis
-                </p>
-              </div>
-            </div>
+          {/* Recherches rapides */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted-foreground">Recherches populaires :</span>
+            {['Cocody', 'Yopougon', 'Marcory'].map((location) => (
+              <button
+                key={location}
+                onClick={() => handleQuickSearch(location)}
+                className="px-3 py-1 text-sm bg-white border border-primary/20 rounded-full hover:bg-primary/5 hover:border-primary transition-all"
+              >
+                {location}
+              </button>
+            ))}
           </div>
         </div>
       </div>
