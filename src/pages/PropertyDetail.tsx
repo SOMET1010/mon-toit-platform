@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -18,9 +20,11 @@ import {
 import { getPropertyStatusLabel } from '@/constants';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import { toast } from '@/hooks/use-toast';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { MediaGallery } from '@/components/property/MediaGallery';
+import { LocationSection } from '@/components/property/LocationSection';
 import { VerificationGuard } from '@/components/application/VerificationGuard';
 import { GuestContactForm } from '@/components/messaging/GuestContactForm';
 import { TitleDeedSection } from '@/components/property/TitleDeedSection';
@@ -51,6 +55,7 @@ const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { canAccessAdminDashboard } = usePermissions();
   const { toggleFavorite, isFavorite } = useFavorites();
   const [property, setProperty] = useState<Property | null>(null);
   const [owner, setOwner] = useState<PropertyOwner | null>(null);
@@ -94,6 +99,21 @@ const PropertyDetail = () => {
         // Property doesn't exist (deleted or never existed)
         setLoading(false);
         return; // Just show "Bien introuvable", no toast
+      }
+
+      // Vérifier si bien loué ET utilisateur n'est pas le propriétaire
+      if (
+        propertyData.status === 'loué' && 
+        propertyData.owner_id !== user?.id &&
+        !canAccessAdminDashboard
+      ) {
+        toast({
+          title: "Bien non disponible",
+          description: "Ce bien n'est plus disponible à la location.",
+          variant: "destructive"
+        });
+        navigate('/recherche');
+        return;
       }
 
       setProperty(propertyData);
@@ -300,6 +320,7 @@ const PropertyDetail = () => {
               {/* Multimedia Gallery */}
               <div className="relative">
                 <MediaGallery
+                  propertyId={property.id}
                   images={allImages}
                   videoUrl={property.video_url || undefined}
                   virtualTourUrl={property.virtual_tour_url || undefined}
@@ -415,20 +436,25 @@ const PropertyDetail = () => {
               </Card>
 
               {/* Location */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Localisation</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-medium">{property.city}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{property.address}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {property.latitude && property.longitude && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Localisation
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <LocationSection 
+                      propertyId={property.id}
+                      latitude={property.latitude}
+                      longitude={property.longitude}
+                      city={property.city}
+                      address={property.address}
+                    />
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Work Status Section */}
               <WorkStatusSection

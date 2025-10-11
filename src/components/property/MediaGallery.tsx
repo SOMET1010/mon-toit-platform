@@ -5,15 +5,21 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { VideoPlayer } from "./VideoPlayer";
 import { PanoramaViewer } from "./PanoramaViewer";
 import { FloorPlanViewer } from "./FloorPlanViewer";
 import { OptimizedImage } from "./OptimizedImage";
 import { SwipeGallery } from "./SwipeGallery";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Image, Video, Globe, Layout } from "lucide-react";
+import { usePropertyImageAccess } from "@/hooks/usePropertyImageAccess";
+import { Image, Video, Globe, Layout, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface MediaGalleryProps {
+  propertyId: string;
   images: string[];
   videoUrl?: string;
   virtualTourUrl?: string;
@@ -22,6 +28,7 @@ interface MediaGalleryProps {
 }
 
 export const MediaGallery = ({
+  propertyId,
   images = [],
   videoUrl,
   virtualTourUrl,
@@ -31,6 +38,19 @@ export const MediaGallery = ({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const isMobile = useIsMobile();
+
+  // Hook pour accès images
+  const { 
+    maxImages, 
+    showBlur, 
+    showHDPhotos, 
+    show3DTour, 
+    showFloorPlans 
+  } = usePropertyImageAccess(propertyId);
+
+  // Limiter les images affichées
+  const displayImages = images.slice(0, maxImages);
+  const hiddenImagesCount = images.length - displayImages.length;
 
   const hasVideo = !!videoUrl;
   const has360 = panoramicImages.length > 0;
@@ -47,7 +67,7 @@ export const MediaGallery = ({
         <TabsList className="w-full justify-start">
           <TabsTrigger value="photos" className="gap-2">
             <Image className="h-4 w-4" />
-            Photos ({images.length})
+            Photos ({displayImages.length}/{images.length})
           </TabsTrigger>
           {hasVideo && (
             <TabsTrigger value="video" className="gap-2">
@@ -58,7 +78,7 @@ export const MediaGallery = ({
               </Badge>
             </TabsTrigger>
           )}
-          {has360 && (
+          {has360 && show3DTour && (
             <TabsTrigger value="360" className="gap-2">
               <Globe className="h-4 w-4" />
               Vue 360°
@@ -67,7 +87,7 @@ export const MediaGallery = ({
               </Badge>
             </TabsTrigger>
           )}
-          {hasPlans && (
+          {hasPlans && showFloorPlans && (
             <TabsTrigger value="plans" className="gap-2">
               <Layout className="h-4 w-4" />
               Plans
@@ -76,48 +96,84 @@ export const MediaGallery = ({
         </TabsList>
 
         <TabsContent value="photos" className="space-y-4">
+          {/* Alert si photos limitées */}
+          {!showHDPhotos && (
+            <Alert>
+              <Lock className="h-4 w-4" />
+              <AlertTitle>
+                {showBlur ? 'Aperçu limité' : 'Photos HD verrouillées'}
+              </AlertTitle>
+              <AlertDescription className="space-y-2">
+                <p>
+                  {showBlur 
+                    ? 'Créez un compte pour voir plus de photos et postuler.'
+                    : `Validez votre dossier pour accéder aux ${hiddenImagesCount} photos HD restantes, la visite 3D et les plans du bien.`
+                  }
+                </p>
+                <Button asChild size="sm" className="w-full sm:w-auto">
+                  <Link to={showBlur ? '/auth' : '/verification'}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    {showBlur ? 'Créer un compte' : 'Valider mon dossier'}
+                  </Link>
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {isMobile ? (
             /* Mobile: SwipeGallery */
             <SwipeGallery 
-              images={images}
+              images={displayImages}
               onImageChange={(idx) => setLightboxIndex(idx)}
+              className={cn(showBlur && 'blur-sm')}
             />
           ) : (
             /* Desktop: Original layout */
             <>
               {/* Main image */}
-              {images.length > 0 && (
+              {displayImages.length > 0 && (
                 <div
-                  className="relative aspect-video w-full overflow-hidden rounded-lg cursor-pointer group"
-                  onClick={() => openLightbox(0)}
+                  className={cn(
+                    "relative aspect-video w-full overflow-hidden rounded-lg cursor-pointer group",
+                    showBlur && "blur-sm"
+                  )}
+                  onClick={() => !showBlur && openLightbox(0)}
                 >
                   <OptimizedImage
-                    src={images[0]}
+                    src={displayImages[0]}
                     alt="Photo principale"
                     priority={true}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  {showBlur && (
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <Lock className="h-12 w-12 text-white" />
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Thumbnail grid */}
-              {images.length > 1 && (
+              {displayImages.length > 1 && (
                 <div className="grid grid-cols-4 gap-2">
-                  {images.slice(1, 5).map((image, index) => (
+                  {displayImages.slice(1, 5).map((image, index) => (
                     <div
                       key={index + 1}
-                      className="relative aspect-video overflow-hidden rounded-md cursor-pointer group"
-                      onClick={() => openLightbox(index + 1)}
+                      className={cn(
+                        "relative aspect-video overflow-hidden rounded-md cursor-pointer group",
+                        showBlur && "blur-sm"
+                      )}
+                      onClick={() => !showBlur && openLightbox(index + 1)}
                     >
                       <OptimizedImage
                         src={image}
                         alt={`Photo ${index + 2}`}
                         className="w-full h-full object-cover transition-transform group-hover:scale-105"
                       />
-                      {index === 3 && images.length > 5 && (
+                      {index === 3 && hiddenImagesCount > 0 && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
-                          +{images.length - 5} photos
+                          <Lock className="h-6 w-6 mr-2" />
+                          +{hiddenImagesCount}
                         </div>
                       )}
                     </div>

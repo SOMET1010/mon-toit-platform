@@ -733,6 +733,62 @@ export type Database = {
         }
         Relationships: []
       }
+      maintenance_requests: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          description: string
+          id: string
+          images: Json | null
+          property_id: string
+          request_type: string
+          requester_id: string
+          status: string
+          title: string
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          images?: Json | null
+          property_id: string
+          request_type: string
+          requester_id: string
+          status?: string
+          title: string
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          images?: Json | null
+          property_id?: string
+          request_type?: string
+          requester_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_requests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_templates: {
         Row: {
           content: string
@@ -2285,6 +2341,10 @@ export type Database = {
       calculate_reputation_score: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      can_access_maintenance: {
+        Args: { p_property_id: string }
+        Returns: boolean
       }
       check_api_rate_limit: {
         Args: {

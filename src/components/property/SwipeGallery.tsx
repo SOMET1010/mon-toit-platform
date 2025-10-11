@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 interface SwipeGalleryProps {
   images: string[];
   onImageChange?: (index: number) => void;
+  className?: string;
 }
 
-export const SwipeGallery = ({ images, onImageChange }: SwipeGalleryProps) => {
+export const SwipeGallery = ({ images, onImageChange, className }: SwipeGalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -128,7 +129,7 @@ export const SwipeGallery = ({ images, onImageChange }: SwipeGalleryProps) => {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onClick={handleTap}
-        className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted touch-none"
+        className={`relative aspect-video w-full overflow-hidden rounded-lg bg-muted touch-none ${className || ''}`}
       >
         <div
           className="w-full h-full transition-transform duration-200"

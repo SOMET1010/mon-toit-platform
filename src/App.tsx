@@ -33,6 +33,7 @@ const Application = lazy(() => import("./pages/Application"));
 const Applications = lazy(() => import("./pages/Applications"));
 const Leases = lazy(() => import("./pages/Leases"));
 const Payments = lazy(() => import("./pages/Payments"));
+const Maintenance = lazy(() => import("./pages/Maintenance"));
 
 // Load other pages normally
 import Certification from "./pages/Certification";
@@ -231,6 +232,16 @@ const AppContent = () => {
               element={
                 <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
                   <PropertyApplications />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/maintenance/:propertyId" 
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Maintenance />
+                  </Suspense>
                 </ProtectedRoute>
               } 
             />
