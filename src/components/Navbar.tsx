@@ -184,11 +184,14 @@ const Navbar = () => {
               </>
             ) : (
               <Button 
-                size="sm" 
-                className="hidden md:flex" 
+                size="default" 
+                className="md:flex font-semibold shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary to-primary-glow hover:scale-105" 
                 asChild
               >
-                <Link to="/auth">Créer un compte / Se connecter</Link>
+                <Link to="/auth">
+                  <User className="mr-2 h-4 w-4" />
+                  Créer un compte / Se connecter
+                </Link>
               </Button>
             )}
             

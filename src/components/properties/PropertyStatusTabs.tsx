@@ -9,6 +9,7 @@ interface PropertyStatusTabsProps {
     disponible: number;
     loué: number;
     en_maintenance: number;
+    en_negociation: number;
     pending: number;
     rejected: number;
   };
@@ -17,7 +18,7 @@ interface PropertyStatusTabsProps {
 const PropertyStatusTabs = ({ activeStatus, onStatusChange, counts }: PropertyStatusTabsProps) => {
   return (
     <Tabs value={activeStatus} onValueChange={onStatusChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
         <TabsTrigger value="all" className="gap-2">
           Tous
           <Badge variant="secondary" className="ml-1">
@@ -40,6 +41,12 @@ const PropertyStatusTabs = ({ activeStatus, onStatusChange, counts }: PropertySt
           Maintenance
           <Badge variant="secondary" className="ml-1">
             {counts.en_maintenance}
+          </Badge>
+        </TabsTrigger>
+        <TabsTrigger value="en_negociation" className="gap-2">
+          En négociation
+          <Badge variant="secondary" className="ml-1 bg-negotiation/20 text-negotiation">
+            {counts.en_negociation}
           </Badge>
         </TabsTrigger>
         <TabsTrigger value="pending" className="gap-2">

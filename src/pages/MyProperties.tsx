@@ -150,6 +150,7 @@ const MyProperties = () => {
     disponible: properties.filter(p => p.status === 'disponible').length,
     loué: properties.filter(p => p.status === 'loué').length,
     en_maintenance: properties.filter(p => p.status === 'en_maintenance').length,
+    en_negociation: properties.filter(p => p.status === 'en_negociation').length,
     pending: properties.filter(p => p.moderation_status === 'pending').length,
     rejected: properties.filter(p => p.moderation_status === 'rejected').length,
   }), [properties]);

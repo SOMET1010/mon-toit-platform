@@ -173,6 +173,8 @@ export const PropertyCard = ({
               className={`rounded-lg font-semibold shadow-md flex items-center gap-1 ${
                 property.status === 'disponible' 
                   ? 'bg-primary text-primary-foreground' 
+                  : property.status === 'en_negociation'
+                  ? 'bg-negotiation text-negotiation-foreground'
                   : 'bg-gray-500 text-white'
               }`}
               role="status"

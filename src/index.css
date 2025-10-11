@@ -17,23 +17,23 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    /* Primary palette - Bleu ANSUT Officiel #2256a3 - CONSERVÉ */
-    --primary-50: 218 65.5% 97%;
-    --primary-100: 218 65.5% 92%;
-    --primary: 218 65.5% 38.6%;
-    --primary-500: 218 65.5% 38.6%;
-    --primary-700: 218 65.5% 30%;
-    --primary-900: 218 65.5% 20%;
+    /* Primary palette - Bleu professionnel immobilier (#2C5F7F - bleu profond) */
+    --primary-50: 202 48% 95%;
+    --primary-100: 202 48% 88%;
+    --primary: 202 48% 34%; /* #2C5F7F */
+    --primary-500: 202 48% 34%;
+    --primary-700: 202 48% 26%;
+    --primary-900: 202 48% 18%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 218 65.5% 48.6%;
+    --primary-glow: 202 48% 44%;
 
-    /* Secondary palette - Terre cuite adoucie (au lieu d'orange vif) */
-    --secondary-50: 25 55% 95%;
-    --secondary-100: 25 55% 90%;
-    --secondary: 25 55% 55%; /* #d97136 */
-    --secondary-500: 25 55% 55%;
-    --secondary-700: 25 55% 45%;
-    --secondary-900: 25 55% 35%;
+    /* Secondary palette - Terre cuite élégante (#8B7355 - marron chaleureux) */
+    --secondary-50: 30 25% 95%;
+    --secondary-100: 30 25% 88%;
+    --secondary: 30 25% 44%; /* #8B7355 */
+    --secondary-500: 30 25% 44%;
+    --secondary-700: 30 25% 36%;
+    --secondary-900: 30 25% 28%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -47,8 +47,8 @@ All colors MUST be HSL.
     --muted: 0 0% 95%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 40 30% 65%; /* Beige doré #c89f6f */
-    --accent-foreground: 0 0% 15%;
+    --accent: 140 32% 42%; /* Vert sauge immobilier #4A7C59 */
+    --accent-foreground: 0 0% 100%;
     
     /* ANSUT Additional Colors from Official Charter */
     --ansut-black: 0 7% 11%;      /* #1D1D1B */
@@ -75,18 +75,18 @@ All colors MUST be HSL.
     --status-neutral: 215 16% 47%;
     --status-neutral-foreground: 0 0% 100%;
 
-    /* Gradients - ANSUT Official Colors */
-    --gradient-primary: linear-gradient(135deg, hsl(218 65.5% 38.6%), hsl(218 65.5% 48.6%));
-    --gradient-secondary: linear-gradient(135deg, hsl(28 87% 54%), hsl(28 87% 64%));
-    --gradient-hero: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.95), hsl(28 87% 54% / 0.85));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(218 65.5% 38.6% / 0.02) 100%);
+    /* Gradients - Palette immobilière professionnelle */
+    --gradient-primary: linear-gradient(135deg, hsl(202 48% 34%), hsl(202 48% 44%));
+    --gradient-secondary: linear-gradient(135deg, hsl(30 25% 44%), hsl(30 25% 54%));
+    --gradient-hero: linear-gradient(135deg, hsl(202 48% 34% / 0.95), hsl(140 32% 42% / 0.85));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(202 48% 34% / 0.02) 100%);
     
-    /* Shadows - ANSUT Official Colors */
-    --shadow-primary: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.3);
+    /* Shadows - Palette immobilière professionnelle */
+    --shadow-primary: 0 10px 40px -10px hsl(202 48% 34% / 0.3);
     --shadow-card: 0 4px 20px -2px hsl(20 14% 10% / 0.08);
-    --shadow-soft: 0 2px 20px -2px hsl(218 65.5% 38.6% / 0.1);
-    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --shadow-elevated: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.3);
+    --shadow-soft: 0 2px 20px -2px hsl(202 48% 34% / 0.1);
+    --shadow-glass: 0 8px 32px 0 rgba(44, 95, 127, 0.15);
+    --shadow-elevated: 0 10px 40px -10px hsl(202 48% 34% / 0.3);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -116,23 +116,23 @@ All colors MUST be HSL.
     --popover: 20 15% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary palette - Bleu ANSUT Officiel #2256a3 */
-    --primary-50: 218 65.5% 97%;
-    --primary-100: 218 65.5% 92%;
-    --primary: 218 65.5% 38.6%;
-    --primary-500: 218 65.5% 38.6%;
-    --primary-700: 218 65.5% 30%;
-    --primary-900: 218 65.5% 20%;
+    /* Primary palette - Bleu professionnel immobilier (Dark mode) */
+    --primary-50: 202 48% 95%;
+    --primary-100: 202 48% 88%;
+    --primary: 202 48% 42%; /* Plus clair pour dark mode */
+    --primary-500: 202 48% 42%;
+    --primary-700: 202 48% 34%;
+    --primary-900: 202 48% 26%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 218 65.5% 48.6%;
+    --primary-glow: 202 48% 52%;
 
-    /* Secondary palette - Orange ANSUT Officiel #f08224 */
-    --secondary-50: 28 87% 97%;
-    --secondary-100: 28 87% 92%;
-    --secondary: 28 87% 54%;
-    --secondary-500: 28 87% 54%;
-    --secondary-700: 28 87% 44%;
-    --secondary-900: 28 87% 30%;
+    /* Secondary palette - Terre cuite (Dark mode) */
+    --secondary-50: 30 25% 95%;
+    --secondary-100: 30 25% 88%;
+    --secondary: 30 25% 52%; /* Plus clair pour dark mode */
+    --secondary-500: 30 25% 52%;
+    --secondary-700: 30 25% 44%;
+    --secondary-900: 30 25% 36%;
     --secondary-foreground: 0 0% 100%;
     
     /* Success */
@@ -146,7 +146,7 @@ All colors MUST be HSL.
     --muted: 20 15% 15%;
     --muted-foreground: 20 10% 65%;
 
-    --accent: 218 65.5% 38.6%;
+    --accent: 140 32% 50%; /* Vert sauge plus clair pour dark mode */
     --accent-foreground: 0 0% 100%;
     
     /* ANSUT Additional Colors from Official Charter */
@@ -160,18 +160,18 @@ All colors MUST be HSL.
     --input: 20 15% 20%;
     --ring: 22 95% 63%;
 
-    /* Gradients - ANSUT Official Colors */
-    --gradient-primary: linear-gradient(135deg, hsl(218 65.5% 38.6%), hsl(218 65.5% 48.6%));
-    --gradient-secondary: linear-gradient(135deg, hsl(28 87% 54%), hsl(28 87% 64%));
-    --gradient-hero: linear-gradient(135deg, hsl(218 65.5% 38.6% / 0.95), hsl(28 87% 54% / 0.85));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(218 65.5% 38.6% / 0.03) 100%);
+    /* Gradients - Palette immobilière (Dark mode) */
+    --gradient-primary: linear-gradient(135deg, hsl(202 48% 42%), hsl(202 48% 52%));
+    --gradient-secondary: linear-gradient(135deg, hsl(30 25% 52%), hsl(30 25% 62%));
+    --gradient-hero: linear-gradient(135deg, hsl(202 48% 42% / 0.95), hsl(140 32% 50% / 0.85));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(202 48% 42% / 0.03) 100%);
     
-    /* Shadows - ANSUT Official Colors */
-    --shadow-primary: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.4);
+    /* Shadows - Palette immobilière (Dark mode) */
+    --shadow-primary: 0 10px 40px -10px hsl(202 48% 42% / 0.4);
     --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
-    --shadow-soft: 0 2px 20px -2px hsl(218 65.5% 38.6% / 0.15);
-    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
-    --shadow-elevated: 0 10px 40px -10px hsl(218 65.5% 38.6% / 0.4);
+    --shadow-soft: 0 2px 20px -2px hsl(202 48% 42% / 0.15);
+    --shadow-glass: 0 8px 32px 0 rgba(44, 95, 127, 0.25);
+    --shadow-elevated: 0 10px 40px -10px hsl(202 48% 42% / 0.4);
 
     --sidebar-background: 20 15% 10%;
     --sidebar-foreground: 0 0% 98%;
