@@ -32,6 +32,7 @@ import { ProcessingAnalytics } from '@/components/admin/ProcessingAnalytics';
 import { SeedDemoDataButton } from '@/components/admin/SeedDemoDataButton';
 import { ElectronicSignaturesDashboard } from '@/components/admin/ElectronicSignaturesDashboard';
 import { CertificateManager } from '@/components/admin/CertificateManager';
+import { PropertyAlertsMonitor } from '@/components/admin/PropertyAlertsMonitor';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -275,6 +276,11 @@ const AdminDashboard = () => {
                     <LeaseTemplateManager />
                   </TabsContent>
                 </Tabs>
+              )}
+
+              {/* Alertes Propriétés */}
+              {activeTab === 'alerts' && (
+                <PropertyAlertsMonitor />
               )}
             </main>
           </SidebarInset>

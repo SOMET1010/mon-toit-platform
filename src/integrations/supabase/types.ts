@@ -2296,6 +2296,18 @@ export type Database = {
           last_access: string
         }[]
       }
+      get_alert_statistics: {
+        Args: { p_end_date?: string; p_start_date?: string }
+        Returns: {
+          avg_click_rate: number
+          avg_open_rate: number
+          total_alerts_active: number
+          total_alerts_sent_month: number
+          total_alerts_sent_today: number
+          total_alerts_sent_week: number
+          users_with_alerts: number
+        }[]
+      }
       get_failed_login_attempts: {
         Args: { hours_ago?: number }
         Returns: {

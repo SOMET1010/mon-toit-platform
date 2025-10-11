@@ -24,6 +24,7 @@ import {
   Home,
   Users,
   Settings,
+  Bell,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -68,6 +69,7 @@ export const AdminSidebar = ({ activeTab, onTabChange, badges }: AdminSidebarPro
       items: [
         { id: 'processing', label: 'Traitement', icon: Clock, badge: badges.overdueApplications },
         { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+        { id: 'alerts', label: 'Alertes Propriétés', icon: Bell },
         { id: 'disputes', label: 'Litiges', icon: AlertTriangle, badge: badges.disputes },
         { id: 'moderation', label: 'Modération', icon: Flag },
         { id: 'reporting', label: 'Rapports', icon: FileBarChart },
