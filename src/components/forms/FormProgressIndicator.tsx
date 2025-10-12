@@ -1,5 +1,6 @@
 import { CheckCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export interface Step {
   id: string;
@@ -26,11 +27,19 @@ export const FormProgressIndicator = ({ steps, currentStep, className }: FormPro
             <div key={step.id} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 {/* Circle */}
-                <div
+                <motion.div
+                  animate={{
+                    scale: isCurrent ? [1, 1.1, 1] : 1,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: isCurrent ? Infinity : 0,
+                    repeatDelay: 2,
+                  }}
                   className={cn(
                     'flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all',
                     isCompleted && 'bg-primary border-primary text-primary-foreground',
-                    isCurrent && 'border-primary text-primary scale-110',
+                    isCurrent && 'border-primary text-primary',
                     isUpcoming && 'border-muted-foreground/30 text-muted-foreground'
                   )}
                 >
@@ -39,7 +48,7 @@ export const FormProgressIndicator = ({ steps, currentStep, className }: FormPro
                   ) : (
                     <Circle className={cn('h-5 w-5', isCurrent && 'fill-primary')} />
                   )}
-                </div>
+                </motion.div>
                 {/* Label */}
                 <span
                   className={cn(

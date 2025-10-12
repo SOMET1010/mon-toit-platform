@@ -35,6 +35,10 @@ const Search = () => {
   const { filteredProperties, handleFilterChange, handleLocationSearch, handleReset } = 
     usePropertyFilters(properties);
 
+  const handleNavigateToProperty = (propertyId: string) => {
+    navigate(`/properties/${propertyId}`);
+  };
+
   useEffect(() => {
     if (properties.length > 0) {
       const location = searchParams.get('location');
@@ -49,108 +53,88 @@ const Search = () => {
         handleFilterChange(filters as any);
       }
     }
-  }, [properties, searchParams]);
+  }, [searchParams, properties.length]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1 container mx-auto px-4 py-8 pt-24">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Recherche de biens</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <PropertyCardSkeleton key={i} />
-              ))}
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  const handleToggleFavorite = async (propertyId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  const handleFavoriteClick = (propertyId: string) => {
     if (!user) {
-      toast.error("Connectez-vous pour ajouter des favoris");
+      toast.error("Vous devez être connecté pour ajouter des favoris");
       return;
     }
-    toggleFavorite(propertyId);
+
+    await toggleFavorite(propertyId);
+  };
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast.error("Vous devez être connecté pour contacter le propriétaire");
+      return;
+    }
+
+    toast.info("Fonctionnalité de contact en cours de développement");
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header role="banner">
-        <Navbar />
-      </header>
-      
-      <main role="main" className="flex-1 container mx-auto px-4 py-8 pt-24">
-        <div className="max-w-7xl mx-auto">
-          <DynamicBreadcrumb />
-          
-          {!user && (
-            <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <Eye className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Accès libre aux annonces</h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Parcourez toutes les annonces sans créer de compte. Pour postuler, envoyer des messages 
-                    ou accéder aux photos HD, <Link to="/auth" className="text-primary font-medium hover:underline">inscrivez-vous gratuitement</Link>.
-                  </p>
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-green-600" /> Consultation illimitée
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-green-600" /> Filtres avancés
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Lock className="h-3 w-3 text-orange-600" /> Candidature (compte requis)
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {user && properties.length > 0 && !isLoading && (
-            <div className="mb-8">
-              <RecommendationsSection 
-                userId={user.id} 
-                type="properties" 
-                limit={5}
-              />
-            </div>
-          )}
+    <div className="min-h-screen flex flex-col page-background">
+      <Navbar />
 
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold">Recherche de biens</h1>
-              <p className="text-muted-foreground mt-1">
-                {filteredProperties.length} bien{filteredProperties.length > 1 ? 's' : ''} trouvé{filteredProperties.length > 1 ? 's' : ''}
-              </p>
-            </div>
+        <main className="flex-1 page-container section-spacing">
+          <DynamicBreadcrumb />
+
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-5xl font-bold mb-4">Rechercher un bien</h1>
+            <p className="text-lg text-muted-foreground">
+              Trouvez le logement idéal parmi {properties.length} annonces
+            </p>
+          </div>
+
+          {/* Filters */}
+          <div className="mb-6">
+            {isMobile ? (
+              <MobileFilters
+                filters={filteredProperties.length > 0 ? {} : {}}
+                onFilterChange={handleFilterChange}
+                onReset={handleReset}
+              />
+            ) : (
+              <PropertyFiltersComponent
+                onFilterChange={handleFilterChange}
+                onLocationSearch={handleLocationSearch}
+                onReset={handleReset}
+              />
+            )}
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-muted-foreground">
+              {filteredProperties.length} {filteredProperties.length > 1 ? 'biens trouvés' : 'bien trouvé'}
+            </p>
+            
             <div className="flex gap-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
-                size="icon"
+                size="sm"
                 onClick={() => setViewMode('grid')}
               >
                 <Grid className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'outline'}
-                size="icon"
+                size="sm"
                 onClick={() => setViewMode('list')}
               >
                 <List className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewMode === 'map' ? 'default' : 'outline'}
-                size="icon"
+                size="sm"
                 onClick={() => setViewMode('map')}
               >
                 <Map className="h-4 w-4" />
@@ -158,78 +142,60 @@ const Search = () => {
             </div>
           </div>
 
-          {isMobile ? (
-            <MobileFilters 
-              onFilterChange={handleFilterChange as any} 
-              onReset={handleReset}
-            />
-          ) : (
-            <PropertyFiltersComponent onFilterChange={handleFilterChange as any} onReset={handleReset} />
-          )}
-
-          {viewMode === 'map' ? (
-            <div className="mt-6 h-[600px] rounded-lg overflow-hidden border">
-              <PropertyMap 
-                properties={filteredProperties.filter(hasCoordinates)}
-                onPropertyClick={(id) => navigate(`/property/${id}`)}
-                onLocationSearch={(lat, lng) => handleLocationSearch(5)}
-                showLocationButton={true}
-              />
-            </div>
-          ) : (
-            <>
-              {filteredProperties.length === 0 ? (
-                <Card className="p-12 text-center border-2 border-dashed border-muted-foreground/20">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                      <SearchIcon className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Aucun résultat trouvé</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Essayez d'ajuster vos filtres ou de rechercher dans une autre ville
-                      </p>
-                      <Button variant="outline" onClick={handleReset}>
-                        Réinitialiser les filtres
-                      </Button>
-                    </div>
+          <PullToRefresh onRefresh={refetch}>
+            {/* Properties Grid/List */}
+            {viewMode === 'map' ? (
+              <Card className="p-4">
+                <PropertyMap properties={filteredProperties.filter(p => hasCoordinates(p.latitude, p.longitude))} />
+              </Card>
+            ) : (
+              <>
+                {isLoading ? (
+                  <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <PropertyCardSkeleton key={i} />
+                    ))}
                   </div>
-                </Card>
-              ) : isMobile ? (
-                <PullToRefresh onRefresh={async () => { await refetch(); }}>
-                  <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6' : 'space-y-4 mt-6'}>
-                    {filteredProperties.map(property => (
+                ) : filteredProperties.length > 0 ? (
+                  <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+                    {filteredProperties.map((property) => (
                       <PropertyCard
                         key={property.id}
                         property={property}
-                        onFavoriteClick={handleFavoriteClick}
-                        isFavorite={user ? isFavorite(property.id) : false}
+                        isFavorite={isFavorite(property.id)}
+                        onToggleFavorite={handleToggleFavorite}
+                        onContactClick={handleContactClick}
+                        viewMode={viewMode}
                       />
                     ))}
                   </div>
-                </PullToRefresh>
-              ) : (
-                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6' : 'space-y-4 mt-6'}>
-                  {filteredProperties.map(property => (
-                    <PropertyCard
-                      key={property.id}
-                      property={property}
-                      onFavoriteClick={handleFavoriteClick}
-                      isFavorite={user ? isFavorite(property.id) : false}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
+                ) : (
+                  <EmptyState
+                    icon={SearchIcon}
+                    title="Aucun bien trouvé"
+                    description="Essayez de modifier vos critères de recherche pour voir plus de résultats"
+                    action={{
+                      label: "Réinitialiser les filtres",
+                      onClick: handleReset
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </PullToRefresh>
+
+          {/* Recommendations */}
+          {user && (
+            <div className="mt-12">
+              <RecommendationsSection />
+            </div>
           )}
-        </div>
-      </main>
-      
-      <footer role="contentinfo">
+        </main>
+
         <Footer />
-      </footer>
-    </div>
+      </div>
   );
 };
 
 export default Search;
+

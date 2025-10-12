@@ -16,6 +16,8 @@ import { toast } from '@/hooks/use-toast';
 import { getClientIP, getDeviceFingerprint, formatRetryAfter } from '@/lib/ipUtils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { logger } from '@/services/logger';
+import { PageTransition } from '@/components/navigation/PageTransition';
+import { BrandBar } from '@/components/ui/brand-bar';
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),

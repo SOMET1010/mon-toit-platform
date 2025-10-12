@@ -1,7 +1,9 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,14 +22,34 @@ const ProtectedRoute = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen page-background">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+            <Lock className="h-16 w-16 text-primary animate-pulse relative" />
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return (
+      <>
+        <div className="min-h-screen page-background flex items-center justify-center">
+          <EmptyState
+            icon={Lock}
+            title="Connexion requise"
+            description="Vous devez être connecté pour accéder à cette page. Redirection en cours..."
+          />
+        </div>
+        <Navigate to="/auth" replace />
+      </>
+    );
   }
 
   // Vérification des user_types
