@@ -8,10 +8,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { FormProgressIndicator, type Step } from '@/components/forms/FormProgressIndicator';
+import { StickyHeader } from '@/components/ui/sticky-header';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { MediaUploader } from '@/components/property/MediaUploader';
 import { type PropertyFormData } from '@/components/property/form/PropertyFormSchema';
 import { PropertyBasicInfo } from '@/components/property/form/PropertyBasicInfo';
@@ -32,6 +33,7 @@ const propertyFormSteps: Step[] = [
 
 const AddProperty = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSticky, setIsSticky] = useState(false);
   const basicInfoRef = useRef<HTMLDivElement>(null);
   const locationRef = useRef<HTMLDivElement>(null);
   const characteristicsRef = useRef<HTMLDivElement>(null);
@@ -53,9 +55,11 @@ const AddProperty = () => {
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
   const [propertyId] = useState<string>(() => crypto.randomUUID());
 
-  // Track scroll position to update current step
+  // Track scroll position to update current step and sticky header
   useEffect(() => {
     const handleScroll = () => {
+      setIsSticky(window.scrollY > 100);
+      
       const sections = [
         { ref: basicInfoRef, step: 0 },
         { ref: locationRef, step: 1 },
@@ -144,6 +148,34 @@ const AddProperty = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      
+      {/* Sticky Header */}
+      {isSticky && (
+        <StickyHeader offsetTop="top-16" className="shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold text-lg">Nouvelle Propriété</h2>
+              <p className="text-sm text-muted-foreground">
+                Étape {currentStep + 1} sur {propertyFormSteps.length}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                toast({
+                  title: "Brouillon sauvegardé",
+                  description: "Vos modifications ont été enregistrées",
+                });
+              }}
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Enregistrer brouillon
+            </Button>
+          </div>
+        </StickyHeader>
+      )}
       
       <main className="flex-1 container mx-auto px-4 py-12 pt-24">
         <div className="max-w-4xl mx-auto">

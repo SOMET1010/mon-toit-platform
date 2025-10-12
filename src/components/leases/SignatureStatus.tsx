@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { celebrateLeaseSigned } from '@/utils/confetti';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 interface SignatureStatusProps {
@@ -32,6 +33,10 @@ export const SignatureStatus = ({ operationId, onComplete }: SignatureStatusProp
 
         if (data.status === 'completed') {
           setProgress(100);
+          
+          // 🎉 Célébration pour bail signé électroniquement
+          celebrateLeaseSigned();
+          
           onComplete();
         } else if (data.status === 'failed') {
           setProgress(0);

@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { FileText, Shield, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { celebrateLeaseSigned } from '@/utils/confetti';
 import { DigitalCertificate } from './DigitalCertificate';
 import { SignatureStatus } from './SignatureStatus';
 import { canSignElectronically } from '@/lib/signature-validation';

@@ -18,6 +18,7 @@ import { ApplicationStatusTracker } from '@/components/application/ApplicationSt
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
 import { logger } from '@/services/logger';
+import { celebrateFirstApplication } from '@/utils/confetti';
 
 type Property = {
   id: string;
@@ -152,9 +153,24 @@ const Application = () => {
         // Don't block application if scoring fails
       }
 
+      // Vérifier si c'est la première candidature de l'utilisateur
+      const { count: previousApplicationsCount } = await supabase
+        .from('rental_applications')
+        .select('id', { count: 'exact', head: true })
+        .eq('applicant_id', user.id);
+
+      const isFirstApplication = previousApplicationsCount === 1; // 1 car on vient de créer une
+
+      // 🎉 Célébration pour première candidature
+      if (isFirstApplication) {
+        celebrateFirstApplication();
+      }
+
       toast({
-        title: 'Candidature soumise avec succès !',
-        description: 'Votre dossier a été envoyé au propriétaire',
+        title: isFirstApplication ? '🎉 Première candidature envoyée !' : 'Candidature soumise avec succès !',
+        description: isFirstApplication 
+          ? 'Félicitations ! Vous venez de faire le premier pas vers votre nouveau logement' 
+          : 'Votre dossier a été envoyé au propriétaire',
       });
 
       navigate(`/property/${propertyId}`);

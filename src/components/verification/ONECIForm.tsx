@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
+import { celebrateCertification } from '@/utils/confetti';
 import { Camera, Upload, CheckCircle, XCircle, AlertCircle, Shield, RefreshCw } from 'lucide-react';
 
 // Configuration
@@ -461,8 +462,12 @@ const ONECIForm = ({ onSubmit }: ONECIFormProps = {}) => {
           .update({ oneci_verified: true })
           .eq('id', user?.id);
 
-        toast.success('Vérification ONECI réussie via Smile ID !', {
-          description: `Score : ${data.similarityScore}%`
+        // 🎉 Célébration avec confetti
+        celebrateCertification();
+
+        toast.success('🎉 Certification ANSUT réussie !', {
+          description: `Score de similarité : ${data.similarityScore}% • Vous êtes maintenant certifié ANSUT`,
+          duration: 5000,
         });
         onSubmit?.();
       } else {
