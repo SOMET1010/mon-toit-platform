@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Shimmer } from "@/components/ui/shimmer";
+import { Home } from "lucide-react";
 
 interface LazyIllustrationProps {
-  src: string;
+  src: string | undefined;
   alt: string;
   className?: string;
   fallback?: React.ReactNode;
@@ -54,13 +55,26 @@ export const LazyIllustration = ({
     console.error(`Failed to load illustration: ${src}`);
   };
 
-  if (error && fallback) {
-    return <>{fallback}</>;
+  if (!src || error) {
+    return (
+      <div className={cn("bg-primary/5 pattern-bogolan flex items-center justify-center", className)}>
+        {fallback || (
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <Home className="h-12 w-12 text-primary/40" />
+            <span className="text-sm font-medium">Illustration à venir</span>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
-      {!isLoaded && <Shimmer className="absolute inset-0" />}
+    <div className={cn("relative overflow-hidden bg-muted", className)}>
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5">
+          <Shimmer className="absolute inset-0" />
+        </div>
+      )}
       
       {isInView && (
         <img
@@ -70,11 +84,12 @@ export const LazyIllustration = ({
           onLoad={handleLoad}
           onError={handleError}
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-500",
-            isLoaded ? "opacity-100" : "opacity-0",
+            "w-full h-full object-cover transition-all duration-700",
+            isLoaded ? "opacity-100 image-loaded" : "opacity-0",
             animate && isLoaded && "animate-fade-in-up"
           )}
           loading="lazy"
+          decoding="async"
         />
       )}
     </div>

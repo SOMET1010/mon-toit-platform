@@ -356,6 +356,53 @@ All colors MUST be HSL.
     animation: float-smooth 6s ease-in-out infinite;
   }
 
+  /* Illustration hover effects */
+  @keyframes scale-smooth {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes parallax-subtle {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-20px); }
+  }
+
+  .illustration-card {
+    @apply relative overflow-hidden;
+  }
+
+  .illustration-card .illustration-bg {
+    @apply transition-all duration-700 ease-out;
+  }
+
+  .illustration-card:hover .illustration-bg {
+    @apply scale-110;
+  }
+
+  .illustration-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 transition-opacity duration-300;
+  }
+
+  .illustration-card:hover .illustration-overlay {
+    @apply opacity-100;
+  }
+
+  /* Lazy load animation */
+  @keyframes image-reveal {
+    0% {
+      opacity: 0;
+      filter: blur(10px);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  .image-loaded {
+    animation: image-reveal 0.5s ease-out forwards;
+  }
+
   .shimmer-effect {
     background: linear-gradient(
       90deg,
