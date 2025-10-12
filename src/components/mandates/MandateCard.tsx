@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Building2, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { ContextualTooltip } from '@/components/help/ContextualTooltip';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,19 +56,31 @@ export function MandateCard({ mandate }: MandateCardProps) {
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <CardTitle className="text-lg">
-                {getMandateTypeLabel(mandate.mandate_type)}
-              </CardTitle>
-              {getStatusBadge(mandate.status)}
-            </div>
-            <CardDescription>
-              {mandate.property_id ? 'Mandat spécifique' : 'Mandat global'} 
-              {' • '}
-              Depuis le {format(new Date(mandate.start_date), 'dd MMMM yyyy', { locale: fr })}
-            </CardDescription>
-          </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <CardTitle className="text-lg">
+                    {getMandateTypeLabel(mandate.mandate_type)}
+                  </CardTitle>
+                  {getStatusBadge(mandate.status)}
+                  <ContextualTooltip
+                    id="mandate_status"
+                    title="Statut du mandat"
+                    content={
+                      mandate.status === 'pending' ? 'En attente d\'acceptation par l\'agence' :
+                      mandate.status === 'active' ? 'Mandat actif - L\'agence gère vos biens' :
+                      mandate.status === 'suspended' ? 'Mandat suspendu temporairement' :
+                      mandate.status === 'terminated' ? 'Mandat résilié - Plus aucune permission' :
+                      'Mandat expiré à la date prévue'
+                    }
+                  />
+                </div>
+                <CardDescription>
+                  {mandate.property_id ? 'Mandat spécifique' : 'Mandat global'} 
+                  {' • '}
+                  Depuis le {format(new Date(mandate.start_date), 'dd MMMM yyyy', { locale: fr })}
+                  {mandate.end_date ? ` jusqu'au ${format(new Date(mandate.end_date), 'dd MMMM yyyy', { locale: fr })}` : ' • Durée indéterminée'}
+                </CardDescription>
+              </div>
 
           {/* Boutons pour l'agence (mandat en attente) */}
           {mandate.status === 'pending' && user?.id === mandate.agency_id && (

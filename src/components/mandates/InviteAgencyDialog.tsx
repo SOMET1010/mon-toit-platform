@@ -22,6 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ContextualTooltip } from '@/components/help/ContextualTooltip';
 
 const formSchema = z.object({
   agency_id: z.string().min(1, 'Sélectionnez une agence'),
@@ -179,8 +180,15 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
               name="agency_id"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Agence</FormLabel>
-                  <Popover open={agenciesOpen} onOpenChange={setAgenciesOpen}>
+                      <FormLabel className="flex items-center gap-2">
+                        Agence
+                        <ContextualTooltip
+                          id="select_agency"
+                          title="Choisir une agence"
+                          content="Sélectionnez l'agence immobilière à qui vous souhaitez confier la gestion de votre bien. Assurez-vous que l'agence est bien enregistrée sur la plateforme."
+                        />
+                      </FormLabel>
+                      <Popover open={agenciesOpen} onOpenChange={setAgenciesOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -274,7 +282,14 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
               name="property_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bien concerné (optionnel)</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    Bien concerné (optionnel)
+                    <ContextualTooltip
+                      id="mandate_scope"
+                      title="Mandat spécifique vs Global"
+                      content="Mandat spécifique : l'agence gère UN seul bien. Mandat global : l'agence gère TOUS vos biens actuels et futurs. Idéal pour une gestion centralisée."
+                    />
+                  </FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -305,7 +320,14 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
                 name="commission_rate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Commission (%)</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Commission (%)
+                      <ContextualTooltip
+                        id="commission_rate"
+                        title="Commission"
+                        content="Pourcentage prélevé sur les loyers perçus. Exemple : 10% signifie que l'agence touchera 10% du loyer mensuel. Négociez ce taux avec votre agence."
+                      />
+                    </FormLabel>
                     <FormControl>
                       <Input type="number" min="0" max="100" step="0.1" {...field} />
                     </FormControl>
@@ -319,8 +341,15 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
                 name="fixed_fee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Frais fixes (FCFA)</FormLabel>
-                    <FormControl>
+                      <FormLabel className="flex items-center gap-2">
+                        Frais fixes (FCFA)
+                        <ContextualTooltip
+                          id="fixed_fee"
+                          title="Frais fixes"
+                          content="Montant fixe payé à l'agence indépendamment des loyers. Exemple : 50 000 FCFA/mois. Vous pouvez combiner commission + frais fixes selon votre accord."
+                        />
+                      </FormLabel>
+                      <FormControl>
                       <Input type="number" min="0" {...field} />
                     </FormControl>
                     <FormMessage />

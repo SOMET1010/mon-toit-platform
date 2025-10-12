@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AgencyMandate } from '@/hooks/useAgencyMandates';
 import { TrendingUp, DollarSign, Calendar } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface AgencyFinancialStatsProps {
   mandates: AgencyMandate[];
@@ -8,21 +9,23 @@ interface AgencyFinancialStatsProps {
 }
 
 export function AgencyFinancialStats({ mandates, properties }: AgencyFinancialStatsProps) {
-  // Calculer les revenus estimés
-  const estimatedRevenue = mandates.reduce((total, mandate) => {
-    if (mandate.fixed_fee) {
-      return total + mandate.fixed_fee;
-    }
-    if (mandate.commission_rate) {
-      // Estimer basé sur les loyers des biens
-      const mandateProperties = properties.filter(p => 
-        mandate.property_id === p.id || mandate.property_id === null
-      );
-      const totalRent = mandateProperties.reduce((sum, p) => sum + (p.monthly_rent || 0), 0);
-      return total + (totalRent * mandate.commission_rate / 100);
-    }
-    return total;
-  }, 0);
+  // Calculer les revenus estimés avec useMemo pour optimiser
+  const estimatedRevenue = useMemo(() => {
+    return mandates.reduce((total, mandate) => {
+      if (mandate.fixed_fee) {
+        return total + mandate.fixed_fee;
+      }
+      if (mandate.commission_rate) {
+        // Estimer basé sur les loyers des biens
+        const mandateProperties = properties.filter(p => 
+          mandate.property_id === p.id || mandate.property_id === null
+        );
+        const totalRent = mandateProperties.reduce((sum, p) => sum + (p.monthly_rent || 0), 0);
+        return total + (totalRent * mandate.commission_rate / 100);
+      }
+      return total;
+    }, 0);
+  }, [mandates, properties]);
 
   return (
     <div className="space-y-6">

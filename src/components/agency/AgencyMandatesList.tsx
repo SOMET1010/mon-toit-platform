@@ -84,6 +84,7 @@ export function AgencyMandatesList({ mandates, isLoading }: AgencyMandatesListPr
                   {mandate.property_id ? 'Mandat spécifique' : 'Mandat global'} 
                   {' • '}
                   Depuis le {format(new Date(mandate.start_date), 'dd MMMM yyyy', { locale: fr })}
+                  {mandate.end_date ? ` jusqu'au ${format(new Date(mandate.end_date), 'dd MMMM yyyy', { locale: fr })}` : ' • Durée indéterminée'}
                 </CardDescription>
               </div>
               
