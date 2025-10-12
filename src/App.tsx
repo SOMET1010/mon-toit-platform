@@ -61,6 +61,7 @@ import TestCryptoNeo from "./pages/TestCryptoNeo";
 import Guide from "./pages/Guide";
 import Explorer from "./pages/Explorer";
 import CommentCaMarche from "./pages/CommentCaMarche";
+import MandatesHelp from "./pages/MandatesHelp";
 
 const queryClient = new QueryClient();
 
@@ -201,6 +202,14 @@ const AppContent = () => {
                 <Suspense fallback={<PageSkeleton />}>
                   <MyMandates />
                 </Suspense>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/mandates/help" 
+            element={
+              <ProtectedRoute allowedUserTypes={['proprietaire', 'agence']}>
+                <MandatesHelp />
               </ProtectedRoute>
             } 
           />

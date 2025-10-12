@@ -4,8 +4,8 @@ import { useAgencyProperties } from '@/hooks/useAgencyProperties';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Users, TrendingUp, FileCheck, AlertCircle, AlertTriangle } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { Building2, Users, TrendingUp, FileCheck, AlertCircle, AlertTriangle, HelpCircle } from 'lucide-react';
+import { Navigate, Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AgencyMandatesList } from '@/components/agency/AgencyMandatesList';
@@ -38,11 +38,19 @@ export default function AgencyDashboard() {
             Gérez vos mandats et propriétés confiées
           </p>
         </div>
-        {pendingMandates.length > 0 && (
-          <Badge variant="default" className="text-lg px-4 py-2">
-            {pendingMandates.length} invitation{pendingMandates.length > 1 ? 's' : ''} en attente
-          </Badge>
-        )}
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/mandates/help" className="gap-2">
+              <HelpCircle className="h-4 w-4" />
+              Aide
+            </Link>
+          </Button>
+          {pendingMandates.length > 0 && (
+            <Badge variant="default" className="text-lg px-4 py-2">
+              {pendingMandates.length} invitation{pendingMandates.length > 1 ? 's' : ''} en attente
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Alertes */}

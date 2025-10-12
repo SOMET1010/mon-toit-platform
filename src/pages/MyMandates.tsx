@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Building2, Users, Home, DollarSign, AlertTriangle } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { Plus, Building2, Users, Home, DollarSign, AlertTriangle, HelpCircle } from 'lucide-react';
+import { Navigate, Link } from 'react-router-dom';
 import { InviteAgencyDialog } from '@/components/mandates/InviteAgencyDialog';
 import { MandateCard } from '@/components/mandates/MandateCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -54,10 +54,18 @@ export default function MyMandates() {
             Gérez les agences qui ont accès à vos biens
           </p>
         </div>
-        <Button onClick={() => setInviteDialogOpen(true)} size="lg">
-          <Plus className="h-5 w-5 mr-2" />
-          Inviter une agence
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/mandates/help" className="gap-2">
+              <HelpCircle className="h-4 w-4" />
+              Aide
+            </Link>
+          </Button>
+          <Button onClick={() => setInviteDialogOpen(true)} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Inviter une agence
+          </Button>
+        </div>
       </div>
 
       {/* Alertes */}

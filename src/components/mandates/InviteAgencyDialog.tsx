@@ -23,6 +23,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ContextualTooltip } from '@/components/help/ContextualTooltip';
+import { Link } from 'react-router-dom';
+import { HelpCircle } from 'lucide-react';
 
 const formSchema = z.object({
   agency_id: z.string().min(1, 'Sélectionnez une agence'),
@@ -166,7 +168,15 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Inviter une agence</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Inviter une agence</DialogTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/mandates/help" className="gap-2">
+                <HelpCircle className="h-4 w-4" />
+                Aide
+              </Link>
+            </Button>
+          </div>
           <DialogDescription>
             Donnez à une agence immobilière l'accès à vos biens pour qu'elle les gère en votre nom
           </DialogDescription>
