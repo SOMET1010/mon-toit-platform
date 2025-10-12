@@ -1,4 +1,4 @@
-import { Bell, MessageSquare, FileText, Home, DollarSign, Settings } from 'lucide-react';
+import { Bell, MessageSquare, FileText, Home, DollarSign, Settings, CheckCircle, XCircle, AlertTriangle, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -30,7 +30,15 @@ interface NotificationItem {
   created_at: string;
 }
 
-const getCategoryIcon = (category: string) => {
+const getNotificationIcon = (type: string, category: string) => {
+  // Mandate-specific icons
+  if (type === 'mandate_invited') return FileText;
+  if (type === 'mandate_accepted') return CheckCircle;
+  if (type === 'mandate_refused') return XCircle;
+  if (type === 'mandate_terminated') return AlertTriangle;
+  if (type.startsWith('mandate_')) return Building2;
+  
+  // Category-based fallback
   switch (category) {
     case 'messages':
       return MessageSquare;
@@ -107,7 +115,8 @@ const NotificationBell = () => {
   }, [groupedNotifications]);
 
   const renderNotificationItem = (notification: NotificationItem) => {
-    const CategoryIcon = getCategoryIcon(notification.category || 'system');
+    const NotificationIcon = getNotificationIcon(notification.type, notification.category || 'system');
+    const isMandate = notification.type.startsWith('mandate_');
     
     return (
       <DropdownMenuItem
@@ -118,8 +127,24 @@ const NotificationBell = () => {
         onClick={() => handleNotificationClick(notification)}
       >
         <div className="flex gap-3 w-full">
-          <div className={`p-2 rounded-full ${!notification.is_read ? 'bg-primary/10' : 'bg-muted'}`}>
-            <CategoryIcon className={`h-4 w-4 ${!notification.is_read ? 'text-primary' : 'text-muted-foreground'}`} />
+          <div className={`p-2 rounded-full ${
+            !notification.is_read 
+              ? notification.type === 'mandate_accepted' 
+                ? 'bg-green-500/10' 
+                : notification.type === 'mandate_refused' || notification.type === 'mandate_terminated'
+                ? 'bg-red-500/10'
+                : 'bg-primary/10'
+              : 'bg-muted'
+          }`}>
+            <NotificationIcon className={`h-4 w-4 ${
+              !notification.is_read 
+                ? notification.type === 'mandate_accepted' 
+                  ? 'text-green-500' 
+                  : notification.type === 'mandate_refused' || notification.type === 'mandate_terminated'
+                  ? 'text-red-500'
+                  : 'text-primary'
+                : 'text-muted-foreground'
+            }`} />
           </div>
           <div className="flex flex-col gap-1 flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">

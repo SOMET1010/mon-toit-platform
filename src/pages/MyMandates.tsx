@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAgencyMandates } from '@/hooks/useAgencyMandates';
+import { useAgencyProperties } from '@/hooks/useAgencyProperties';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Building2, Users } from 'lucide-react';
+import { Plus, Building2, Users, Home, DollarSign } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { InviteAgencyDialog } from '@/components/mandates/InviteAgencyDialog';
 import { MandateCard } from '@/components/mandates/MandateCard';
@@ -13,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function MyMandates() {
   const { profile } = useAuth();
   const { asOwner, isLoading } = useAgencyMandates();
+  const { stats: agencyStats } = useAgencyProperties();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   // Redirection si pas propriétaire
@@ -25,6 +27,15 @@ export default function MyMandates() {
   const terminatedMandates = asOwner.filter(m => 
     m.status === 'terminated' || m.status === 'expired'
   );
+
+  // Calculate statistics
+  const totalCommissionRevenue = activeMandates.reduce((acc, m) => {
+    if (m.commission_rate && agencyStats.totalProperties) {
+      // Estimation simplifiée: supposons un loyer moyen de 150000 FCFA
+      return acc + (150000 * (m.commission_rate / 100));
+    }
+    return acc + (m.fixed_fee || 0);
+  }, 0);
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -42,7 +53,7 @@ export default function MyMandates() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Mandats actifs</CardTitle>
@@ -58,6 +69,34 @@ export default function MyMandates() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Biens sous mandat</CardTitle>
+            <Home className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{agencyStats.totalProperties || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {agencyStats.totalOwners || 0} propriétaires
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Revenus estimés</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {Math.round(totalCommissionRevenue).toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              FCFA / mois
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">En attente</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -65,19 +104,6 @@ export default function MyMandates() {
             <div className="text-2xl font-bold">{pendingMandates.length}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Invitations envoyées
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Terminés</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{terminatedMandates.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Historique
             </p>
           </CardContent>
         </Card>

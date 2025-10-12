@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,11 +13,14 @@ import { useAgencyMandates } from '@/hooks/useAgencyMandates';
 import { useProperties } from '@/hooks/useProperties';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Search, Building2, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
   agency_id: z.string().min(1, 'Sélectionnez une agence'),
@@ -42,6 +45,14 @@ const formSchema = z.object({
     can_communicate_tenants: z.boolean().default(true),
     can_manage_documents: z.boolean().default(false),
   }),
+}).refine((data) => {
+  if (data.end_date && data.start_date) {
+    return data.end_date > data.start_date;
+  }
+  return true;
+}, {
+  message: "La date de fin doit être postérieure à la date de début",
+  path: ["end_date"],
 });
 
 interface InviteAgencyDialogProps {
@@ -50,9 +61,12 @@ interface InviteAgencyDialogProps {
 }
 
 export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogProps) {
-  const { createMandate } = useAgencyMandates();
+  const { createMandate, asOwner } = useAgencyMandates();
   const { data: properties = [] } = useProperties();
-  const [agencies, setAgencies] = useState<any[]>([]); // TODO: Fetch agencies from profiles
+  const [agencies, setAgencies] = useState<any[]>([]);
+  const [loadingAgencies, setLoadingAgencies] = useState(false);
+  const [agenciesOpen, setAgenciesOpen] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,7 +89,47 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
     },
   });
 
+  // Fetch agencies from profiles
+  useEffect(() => {
+    const fetchAgencies = async () => {
+      setLoadingAgencies(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, city')
+        .eq('user_type', 'agence')
+        .order('full_name');
+      
+      if (!error && data) {
+        setAgencies(data);
+      }
+      setLoadingAgencies(false);
+    };
+    
+    if (open) {
+      fetchAgencies();
+    }
+  }, [open]);
+
+  // Check for duplicate mandates
+  useEffect(() => {
+    const agencyId = form.watch('agency_id');
+    const propertyId = form.watch('property_id');
+    
+    if (agencyId) {
+      const hasDuplicate = asOwner.some(
+        m => m.agency_id === agencyId && 
+        m.status === 'active' &&
+        (m.property_id === propertyId || (!propertyId && !m.property_id))
+      );
+      setDuplicateWarning(hasDuplicate);
+    }
+  }, [form.watch('agency_id'), form.watch('property_id'), asOwner]);
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    if (duplicateWarning) {
+      return;
+    }
+    
     createMandate({
       agency_id: values.agency_id,
       property_id: values.property_id || null,
@@ -104,34 +158,76 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Sélection agence */}
+            {/* Sélection agence avec recherche */}
             <FormField
               control={form.control}
               name="agency_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Agence</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une agence" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {agencies.map(agency => (
-                        <SelectItem key={agency.id} value={agency.id}>
-                          {agency.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={agenciesOpen} onOpenChange={setAgenciesOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? agencies.find((agency) => agency.id === field.value)?.full_name
+                            : "Rechercher une agence..."}
+                          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Rechercher une agence..." />
+                        <CommandEmpty>Aucune agence trouvée.</CommandEmpty>
+                        <CommandGroup>
+                          {agencies.map((agency) => (
+                            <CommandItem
+                              value={agency.full_name}
+                              key={agency.id}
+                              onSelect={() => {
+                                form.setValue("agency_id", agency.id);
+                                setAgenciesOpen(false);
+                              }}
+                            >
+                              <Building2 className="mr-2 h-4 w-4" />
+                              <div className="flex flex-col">
+                                <span className="font-medium">{agency.full_name}</span>
+                                {agency.city && (
+                                  <span className="text-xs text-muted-foreground">{agency.city}</span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription>
-                    L'agence qui gérera vos biens
+                    Recherchez et sélectionnez l'agence qui gérera vos biens
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Warning for duplicate mandate */}
+            {duplicateWarning && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Un mandat actif existe déjà avec cette agence pour cette portée. 
+                  Veuillez terminer le mandat existant avant d'en créer un nouveau.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Type de mandat */}
             <FormField

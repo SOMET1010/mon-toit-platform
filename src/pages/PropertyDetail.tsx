@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Heart, MapPin, Bed, Bath, Maximize, Home, CheckCircle2, 
   ArrowLeft, MessageCircle, Calendar, DollarSign, Edit, Users,
-  Eye, Star, FileText, TrendingUp, Clock, Lock, ExternalLink
+  Eye, Star, FileText, TrendingUp, Clock, Lock, ExternalLink, Building2, Info
 } from 'lucide-react';
 import { getPropertyStatusLabel } from '@/constants';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -65,18 +65,33 @@ const PropertyDetail = () => {
   const [stats, setStats] = useState<PropertyStats | null>(null);
   const [newStatus, setNewStatus] = useState<string>('');
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [agencyMandate, setAgencyMandate] = useState<any>(null);
 
   const isOwner = user?.id === property?.owner_id;
 
   useEffect(() => {
     if (id) {
       fetchPropertyDetails();
+      fetchAgencyMandate();
       if (isOwner) {
         fetchApplications();
         fetchStats();
       }
     }
   }, [id, isOwner]);
+
+  const fetchAgencyMandate = async () => {
+    if (!id) return;
+    
+    const { data } = await supabase
+      .from('agency_mandates')
+      .select('*, profiles!agency_mandates_agency_id_fkey(full_name, phone)')
+      .eq('property_id', id)
+      .eq('status', 'active')
+      .maybeSingle();
+    
+    setAgencyMandate(data);
+  };
 
   const fetchPropertyDetails = async () => {
     // Validate UUID before query
@@ -349,6 +364,28 @@ const PropertyDetail = () => {
                   {getPropertyStatusLabel(property.status)}
                 </Badge>
               </div>
+
+              {/* Agency Management Info */}
+              {agencyMandate && (
+                <Alert>
+                  <Building2 className="h-4 w-4" />
+                  <AlertTitle>Géré par une agence</AlertTitle>
+                  <AlertDescription>
+                    <p className="mb-2">
+                      Ce bien est actuellement géré par <strong>{agencyMandate.profiles?.full_name}</strong>
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <Badge variant="secondary">
+                        {agencyMandate.mandate_type === 'location' ? 'Location' : 
+                         agencyMandate.mandate_type === 'gestion_complete' ? 'Gestion complète' : 'Vente'}
+                      </Badge>
+                      {agencyMandate.commission_rate && (
+                        <Badge variant="outline">Commission: {agencyMandate.commission_rate}%</Badge>
+                      )}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {/* Description */}
               <Card>

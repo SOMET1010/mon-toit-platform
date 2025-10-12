@@ -2,7 +2,7 @@ import { AgencyMandate } from '@/hooks/useAgencyMandates';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building2, Check, X, Pause } from 'lucide-react';
+import { Building2, Check, X, Pause, Eye, Edit, Trash, Users, Wrench, DollarSign, FileText, Home } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAgencyMandates } from '@/hooks/useAgencyMandates';
@@ -156,17 +156,95 @@ export function AgencyMandatesList({ mandates, isLoading }: AgencyMandatesListPr
               )}
             </div>
 
-            {/* Permissions */}
+            {/* Permissions with icons */}
             <div className="mt-4 pt-4 border-t">
-              <p className="text-sm font-medium mb-2">Permissions accordées :</p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(mandate.permissions)
-                  .filter(([_, value]) => value)
-                  .map(([key]) => (
-                    <Badge key={key} variant="secondary" className="text-xs">
-                      {key.replace('can_', '').replace(/_/g, ' ')}
-                    </Badge>
-                  ))}
+              <p className="text-sm font-medium mb-3">Permissions accordées :</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Propriétés */}
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                    <Home className="h-3 w-3" /> Propriétés
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {mandate.permissions.can_view_properties && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Eye className="h-3 w-3" /> Voir
+                      </Badge>
+                    )}
+                    {mandate.permissions.can_edit_properties && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Edit className="h-3 w-3" /> Modifier
+                      </Badge>
+                    )}
+                    {mandate.permissions.can_create_properties && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <FileText className="h-3 w-3" /> Créer
+                      </Badge>
+                    )}
+                    {mandate.permissions.can_delete_properties && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Trash className="h-3 w-3" /> Supprimer
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Candidatures */}
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                    <Users className="h-3 w-3" /> Candidatures
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {mandate.permissions.can_view_applications && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Eye className="h-3 w-3" /> Voir
+                      </Badge>
+                    )}
+                    {mandate.permissions.can_manage_applications && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Edit className="h-3 w-3" /> Gérer
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Gestion */}
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                    <Wrench className="h-3 w-3" /> Gestion
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {mandate.permissions.can_create_leases && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <FileText className="h-3 w-3" /> Baux
+                      </Badge>
+                    )}
+                    {mandate.permissions.can_manage_maintenance && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Wrench className="h-3 w-3" /> Maintenance
+                      </Badge>
+                    )}
+                    {mandate.permissions.can_manage_documents && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <FileText className="h-3 w-3" /> Documents
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Financier */}
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                    <DollarSign className="h-3 w-3" /> Financier
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {mandate.permissions.can_view_financials && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Eye className="h-3 w-3" /> Voir finances
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 

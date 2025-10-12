@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock, Wrench, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Maximize, Clock, Lock, Wrench, ExternalLink, ShieldCheck, Building2 } from 'lucide-react';
 import { Property } from '@/types';
 import { getPropertyStatusLabel, formatPrice } from '@/constants';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +37,7 @@ export const PropertyCard = ({
 }: PropertyCardProps) => {
   const [hasCertifiedLease, setHasCertifiedLease] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [agencyName, setAgencyName] = useState<string | null>(null);
   const timeAgo = useTimeAgo(property.created_at);
   const { effectiveType, saveData } = useNetworkStatus();
 
@@ -56,7 +57,22 @@ export const PropertyCard = ({
       setHasCertifiedLease(!!data);
     };
 
+    const checkAgencyMandate = async () => {
+      const { data } = await supabase
+        .from('agency_mandates')
+        .select('agency_id, profiles!agency_mandates_agency_id_fkey(full_name)')
+        .eq('property_id', property.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+      
+      if (data && data.profiles) {
+        setAgencyName((data.profiles as any).full_name);
+      }
+    };
+
     checkCertification();
+    checkAgencyMandate();
   }, [property.id]);
 
   // Long press for preview
@@ -182,6 +198,13 @@ export const PropertyCard = ({
             >
               {property.status === 'loué' && <Lock className="h-3 w-3" aria-hidden="true" />}
               {getPropertyStatusLabel(property.status)}
+            </Badge>
+          )}
+          
+          {agencyName && (
+            <Badge className="rounded-lg font-semibold shadow-md bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1">
+              <Building2 className="h-3 w-3" />
+              Géré par {agencyName}
             </Badge>
           )}
           
