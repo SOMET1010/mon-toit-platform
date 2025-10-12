@@ -28,7 +28,7 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const { user, profile } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { data: properties = [], isLoading, refetch } = useProperties({ currentUserId: user?.id });
+  const { data: properties = [], isLoading, error, refetch } = useProperties({ currentUserId: user?.id });
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const isMobile = useIsMobile();
   
@@ -47,7 +47,10 @@ const Search = () => {
 
       if (location || type || maxPrice) {
         const filters: PropertyFilters = {};
-        if (location) filters.city = location;
+        if (location) {
+          filters.city = location;
+          console.log(`🔍 [Search] Filtre URL appliqué - Ville: "${location}"`);
+        }
         if (type) filters.propertyType = type;
         if (maxPrice) filters.maxPrice = parseInt(maxPrice);
         handleFilterChange(filters as any);
@@ -152,15 +155,31 @@ const Search = () => {
                   ))}
                 </div>
               ) : (
-                <Card className="p-12 text-center">
+                <Card className="p-12 text-center space-y-6">
                   <SearchIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-2xl font-semibold mb-2">Aucun bien trouvé</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Essayez de modifier vos critères de recherche pour voir plus de résultats
-                  </p>
-                  <Button onClick={handleReset} variant="primary-gradient" size="lg">
-                    Réinitialiser les filtres
-                  </Button>
+                  <div>
+                    <h3 className="text-2xl font-semibold mb-2">
+                      {searchParams.get('location') ? (
+                        <>Aucun bien disponible à <span className="capitalize text-primary">{searchParams.get('location')}</span></>
+                      ) : (
+                        'Aucun bien trouvé'
+                      )}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {searchParams.get('location') 
+                        ? 'Essayez d\'élargir votre recherche à d\'autres villes ou désactivez certains filtres'
+                        : 'Essayez de modifier vos critères de recherche pour voir plus de résultats'
+                      }
+                    </p>
+                  </div>
+                  <div className="flex gap-3 justify-center">
+                    <Button onClick={() => refetch()} variant="outline" size="lg">
+                      🔄 Actualiser
+                    </Button>
+                    <Button onClick={handleReset} variant="primary-gradient" size="lg">
+                      Réinitialiser les filtres
+                    </Button>
+                  </div>
                 </Card>
               )}
             </>

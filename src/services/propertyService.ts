@@ -71,6 +71,9 @@ export const propertyService = {
    * Uses secure RPC to hide owner_id from public queries
    */
   async fetchAll(filters?: SearchFilters): Promise<Property[]> {
+    // 🔍 PHASE 1: DIAGNOSTIC - Log des filtres appliqués
+    console.log('🔍 [PropertyService] fetchAll appelé avec filtres:', filters);
+    
     // SECURITY: Use RPC for public property browsing (hides owner_id)
     // For ANSUT certified properties, still use direct query with join
     if (filters?.isAnsutCertified) {
@@ -97,6 +100,7 @@ export const propertyService = {
         return acc;
       }, [] as any[]);
 
+      console.log(`✅ [PropertyService] ${uniqueProperties.length} propriétés certifiées ANSUT trouvées`);
       return uniqueProperties as Property[];
     }
 
@@ -112,37 +116,58 @@ export const propertyService = {
 
     if (error) {
       logger.logError(error, { context: 'propertyService', action: 'fetchAllProperties' });
+      console.error('❌ [PropertyService] Erreur API:', error);
       throw error;
     }
+
+    console.log(`📊 [PropertyService] ${data?.length || 0} propriétés reçues de l'API`);
 
     // Apply client-side filters not supported by RPC
     let results = data || [];
     
     // CRITICAL: Filter out rented properties from public view (unless user is owner)
     const { data: { user } } = await supabase.auth.getUser();
+    const beforeFilter = results.length;
     results = results.filter(p => shouldShowProperty(p as any, user?.id));
+    console.log(`🔒 [PropertyService] Filtrage "shouldShowProperty": ${beforeFilter} → ${results.length} propriétés`);
     
     if (filters?.propertyType && filters.propertyType.length > 1) {
+      const before = results.length;
       results = results.filter(p => filters.propertyType?.includes(p.property_type));
+      console.log(`🏠 [PropertyService] Filtre propertyType: ${before} → ${results.length}`);
     }
     if (filters?.minBathrooms) {
+      const before = results.length;
       results = results.filter(p => p.bathrooms >= filters.minBathrooms!);
+      console.log(`🚿 [PropertyService] Filtre minBathrooms: ${before} → ${results.length}`);
     }
     if (filters?.minSurface) {
+      const before = results.length;
       results = results.filter(p => p.surface_area && p.surface_area >= filters.minSurface!);
+      console.log(`📐 [PropertyService] Filtre minSurface: ${before} → ${results.length}`);
     }
     if (filters?.isFurnished !== undefined) {
+      const before = results.length;
       results = results.filter(p => p.is_furnished === filters.isFurnished);
+      console.log(`🛋️ [PropertyService] Filtre isFurnished: ${before} → ${results.length}`);
     }
     if (filters?.hasParking !== undefined) {
+      const before = results.length;
       results = results.filter(p => p.has_parking === filters.hasParking);
+      console.log(`🚗 [PropertyService] Filtre hasParking: ${before} → ${results.length}`);
     }
     if (filters?.hasGarden !== undefined) {
+      const before = results.length;
       results = results.filter(p => p.has_garden === filters.hasGarden);
+      console.log(`🌳 [PropertyService] Filtre hasGarden: ${before} → ${results.length}`);
     }
     if (filters?.hasAc !== undefined) {
+      const before = results.length;
       results = results.filter(p => p.has_ac === filters.hasAc);
+      console.log(`❄️ [PropertyService] Filtre hasAc: ${before} → ${results.length}`);
     }
+
+    console.log(`✅ [PropertyService] RÉSULTAT FINAL: ${results.length} propriétés après tous les filtres`);
 
     // Note: owner_id is intentionally excluded by RPC for security
     return results as unknown as Property[];
