@@ -3,6 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { DynamicBreadcrumb } from "@/components/navigation/DynamicBreadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
+import { getIllustrationPath } from "@/lib/utils";
 
 // Lazy load des composants lourds
 const ExploreMap = lazy(() => import("@/components/ExploreMap"));
@@ -25,6 +27,23 @@ const Explorer = () => {
                 Découvrez tous nos biens immobiliers certifiés à travers la Côte d'Ivoire
               </p>
             </div>
+
+            {/* Bannière quartier */}
+            <section className="mb-8">
+              <div className="relative h-40 md:h-48 rounded-lg overflow-hidden shadow-lg">
+                <LazyIllustration 
+                  src={getIllustrationPath('abidjan-neighborhood')!}
+                  alt="Quartier d'Abidjan"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                  <div className="text-white p-6">
+                    <h2 className="text-2xl font-bold">Explorez les quartiers d'Abidjan</h2>
+                    <p className="text-sm opacity-90">Cocody, Plateau, Marcory et plus encore</p>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* Carte interactive */}
             <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg mb-16" />}>

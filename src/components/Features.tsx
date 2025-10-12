@@ -4,6 +4,8 @@ import { memo } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import monToitLogo from "@/assets/logo/mon-toit-logo.png";
+import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
+import { getIllustrationPath } from "@/lib/utils";
 
 // Configuration - ANSUT (organisme public porteur)
 const ANSUT_FULL_NAME = "Agence Nationale du Service Universel des Télécommunications/TIC";
@@ -159,16 +161,27 @@ KPICard.displayName = "KPICard";
 const FeatureCard = memo(({ feature, index }: { feature: Feature; index: number }) => {
   const Icon = feature.icon;
   const styles = TARGET_STYLES[feature.target];
+  
+  // Map illustrations to features
+  const illustrationKeys = ['apartment-visit', 'real-estate-agent', 'key-handover', 'co-ownership-meeting'];
+  const illustrationKey = illustrationKeys[index] as any;
 
   return (
     <article
       style={{ animationDelay: `${index * 100}ms` }}
       className={`bg-white rounded-lg border-l-4 ${styles.border} shadow-md hover:shadow-2xl hover:scale-[1.02] hover:border-l-primary transition-all duration-300 p-8 flex flex-col animate-fade-in relative overflow-hidden group`}
     >
-      {/* Pattern bogolan au hover */}
-      <div className="absolute inset-0 pattern-bogolan opacity-0 group-hover:opacity-[0.02] transition-opacity duration-300" aria-hidden="true" />
+      {/* Illustration background on hover */}
+      <div className="absolute top-0 left-0 right-0 h-32 overflow-hidden rounded-t-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <LazyIllustration 
+          src={getIllustrationPath(illustrationKey)!}
+          alt={feature.title}
+          className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-500"
+          animate={false}
+        />
+      </div>
       
-      <div className="relative z-10">
+      <div className="relative z-10 group-hover:pt-8 transition-all duration-300">
         <Badge variant="secondary" className="mb-4 self-start text-xs">
           {feature.targetLabel}
         </Badge>

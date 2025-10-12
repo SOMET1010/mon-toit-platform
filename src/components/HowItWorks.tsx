@@ -2,12 +2,15 @@ import { User, Home, Building2, ShieldCheck, FileCheck, Wallet } from "lucide-re
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
+import { getIllustrationPath } from "@/lib/utils";
 
 const journeys = [
   {
     icon: User,
     title: "Locataire",
     color: "from-blue-500 to-blue-600",
+    illustrationKey: 'apartment-visit' as const,
     steps: [
       {
         number: "1",
@@ -37,6 +40,7 @@ const journeys = [
     icon: Home,
     title: "Propriétaire",
     color: "from-primary to-primary-600",
+    illustrationKey: 'modern-living-room' as const,
     steps: [
       {
         number: "1",
@@ -66,6 +70,7 @@ const journeys = [
     icon: Building2,
     title: "Agence",
     color: "from-secondary to-secondary-600",
+    illustrationKey: 'co-ownership-meeting' as const,
     steps: [
       {
         number: "1",
@@ -137,6 +142,22 @@ const HowItWorks = () => {
 
             return (
               <TabsContent key={journeyIndex} value={tabValue} className="mt-0">
+                {/* Illustration Header */}
+                <div className="mb-8 relative h-48 rounded-lg overflow-hidden shadow-xl">
+                  <LazyIllustration 
+                    src={getIllustrationPath(journey.illustrationKey)!}
+                    alt={journey.title}
+                    className="w-full h-full object-cover"
+                    animate={true}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center p-6">
+                    <div className="text-white">
+                      <h3 className="text-3xl font-bold">{journey.title}</h3>
+                      <p className="text-sm opacity-90">Votre parcours en 3 étapes</p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div className={`bg-gradient-to-br from-white to-gray-50/30 rounded-lg border-l-4 ${borderColor} shadow-lg hover:shadow-xl transition-all duration-300 p-8 md:p-12 backdrop-blur-sm`}>
                   {/* Header */}
                   <div className="flex items-center gap-4 mb-10">

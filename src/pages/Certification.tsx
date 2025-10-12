@@ -2,6 +2,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CertifiedBadge from "@/components/ui/certified-badge";
 import { Shield, Lock, FileCheck, Users } from "lucide-react";
+import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
+import { getIllustrationPath } from "@/lib/utils";
 
 const Certification = () => {
   const features = [
@@ -31,21 +33,31 @@ const Certification = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 pt-16">
-        <section className="py-16 md:py-24">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="text-center mb-12">
+        {/* Hero with illustration */}
+        <section className="relative h-96 overflow-hidden mb-12">
+          <LazyIllustration 
+            src={getIllustrationPath('certification-ansut-illustration')!}
+            alt="Certification officielle ANSUT"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-secondary/80 flex items-center justify-center">
+            <div className="container mx-auto px-4 text-center text-white">
               <div className="flex justify-center mb-6">
                 <CertifiedBadge clickable={false} />
               </div>
               <h1 className="text-3xl md:text-5xl font-bold mb-4">
                 Certification ANSUT
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg max-w-2xl mx-auto opacity-95">
                 Mon Toit est propulsé par l'Agence Nationale de Soutien à l'Urbanisme et au Territoire (ANSUT), 
                 garantissant sécurité, fiabilité et conformité pour tous vos projets immobiliers.
               </p>
             </div>
+          </div>
+        </section>
 
+        <section className="py-8 md:py-16">
+          <div className="container mx-auto px-4 max-w-4xl">
             <div className="bg-gradient-primary/10 border-2 border-primary/20 rounded-xl p-8 mb-12">
               <h2 className="text-2xl font-bold mb-4">Qu'est-ce que la certification ANSUT ?</h2>
               <p className="text-muted-foreground mb-4">

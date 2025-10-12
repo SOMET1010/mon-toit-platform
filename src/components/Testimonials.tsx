@@ -10,6 +10,8 @@ import {
 } from "./ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
+import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
+import { getIllustrationPath } from "@/lib/utils";
 
 const testimonials = [
   {
@@ -50,10 +52,27 @@ const Testimonials = () => {
   );
 
   return (
-    <section className="py-20 md:py-28 bg-white relative overflow-hidden">
+    <section className="py-20 md:py-28 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
+        {/* Bannière illustration */}
+        <div className="mb-12">
+          <div className="relative h-64 rounded-2xl overflow-hidden shadow-xl">
+            <LazyIllustration 
+              src={getIllustrationPath('key-handover')!}
+              alt="Remise de clés réussie"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex items-center">
+              <div className="text-white p-8 max-w-xl">
+                <h2 className="text-3xl md:text-4xl font-bold mb-2">Ils ont trouvé leur toit</h2>
+                <p className="text-lg opacity-90">Des milliers de locataires satisfaits grâce à Mon Toit</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Ils nous font confiance</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Témoignages</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Découvrez les témoignages de notre communauté d'utilisateurs satisfaits
           </p>

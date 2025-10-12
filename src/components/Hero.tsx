@@ -3,8 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, CheckCircle2, Mic, MicOff } from "lucide-react";
-import heroImage from "@/assets/hero/hero-slide-1.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
+import { getIllustrationPath } from "@/lib/utils";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -42,11 +43,10 @@ const Hero = () => {
     <section className="hero-section relative min-h-[700px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-primary/5 to-secondary/5 pattern-bogolan">
       {/* Fixed Background Image - Right Side */}
       <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden lg:block">
-        <img 
-          src={heroImage} 
-          alt="Famille heureuse avec ANSUT"
-          className="w-full h-full object-cover"
-          loading="eager"
+        <LazyIllustration 
+          src={getIllustrationPath('ivorian-family-house')!} 
+          alt="Famille ivoirienne heureuse devant sa nouvelle maison"
+          className="w-full h-full object-cover animate-float"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/50 to-transparent" />
       </div>
