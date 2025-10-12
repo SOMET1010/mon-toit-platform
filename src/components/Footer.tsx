@@ -1,6 +1,6 @@
 import { Mail, Phone, MapPin, Shield, Facebook, Linkedin, Twitter, FileText, HelpCircle, MessageCircle, DollarSign, Lock, Award, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import monToitLogo from "@/assets/mon-toit-logo.png";
+import monToitLogo from "@/assets/logo/mon-toit-logo.png";
 
 const Footer = () => {
   return (

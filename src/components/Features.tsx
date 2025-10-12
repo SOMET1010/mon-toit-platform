@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { memo } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import monToitLogo from "@/assets/mon-toit-logo.png";
+import monToitLogo from "@/assets/logo/mon-toit-logo.png";
 
 // Configuration - ANSUT (organisme public porteur)
 const ANSUT_FULL_NAME = "Agence Nationale du Service Universel des Télécommunications/TIC";

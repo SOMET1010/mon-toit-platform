@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, CheckCircle2, Mic, MicOff } from "lucide-react";
-import heroImage from "@/assets/hero-slide-1.jpg";
+import heroImage from "@/assets/hero/hero-slide-1.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const Hero = () => {
