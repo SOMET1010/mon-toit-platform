@@ -1,5 +1,6 @@
-import { Mail, Phone, MapPin, Shield, Facebook, Linkedin, Twitter, FileText, HelpCircle, MessageCircle, DollarSign, Lock, Award, CheckCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Shield, Facebook, Linkedin, Twitter, FileText, HelpCircle, MessageCircle, DollarSign, Lock, Award, CheckCircle, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import monToitLogo from "@/assets/logo/mon-toit-logo.png";
 
 const Footer = () => {
@@ -102,6 +103,13 @@ const Footer = () => {
               <li>
                 <Link to="/tarifs" className="text-muted-foreground hover:text-primary transition-colors duration-200">
                   Tarifs
+                </Link>
+              </li>
+              <li>
+                <Link to="/illustrations" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors duration-200">
+                  <ImageIcon className="h-4 w-4" />
+                  Nos Illustrations
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">Nouveau</Badge>
                 </Link>
               </li>
             </ul>
