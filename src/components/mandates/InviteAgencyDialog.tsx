@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import type { Agency, MandateSubmission } from '@/types/admin';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -67,12 +68,12 @@ interface InviteAgencyDialogProps {
 export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogProps) {
   const { createMandate, asOwner } = useAgencyMandates();
   const { data: properties = [] } = useProperties();
-  const [agencies, setAgencies] = useState<any[]>([]);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loadingAgencies, setLoadingAgencies] = useState(false);
   const [agenciesOpen, setAgenciesOpen] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [pendingSubmission, setPendingSubmission] = useState<any>(null);
+  const [pendingSubmission, setPendingSubmission] = useState<MandateSubmission | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -101,12 +102,15 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
       setLoadingAgencies(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, city')
+        .select('id, full_name, city, created_at')
         .eq('user_type', 'agence')
         .order('full_name');
       
       if (!error && data) {
-        setAgencies(data);
+        setAgencies(data.map(a => ({
+          ...a,
+          user_type: 'agence' as const,
+        })));
       }
       setLoadingAgencies(false);
     };
@@ -137,7 +141,7 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
     }
     
     // Préparer la soumission pour confirmation
-    const submissionData = {
+    const submissionData: MandateSubmission = {
       agency_id: values.agency_id,
       property_id: values.property_id || null,
       mandate_type: values.mandate_type,
@@ -147,7 +151,19 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
       start_date: values.start_date.toISOString().split('T')[0],
       end_date: values.end_date?.toISOString().split('T')[0],
       notes: values.notes,
-      permissions: values.permissions,
+      permissions: {
+        can_view_properties: values.permissions.can_view_properties,
+        can_edit_properties: values.permissions.can_edit_properties,
+        can_create_properties: values.permissions.can_create_properties,
+        can_delete_properties: values.permissions.can_delete_properties,
+        can_view_applications: values.permissions.can_view_applications,
+        can_manage_applications: values.permissions.can_manage_applications,
+        can_create_leases: values.permissions.can_create_leases,
+        can_view_financials: values.permissions.can_view_financials,
+        can_manage_maintenance: values.permissions.can_manage_maintenance,
+        can_communicate_tenants: values.permissions.can_communicate_tenants,
+        can_manage_documents: values.permissions.can_manage_documents,
+      },
     };
     
     setPendingSubmission(submissionData);

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { Owner } from '@/types/admin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -20,17 +21,21 @@ export const ReportGenerator = () => {
   const [endDate, setEndDate] = useState<Date>();
   const [reportType, setReportType] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
   const [loading, setLoading] = useState(false);
-  const [owners, setOwners] = useState<any[]>([]);
+  const [owners, setOwners] = useState<Owner[]>([]);
 
   const loadOwners = async () => {
     const { data } = await supabase
       .from('properties')
-      .select('owner_id, profiles!inner(full_name, email)')
+      .select('owner_id, profiles!inner(full_name)')
       .not('owner_id', 'is', null);
 
     const uniqueOwners = Array.from(
       new Map(data?.map(item => [item.owner_id, item.profiles]) || []).entries()
-    ).map(([id, profile]) => ({ id, ...profile }));
+    ).map(([id, profile]: [string, any]): Owner => ({
+      id,
+      full_name: profile.full_name,
+      email: profile.email || 'N/A',
+    }));
 
     setOwners(uniqueOwners);
   };

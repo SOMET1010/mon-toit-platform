@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { 
+  VerificationWithUser, 
+  PassportVerification,
+  VerificationAction,
+  VerificationStatus,
+  VerificationType
+} from '@/types/admin';
 import { AdminVerificationStats } from '@/components/admin/AdminVerificationStats';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,35 +22,11 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { handleError } from '@/lib/errorHandler';
 
-interface VerificationWithUser {
-  user_id: string;
-  oneci_status: string;
-  cnam_status: string;
-  passport_status: string;
-  oneci_data: any;
-  cnam_data: any;
-  passport_data: any;
-  oneci_cni_number: string | null;
-  cnam_employer: string | null;
-  passport_number: string | null;
-  passport_nationality: string | null;
-  created_at: string;
-  profiles: {
-    full_name: string;
-    avatar_url: string | null;
-    email: string;
-  };
-}
-
 export default function AdminVerificationQueue() {
   const [verifications, setVerifications] = useState<VerificationWithUser[]>([]);
-  const [passportVerifications, setPassportVerifications] = useState<any[]>([]);
+  const [passportVerifications, setPassportVerifications] = useState<PassportVerification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedVerification, setSelectedVerification] = useState<{
-    userId: string;
-    type: 'oneci' | 'cnam' | 'passport';
-    action: 'approve' | 'reject';
-  } | null>(null);
+  const [selectedVerification, setSelectedVerification] = useState<VerificationAction | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -53,13 +36,23 @@ export default function AdminVerificationQueue() {
       const { data, error } = await supabase.rpc('get_verifications_for_admin_review');
       if (error) throw error;
 
-      const enrichedData = (data || []).map((verification: any) => ({
+      const enrichedData = (data || []).map((verification: {
+        user_id: string;
+        oneci_status: string;
+        cnam_status: string;
+        oneci_data: unknown;
+        cnam_data: unknown;
+        oneci_cni_number: string | null;
+        cnam_employer: string | null;
+        created_at: string;
+        full_name: string;
+      }): VerificationWithUser => ({
         user_id: verification.user_id,
-        oneci_status: verification.oneci_status,
-        cnam_status: verification.cnam_status,
-        passport_status: 'not_submitted',
-        oneci_data: verification.oneci_data,
-        cnam_data: verification.cnam_data,
+        oneci_status: verification.oneci_status as VerificationStatus,
+        cnam_status: verification.cnam_status as VerificationStatus,
+        passport_status: 'not_submitted' as VerificationStatus,
+        oneci_data: verification.oneci_data as any,
+        cnam_data: verification.cnam_data as any,
         passport_data: null,
         oneci_cni_number: verification.oneci_cni_number,
         cnam_employer: verification.cnam_employer,
@@ -73,14 +66,14 @@ export default function AdminVerificationQueue() {
         }
       }));
 
-      setVerifications(enrichedData as VerificationWithUser[]);
+      setVerifications(enrichedData);
 
       // Fetch passport verifications
-      const { data: passportData, error: passportError } = await supabase.rpc('get_passport_verifications_for_admin' as any);
-      if (passportError) {
-        // Passport verifications might not be available for all users
-      } else {
-        setPassportVerifications((passportData as any) || []);
+      const { data: passportData, error: passportError } = await supabase
+        .rpc('get_passport_verifications_for_admin' as never);
+      
+      if (!passportError && passportData) {
+        setPassportVerifications(passportData as unknown as PassportVerification[]);
       }
     } catch (error: any) {
       handleError(error, 'Impossible de charger les vérifications en attente');

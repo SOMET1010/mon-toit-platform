@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -123,7 +124,13 @@ export default defineConfig(({ mode }) => ({
           },
         ],
       },
-    })
+    }),
+    // Sentry plugin (only in production builds)
+    mode === "production" && sentryVitePlugin({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -132,7 +139,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false, // ✅ SÉCURITÉ : Pas de sourcemaps en production
+    sourcemap: true, // Required for Sentry error tracking
     rollupOptions: {
       output: {
         manualChunks: {

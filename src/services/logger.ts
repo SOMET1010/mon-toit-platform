@@ -3,7 +3,7 @@
  * 
  * Replaces direct console.* calls with structured logging that:
  * - Provides consistent log formatting with timestamps
- * - Can be extended to send logs to external monitoring services (Sentry, LogRocket, etc.)
+ * - Sends logs to Sentry in production for monitoring
  * - Allows environment-specific behavior (dev vs production)
  * - Prevents sensitive data leaks in production logs
  * 
@@ -13,6 +13,8 @@
  * logger.error('Failed to fetch properties', { userId: '123', endpoint: '/api/properties' });
  * logger.logError(error, { context: 'PropertyCard', action: 'delete' });
  */
+
+import * as Sentry from "@sentry/react";
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
@@ -34,8 +36,11 @@ class Logger {
     if (this.isDevelopment) {
       console.error(formattedMessage, context || '');
     } else {
-      // In production, send to monitoring service
-      // Example: Sentry.captureException(new Error(message), { extra: context });
+      // Send to Sentry in production
+      Sentry.captureException(new Error(message), {
+        level: 'error',
+        extra: context,
+      });
       console.error(formattedMessage, context || '');
     }
   }
@@ -46,6 +51,12 @@ class Logger {
     if (this.isDevelopment) {
       console.warn(formattedMessage, context || '');
     } else {
+      // Send warnings as breadcrumbs to Sentry
+      Sentry.addBreadcrumb({
+        message,
+        level: 'warning',
+        data: context,
+      });
       console.warn(formattedMessage, context || '');
     }
   }
@@ -70,6 +81,22 @@ class Logger {
    */
   logError(error: unknown, context?: LogContext): void {
     const errorInfo = this.parseError(error);
+    
+    // Send to Sentry in production with full error object
+    if (!this.isDevelopment) {
+      Sentry.captureException(error, {
+        level: 'error',
+        tags: {
+          errorType: errorInfo.type,
+          errorCode: errorInfo.code,
+        },
+        extra: {
+          ...context,
+          stack: errorInfo.stack,
+          url: typeof window !== 'undefined' ? window.location.href : undefined,
+        },
+      });
+    }
     
     this.error(errorInfo.message, {
       ...context,

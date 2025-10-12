@@ -397,7 +397,7 @@ const AdminProperties = () => {
                       />
                     </TableCell>
                     <TableCell className="font-medium">{property.title}</TableCell>
-                    <TableCell>{(property.profiles as any)?.full_name}</TableCell>
+                    <TableCell>{property.profiles.full_name}</TableCell>
                     <TableCell>{property.city}</TableCell>
                     <TableCell>{property.monthly_rent.toLocaleString()} FCFA</TableCell>
                     <TableCell>{getStatusBadge(property.status)}</TableCell>

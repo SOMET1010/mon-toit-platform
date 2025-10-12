@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import type { AgencyMandate } from '@/types/admin';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -65,7 +66,7 @@ const PropertyDetail = () => {
   const [stats, setStats] = useState<PropertyStats | null>(null);
   const [newStatus, setNewStatus] = useState<string>('');
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const [agencyMandate, setAgencyMandate] = useState<any>(null);
+  const [agencyMandate, setAgencyMandate] = useState<AgencyMandate | null>(null);
 
   const isOwner = user?.id === property?.owner_id;
 
@@ -372,7 +373,7 @@ const PropertyDetail = () => {
                   <AlertTitle>Géré par une agence</AlertTitle>
                   <AlertDescription>
                     <p className="mb-2">
-                      Ce bien est actuellement géré par <strong>{agencyMandate.profiles?.full_name}</strong>
+                      Ce bien est actuellement géré par une agence immobilière
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       <Badge variant="secondary">
