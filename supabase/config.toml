@@ -76,3 +76,6 @@ verify_jwt = false
 
 [functions.analyze-market-trends]
 verify_jwt = false
+
+[functions.generate-illustration]
+verify_jwt = true

@@ -34,6 +34,7 @@ import { ElectronicSignaturesDashboard } from '@/components/admin/ElectronicSign
 import { CertificateManager } from '@/components/admin/CertificateManager';
 import { PropertyAlertsMonitor } from '@/components/admin/PropertyAlertsMonitor';
 import { ReportGenerator } from '@/components/admin/ReportGenerator';
+import { IllustrationGenerator } from '@/components/admin/IllustrationGenerator';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
@@ -235,6 +236,11 @@ const AdminDashboard = () => {
                     <ReportGenerator />
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Générateur d'Illustrations */}
+              {activeTab === 'illustrations' && (
+                <IllustrationGenerator />
               )}
 
               {/* Signatures Électroniques */}

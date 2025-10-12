@@ -25,6 +25,7 @@ import {
   Users,
   Settings,
   Bell,
+  Image,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -74,6 +75,7 @@ export const AdminSidebar = ({ activeTab, onTabChange, badges }: AdminSidebarPro
         { id: 'moderation', label: 'Modération', icon: Flag },
         { id: 'reporting', label: 'Rapports', icon: FileBarChart },
         { id: 'electronic-signatures', label: 'Signatures Élec.', icon: PenTool },
+        { id: 'illustrations', label: 'Illustrations', icon: Image },
       ]
     }
   ];
