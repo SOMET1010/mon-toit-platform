@@ -77,20 +77,27 @@ export const LazyIllustration = ({
       )}
       
       {isInView && (
-        <img
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          onLoad={handleLoad}
-          onError={handleError}
-          className={cn(
-            "w-full h-full object-cover transition-all duration-700",
-            isLoaded ? "opacity-100 image-loaded" : "opacity-0",
-            animate && isLoaded && "animate-fade-in-up"
-          )}
-          loading="lazy"
-          decoding="async"
-        />
+        <picture>
+          <source
+            srcSet={src.replace('.png', '.webp')}
+            type="image/webp"
+          />
+          <img
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            onLoad={handleLoad}
+            onError={handleError}
+            className={cn(
+              "w-full h-full object-cover transition-all duration-700",
+              isLoaded ? "opacity-100 image-loaded" : "opacity-0",
+              animate && isLoaded && "animate-fade-in-up"
+            )}
+            loading="lazy"
+            fetchPriority="auto"
+            decoding="async"
+          />
+        </picture>
       )}
     </div>
   );

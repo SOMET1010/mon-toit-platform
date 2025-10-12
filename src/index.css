@@ -369,14 +369,20 @@ All colors MUST be HSL.
 
   .illustration-card {
     @apply relative overflow-hidden;
+    /* ⚡ Accélération GPU pour animations fluides */
+    transform: translate3d(0, 0, 0);
   }
 
   .illustration-card .illustration-bg {
     @apply transition-all duration-700 ease-out;
+    /* ⚡ Hint au navigateur pour optimiser */
+    will-change: transform;
   }
 
   .illustration-card:hover .illustration-bg {
     @apply scale-110;
+    /* ⚡ Forcer l'utilisation du GPU */
+    transform: scale(1.1) translate3d(0, 0, 0);
   }
 
   .illustration-overlay {

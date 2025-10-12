@@ -33,11 +33,19 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <img 
-              src={monToitLogo} 
-              alt="Mon Toit" 
-              className="h-16 w-auto group-hover:scale-105 transition-smooth"
-            />
+            <picture>
+              <source srcSet={monToitLogo.replace('.png', '.webp')} type="image/webp" />
+              <img 
+                src={monToitLogo} 
+                alt="Mon Toit - Plateforme Immobilière Certifiée ANSUT" 
+                className="h-16 w-auto group-hover:scale-105 transition-smooth"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                width="64"
+                height="64"
+              />
+            </picture>
             <div className="hidden sm:flex flex-col">
               <span className="text-2xl font-bold text-primary leading-tight">
                 Mon Toit

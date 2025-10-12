@@ -24,6 +24,17 @@ const sendToAnalytics = (metric: Metric) => {
   // Log to our logger service
   logger.info(`Web Vital: ${name}`, { value, rating });
 
+  // ✅ Envoyer à Google Analytics en production
+  if (import.meta.env.PROD && typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', name, {
+      value: Math.round(value),
+      metric_rating: rating,
+      metric_delta: Math.round(value),
+      event_category: 'Web Vitals',
+      non_interaction: true,
+    });
+  }
+
   // Check if metric exceeds threshold
   const threshold = THRESHOLDS[name as keyof typeof THRESHOLDS];
   if (threshold && value > threshold) {
@@ -33,9 +44,6 @@ const sendToAnalytics = (metric: Metric) => {
       delta: Math.round(value - threshold),
     });
   }
-
-  // In production, you could send to analytics service
-  // Example: gtag('event', name, { value: Math.round(value), metric_rating: rating });
 };
 
 export const initPerformanceMonitoring = () => {

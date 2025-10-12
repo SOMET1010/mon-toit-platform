@@ -47,6 +47,25 @@ export const getIllustrationPath = (key: IllustrationKey): string | undefined =>
 };
 
 /**
+ * Helper pour obtenir le chemin optimisé d'une illustration (WebP)
+ * @param key - La clé de l'illustration
+ * @param format - Format souhaité ('webp' ou 'png')
+ * @returns Le chemin optimisé de l'illustration ou undefined si non trouvée
+ */
+export const getOptimizedIllustrationPath = (
+  key: IllustrationKey, 
+  format: 'webp' | 'png' = 'webp'
+): string | undefined => {
+  const path = illustrationPaths[key];
+  if (!path) return undefined;
+  
+  if (format === 'webp') {
+    return path.replace('.png', '.webp');
+  }
+  return path;
+};
+
+/**
  * Vérifier si une illustration existe
  * @param key - La clé de l'illustration
  */
