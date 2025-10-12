@@ -309,7 +309,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+    <div className="min-h-screen page-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -317,6 +317,7 @@ const Auth = () => {
             <Home className="h-8 w-8" />
             Mon Toit
           </Link>
+          <BrandBar className="max-w-xs mx-auto mt-2" />
           <p className="text-muted-foreground">Propulsé par ANSUT</p>
         </div>
 
