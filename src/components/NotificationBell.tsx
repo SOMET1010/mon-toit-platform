@@ -11,6 +11,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useAgencyMandates } from '@/hooks/useAgencyMandates';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -72,6 +73,7 @@ const getCategoryLabel = (category: string) => {
 
 const NotificationBell = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead, requestPermission } = useNotifications();
+  const { acceptMandate, refuseMandate } = useAgencyMandates();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,7 +118,7 @@ const NotificationBell = () => {
 
   const renderNotificationItem = (notification: NotificationItem) => {
     const NotificationIcon = getNotificationIcon(notification.type, notification.category || 'system');
-    const isMandate = notification.type.startsWith('mandate_');
+    const mandateId = (notification as any).metadata?.mandate_id;
     
     return (
       <DropdownMenuItem
@@ -125,6 +127,11 @@ const NotificationBell = () => {
           !notification.is_read ? 'bg-muted/50' : ''
         }`}
         onClick={() => handleNotificationClick(notification)}
+        onSelect={(e) => {
+          if ((e.target as HTMLElement).closest('button[data-action]')) {
+            e.preventDefault();
+          }
+        }}
       >
         <div className="flex gap-3 w-full">
           <div className={`p-2 rounded-full ${
@@ -164,6 +171,40 @@ const NotificationBell = () => {
                 locale: fr,
               })}
             </p>
+            
+            {/* Actions rapides pour les invitations de mandat */}
+            {notification.type === 'mandate_invited' && mandateId && (
+              <div className="flex gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                <Button
+                  data-action="accept"
+                  size="sm"
+                  variant="default"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    acceptMandate(mandateId);
+                    markAsRead(notification.id);
+                  }}
+                  className="h-7 text-xs"
+                >
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Accepter
+                </Button>
+                <Button
+                  data-action="refuse"
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    refuseMandate({ mandateId, reason: 'Refusé depuis les notifications' });
+                    markAsRead(notification.id);
+                  }}
+                  className="h-7 text-xs"
+                >
+                  <XCircle className="h-3 w-3 mr-1" />
+                  Refuser
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </DropdownMenuItem>

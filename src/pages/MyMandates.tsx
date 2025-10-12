@@ -5,7 +5,8 @@ import { useAgencyProperties } from '@/hooks/useAgencyProperties';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Building2, Users, Home, DollarSign } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Building2, Users, Home, DollarSign, AlertTriangle } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { InviteAgencyDialog } from '@/components/mandates/InviteAgencyDialog';
 import { MandateCard } from '@/components/mandates/MandateCard';
@@ -27,6 +28,13 @@ export default function MyMandates() {
   const terminatedMandates = asOwner.filter(m => 
     m.status === 'terminated' || m.status === 'expired'
   );
+
+  // Mandats expirant dans moins de 30 jours
+  const expiringSoon = activeMandates.filter(m => {
+    if (!m.end_date) return false;
+    const daysUntilExpiry = (new Date(m.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    return daysUntilExpiry > 0 && daysUntilExpiry <= 30;
+  });
 
   // Calculate statistics
   const totalCommissionRevenue = activeMandates.reduce((acc, m) => {
@@ -51,6 +59,17 @@ export default function MyMandates() {
           Inviter une agence
         </Button>
       </div>
+
+      {/* Alertes */}
+      {expiringSoon.length > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            ⚠️ {expiringSoon.length} mandat{expiringSoon.length > 1 ? 's' : ''} expire
+            {expiringSoon.length > 1 ? 'nt' : ''} dans les 30 prochains jours.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

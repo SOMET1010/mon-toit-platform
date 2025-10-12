@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,8 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
   const [loadingAgencies, setLoadingAgencies] = useState(false);
   const [agenciesOpen, setAgenciesOpen] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState<any>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -130,7 +133,8 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
       return;
     }
     
-    createMandate({
+    // Préparer la soumission pour confirmation
+    const submissionData = {
       agency_id: values.agency_id,
       property_id: values.property_id || null,
       mandate_type: values.mandate_type,
@@ -141,9 +145,20 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
       end_date: values.end_date?.toISOString().split('T')[0],
       notes: values.notes,
       permissions: values.permissions,
-    });
-    onOpenChange(false);
-    form.reset();
+    };
+    
+    setPendingSubmission(submissionData);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmedSubmit = () => {
+    if (pendingSubmission) {
+      createMandate(pendingSubmission);
+      setConfirmDialogOpen(false);
+      setPendingSubmission(null);
+      onOpenChange(false);
+      form.reset();
+    }
   };
 
   return (
@@ -478,11 +493,82 @@ export function InviteAgencyDialog({ open, onOpenChange }: InviteAgencyDialogPro
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Annuler
               </Button>
-              <Button type="submit">Envoyer l'invitation</Button>
+              <Button 
+                type="submit"
+                disabled={!!duplicateWarning}
+              >
+                Envoyer l'invitation
+              </Button>
             </div>
           </form>
         </Form>
       </DialogContent>
+
+      {/* Confirmation dialog */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer l'invitation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vous êtes sur le point d'inviter une agence à gérer {pendingSubmission?.property_id ? 'ce bien' : 'tous vos biens'}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          {pendingSubmission && (
+            <div className="space-y-2 py-4">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span className="text-muted-foreground">Type de mandat:</span>
+                <span className="font-medium">
+                  {pendingSubmission.mandate_type === 'location' ? 'Location' : 
+                   pendingSubmission.mandate_type === 'gestion_complete' ? 'Gestion complète' : 'Vente'}
+                </span>
+                
+                <span className="text-muted-foreground">Portée:</span>
+                <span className="font-medium">
+                  {pendingSubmission.property_id ? 'Bien spécifique' : 'Tous les biens'}
+                </span>
+                
+                <span className="text-muted-foreground">Début:</span>
+                <span className="font-medium">
+                  {format(new Date(pendingSubmission.start_date), 'dd MMMM yyyy', { locale: fr })}
+                </span>
+                
+                {pendingSubmission.end_date && (
+                  <>
+                    <span className="text-muted-foreground">Fin:</span>
+                    <span className="font-medium">
+                      {format(new Date(pendingSubmission.end_date), 'dd MMMM yyyy', { locale: fr })}
+                    </span>
+                  </>
+                )}
+                
+                {pendingSubmission.commission_rate && (
+                  <>
+                    <span className="text-muted-foreground">Commission:</span>
+                    <span className="font-medium">{pendingSubmission.commission_rate}%</span>
+                  </>
+                )}
+                
+                {pendingSubmission.fixed_fee && (
+                  <>
+                    <span className="text-muted-foreground">Frais fixes:</span>
+                    <span className="font-medium">{pendingSubmission.fixed_fee} FCFA</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingSubmission(null)}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmedSubmit}>
+              Confirmer l'invitation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

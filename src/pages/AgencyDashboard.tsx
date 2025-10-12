@@ -4,7 +4,7 @@ import { useAgencyProperties } from '@/hooks/useAgencyProperties';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Users, TrendingUp, FileCheck, AlertCircle } from 'lucide-react';
+import { Building2, Users, TrendingUp, FileCheck, AlertCircle, AlertTriangle } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,13 @@ export default function AgencyDashboard() {
   const { profile } = useAuth();
   const { pendingMandates, activeMandates, asAgency, isLoading } = useAgencyMandates();
   const { stats, managedProperties } = useAgencyProperties();
+
+  // Mandats expirant dans moins de 30 jours
+  const expiringSoon = activeMandates.filter(m => {
+    if (!m.end_date) return false;
+    const daysUntilExpiry = (new Date(m.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    return daysUntilExpiry > 0 && daysUntilExpiry <= 30;
+  });
 
   // Redirection si pas une agence
   if (profile && profile.user_type !== 'agence') {
@@ -39,15 +46,28 @@ export default function AgencyDashboard() {
       </div>
 
       {/* Alertes */}
-      {pendingMandates.length > 0 && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Vous avez {pendingMandates.length} nouvelle{pendingMandates.length > 1 ? 's' : ''} invitation
-            {pendingMandates.length > 1 ? 's' : ''} de mandat à traiter.
-          </AlertDescription>
-        </Alert>
-      )}
+      <div className="space-y-4">
+        {pendingMandates.length > 0 && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Vous avez {pendingMandates.length} nouvelle{pendingMandates.length > 1 ? 's' : ''} invitation
+              {pendingMandates.length > 1 ? 's' : ''} de mandat à traiter.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {expiringSoon.length > 0 && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              ⚠️ {expiringSoon.length} mandat{expiringSoon.length > 1 ? 's' : ''} expire
+              {expiringSoon.length > 1 ? 'nt' : ''} dans les 30 prochains jours. 
+              Contactez vos clients pour renouveler.
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
 
       {/* Stats globales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

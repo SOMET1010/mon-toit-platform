@@ -1,8 +1,9 @@
 import { AgencyMandate, useAgencyMandates } from '@/hooks/useAgencyMandates';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building2, Edit, Trash2 } from 'lucide-react';
+import { Building2, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -24,8 +25,10 @@ interface MandateCardProps {
 }
 
 export function MandateCard({ mandate }: MandateCardProps) {
-  const { terminateMandate } = useAgencyMandates();
+  const { terminateMandate, acceptMandate, refuseMandate } = useAgencyMandates();
+  const { user } = useAuth();
   const [terminationReason, setTerminationReason] = useState('');
+  const [refusalReason, setRefusalReason] = useState('');
 
   const getStatusBadge = (status: AgencyMandate['status']) => {
     const variants = {
@@ -66,7 +69,67 @@ export function MandateCard({ mandate }: MandateCardProps) {
             </CardDescription>
           </div>
 
-          {mandate.status === 'active' && (
+          {/* Boutons pour l'agence (mandat en attente) */}
+          {mandate.status === 'pending' && user?.id === mandate.agency_id && (
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="default"
+                onClick={() => acceptMandate(mandate.id)}
+              >
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Accepter
+              </Button>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <XCircle className="h-4 w-4 mr-1" />
+                    Refuser
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Refuser ce mandat ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Le propriétaire sera notifié de votre refus. Cette action est définitive.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="py-4">
+                    <label className="text-sm font-medium">Motif de refus (obligatoire)</label>
+                    <Textarea
+                      value={refusalReason}
+                      onChange={(e) => setRefusalReason(e.target.value)}
+                      placeholder="Expliquez pourquoi vous refusez ce mandat..."
+                      className="mt-2"
+                      rows={3}
+                    />
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setRefusalReason('')}>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        if (refusalReason.trim()) {
+                          refuseMandate({ 
+                            mandateId: mandate.id, 
+                            reason: refusalReason 
+                          });
+                          setRefusalReason('');
+                        }
+                      }}
+                      disabled={!refusalReason.trim()}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Confirmer le refus
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+
+          {/* Boutons pour le propriétaire (mandat actif) */}
+          {mandate.status === 'active' && user?.id === mandate.owner_id && (
             <div className="flex gap-2">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
