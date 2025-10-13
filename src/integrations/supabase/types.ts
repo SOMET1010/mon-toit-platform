@@ -2481,6 +2481,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      alert_suspicious_sensitive_access: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       approve_verification: {
         Args: {
           p_review_notes?: string
@@ -2513,6 +2517,18 @@ export type Database = {
       can_access_maintenance: {
         Args: { p_property_id: string }
         Returns: boolean
+      }
+      check_admin_mfa_compliance: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_created_at: string
+          full_name: string
+          grace_period_expires_at: string
+          has_mfa: boolean
+          is_compliant: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }[]
       }
       check_api_rate_limit: {
         Args: {
@@ -2922,6 +2938,10 @@ export type Database = {
         Returns: undefined
       }
       mark_overdue_applications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      notify_mfa_compliance: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
