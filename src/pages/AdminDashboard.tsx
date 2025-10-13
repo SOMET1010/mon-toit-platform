@@ -26,7 +26,7 @@ import { LeaseTemplateManager } from '@/components/admin/LeaseTemplateManager';
 import { PromoteToSuperAdmin } from '@/components/admin/PromoteToSuperAdmin';
 import PropertyModerationQueue from '@/components/admin/PropertyModerationQueue';
 import SensitiveDataAccessMonitor from '@/components/admin/SensitiveDataAccessMonitor';
-import { MfaSecurityMonitor } from '@/components/admin/MfaSecurityMonitor';
+import { EnhancedMfaSecurityMonitor } from '@/components/admin/EnhancedMfaSecurityMonitor';
 import { ProcessingConfigPanel } from '@/components/admin/ProcessingConfigPanel';
 import { ProcessingAnalytics } from '@/components/admin/ProcessingAnalytics';
 import { SeedDemoDataButton } from '@/components/admin/SeedDemoDataButton';
@@ -187,9 +187,9 @@ const AdminDashboard = () => {
               )}
 
               {/* Sécurité 2FA */}
-              {activeTab === 'mfa' && (
-                <MfaSecurityMonitor />
-              )}
+            {activeTab === 'mfa' && (
+              <EnhancedMfaSecurityMonitor />
+            )}
 
               {/* Audit */}
               {activeTab === 'audit' && (

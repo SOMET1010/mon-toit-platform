@@ -10,10 +10,15 @@ export interface MfaStatus {
   mfaRequired: boolean;
   gracePeriodDays: number;
   loading: boolean;
+  complianceStatus: {
+    daysRemaining: number;
+    isExpired: boolean;
+    expiresAt: Date | null;
+  };
 }
 
 export const useMfaStatus = () => {
-  const { user, roles } = useAuth();
+  const { user, roles, profile } = useAuth();
   const [status, setStatus] = useState<MfaStatus>({
     mfaEnabled: false,
     backupCodesCount: 0,
@@ -21,6 +26,11 @@ export const useMfaStatus = () => {
     mfaRequired: false,
     gracePeriodDays: 0,
     loading: true,
+    complianceStatus: {
+      daysRemaining: 0,
+      isExpired: false,
+      expiresAt: null,
+    },
   });
 
   useEffect(() => {
@@ -32,6 +42,11 @@ export const useMfaStatus = () => {
         mfaRequired: false,
         gracePeriodDays: 0,
         loading: false,
+        complianceStatus: {
+          daysRemaining: 0,
+          isExpired: false,
+          expiresAt: null,
+        },
       });
       return;
     }
@@ -77,6 +92,28 @@ export const useMfaStatus = () => {
           }
         }
 
+        // Calculer le statut de conformité pour les admins
+        let complianceStatus = {
+          daysRemaining: 0,
+          isExpired: false,
+          expiresAt: null as Date | null,
+        };
+
+        if (isRequired && !hasMfa && profile?.created_at) {
+          const createdAt = new Date(profile.created_at);
+          const expiresAt = new Date(createdAt);
+          expiresAt.setDate(expiresAt.getDate() + graceDays);
+          
+          const now = new Date();
+          const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          
+          complianceStatus = {
+            daysRemaining: Math.max(0, daysRemaining),
+            isExpired: daysRemaining < 0,
+            expiresAt,
+          };
+        }
+
         setStatus({
           mfaEnabled: hasMfa,
           backupCodesCount: totalCodes,
@@ -84,6 +121,7 @@ export const useMfaStatus = () => {
           mfaRequired: isRequired,
           gracePeriodDays: graceDays,
           loading: false,
+          complianceStatus,
         });
       } catch (error) {
         logger.logError(error, { context: 'useMfaStatus', action: 'fetch' });
@@ -92,7 +130,7 @@ export const useMfaStatus = () => {
     };
 
     fetchMfaStatus();
-  }, [user, roles]);
+  }, [user, roles, profile]);
 
   const refreshStatus = async () => {
     setStatus(prev => ({ ...prev, loading: true }));
@@ -106,13 +144,39 @@ export const useMfaStatus = () => {
       const totalCodes = backupCodes?.length || 0;
       const unusedCodes = backupCodes?.filter(code => !code.used_at).length || 0;
 
-      setStatus(prev => ({
-        ...prev,
-        mfaEnabled: totalCodes > 0,
-        backupCodesCount: totalCodes,
-        unusedCodesCount: unusedCodes,
-        loading: false,
-      }));
+      setStatus(prev => {
+        // Recalculer le statut de conformité
+        let complianceStatus = prev.complianceStatus;
+        if (prev.mfaRequired && totalCodes === 0 && profile?.created_at) {
+          const createdAt = new Date(profile.created_at);
+          const expiresAt = new Date(createdAt);
+          expiresAt.setDate(expiresAt.getDate() + prev.gracePeriodDays);
+          
+          const now = new Date();
+          const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          
+          complianceStatus = {
+            daysRemaining: Math.max(0, daysRemaining),
+            isExpired: daysRemaining < 0,
+            expiresAt,
+          };
+        } else if (totalCodes > 0) {
+          complianceStatus = {
+            daysRemaining: 0,
+            isExpired: false,
+            expiresAt: null,
+          };
+        }
+
+        return {
+          ...prev,
+          mfaEnabled: totalCodes > 0,
+          backupCodesCount: totalCodes,
+          unusedCodesCount: unusedCodes,
+          loading: false,
+          complianceStatus,
+        };
+      });
     }
   };
 
