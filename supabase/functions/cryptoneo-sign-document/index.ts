@@ -14,7 +14,14 @@ serve(async (req) => {
   }
 
   try {
-    const { leaseId, userType } = await req.json();
+    const { leaseId, otp } = await req.json();
+
+    if (!otp) {
+      return new Response(
+        JSON.stringify({ error: 'Code OTP requis' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -34,6 +41,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    console.log('🔐 Signature électronique CryptoNeo pour bail:', leaseId);
 
     // 1. Verify lease and signatures
     const { data: lease } = await supabaseAdmin
@@ -106,55 +115,81 @@ serve(async (req) => {
     }
 
     // 3. Download PDF from storage
-    const pdfPath = lease.document_url.split('/').pop();
-    const { data: pdfBlob, error: downloadError } = await supabaseAdmin.storage
-      .from('lease-documents')
-      .download(pdfPath);
+    let pdfBlob;
+    let pdfPath = lease.document_url;
 
-    if (downloadError || !pdfBlob) {
-      console.error('Error downloading PDF:', downloadError);
+    // Handle both full URLs and relative paths
+    if (pdfPath.includes('http')) {
+      // Full URL - download directly
+      const pdfResponse = await fetch(pdfPath);
+      if (!pdfResponse.ok) {
+        throw new Error('Échec téléchargement du PDF depuis URL');
+      }
+      pdfBlob = await pdfResponse.blob();
+    } else {
+      // Relative path - download from storage
+      const pathParts = pdfPath.split('/');
+      const fileName = pathParts[pathParts.length - 1];
+      
+      const { data: downloadedBlob, error: downloadError } = await supabaseAdmin.storage
+        .from('lease-documents')
+        .download(fileName);
+
+      if (downloadError || !downloadedBlob) {
+        console.error('Error downloading PDF:', downloadError);
+        return new Response(
+          JSON.stringify({ error: 'Échec téléchargement du PDF' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      pdfBlob = downloadedBlob;
+    }
+
+    // 4. Get JWT token
+    const authResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/cryptoneo-auth`, {
+      headers: { Authorization: req.headers.get('Authorization')! }
+    });
+    
+    if (!authResponse.ok) {
       return new Response(
-        JSON.stringify({ error: 'Échec téléchargement du PDF' }),
+        JSON.stringify({ error: 'Échec authentification CryptoNeo' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 4. Convert PDF to base64
-    const arrayBuffer = await pdfBlob.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    const base64File = btoa(String.fromCharCode(...bytes));
-
-    // 5. Calculate hash
-    const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashFile = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-    // 6. Get JWT token
-    const authResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/cryptoneo-auth`, {
-      headers: { Authorization: req.headers.get('Authorization')! }
-    });
     const { token: jwt } = await authResponse.json();
 
-    // 7. Call CryptoNeo sign API
-    const signResponse = await fetch(`${CRYPTONEO_BASE_URL}/sign/signPdfBatch`, {
+    // 5. Prepare multipart/form-data for CryptoNeo
+    const formData = new FormData();
+    formData.append('files', pdfBlob, `bail_${leaseId}.pdf`);
+    formData.append('certificateId', certificate.data.certificate_id);
+    formData.append('otp', otp);
+    formData.append('callbackUrl', `${Deno.env.get('SUPABASE_URL')}/functions/v1/cryptoneo-callback`);
+
+    console.log('📤 Envoi de la requête de signature à CryptoNeo...');
+
+    // 6. Call CryptoNeo sign API
+    const signResponse = await fetch(`${CRYPTONEO_BASE_URL}/sign/signFileBatch`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${jwt}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${jwt}`
+        // Note: Ne pas définir Content-Type, FormData le fait automatiquement
       },
-      body: JSON.stringify({
-        certificatId: certificate.data.certificate_id,
-        hashFile,
-        base64File,
-        fileName: `bail_${leaseId}_${userType}.pdf`,
-        signReason: `Signature électronique ${userType === 'landlord' ? 'du propriétaire' : 'du locataire'}`,
-        location: lease.properties?.city || 'Abidjan'
-      })
+      body: formData
     });
 
     if (!signResponse.ok) {
       const error = await signResponse.text();
       console.error('CryptoNeo signature failed:', error);
+      
+      // Check if it's an OTP error
+      if (error.includes('OTP') || error.includes('8006')) {
+        return new Response(
+          JSON.stringify({ error: 'Code OTP invalide ou expiré' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: 'Échec signature CryptoNeo' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -162,53 +197,68 @@ serve(async (req) => {
     }
 
     const signData = await signResponse.json();
-    const operationId = signData.operationId;
-
-    // 8. Update lease
-    const updateField = userType === 'landlord' 
-      ? 'landlord_signature_operation_id' 
-      : 'tenant_signature_operation_id';
     
-    const timestampField = `${userType}_cryptoneo_signature_at`;
+    if (signData.statusCode !== 7004) {
+      return new Response(
+        JSON.stringify({ error: signData.statusMessage || 'Échec signature' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
+    const operationId = signData.data?.operationId;
+    
+    if (!operationId) {
+      return new Response(
+        JSON.stringify({ error: 'Operation ID manquant dans la réponse CryptoNeo' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('✅ Signature initiée avec succès. Operation ID:', operationId);
+
+    // 7. Update lease with operation ID
     await supabaseAdmin
       .from('leases')
       .update({
-        [updateField]: operationId,
-        [timestampField]: new Date().toISOString()
+        cryptoneo_operation_id: operationId,
+        cryptoneo_signature_status: 'processing'
       })
       .eq('id', leaseId);
 
-    // 9. Log operation
-    await supabaseAdmin
-      .from('electronic_signature_logs')
-      .insert({
-        lease_id: leaseId,
-        user_id: user.id,
-        operation_id: operationId,
-        signature_type: userType,
-        status: 'in_progress',
-        cryptoneo_response: signData
-      });
+    // 8. Create notification
+    await supabaseAdmin.from('notifications').insert([
+      {
+        user_id: lease.landlord_id,
+        type: 'lease_signature_processing',
+        category: 'lease',
+        title: 'Signature en cours',
+        message: 'La signature électronique du bail est en cours de traitement.',
+        link: `/leases/${leaseId}`
+      },
+      {
+        user_id: lease.tenant_id,
+        type: 'lease_signature_processing',
+        category: 'lease',
+        title: 'Signature en cours',
+        message: 'La signature électronique du bail est en cours de traitement.',
+        link: `/leases/${leaseId}`
+      }
+    ]);
 
-    // 10. Trigger async verification after 30s
-    setTimeout(async () => {
-      await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/cryptoneo-verify-signature`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ leaseId, operationId })
-      });
-    }, 30000);
-
-    console.log('Signature initiated:', operationId);
+    // 9. Log in audit logs
+    await supabaseAdmin.from('admin_audit_logs').insert({
+      admin_id: user.id,
+      action_type: 'lease_signature_initiated',
+      target_type: 'lease',
+      target_id: leaseId,
+      notes: `Signature électronique CryptoNeo initiée - Operation: ${operationId}`
+    });
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        operationId
+        operationId,
+        message: 'Signature en cours de traitement. Vous serez notifié une fois terminée.'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -222,3 +272,4 @@ serve(async (req) => {
     );
   }
 });
+
