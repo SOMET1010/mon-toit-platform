@@ -126,14 +126,14 @@ export default defineConfig(({ mode }) => ({
       },
     }));
     
-    // Only add Sentry in production mode
-    if (mode === "production") {
-      plugins.push(sentryVitePlugin({
-        org: process.env.SENTRY_ORG,
-        project: process.env.SENTRY_PROJECT,
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-      }));
-    }
+    // Only add Sentry in production mode - DISABLED for now to reduce build size
+    // if (mode === "production") {
+    //   plugins.push(sentryVitePlugin({
+    //     org: process.env.SENTRY_ORG,
+    //     project: process.env.SENTRY_PROJECT,
+    //     authToken: process.env.SENTRY_AUTH_TOKEN,
+    //   }));
+    // }
     
     return plugins;
   })(),
@@ -144,18 +144,26 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
-    sourcemap: mode === "production",
+    sourcemap: false, // Désactiver les sourcemaps pour réduire la mémoire
     target: 'es2020',
+    minify: 'esbuild', // Plus rapide et moins gourmand en mémoire que terser
     rollupOptions: {
       external: (id) => {
         // Externaliser tous les modules Capacitor pour le build web
         return id.startsWith('@capacitor/');
       },
       output: {
-        inlineDynamicImports: true,
-        chunkFileNames: () => {
-          return `assets/[name]-[hash].js`;
+        // DÉSACTIVER inlineDynamicImports pour permettre le code splitting
+        // inlineDynamicImports: true,
+        manualChunks: {
+          // Séparer les grosses dépendances en chunks distincts
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          'query-vendor': ['@tanstack/react-query'],
+          'map-vendor': ['mapbox-gl'],
+          'supabase-vendor': ['@supabase/supabase-js'],
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.css')) {
             return 'assets/styles-[hash][extname]';
@@ -166,4 +174,9 @@ export default defineConfig(({ mode }) => ({
     },
     chunkSizeWarningLimit: 1000,
   },
+  // Optimisations supplémentaires
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
+  },
 }));
+
