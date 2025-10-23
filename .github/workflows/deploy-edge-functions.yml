@@ -32,8 +32,7 @@ jobs:
       
       - name: 🔐 Login to Supabase
         run: |
-          echo "${{ secrets.SUPABASE_ACCESS_TOKEN }}" | supabase login --token
-      
+                supabase login --token "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
       - name: 🔗 Link to Supabase project
         run: |
           supabase link --project-ref $SUPABASE_PROJECT_ID
