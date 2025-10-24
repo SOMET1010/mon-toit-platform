@@ -103,24 +103,23 @@ const handler = async (req: Request): Promise<Response> => {
 
 async function sendSecurityAlert(email: string, attempts: number, ipAddress: string) {
   try {
-    const brevoApiKey = Deno.env.get('BREVO_API_KEY');
-    if (!brevoApiKey) {
-      console.warn('BREVO_API_KEY not configured, skipping email alert');
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.warn('RESEND_API_KEY not configured, skipping email alert');
       return;
     }
 
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'api-key': brevoApiKey,
+        'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        sender: { name: 'MonToit Security', email: 'security@montoit.ci' },
-        to: [{ email: 'admin@montoit.ci' }], // Email fixe pour les alertes
+        from: 'MonToit Security <no-reply@notifications.ansut.ci>',
+        to: ['admin@montoit.ci'], // Email fixe pour les alertes
         subject: `🚨 Alerte Sécurité - Tentatives de connexion échouées`,
-        htmlContent: `
+        html: `
           <h2>Alerte de Sécurité</h2>
           <p><strong>${attempts} tentatives de connexion échouées</strong> ont été détectées pour le compte :</p>
           <ul>
@@ -136,7 +135,7 @@ async function sendSecurityAlert(email: string, attempts: number, ipAddress: str
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Brevo API error:', error);
+      console.error('Resend API error:', error);
     } else {
       console.log('Security alert email sent successfully');
     }

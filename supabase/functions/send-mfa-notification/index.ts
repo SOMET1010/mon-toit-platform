@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
-const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY');
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+const RESEND_API_URL = 'https://api.resend.com/emails';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -83,8 +83,8 @@ serve(async (req) => {
   try {
     const { email, fullName, notificationType, metadata }: MfaNotificationRequest = await req.json();
 
-    if (!BREVO_API_KEY) {
-      throw new Error('BREVO_API_KEY not configured');
+    if (!RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY not configured');
     }
 
     let template;
@@ -105,24 +105,23 @@ serve(async (req) => {
         throw new Error('Invalid notification type');
     }
 
-    const response = await fetch(BREVO_API_URL, {
+    const response = await fetch(RESEND_API_URL, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'api-key': BREVO_API_KEY,
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        sender: { name: 'Mon Toit', email: 'noreply@montoit.ci' },
-        to: [{ email, name: fullName }],
+        from: 'MonToit ANSUT <no-reply@notifications.ansut.ci>',
+        to: [email],
         subject: template.subject,
-        htmlContent: template.htmlContent,
+        html: template.htmlContent,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Brevo API error:', error);
+      console.error('Resend API error:', error);
       throw new Error(`Failed to send email: ${error}`);
     }
 

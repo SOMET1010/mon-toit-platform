@@ -11,62 +11,75 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, filename } = await req.json();
+    const { prompt, filename, size = "1024x1024", quality = "standard" } = await req.json();
     
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    console.log(`Generating illustration: ${filename}`);
+    console.log(`Generating illustration with DALL-E 3: ${filename}`);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        modalities: ["image", "text"]
-      })
-    });
+    // Utiliser OpenAI DALL-E 3 pour générer l'image
+    const response = await fetch(
+      "https://api.openai.com/v1/images/generations",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: prompt,
+          n: 1,
+          size: size, // "1024x1024", "1792x1024", ou "1024x1792"
+          quality: quality, // "standard" ou "hd"
+          response_format: "url"
+        })
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limits exceeded, please try again later." }), 
+          JSON.stringify({ error: "Trop de demandes. Merci de patienter un instant." }), 
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(
-          JSON.stringify({ error: "Payment required, please add credits to your Lovable AI workspace." }), 
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Clé API OpenAI invalide. Contactez l'administrateur." }), 
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+      
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error("OpenAI DALL-E error:", response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
+    
+    // DALL-E 3 retourne l'URL de l'image générée
+    const imageUrl = data.data?.[0]?.url;
+    const revisedPrompt = data.data?.[0]?.revised_prompt;
+    
     if (!imageUrl) {
-      throw new Error("No image generated");
+      throw new Error("No image URL returned from DALL-E 3");
     }
 
-    console.log(`Successfully generated illustration: ${filename}`);
+    console.log(`Successfully generated illustration with DALL-E 3: ${filename}`);
+    if (revisedPrompt) {
+      console.log(`Revised prompt: ${revisedPrompt}`);
+    }
 
     return new Response(
-      JSON.stringify({ imageUrl, filename }), 
+      JSON.stringify({ 
+        imageUrl, 
+        filename,
+        revisedPrompt // DALL-E 3 peut améliorer le prompt
+      }), 
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200 
@@ -78,9 +91,10 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
       { 
-        status: 500, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
       }
     );
   }
 });
+

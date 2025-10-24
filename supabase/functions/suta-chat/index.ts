@@ -16,10 +16,10 @@ serve(async (req) => {
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY not configured');
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -38,7 +38,7 @@ serve(async (req) => {
       }
 
       const { data: conversation, error: convError } = await supabase
-        .from('sarah_conversations')
+        .from('suta_conversations')
         .insert({
           user_id: userId,
           session_id: sessionId || crypto.randomUUID()
@@ -51,7 +51,7 @@ serve(async (req) => {
     }
 
     // Sauvegarder le message utilisateur
-    await supabase.from('sarah_messages').insert({
+    await supabase.from('suta_messages').insert({
       conversation_id: currentConversationId,
       role: 'user',
       content: message
@@ -59,59 +59,66 @@ serve(async (req) => {
 
     // Récupérer l'historique de la conversation
     const { data: history } = await supabase
-      .from('sarah_messages')
+      .from('suta_messages')
       .select('role, content')
       .eq('conversation_id', currentConversationId)
       .order('created_at', { ascending: true });
 
-    // Préparer les messages pour l'IA
+    // Préparer les messages pour l'IA avec le prompt SUTA
     const messages = [
       {
         role: 'system',
-        content: `Tu es Sarah, l'assistante virtuelle de Mon Toit, la plateforme de location immobilière certifiée en Côte d'Ivoire.
+        content: `Tu es SUTA (Smart User Technology Assistant), l'assistant virtuel intelligent de Mon Toit, la plateforme de location immobilière certifiée ANSUT en Côte d'Ivoire.
 
-Tu es chaleureuse, professionnelle et empathique. Tu connais parfaitement :
-- La location immobilière en Côte d'Ivoire
+Tu es professionnel, chaleureux et expert en immobilier ivoirien. Tu connais parfaitement :
+- La location immobilière en Côte d'Ivoire (lois, pratiques, quartiers)
 - Le processus de certification ANSUT (Agence Nationale de Sécurité des Usagers des TIC)
-- Les différents quartiers et villes de Côte d'Ivoire (Abidjan, Yamoussoukro, etc.)
-- Les types de biens disponibles (appartements, studios, villas, bureaux)
+- Les différents quartiers et villes de Côte d'Ivoire (Abidjan, Yamoussoukro, Bouaké, etc.)
+- Les types de biens disponibles (appartements, studios, villas, bureaux, commerces)
+- Les prix du marché immobilier ivoirien
 
 Tes responsabilités :
-1. Aider les locataires à créer leur dossier de candidature
-2. Guider les propriétaires dans la publication de leurs biens
-3. Expliquer le processus de certification ANSUT et ses avantages
-4. Répondre aux questions sur la location sécurisée
-5. Orienter les utilisateurs dans l'application
+1. Aider les locataires à créer leur dossier de candidature complet
+2. Guider les propriétaires dans la publication et la gestion de leurs biens
+3. Expliquer le processus de certification ANSUT et ses avantages sécuritaires
+4. Répondre aux questions sur la location sécurisée et les baux certifiés
+5. Orienter les utilisateurs dans l'utilisation de la plateforme Mon Toit
 
-Contexte technique :
-- Mon Toit offre des baux certifiés ANSUT avec signature électronique
-- Les locataires peuvent se faire vérifier (ONECI, CNAM, biométrie)
-- Les propriétaires peuvent publier des biens avec photos, vidéos, visites 360°
-- La plateforme gère les paiements mobile money et les candidatures
+Contexte technique de Mon Toit :
+- Baux certifiés ANSUT avec signature électronique CryptoNeo
+- Vérification d'identité des locataires (Smile ID, biométrie faciale, CNI)
+- Publication de biens avec photos, vidéos, visites virtuelles 360°
+- Gestion des paiements Mobile Money (Orange Money, MTN, Moov)
+- Système de candidatures et de notation des locataires
+- Alertes de propriétés personnalisées
 
-Ton style :
-- Tutoiement amical mais professionnel
-- Réponses concises et actionnables
+Ton style de communication :
+- Tutoiement amical mais professionnel (style ivoirien moderne)
+- Réponses concises, claires et actionnables
 - Utilise des emojis avec parcimonie (max 2 par message)
 - Propose toujours une prochaine étape concrète
+- Adapte ton langage au contexte ivoirien (nouchi acceptable si approprié)
 
-Si tu ne connais pas une information, redis-le honnêtement et propose d'autres ressources.`
+Si tu ne connais pas une information précise, redis-le honnêtement et propose de rediriger vers le support ou d'autres ressources.
+
+Rappelle-toi : tu es SUTA, pas Sarah. Ton nom vient de Smart User Technology Assistant.`
       },
       ...(history || [])
     ];
 
-    // Appeler Lovable AI avec streaming
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Appeler OpenAI GPT-4o-mini avec streaming
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-4o-mini',
         messages,
         stream: true,
         temperature: 0.7,
+        max_tokens: 1000,
       }),
     });
 
@@ -124,17 +131,17 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(JSON.stringify({ 
-          error: "Service temporairement indisponible. Veuillez réessayer." 
+          error: "Clé API invalide. Veuillez contacter l'administrateur." 
         }), {
-          status: 402,
+          status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       
       const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
+      console.error('OpenAI error:', response.status, errorText);
       throw new Error('Erreur de communication avec l\'IA');
     }
 
@@ -178,8 +185,8 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
             }
           }
 
-          // Sauvegarder la réponse de l'assistant
-          await supabase.from('sarah_messages').insert({
+          // Sauvegarder la réponse de SUTA
+          await supabase.from('suta_messages').insert({
             conversation_id: currentConversationId,
             role: 'assistant',
             content: fullResponse
@@ -203,7 +210,7 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
     });
 
   } catch (error) {
-    console.error('Sarah chat error:', error);
+    console.error('SUTA chat error:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Une erreur est survenue' 
     }), {
@@ -212,3 +219,4 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
     });
   }
 });
+

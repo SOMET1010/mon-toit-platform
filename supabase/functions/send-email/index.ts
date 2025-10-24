@@ -13,6 +13,7 @@ import { leaseContractGeneratedTemplate } from "./_templates/lease-contract-gene
 import { roleChangeConfirmationTemplate, roleChangeConfirmationTextTemplate } from "./_templates/role-change-confirmation.ts";
 import { guestMessageNotificationTemplate } from "./_templates/guest-message-notification.ts";
 import { monthlyReportTemplate } from "./_templates/monthly-report.ts";
+import { securityAlertTemplate } from "./_templates/security-alert.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,10 +34,10 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { to, subject, template, data }: EmailRequest = await req.json();
-    const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
-    if (!brevoApiKey) {
-      throw new Error("BREVO_API_KEY not configured");
+    if (!resendApiKey) {
+      throw new Error("RESEND_API_KEY not configured");
     }
 
     console.log(`Sending email to ${to} with template ${template}`);
@@ -88,40 +89,39 @@ const handler = async (req: Request): Promise<Response> => {
       case "monthly-report":
         html = monthlyReportTemplate(data);
         break;
+      case "security-alert":
+        html = securityAlertTemplate(data);
+        break;
       default:
         throw new Error(`Unknown template: ${template}`);
     }
 
-    // Send email via Brevo API
-    const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+    // Send email via Resend API
+    const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Accept": "application/json",
         "Content-Type": "application/json",
-        "api-key": brevoApiKey,
+        "Authorization": `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        sender: {
-          name: "MonToit ANSUT",
-          email: "noreply@montoit.ci",
-        },
-        to: [{ email: to }],
+        from: "MonToit ANSUT <no-reply@notifications.ansut.ci>",
+        to: [to],
         subject: subject,
-        htmlContent: html,
-        textContent: textContent,
+        html: html,
+        text: textContent,
       }),
     });
 
-    if (!brevoResponse.ok) {
-      const error = await brevoResponse.text();
-      console.error("Brevo API error:", error);
-      throw new Error(`Brevo API error: ${error}`);
+    if (!resendResponse.ok) {
+      const error = await resendResponse.text();
+      console.error("Resend API error:", error);
+      throw new Error(`Resend API error: ${error}`);
     }
 
-    const result = await brevoResponse.json();
-    console.log("Email sent successfully:", result);
+    const result = await resendResponse.json();
+    console.log("Email sent successfully via Resend:", result);
 
-    return new Response(JSON.stringify({ success: true, messageId: result.messageId }), {
+    return new Response(JSON.stringify({ success: true, id: result.id }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
