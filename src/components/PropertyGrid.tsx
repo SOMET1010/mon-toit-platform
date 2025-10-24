@@ -27,6 +27,9 @@ export const PropertyGrid = ({
   const [displayLimit, setDisplayLimit] = useState(limit);
   const [sortBy, setSortBy] = useState<'recent' | 'price_asc' | 'price_desc'>('recent');
   const [filters, setFilters] = useState<PropertyFilters>({});
+  
+  // Détecter si on est sur mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   // Fetch properties
   const { data: properties = [], isLoading, isError, error, refetch } = useQuery({
@@ -87,8 +90,7 @@ export const PropertyGrid = ({
     setFilters({});
   };
 
-  return (
-    <PullToRefresh onRefresh={handleRefresh}>
+  const content = (
     <section className="bg-background">
       <div className="container mx-auto px-4 py-8 max-w-[1400px]">
         {/* Header: Filters toggle + Sort */}
@@ -191,6 +193,12 @@ export const PropertyGrid = ({
         </div>
       </div>
     </section>
-    </PullToRefresh>
   );
+  
+  // Wrapper avec PullToRefresh seulement sur mobile
+  return isMobile ? (
+    <PullToRefresh onRefresh={handleRefresh}>
+      {content}
+    </PullToRefresh>
+  ) : content;
 };
