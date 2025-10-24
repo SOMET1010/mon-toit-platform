@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRoleSwitch } from '@/hooks/useRoleSwitch';
+import { useRoleSwitchV2 } from '@/hooks/useRoleSwitchV2';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,14 +41,14 @@ const roleConfig = {
 
 export const RoleSelectorFull = () => {
   const { 
-    currentRole, 
+    activeRole: currentRole, 
     availableRoles, 
-    isLoading, 
-    error,
+    isSwitching: isLoading, 
     switchRole,
-    fetchActiveRoles,
-    hasMultipleRoles 
-  } = useRoleSwitch();
+    refetchRoles: fetchActiveRoles
+  } = useRoleSwitchV2();
+  
+  const hasMultipleRoles = availableRoles.length > 1;
 
   const [switching, setSwitching] = useState<UserType | null>(null);
 
@@ -85,13 +85,6 @@ export const RoleSelectorFull = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error.message}</AlertDescription>
-        </Alert>
-      )}
-
         <div className="grid gap-3">
           {filteredRoles.map((role) => {
             const config = roleConfig[role];

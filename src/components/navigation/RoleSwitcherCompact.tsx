@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRoleSwitch } from '@/hooks/useRoleSwitch';
+import { useRoleSwitchV2 } from '@/hooks/useRoleSwitchV2';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Loader2, Home, Building2, Briefcase } from 'lucide-react';
@@ -43,14 +43,14 @@ const roleConfig = {
 
 export const RoleSwitcherCompact = () => {
   const { 
-    currentRole, 
+    activeRole: currentRole, 
     availableRoles, 
-    isLoading, 
-    error,
+    isSwitching: isLoading, 
     switchRole,
-    fetchActiveRoles,
-    hasMultipleRoles 
-  } = useRoleSwitch();
+    refetchRoles: fetchActiveRoles
+  } = useRoleSwitchV2();
+  
+  const hasMultipleRoles = availableRoles.length > 1;
 
   useEffect(() => {
     fetchActiveRoles();
