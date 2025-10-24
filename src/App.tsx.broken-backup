@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { initializeSentry } from "@/lib/sentry-enhanced";
+import { SutaChatbot } from "@/components/SutaChatbot";
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
@@ -19,8 +20,8 @@ import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { InstallPWA } from "@/components/pwa/InstallPWA";
 import { SplashScreen } from "@/components/pwa/SplashScreen";
 import { PageTransition } from "@/components/animations/PageTransition";
-import { MainLayout } from "@/components/layout/MainLayout";
 
+import { MainLayout } from "@/components/layout/MainLayout";
 // Eager load critical pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -114,6 +115,7 @@ const AppContent = () => {
       </a>
       
       <ContextBar />
+      <SutaChatbot />
       <main id="main-content" tabIndex={-1}>
         <MainLayout>
         <PageTransition>

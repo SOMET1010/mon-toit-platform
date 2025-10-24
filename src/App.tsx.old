@@ -74,7 +74,6 @@ import HowItWorksPage from "./pages/HowItWorksPage";
 import AboutPage from "./pages/AboutPage";
 import SmartMap from "./pages/SmartMap";
 import SmartMapV2 from "./pages/SmartMapV2";
-
 import MandatesHelp from "./pages/MandatesHelp";
 
 // Initialiser Sentry au démarrage de l'application
@@ -116,8 +115,7 @@ const AppContent = () => {
       <ContextBar />
       <main id="main-content" tabIndex={-1}>
         <MainLayout>
-        <PageTransition>
-          <Routes>
+          <PageTransition>
             <Route path="/" element={<Index />} />
             <Route path="/offline" element={<Suspense fallback={<PageSkeleton />}><Offline /></Suspense>} />
             <Route path="/recherche" element={<Search />} />
@@ -388,7 +386,7 @@ const AppContent = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </PageTransition>
+          </PageTransition>
         </MainLayout>
       </main>
       <BottomNavigation />

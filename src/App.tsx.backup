@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { initializeSentry } from "@/lib/sentry-enhanced";
+import { SarahChatbot } from "@/components/SarahChatbot";
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
@@ -19,7 +20,6 @@ import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { InstallPWA } from "@/components/pwa/InstallPWA";
 import { SplashScreen } from "@/components/pwa/SplashScreen";
 import { PageTransition } from "@/components/animations/PageTransition";
-import { MainLayout } from "@/components/layout/MainLayout";
 
 // Eager load critical pages
 import Index from "./pages/Index";
@@ -114,8 +114,8 @@ const AppContent = () => {
       </a>
       
       <ContextBar />
+      <SarahChatbot />
       <main id="main-content" tabIndex={-1}>
-        <MainLayout>
         <PageTransition>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -389,7 +389,6 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </PageTransition>
-        </MainLayout>
       </main>
       <BottomNavigation />
     </>
