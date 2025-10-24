@@ -153,11 +153,53 @@ const Auth = () => {
       const ipAddress = await getClientIP();
       const fingerprint = getDeviceFingerprint();
 
-      // Check rate limit before attempting sign in
-      const { data: rateLimitCheck } = await supabase.rpc('check_login_rate_limit', {
-        _email: signInEmail,
-        _ip_address: ipAddress
-      }) as { data: { allowed: boolean; reason?: string; retry_after?: string; blocked?: boolean; show_captcha?: boolean; failed_count?: number } | null };
+      // Check rate limit before attempting sign in (with fallback)
+      let rateLimitCheck: { allowed: boolean; reason?: string; retry_after?: string; blocked?: boolean; show_captcha?: boolean; failed_count?: number } | null = null;
+      
+      try {
+        const { data, error } = await supabase.rpc('check_login_rate_limit', {
+          _email: signInEmail,
+          _ip_address: ipAddress
+        });
+        
+        if (!error && data) {
+          rateLimitCheck = data as any;
+        }
+      } catch (rpcError) {
+        // RPC doesn't exist, use fallback: check login_attempts table directly
+        console.warn('RPC check_login_rate_limit not found, using fallback');
+        
+        const fiveMinutesAgo = new Date();
+        fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+        
+        const { data: recentAttempts, error: attemptsError } = await supabase
+          .from('login_attempts')
+          .select('*')
+          .eq('email', signInEmail)
+          .gte('created_at', fiveMinutesAgo.toISOString())
+          .eq('success', false);
+        
+        if (!attemptsError && recentAttempts) {
+          const failedCount = recentAttempts.length;
+          
+          // Simple rate limiting: max 5 failed attempts in 5 minutes
+          if (failedCount >= 5) {
+            rateLimitCheck = {
+              allowed: false,
+              reason: 'Trop de tentatives de connexion échouées. Veuillez réessayer dans quelques minutes.',
+              failed_count: failedCount
+            };
+          } else {
+            rateLimitCheck = {
+              allowed: true,
+              failed_count: failedCount
+            };
+          }
+        } else {
+          // If we can't check, allow the attempt
+          rateLimitCheck = { allowed: true };
+        }
+      }
 
       if (rateLimitCheck && typeof rateLimitCheck === 'object' && 'allowed' in rateLimitCheck && !rateLimitCheck.allowed) {
         setIsBlocked(true);

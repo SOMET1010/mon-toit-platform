@@ -47,9 +47,64 @@ export const useMfaCompliance = () => {
       setLoading(true);
       setError(null);
 
-      const { data, error: rpcError } = await supabase.rpc('check_admin_mfa_compliance');
+      // Try RPC first, fallback to direct queries
+      let data = null;
+      const { data: rpcData, error: rpcError } = await supabase.rpc('check_admin_mfa_compliance');
 
-      if (rpcError) throw rpcError;
+      if (!rpcError && rpcData) {
+        data = rpcData;
+      } else {
+        // Fallback: fetch data directly from tables
+        console.warn('RPC check_admin_mfa_compliance not found, using fallback queries');
+
+        // Get all admin users
+        const { data: adminRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('role', ['admin', 'super_admin']);
+
+        if (rolesError) throw rolesError;
+
+        if (!adminRoles || adminRoles.length === 0) {
+          data = [];
+        } else {
+          // For each admin, get their profile and MFA status
+          const adminData = await Promise.all(
+            adminRoles.map(async (adminRole) => {
+              // Get profile
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, created_at')
+                .eq('id', adminRole.user_id)
+                .single();
+
+              // Check if user has MFA enabled
+              const { data: { user } } = await supabase.auth.admin.getUserById(adminRole.user_id);
+              const hasMfa = user?.factors && user.factors.length > 0;
+
+              // Calculate grace period (7 days from account creation)
+              const createdAt = new Date(profile?.created_at || new Date());
+              const gracePeriodExpires = new Date(createdAt);
+              gracePeriodExpires.setDate(gracePeriodExpires.getDate() + 7);
+
+              const now = new Date();
+              const isCompliant = hasMfa || now < gracePeriodExpires;
+
+              return {
+                user_id: adminRole.user_id,
+                full_name: profile?.full_name || 'Utilisateur inconnu',
+                role: adminRole.role,
+                has_mfa: hasMfa || false,
+                account_created_at: profile?.created_at || new Date().toISOString(),
+                grace_period_expires_at: gracePeriodExpires.toISOString(),
+                is_compliant: isCompliant
+              };
+            })
+          );
+
+          data = adminData;
+        }
+      }
 
       const processedAdmins = (data || []).map(calculateStatus);
       setAdmins(processedAdmins);
@@ -90,3 +145,4 @@ export const useMfaCompliance = () => {
     },
   };
 };
+

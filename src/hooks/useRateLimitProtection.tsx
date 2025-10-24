@@ -33,13 +33,54 @@ export const useRateLimitProtection = (
     try {
       const ipAddress = await getClientIP();
       
-      const { data, error } = await supabase.rpc('check_api_rate_limit', {
-        _endpoint: endpoint,
-        _user_id: user?.id || null,
-        _ip_address: ipAddress,
-        _max_requests: maxRequests,
-        _window_minutes: windowMinutes
-      });
+      // Try RPC first, fallback to direct query
+      let data = null;
+      let error = null;
+      
+      try {
+        const result = await supabase.rpc('check_api_rate_limit', {
+          _endpoint: endpoint,
+          _user_id: user?.id || null,
+          _ip_address: ipAddress,
+          _max_requests: maxRequests,
+          _window_minutes: windowMinutes
+        });
+        
+        data = result.data;
+        error = result.error;
+      } catch (rpcError) {
+        console.warn('RPC check_api_rate_limit not found, using fallback');
+        
+        // Fallback: check api_rate_limits table directly
+        const windowStart = new Date();
+        windowStart.setMinutes(windowStart.getMinutes() - windowMinutes);
+        
+        const { data: recentRequests, error: queryError } = await supabase
+          .from('api_rate_limits')
+          .select('*')
+          .eq('endpoint', endpoint)
+          .gte('created_at', windowStart.toISOString())
+          .or(`user_id.eq.${user?.id || 'null'},ip_address.eq.${ipAddress}`);
+        
+        if (queryError) {
+          error = queryError;
+        } else {
+          const requestCount = recentRequests?.length || 0;
+          
+          if (requestCount >= maxRequests) {
+            data = null; // Rate limit exceeded
+          } else {
+            data = true; // Within limits
+            
+            // Log this request
+            await supabase.from('api_rate_limits').insert({
+              endpoint,
+              user_id: user?.id || null,
+              ip_address: ipAddress
+            });
+          }
+        }
+      }
 
       if (error) {
         logger.logError(error, { context: 'useRateLimitProtection', action: 'check', endpoint });
@@ -72,3 +113,4 @@ export const useRateLimitProtection = (
 
   return { checkLimit, isChecking };
 };
+

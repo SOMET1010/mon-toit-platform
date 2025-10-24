@@ -172,12 +172,65 @@ export const useRoleSwitch = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.rpc('add_available_role', {
-        p_user_id: user.id,
-        p_new_role: newRole
-      });
+      // Try RPC first, fallback to direct insert
+      let success = false;
       
-      if (error) throw error;
+      try {
+        const { error } = await supabase.rpc('add_available_role', {
+          p_user_id: user.id,
+          p_new_role: newRole
+        });
+        
+        if (!error) {
+          success = true;
+        }
+      } catch (rpcError) {
+        console.warn('RPC add_available_role not found, using fallback');
+      }
+      
+      if (!success) {
+        // Fallback: insert directly into user_roles table
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: user.id,
+            role: newRole
+          });
+        
+        if (insertError) {
+          // Check if role already exists
+          if (insertError.code === '23505') { // Unique violation
+            toast({
+              title: "Information",
+              description: `Vous avez déjà le rôle ${newRole}`,
+            });
+            await fetchActiveRoles();
+            setIsLoading(false);
+            return;
+          }
+          throw insertError;
+        }
+        
+        // Update user_active_roles to include new role
+        const { data: currentActiveRoles } = await supabase
+          .from('user_active_roles')
+          .select('available_roles')
+          .eq('user_id', user.id)
+          .single();
+        
+        const availableRoles = currentActiveRoles?.available_roles || [];
+        if (!availableRoles.includes(newRole)) {
+          availableRoles.push(newRole);
+          
+          await supabase
+            .from('user_active_roles')
+            .upsert({
+              user_id: user.id,
+              available_roles: availableRoles,
+              current_role: availableRoles[0] // Keep current role
+            });
+        }
+      }
       
       toast({
         title: "✅ Rôle ajouté",

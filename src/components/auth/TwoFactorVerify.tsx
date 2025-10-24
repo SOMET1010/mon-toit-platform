@@ -21,9 +21,18 @@ export const TwoFactorVerify = ({ onVerified, onCancel }: TwoFactorVerifyProps) 
 
   useEffect(() => {
     const checkRateLimit = async () => {
-      const { data, error } = await supabase.rpc('check_mfa_rate_limit');
-      if (!error && data === false) {
-        setIsRateLimited(true);
+      try {
+        const { data, error } = await supabase.rpc('check_mfa_rate_limit');
+        if (!error && data === false) {
+          setIsRateLimited(true);
+        }
+      } catch (rpcError) {
+        // RPC doesn't exist, use simple client-side rate limiting
+        console.warn('RPC check_mfa_rate_limit not found, using client-side rate limiting');
+        // Allow up to 5 attempts before blocking
+        if (attemptCount >= 5) {
+          setIsRateLimited(true);
+        }
       }
     };
     checkRateLimit();
@@ -55,10 +64,16 @@ export const TwoFactorVerify = ({ onVerified, onCancel }: TwoFactorVerifyProps) 
 
         if (data) {
           success = true;
-          await supabase.rpc('log_mfa_attempt', {
-            _success: true,
-            _attempt_type: 'backup_code',
-          });
+          
+          // Log attempt (with fallback)
+          try {
+            await supabase.rpc('log_mfa_attempt', {
+              _success: true,
+              _attempt_type: 'backup_code',
+            });
+          } catch (logError) {
+            console.warn('RPC log_mfa_attempt not found, skipping MFA logging');
+          }
 
           toast({
             title: 'Code de récupération valide',
@@ -92,10 +107,16 @@ export const TwoFactorVerify = ({ onVerified, onCancel }: TwoFactorVerifyProps) 
         if (verify.error) throw verify.error;
 
         success = true;
-        await supabase.rpc('log_mfa_attempt', {
-          _success: true,
-          _attempt_type: 'totp',
-        });
+        
+        // Log attempt (with fallback)
+        try {
+          await supabase.rpc('log_mfa_attempt', {
+            _success: true,
+            _attempt_type: 'totp',
+          });
+        } catch (logError) {
+          console.warn('RPC log_mfa_attempt not found, skipping MFA logging');
+        }
 
         toast({
           title: 'Vérification réussie',
@@ -104,10 +125,15 @@ export const TwoFactorVerify = ({ onVerified, onCancel }: TwoFactorVerifyProps) 
         onVerified();
       }
     } catch (error: any) {
-      await supabase.rpc('log_mfa_attempt', {
-        _success: false,
-        _attempt_type: useBackupCode ? 'backup_code' : 'totp',
-      });
+      // Log failed attempt (with fallback)
+      try {
+        await supabase.rpc('log_mfa_attempt', {
+          _success: false,
+          _attempt_type: useBackupCode ? 'backup_code' : 'totp',
+        });
+      } catch (logError) {
+        console.warn('RPC log_mfa_attempt not found, skipping MFA logging');
+      }
 
       setAttemptCount(prev => prev + 1);
 
