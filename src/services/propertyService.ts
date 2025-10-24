@@ -108,9 +108,9 @@ export const propertyService = {
     // Try secure RPC for public browsing, but with better error handling
     let { data, error } = await supabase.rpc('get_public_properties', {
       p_city: filters?.city || null,
-      p_property_type: filters?.propertyType?.[0] || null,
-      p_min_rent: filters?.minPrice || null,
-      p_max_rent: filters?.maxPrice || null,
+      p_type: filters?.propertyType?.[0] || null,
+      p_min_price: filters?.minPrice || null,
+      p_max_price: filters?.maxPrice || null,
       p_min_bedrooms: filters?.minBedrooms || null,
       p_status: null, // RPC handles filtering
     });
