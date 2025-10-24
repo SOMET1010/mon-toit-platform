@@ -115,10 +115,7 @@ const AppContent = () => {
       </a>
       
       <ContextBar />
-<<<<<<< HEAD
-=======
       <SutaChatbot />
->>>>>>> 5ba0e94747c8cbc34a4e2b1d98fc0cf8fad79ce0
       <main id="main-content" tabIndex={-1}>
         <MainLayout>
         <PageTransition>
