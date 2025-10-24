@@ -20,12 +20,12 @@ const QUICK_SUGGESTIONS = [
   "Quels sont les tarifs ?",
 ];
 
-export const SarahChatbot = () => {
+export const SutaChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "👋 Bonjour ! Je suis Sarrah, votre assistante Mon Toit. Comment puis-je vous aider aujourd'hui ?"
+      content: "👋 Bonjour ! Je suis SUTA, votre assistant intelligent Mon Toit. Comment puis-je vous aider aujourd'hui ?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -53,7 +53,7 @@ export const SarahChatbot = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sarah-chat`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/suta-chat`,
         {
           method: 'POST',
           headers: {
@@ -120,7 +120,7 @@ export const SarahChatbot = () => {
         }
       }
     } catch (error) {
-      logger.error('Error sending Sarah chat message', { error });
+      logger.error('Error sending SUTA chat message', { error });
       setMessages(prev => [
         ...prev.slice(0, -1),
         {
