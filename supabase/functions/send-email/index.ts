@@ -13,6 +13,7 @@ import { leaseContractGeneratedTemplate } from "./_templates/lease-contract-gene
 import { roleChangeConfirmationTemplate, roleChangeConfirmationTextTemplate } from "./_templates/role-change-confirmation.ts";
 import { guestMessageNotificationTemplate } from "./_templates/guest-message-notification.ts";
 import { monthlyReportTemplate } from "./_templates/monthly-report.ts";
+import { securityAlertTemplate } from "./_templates/security-alert.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -87,6 +88,9 @@ const handler = async (req: Request): Promise<Response> => {
         break;
       case "monthly-report":
         html = monthlyReportTemplate(data);
+        break;
+      case "security-alert":
+        html = securityAlertTemplate(data);
         break;
       default:
         throw new Error(`Unknown template: ${template}`);
