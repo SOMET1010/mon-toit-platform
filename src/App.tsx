@@ -10,10 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { initializeSentry } from "@/lib/sentry-enhanced";
-<<<<<<< HEAD
-=======
 import { SutaChatbot } from "@/components/SutaChatbot";
->>>>>>> 5ba0e94747c8cbc34a4e2b1d98fc0cf8fad79ce0
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
