@@ -29,7 +29,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseKey);
     const { userId, type, propertyId, limit = 10 }: RecommendationRequest = await req.json();
@@ -264,26 +263,28 @@ serve(async (req) => {
     recommendations.sort((a, b) => b.score - a.score);
     recommendations = recommendations.slice(0, limit);
 
-    // Use Lovable AI to enhance reasons if needed
-    if (recommendations.length > 0 && recommendations.length <= 5) {
+    // Use OpenAI to enhance reasons if needed
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (openaiApiKey && recommendations.length > 0 && recommendations.length <= 5) {
       try {
         const aiPrompt = `En tant qu'expert immobilier, améliore ces raisons de recommandation pour les rendre plus convaincantes et personnalisées. Garde-les courtes (max 6 mots chacune):
 ${recommendations.map((r, i) => `${i + 1}. ${r.reasons.join(', ')}`).join('\n')}
 
 Retourne uniquement les raisons améliorées, une par ligne, sans numérotation.`;
 
-        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${lovableApiKey}`,
+            'Authorization': `Bearer ${openaiApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'gpt-4o-mini',
             messages: [
               { role: 'system', content: 'Tu es un expert immobilier qui aide à formuler des recommandations convaincantes.' },
               { role: 'user', content: aiPrompt }
             ],
+            temperature: 0.7,
           }),
         });
 

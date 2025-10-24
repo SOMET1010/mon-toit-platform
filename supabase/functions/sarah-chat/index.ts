@@ -16,10 +16,10 @@ serve(async (req) => {
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY not configured');
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -85,7 +85,7 @@ Tes responsabilités :
 
 Contexte technique :
 - Mon Toit offre des baux certifiés ANSUT avec signature électronique
-- Les locataires peuvent se faire vérifier (ONECI, CNAM, biométrie)
+- Les locataires peuvent se faire vérifier (Smile ID, biométrie)
 - Les propriétaires peuvent publier des biens avec photos, vidéos, visites 360°
 - La plateforme gère les paiements mobile money et les candidatures
 
@@ -100,18 +100,19 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
       ...(history || [])
     ];
 
-    // Appeler Lovable AI avec streaming
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Appeler OpenAI GPT-4 avec streaming
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-4o-mini',
         messages,
         stream: true,
         temperature: 0.7,
+        max_tokens: 1000,
       }),
     });
 
@@ -124,17 +125,17 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(JSON.stringify({ 
-          error: "Service temporairement indisponible. Veuillez réessayer." 
+          error: "Clé API invalide. Veuillez contacter l'administrateur." 
         }), {
-          status: 402,
+          status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       
       const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
+      console.error('OpenAI error:', response.status, errorText);
       throw new Error('Erreur de communication avec l\'IA');
     }
 
@@ -212,3 +213,4 @@ Si tu ne connais pas une information, redis-le honnêtement et propose d'autres 
     });
   }
 });
+
