@@ -13,29 +13,37 @@ serve(async (req) => {
   try {
     const { prompt, filename } = await req.json();
     
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    console.log(`Generating illustration with DALL-E 3: ${filename}`);
+    console.log(`Generating illustration with Gemini 2.5 Flash: ${filename}`);
 
-    // Utiliser DALL-E 3 d'OpenAI pour générer l'image
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt: prompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        response_format: "url"
-      })
-    });
+    // Utiliser Gemini 2.5 Flash pour générer l'image
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.9,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+            responseMimeType: "image/jpeg"
+          }
+        })
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -44,25 +52,24 @@ serve(async (req) => {
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402 || response.status === 403) {
-        return new Response(
-          JSON.stringify({ error: "Payment required or insufficient credits." }), 
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
       const errorText = await response.text();
-      console.error("OpenAI API error:", response.status, errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error("Gemini API error:", response.status, errorText);
+      throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const imageUrl = data.data?.[0]?.url;
-
-    if (!imageUrl) {
-      throw new Error("No image generated");
+    
+    // Gemini retourne l'image en base64 dans inlineData
+    const imageData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+    
+    if (!imageData || !imageData.data) {
+      throw new Error("No image generated from Gemini");
     }
 
-    console.log(`Successfully generated illustration with DALL-E 3: ${filename}`);
+    // Convertir en data URL
+    const imageUrl = `data:${imageData.mimeType};base64,${imageData.data}`;
+
+    console.log(`Successfully generated illustration with Gemini: ${filename}`);
 
     return new Response(
       JSON.stringify({ imageUrl, filename }), 

@@ -12,9 +12,9 @@ serve(async (req) => {
   }
 
   try {
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY not configured");
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -37,26 +37,34 @@ serve(async (req) => {
     };
 
     const baseDesc = typeDescriptions[propertyType] || 'residential property';
-    const imagePrompt = `A high-quality, professional real estate photograph of a ${baseDesc} in ${city}, Côte d'Ivoire. The image should be bright, welcoming, with blue sky, showing the exterior facade. Style: professional real estate photography, well-lit, attractive. Ultra high resolution, photorealistic.`;
+    const imagePrompt = `Generate a high-quality, professional real estate photograph of a ${baseDesc} in ${city}, Côte d'Ivoire. The image should be bright, welcoming, with blue sky, showing the exterior facade. Style: professional real estate photography, well-lit, attractive, photorealistic, ultra high resolution.`;
 
-    console.log("Generating image for property", propertyId, "with DALL-E 3");
+    console.log("Generating image for property", propertyId, "with Gemini 2.5 Flash");
 
-    // Générer l'image avec DALL-E 3
-    const imageResponse = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt: imagePrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "hd",
-        response_format: "url"
-      })
-    });
+    // Générer l'image avec Gemini 2.5 Flash
+    const imageResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: imagePrompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.9,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+            responseMimeType: "image/jpeg"
+          }
+        })
+      }
+    );
 
     if (!imageResponse.ok) {
       const errorText = await imageResponse.text();
@@ -65,36 +73,32 @@ serve(async (req) => {
       if (imageResponse.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
       }
-      if (imageResponse.status === 402 || imageResponse.status === 403) {
-        throw new Error("Payment required or insufficient credits.");
-      }
       
       throw new Error(`Image generation failed: ${errorText}`);
     }
 
     const imageData = await imageResponse.json();
-    const imageUrl = imageData.data?.[0]?.url;
+    
+    // Gemini retourne l'image en base64 dans inlineData
+    const base64Image = imageData.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
 
-    if (!imageUrl) {
-      throw new Error('No image generated from OpenAI');
+    if (!base64Image) {
+      throw new Error('No image generated from Gemini');
     }
 
-    // Télécharger l'image depuis l'URL OpenAI
-    const imageDownload = await fetch(imageUrl);
-    if (!imageDownload.ok) {
-      throw new Error('Failed to download generated image');
+    // Convertir base64 en Uint8Array
+    const binaryString = atob(base64Image);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
     }
-
-    const imageBlob = await imageDownload.blob();
-    const imageBuffer = await imageBlob.arrayBuffer();
-    const bytes = new Uint8Array(imageBuffer);
 
     // Upload vers Supabase Storage
-    const fileName = `property-${propertyId}-${Date.now()}.png`;
+    const fileName = `property-${propertyId}-${Date.now()}.jpg`;
     const { error: uploadError } = await supabase.storage
       .from('property-images')
       .upload(fileName, bytes, {
-        contentType: 'image/png',
+        contentType: 'image/jpeg',
         upsert: false
       });
 
@@ -119,7 +123,7 @@ serve(async (req) => {
       throw new Error(`Failed to update property: ${updateError.message}`);
     }
 
-    console.log("Image generated successfully with DALL-E 3 for property", propertyId);
+    console.log("Image generated successfully with Gemini for property", propertyId);
 
     return new Response(
       JSON.stringify({ 
