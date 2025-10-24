@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { Property, SearchFilters } from '@/types';
 import { logger } from '@/services/logger';
+import { adaptPropertiesFromDB } from '@/adapters/propertyAdapter';
 
 /**
  * Helper to determine if a property should be shown to a user
@@ -143,6 +144,13 @@ export const propertyService = {
 
       const fallbackData = fallback.data as any[];
       data = fallbackData;
+    }
+
+    // ADAPTER: Convert database structure to application Property type
+    if (data && data.length > 0) {
+      logger.debug('Raw properties from DB', { count: data.length, sample: data[0] });
+      data = adaptPropertiesFromDB(data);
+      logger.debug('Properties adapted', { count: data.length, sample: data[0] });
     }
 
     logger.debug('Properties received from API', { count: data?.length || 0 });
