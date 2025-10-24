@@ -78,7 +78,11 @@ serve(async (req) => {
 
     const data = await response.json();
     
-    if (!data.token) {
+    // CryptoNeo retourne le token dans data.data.token
+    const token = data.data?.token || data.token;
+    
+    if (!token) {
+      console.error('CryptoNeo response:', JSON.stringify(data));
       return new Response(
         JSON.stringify({ error: 'No token in CryptoNeo response' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -87,14 +91,14 @@ serve(async (req) => {
 
     // Cache token for 55 minutes
     cachedToken = {
-      token: data.token,
+      token: token,
       expiresAt: now + (55 * 60 * 1000)
     };
 
     console.log('CryptoNeo JWT token cached successfully');
 
     return new Response(
-      JSON.stringify({ token: data.token }),
+      JSON.stringify({ token: token }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
