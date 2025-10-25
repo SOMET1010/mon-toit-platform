@@ -1,0 +1,204 @@
+/* ============================================
+   PALETTE IVOIRIENNE - MON TOIT PLATFORM
+   ============================================ */
+
+@layer base {
+  :root {
+    /* ===== PALETTE PRINCIPALE IVOIRIENNE ===== */
+    
+    /* Abidjan Sunset - Terracotta (Primaire) */
+    --sunset: 23 56% 56%;           /* #E67E3A */
+    --sunset-50: 23 56% 95%;
+    --sunset-100: 23 56% 88%;
+    --sunset-500: 23 56% 56%;
+    --sunset-700: 23 56% 46%;
+    --sunset-900: 23 56% 36%;
+    
+    /* Forêt d'Espoir - Émeraude (Secondaire) */
+    --foret: 162 100% 33%;          /* #00A86B */
+    --foret-50: 162 100% 95%;
+    --foret-100: 162 100% 88%;
+    --foret-500: 162 100% 33%;
+    --foret-700: 162 100% 28%;
+    --foret-900: 162 100% 23%;
+    
+    /* Lagune Ébrié - Bleu profond */
+    --lagune: 206 63% 29%;          /* #1A4D7C */
+    --lagune-50: 206 63% 95%;
+    --lagune-100: 206 63% 88%;
+    --lagune-500: 206 63% 29%;
+    --lagune-700: 206 63% 24%;
+    --lagune-900: 206 63% 19%;
+    
+    /* Prestige Ivoirien - Or (Accent) */
+    --prestige: 45 73% 52%;         /* #D4AF37 */
+    --prestige-50: 45 73% 95%;
+    --prestige-100: 45 73% 88%;
+    --prestige-500: 45 73% 52%;
+    --prestige-700: 45 73% 42%;
+    --prestige-900: 45 73% 32%;
+    
+    /* ===== MAPPING SÉMANTIQUE ===== */
+    --primary: var(--sunset);
+    --primary-50: var(--sunset-50);
+    --primary-100: var(--sunset-100);
+    --primary-500: var(--sunset-500);
+    --primary-700: var(--sunset-700);
+    --primary-900: var(--sunset-900);
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 23 56% 66%;
+    
+    --secondary: var(--foret);
+    --secondary-50: var(--foret-50);
+    --secondary-100: var(--foret-100);
+    --secondary-500: var(--foret-500);
+    --secondary-700: var(--foret-700);
+    --secondary-900: var(--foret-900);
+    --secondary-foreground: 0 0% 100%;
+    
+    --accent: var(--prestige);
+    --accent-foreground: 0 0% 100%;
+    
+    /* ===== COULEURS UI ===== */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: var(--primary);
+    
+    /* Success & Warning */
+    --success: var(--foret);
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* ANSUT Colors */
+    --ansut-black: 0 7% 11%;
+    --ansut-gray: 0 0% 53%;
+    
+    /* ===== GRADIENTS IVOIRIENS ===== */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--sunset)), hsl(var(--foret)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--foret)), hsl(var(--lagune)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--sunset) / 0.95), hsl(var(--foret) / 0.85));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--sunset) / 0.05) 100%);
+    --gradient-cta: linear-gradient(135deg, hsl(var(--sunset)), hsl(var(--prestige)));
+    
+    /* ===== SHADOWS IVOIRIENNES ===== */
+    --shadow-primary: 0 10px 40px -10px hsl(var(--sunset) / 0.3);
+    --shadow-secondary: 0 10px 40px -10px hsl(var(--foret) / 0.3);
+    --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.1);
+    --shadow-soft: 0 2px 20px -2px hsl(var(--sunset) / 0.15);
+    --shadow-glass: 0 8px 32px 0 hsl(var(--lagune) / 0.15);
+    --shadow-elevated: 0 10px 40px -10px hsl(var(--sunset) / 0.4);
+    
+    /* ===== SIDEBAR ===== */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: var(--sunset);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: var(--sunset);
+  }
+  
+  /* ===== DARK MODE ===== */
+  .dark {
+    --background: 20 15% 8%;
+    --foreground: 0 0% 98%;
+    
+    --card: 20 15% 10%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 20 15% 10%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary - Plus clair en dark mode */
+    --primary: 23 56% 66%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 23 56% 76%;
+    
+    /* Secondary - Plus clair en dark mode */
+    --secondary: 162 100% 43%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent - Plus clair en dark mode */
+    --accent: 45 73% 62%;
+    --accent-foreground: 0 0% 100%;
+    
+    --muted: 20 15% 15%;
+    --muted-foreground: 20 10% 65%;
+    
+    --border: 20 15% 20%;
+    --input: 20 15% 20%;
+    --ring: var(--primary);
+    
+    /* Gradients dark mode */
+    --gradient-primary: linear-gradient(135deg, hsl(23 56% 66%), hsl(162 100% 43%));
+    --gradient-secondary: linear-gradient(135deg, hsl(162 100% 43%), hsl(206 63% 39%));
+    --gradient-hero: linear-gradient(135deg, hsl(23 56% 66% / 0.95), hsl(162 100% 43% / 0.85));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(23 56% 66% / 0.05) 100%);
+    
+    /* Shadows dark mode */
+    --shadow-primary: 0 10px 40px -10px hsl(23 56% 66% / 0.4);
+    --shadow-secondary: 0 10px 40px -10px hsl(162 100% 43% / 0.4);
+    --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
+    --shadow-soft: 0 2px 20px -2px hsl(23 56% 66% / 0.2);
+    --shadow-glass: 0 8px 32px 0 hsl(206 63% 39% / 0.25);
+    
+    --sidebar-background: 20 15% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 23 56% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 20 15% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 20 15% 20%;
+    --sidebar-ring: 23 56% 66%;
+  }
+}
+
+/* ===== CLASSES UTILITAIRES IVOIRIENNES ===== */
+@layer utilities {
+  .bg-pattern-ivoirien {
+    background-image: url('/pattern_ivoirien.png');
+    background-repeat: repeat;
+    background-size: 200px;
+  }
+  
+  .text-gradient-ivoirien {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .shadow-ivoirien {
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .border-gradient-ivoirien {
+    border-image: var(--gradient-primary) 1;
+  }
+}
+
+/* ===== TYPOGRAPHIE ===== */
+@layer base {
+  .font-display {
+    font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
