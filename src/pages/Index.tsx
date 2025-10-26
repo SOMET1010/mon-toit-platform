@@ -1,7 +1,7 @@
 import { MainLayout } from "@/components/layout/MainLayout";
-import { ProfessionalHero } from "@/components/ProfessionalHero";
-import { MobileHero } from "@/components/MobileHero";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { HeroSection } from "@/components/home/HeroSection";
+import { FeaturesSection } from "@/components/home/FeaturesSection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { PropertyGrid } from "@/components/PropertyGrid";
 import OnboardingModal from "@/components/OnboardingModal";
 import { Helmet } from "react-helmet-async";
@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { Search, ShieldCheck } from "lucide-react";
 
 const Index = () => {
-  console.log('[Index] Rendering Index page');
+  console.log('[Index] Rendering Index page with new Ivorian design');
   return (
     <MainLayout>
       <Helmet>
@@ -23,14 +23,20 @@ const Index = () => {
       </Helmet>
 
       <main role="main">
-        {/* Hero adaptatif : Mobile ou Desktop */}
-        {useIsMobile() ? <MobileHero /> : <ProfessionalHero />}
+        {/* Hero avec nouveau design ivoirien */}
+        <HeroSection />
         
-        {/* Main Property Grid - Dynamic height */}
+        {/* Section fonctionnalités avec certification ANSUT */}
+        <FeaturesSection />
+        
+        {/* Main Property Grid - Biens disponibles */}
         <PropertyGrid
           limit={16}
           showFilters={true}
         />
+        
+        {/* Section témoignages avec illustration famille */}
+        <TestimonialsSection />
 
         {/* Mini CTA - Subtle, non-intrusive */}
         <section className="py-8 bg-gradient-to-b from-primary/5 to-background border-t border-primary/10">
@@ -67,3 +73,4 @@ const Index = () => {
 };
 
 export default Index;
+
