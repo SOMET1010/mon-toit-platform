@@ -4,6 +4,7 @@ import { propertyService } from '@/services/propertyService';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import PropertyFiltersComponent, { PropertyFilters } from '@/components/PropertyFilters';
 import { PropertyCardSkeleton } from '@/components/properties/PropertyCardSkeleton';
+import { PropertyListSkeleton } from '@/components/loading/NouchiLoader';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowDown } from 'lucide-react';
@@ -123,11 +124,7 @@ export const PropertyGrid = ({
         {/* Property Grid */}
         <div className="mt-6">
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <PropertyCardSkeleton key={i} />
-              ))}
-            </div>
+            <PropertyListSkeleton count={12} />
           ) : isError ? (
             <Alert variant="destructive">
               <AlertDescription>

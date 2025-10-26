@@ -33,7 +33,7 @@ export const MainLayout = ({ children, showSidebar = true }: MainLayoutProps) =>
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen w-full">
         <ModernAppSidebar />
         <SidebarInset className="flex flex-col flex-1">
