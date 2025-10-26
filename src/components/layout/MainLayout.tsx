@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { InstitutionalFooter } from "@/components/InstitutionalFooter";
 import { BottomNav } from "@/components/mobile/BottomNav";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -13,8 +14,12 @@ interface MainLayoutProps {
 
 export const MainLayout = ({ children, showSidebar = true }: MainLayoutProps) => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
-  if (!showSidebar) {
+  // Show sidebar only for authenticated users on desktop
+  const shouldShowSidebar = showSidebar && user && !isMobile;
+  
+  if (!shouldShowSidebar) {
     return (
       <>
         <Navbar showSidebarTrigger={false} />
@@ -28,9 +33,9 @@ export const MainLayout = ({ children, showSidebar = true }: MainLayoutProps) =>
   }
 
   return (
-    <SidebarProvider defaultOpen={!isMobile}>
+    <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full">
-        {!isMobile && <ModernAppSidebar />}
+        <ModernAppSidebar />
         <SidebarInset className="flex flex-col flex-1">
           <Navbar showSidebarTrigger={true} />
           <div className="flex-1 pt-16 pb-20 md:pb-0 w-full">

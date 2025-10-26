@@ -60,3 +60,21 @@
 - [x] Intégrer SimpleImageEnhanced dans PropertyCard
 - [ ] Tester le chargement des images après déploiement
 
+
+
+## Phase 9 : Simplification de la Navigation
+- [x] Analyser la navigation actuelle (sidebar + top nav)
+- [x] Identifier les redondances
+- [x] Choisir une approche (hybride intelligente)
+- [x] Simplifier le Navbar (supprimer liens redondants)
+- [x] Conditionner l'affichage de la Sidebar (uniquement si connecté)
+- [x] Adapter pour mobile et desktop
+- [ ] Tester l'expérience de navigation après déploiement
+
+## Phase 10 : Correction Cadrage des Images
+- [x] Analyser le problème de cadrage dans PropertyCard
+- [x] Corriger les dimensions et aspect ratio (h-56 sm:h-64 + object-center)
+- [x] Améliorer SimpleImageEnhanced pour meilleur cadrage
+- [x] Ajouter rounded-t-2xl au conteneur d'image
+- [ ] Tester sur la page recherche après déploiement
+

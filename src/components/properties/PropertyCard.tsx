@@ -141,7 +141,7 @@ export const PropertyCard = ({
         aria-labelledby={`property-title-${property.id}`}
         aria-describedby={`property-description-${property.id}`}
       >
-      <div className="relative h-56 sm:h-64 bg-muted overflow-hidden">
+      <div className="relative h-56 sm:h-64 bg-muted overflow-hidden rounded-t-2xl">
         {(() => {
           // Debug: Log property data to understand what we're working with
           console.log(`Property ${property.id} image data:`, {
@@ -159,7 +159,7 @@ export const PropertyCard = ({
                   src={validImages[0]}
                   alt={`${property.title} - ${property.city}`}
                   propertyType={property.property_type}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                 />
               );
             }
@@ -173,7 +173,7 @@ export const PropertyCard = ({
                   src={property.main_image}
                   alt={`Photo du bien: ${property.title} - ${property.property_type} à ${property.city}`}
                   propertyType={property.property_type}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
               </>

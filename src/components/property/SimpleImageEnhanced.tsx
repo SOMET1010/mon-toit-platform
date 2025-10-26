@@ -85,7 +85,7 @@ export const SimpleImageEnhanced = ({
       src={currentSrc}
       alt={alt}
       className={cn(
-        "transition-opacity duration-300 w-full h-auto object-cover",
+        "transition-opacity duration-300 w-full h-full object-cover object-center",
         isLoading ? "opacity-70" : "opacity-100",
         className
       )}

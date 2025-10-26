@@ -69,27 +69,29 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
             </Link>
           </div>
 
-          {/* Navigation Links - Simplified to 3 core items */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link 
-              to="/explorer" 
-              className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
-            >
-              Explorer
-            </Link>
-            <Link 
-              to="/publier" 
-              className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
-            >
-              Publier
-            </Link>
-            <Link 
-              to="/guide" 
-              className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
-            >
-              Aide
-            </Link>
-          </div>
+          {/* Navigation Links - Only for non-authenticated users */}
+          {!user && (
+            <div className="hidden md:flex items-center gap-6">
+              <Link 
+                to="/explorer" 
+                className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
+              >
+                Explorer
+              </Link>
+              <Link 
+                to="/publier" 
+                className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
+              >
+                Publier
+              </Link>
+              <Link 
+                to="/guide" 
+                className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
+              >
+                Aide
+              </Link>
+            </div>
+          )}
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
