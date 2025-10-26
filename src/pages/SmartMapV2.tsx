@@ -80,7 +80,7 @@ const SmartMapV2 = () => {
       
       <main className="flex-1 pt-24">
         {/* Hero Section */}
-        <section className="relative py-8 bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10">
+        <section className="relative py-8 bg-gradient-to-r from-primary/10 via-accent/5 to-secondary/10">
           <KentePattern />
           <div className="container mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto">
@@ -131,7 +131,7 @@ const SmartMapV2 = () => {
                     />
 
                     {/* Heatmap Toggle */}
-                    <Card className="p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+                    <Card className="p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/30">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Activity className="h-4 w-4 text-secondary" />
@@ -151,7 +151,7 @@ const SmartMapV2 = () => {
                     </Card>
 
                     {/* Neighborhoods Toggle */}
-                    <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                    <Card className="p-4 bg-gradient-to-br from-primary/10 to-accent/5 border-primary/30">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <MapPinned className="h-4 w-4 text-primary" />

@@ -175,10 +175,10 @@ export const IntelligentMap = ({
         container.className = 'relative group cursor-pointer';
 
         const glowEffect = document.createElement('div');
-        glowEffect.className = 'absolute -inset-2 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity';
+        glowEffect.className = 'absolute -inset-2 bg-gradient-to-r from-primary/40 to-accent/40 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity';
 
         const markerContent = document.createElement('div');
-        markerContent.className = 'relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary border-3 border-white shadow-xl flex flex-col items-center justify-center text-white group-hover:scale-110 transition-transform';
+        markerContent.className = 'relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent border-3 border-white shadow-xl flex flex-col items-center justify-center text-white group-hover:scale-110 transition-transform';
 
         const countSpan = document.createElement('span');
         countSpan.className = 'text-lg font-bold';
@@ -218,10 +218,10 @@ export const IntelligentMap = ({
         propertyContainer.className = 'relative group cursor-pointer';
 
         const propertyGlow = document.createElement('div');
-        propertyGlow.className = 'absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-25 group-hover:opacity-50 transition-opacity';
+        propertyGlow.className = 'absolute -inset-1 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity';
 
         const propertyMarker = document.createElement('div');
-        propertyMarker.className = 'relative w-12 h-12 rounded-full bg-primary border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-xs group-hover:scale-110 transition-transform';
+        propertyMarker.className = 'relative w-12 h-12 rounded-full bg-primary hover:bg-primary/90 border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-xs group-hover:scale-110 transition-transform';
         propertyMarker.textContent = `${(property.price / 1000).toFixed(0)}k`;
 
         propertyContainer.appendChild(propertyGlow);
