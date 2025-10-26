@@ -1,45 +1,22 @@
-import { ShieldCheck, FileCheck, Video, Lock, Headphones, TrendingUp } from 'lucide-react';
+import { ShieldCheck, FileCheck, Video, Lock, Headphones, TrendingUp, Loader2 } from 'lucide-react';
+import { useHighlightedFeatures } from '@/hooks/useFeatures';
+import * as LucideIcons from 'lucide-react';
 
-const features = [
-  {
-    icon: ShieldCheck,
-    title: 'Certification ANSUT',
-    description: 'Tous les biens et propriétaires sont vérifiés et certifiés par l\'Autorité Nationale de Sécurisation des Transactions Urbaines.',
-    color: 'text-primary'
-  },
-  {
-    icon: FileCheck,
-    title: 'Signature Numérique',
-    description: 'Signez vos contrats de location en ligne de manière sécurisée et légalement reconnue en Côte d\'Ivoire.',
-    color: 'text-secondary'
-  },
-  {
-    icon: Video,
-    title: 'Visites Virtuelles',
-    description: 'Explorez les biens en 360° et planifiez des visites virtuelles avant de vous déplacer.',
-    color: 'text-accent'
-  },
-  {
-    icon: Lock,
-    title: 'Paiements Sécurisés',
-    description: 'Tous les paiements sont sécurisés et traçables. Vos données bancaires sont protégées.',
-    color: 'text-primary'
-  },
-  {
-    icon: Headphones,
-    title: 'Support 24/7',
-    description: 'Notre équipe est disponible 24h/24 et 7j/7 pour répondre à toutes vos questions et vous accompagner.',
-    color: 'text-secondary'
-  },
-  {
-    icon: TrendingUp,
-    title: 'Statistiques en Temps Réel',
-    description: 'Suivez les performances de vos annonces et accédez à des analyses détaillées du marché immobilier.',
-    color: 'text-accent'
-  }
-];
+// Fonction pour obtenir l'icône Lucide dynamiquement
+const getIcon = (iconName: string) => {
+  const Icon = (LucideIcons as any)[iconName];
+  return Icon || ShieldCheck; // Fallback si l'icône n'existe pas
+};
+
+// Fonction pour obtenir la couleur selon l'index
+const getColor = (index: number) => {
+  const colors = ['text-primary', 'text-secondary', 'text-accent'];
+  return colors[index % colors.length];
+};
 
 export function FeaturesSection() {
+  const { data: features, isLoading, isError } = useHighlightedFeatures();
+
   return (
     <section className="py-20 md:py-32 bg-background">
       <div className="container px-4 sm:px-6">
@@ -56,15 +33,29 @@ export function FeaturesSection() {
         </div>
 
         {/* Grille de fonctionnalités */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {isError && (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Impossible de charger les fonctionnalités. Veuillez réessayer plus tard.</p>
+          </div>
+        )}
+
+        {!isLoading && !isError && features && features.length > 0 && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => {
-            const Icon = feature.icon;
+            const Icon = getIcon(feature.icon);
+            const color = getColor(index);
             return (
               <div
                 key={index}
                 className="group p-8 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300"
               >
-                <div className={`inline-flex p-4 rounded-xl bg-muted/50 mb-6 ${feature.color} group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`inline-flex p-4 rounded-xl bg-muted/50 mb-6 ${color} group-hover:scale-110 transition-transform duration-300`}>
                   <Icon className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-3">
@@ -77,6 +68,7 @@ export function FeaturesSection() {
             );
           })}
         </div>
+        )}
 
         {/* Section certification avec illustration */}
         <div className="mt-20 p-8 md:p-12 rounded-3xl bg-gradient-to-br from-muted/50 to-background border border-border">

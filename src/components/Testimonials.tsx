@@ -12,41 +12,28 @@ import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { LazyIllustration } from "@/components/illustrations/LazyIllustration";
 import { getIllustrationPath } from "@/lib/utils";
+import { useFeaturedTestimonials } from "@/hooks/useTestimonials";
+import { Loader2 } from "lucide-react";
 
-const testimonials = [
-  {
-    name: "Kouadio Marc",
-    role: "Locataire certifié ANSUT",
-    location: "Cocody, Abidjan",
-    content: "J'ai trouvé mon appartement en 48h grâce à ma certification ANSUT. Les propriétaires me répondaient immédiatement car mon dossier était déjà complet et vérifié. Un gain de temps incroyable !",
-    rating: 5,
-    avatar: "KM",
-    avatarGradient: "bg-gradient-to-br from-blue-600 to-blue-700",
-    isCertified: true
-  },
-  {
-    name: "Adjoua Sarah",
-    role: "Propriétaire",
-    location: "Marcory, Abidjan",
-    content: "Fini les dossiers incomplets et les vérifications interminables. Avec Mon Toit, je ne reçois que des candidatures sérieuses et certifiées. Le paiement Mobile Money est un vrai plus pour mes locataires.",
-    rating: 5,
-    avatar: "AS",
-    avatarGradient: "bg-gradient-to-br from-primary to-orange-600",
-    isCertified: false
-  },
-  {
-    name: "Immobilier Plus SARL",
-    role: "Agence immobilière",
-    location: "Plateau, Abidjan",
-    content: "Le tableau de bord agence nous permet de gérer 50+ propriétés efficacement. Les contrats digitaux et le suivi des paiements nous font gagner des heures chaque semaine. Un outil professionnel indispensable.",
-    rating: 5,
-    avatar: "IP",
-    avatarGradient: "bg-gradient-to-br from-primary to-primary",
-    isCertified: false
-  }
-];
+// Fonction utilitaire pour générer les initiales
+const getInitials = (name: string) => {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+};
+
+// Fonction pour générer un gradient aléatoire cohérent
+const getGradient = (index: number) => {
+  const gradients = [
+    "bg-gradient-to-br from-blue-600 to-blue-700",
+    "bg-gradient-to-br from-primary to-orange-600",
+    "bg-gradient-to-br from-primary to-primary",
+    "bg-gradient-to-br from-green-600 to-green-700",
+    "bg-gradient-to-br from-purple-600 to-purple-700",
+  ];
+  return gradients[index % gradients.length];
+};
 
 const Testimonials = () => {
+  const { data: testimonials, isLoading, isError } = useFeaturedTestimonials();
   const autoplayPlugin = useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
@@ -78,6 +65,19 @@ const Testimonials = () => {
           </p>
         </div>
 
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {isError && (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Impossible de charger les témoignages. Veuillez réessayer plus tard.</p>
+          </div>
+        )}
+
+        {!isLoading && !isError && testimonials && testimonials.length > 0 && (
         <div className="max-w-4xl mx-auto px-4 sm:px-12">
           <Carousel
             opts={{
@@ -94,7 +94,7 @@ const Testimonials = () => {
                     <Quote className="absolute top-6 right-6 h-12 w-12 text-primary/10" />
                     
                     {/* Badge Certifié ANSUT */}
-                    {testimonial.isCertified && (
+                    {testimonial.rating === 5 && (
                       <div className="absolute top-6 left-6 inline-flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-xs font-semibold">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Certifié ANSUT
@@ -102,7 +102,7 @@ const Testimonials = () => {
                     )}
                     
                     {/* Rating */}
-                    <div className={`flex gap-1 ${testimonial.isCertified ? 'mt-8' : ''} mb-6`}>
+                    <div className={`flex gap-1 ${testimonial.rating === 5 ? 'mt-8' : ''} mb-6`}>
                       {Array.from({ length: testimonial.rating }).map((_, i) => (
                         <Star key={i} className="h-5 w-5 fill-primary text-primary" />
                       ))}
@@ -110,21 +110,27 @@ const Testimonials = () => {
 
                     {/* Content */}
                     <p className="text-lg md:text-xl text-foreground leading-relaxed mb-8 relative z-10">
-                      "{testimonial.content}"
+                      "{testimonial.quote}"
                     </p>
 
                     {/* Author */}
                     <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 rounded-full ${testimonial.avatarGradient} flex items-center justify-center text-white font-bold text-lg shadow-md`}>
-                        {testimonial.avatar}
+                      <div className={`w-14 h-14 rounded-full ${getGradient(index)} flex items-center justify-center text-white font-bold text-lg shadow-md`}>
+                        {testimonial.photo_url ? (
+                          <img src={testimonial.photo_url} alt={testimonial.name} className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          getInitials(testimonial.name)
+                        )}
                       </div>
                       <div>
                         <div className="font-semibold text-foreground">{testimonial.name}</div>
-                        <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          {testimonial.location}
-                        </div>
+                        <div className="text-sm text-muted-foreground">{testimonial.role || testimonial.profession}</div>
+                        {testimonial.location && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            {testimonial.location}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -135,6 +141,7 @@ const Testimonials = () => {
             <CarouselNext className="hidden md:flex" />
           </Carousel>
         </div>
+        )}
 
         {/* Footer CTA simplifié */}
         <div className="max-w-4xl mx-auto mt-16 text-center">
