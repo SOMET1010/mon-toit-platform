@@ -9,18 +9,19 @@ interface SimpleImageEnhancedProps {
   fallback?: string;
 }
 
-// URLs GitHub Raw - Hébergement permanent et gratuit
-// Les images sont hébergées directement sur GitHub pour éviter les problèmes Netlify
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/SOMET1010/mon-toit-platform/main/public/property-images';
+// URLs Supabase Storage - CDN rapide et fiable
+// Les images sont hébergées sur Supabase Storage (bucket public: property-images)
+const SUPABASE_URL = 'https://btxhuqtirylvkgvoutoc.supabase.co';
+const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/property-images`;
 
 // Vraies photos de biens immobiliers à Abidjan
 const FALLBACK_IMAGES: Record<string, string> = {
-  'appartement': `${GITHUB_RAW_BASE}/appartement-moderne-abidjan.jpg`,
-  'villa': `${GITHUB_RAW_BASE}/villa-luxe-cocody.jpg`,
-  'studio': `${GITHUB_RAW_BASE}/studio-plateau.jpg`,
-  'duplex': `${GITHUB_RAW_BASE}/duplex-riviera.jpg`,
-  'maison': `${GITHUB_RAW_BASE}/maison-yopougon.jpg`,
-  'default': `${GITHUB_RAW_BASE}/immeuble-residentiel.jpg`
+  'appartement': `${STORAGE_BASE}/appartement-moderne-abidjan.jpg`,
+  'villa': `${STORAGE_BASE}/villa-luxe-cocody.jpg`,
+  'studio': `${STORAGE_BASE}/studio-plateau.jpg`,
+  'duplex': `${STORAGE_BASE}/duplex-riviera.jpg`,
+  'maison': `${STORAGE_BASE}/maison-yopougon.jpg`,
+  'default': `${STORAGE_BASE}/immeuble-residentiel.jpg`
 };
 
 /**
