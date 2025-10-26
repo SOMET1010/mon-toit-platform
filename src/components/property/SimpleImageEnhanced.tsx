@@ -9,14 +9,18 @@ interface SimpleImageEnhancedProps {
   fallback?: string;
 }
 
+// URLs GitHub Raw - Hébergement permanent et gratuit
+// Les images sont hébergées directement sur GitHub pour éviter les problèmes Netlify
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/SOMET1010/mon-toit-platform/main/public/property-images';
+
 // Vraies photos de biens immobiliers à Abidjan
 const FALLBACK_IMAGES: Record<string, string> = {
-  'appartement': '/property-images/appartement-moderne-abidjan.jpg',
-  'villa': '/property-images/villa-luxe-cocody.jpg',
-  'studio': '/property-images/studio-plateau.jpg',
-  'duplex': '/property-images/duplex-riviera.jpg',
-  'maison': '/property-images/maison-yopougon.jpg',
-  'default': '/property-images/immeuble-residentiel.jpg'
+  'appartement': `${GITHUB_RAW_BASE}/appartement-moderne-abidjan.jpg`,
+  'villa': `${GITHUB_RAW_BASE}/villa-luxe-cocody.jpg`,
+  'studio': `${GITHUB_RAW_BASE}/studio-plateau.jpg`,
+  'duplex': `${GITHUB_RAW_BASE}/duplex-riviera.jpg`,
+  'maison': `${GITHUB_RAW_BASE}/maison-yopougon.jpg`,
+  'default': `${GITHUB_RAW_BASE}/immeuble-residentiel.jpg`
 };
 
 /**
