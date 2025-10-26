@@ -71,16 +71,10 @@ export const InstitutionalFooter = () => {
                 Publier une annonce
               </Link>
               <Link 
-                to="/artisans" 
+                to="/guide" 
                 className="text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2"
               >
-                Artisans & Services
-              </Link>
-              <Link 
-                to="/aide" 
-                className="text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2"
-              >
-                Aide & Support
+                Guide
               </Link>
             </nav>
           </div>
@@ -107,18 +101,7 @@ export const InstitutionalFooter = () => {
               >
                 Conditions d'utilisation
               </Link>
-              <Link 
-                to="/protection-donnees" 
-                className="text-sm text-gray-300 hover:text-white transition-colors"
-              >
-                Protection des données
-              </Link>
-              <Link 
-                to="/accessibilite" 
-                className="text-sm text-gray-300 hover:text-white transition-colors"
-              >
-                Accessibilité
-              </Link>
+
             </nav>
           </div>
 

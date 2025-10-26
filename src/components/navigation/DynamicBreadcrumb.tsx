@@ -33,6 +33,7 @@ const routeLabels: Record<string, string> = {
   '/admin': 'Administration',
   '/admin/certifications': 'Certifications',
   '/admin/dashboard': 'Dashboard Admin',
+  '/auth': 'Connexion',
   '/property': 'Détails du bien',
   '/certification': 'Certification',
   '/guide': 'Guide',

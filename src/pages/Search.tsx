@@ -18,6 +18,8 @@ import { usePropertyFilters } from '@/hooks/usePropertyFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyCardSkeleton } from '@/components/properties/PropertyCardSkeleton';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
+import { EmptyState } from '@/components/ui/empty-state';
 import { RecommendationsSection } from '@/components/recommendations/RecommendationsSection';
 import { hasCoordinates } from '@/lib/geo';
 import { toast } from 'sonner';
@@ -161,33 +163,23 @@ const Search = () => {
                     ))}
                   </div>
                 ) : (
-                  <Card className="p-12 text-center space-y-6">
-                    <SearchIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <div>
-                      <h3 className="text-2xl font-semibold mb-2">
-                        {searchParams.get('location') ? (
-                          <>Aucun bien disponible à <span className="capitalize text-primary">{searchParams.get('location')}</span></>
-                        ) : (
-                          'Aucun bien trouvé'
-                        )}
-                      </h3>
-                      <p className="text-muted-foreground">
-                        {searchParams.get('location') 
-                          ? 'Essayez d\'élargir votre recherche à d\'autres villes ou désactivez certains filtres'
-                          : 'Essayez de modifier vos critères de recherche pour voir plus de résultats'
-                        }
-                      </p>
-                    </div>
-                    <div className="flex gap-3 justify-center">
-                      <Button onClick={() => refetch()} variant="outline" size="lg">
-                        🔄 Actualiser
-                      </Button>
-                      <Button onClick={handleReset} variant="primary-gradient" size="lg">
-                        Réinitialiser les filtres
-                      </Button>
-                    </div>
+                  <Card>
+                    <EmptyState
+                      illustration={ILLUSTRATIONS.emptyStates.noSearchResults}
+                      title={searchParams.get('location') 
+                        ? `Aucun bien disponible à ${searchParams.get('location')}`
+                        : 'Aucun bien trouvé'}
+                      description={searchParams.get('location') 
+                        ? "Essayez d'élargir votre recherche à d'autres villes ou désactivez certains filtres"
+                        : 'Essayez de modifier vos critères de recherche pour voir plus de résultats'}
+                      action={{
+                        label: "Réinitialiser les filtres",
+                        onClick: handleReset
+                      }}
+                    />
                   </Card>
-                )}
+                )
+              }
               </>
             )}
           </PullToRefresh>

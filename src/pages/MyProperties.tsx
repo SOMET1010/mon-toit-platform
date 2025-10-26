@@ -8,6 +8,8 @@ import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
+import { EmptyState } from '@/components/ui/empty-state';
 import { logger } from '@/services/logger';
 import { toast } from 'sonner';
 import type { Property as PropertyType } from '@/types';
@@ -279,23 +281,28 @@ const MyProperties = () => {
 
           {/* Properties Display */}
           {filteredAndSortedProperties.length === 0 ? (
-            <Card className="p-12 text-center">
-              <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  {properties.length === 0 
-                    ? "Vous n'avez pas encore ajouté de biens"
-                    : "Aucun bien ne correspond à vos critères"
-                  }
-                </p>
-                {properties.length === 0 && (
-                  <Button asChild>
-                    <Link to="/ajouter-bien">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Ajouter mon premier bien
-                    </Link>
-                  </Button>
-                )}
-              </div>
+            <Card>
+              {properties.length === 0 ? (
+                <EmptyState
+                  illustration={ILLUSTRATIONS.emptyStates.noProperties}
+                  title="Aucun bien ajouté"
+                  description="Commencez par ajouter votre premier bien immobilier pour le mettre en location sur Mon Toit"
+                  action={{
+                    label: "Ajouter mon premier bien",
+                    onClick: () => window.location.href = '/ajouter-bien'
+                  }}
+                />
+              ) : (
+                <EmptyState
+                  illustration={ILLUSTRATIONS.emptyStates.noSearchResults}
+                  title="Aucun résultat"
+                  description="Aucun bien ne correspond à vos critères de recherche. Essayez de modifier vos filtres."
+                  action={{
+                    label: "Réinitialiser les filtres",
+                    onClick: () => { setSearchQuery(''); setActiveStatus('all'); setSortBy('recent'); }
+                  }}
+                />
+              )}
             </Card>
           ) : view === 'table' ? (
             <PropertyTableView

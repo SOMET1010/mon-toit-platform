@@ -9,8 +9,9 @@ import { AkanPattern } from "@/components/ui/african-patterns";
 import { 
   Search, Home, Shield, FileText, MessageSquare, CreditCard, 
   CheckCircle, AlertCircle, Clock, Users, Mail, Phone, 
-  Building2, UserCheck, HelpCircle, ExternalLink
-} from "lucide-react";
+  FileCheck, Building2, Sparkles, Zap
+} from 'lucide-react';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -497,6 +498,13 @@ const Guide = () => {
           {/* Contact Section */}
           <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-primary/30">
             <CardHeader className="text-center">
+              <div className="mb-6">
+                <img
+                  src={ILLUSTRATIONS.realistic.customerSupportAgent}
+                  alt="Agent support Mon Toit"
+                  className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-xl"
+                />
+              </div>
               <CardTitle className="text-3xl mb-3">Vous ne trouvez pas de réponse ?</CardTitle>
               <CardDescription className="text-base">Notre équipe support est disponible pour vous aider</CardDescription>
             </CardHeader>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, ShieldCheck, Home, TrendingUp, Users } from 'lucide-react';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
 
 const CITIES = [
   'Abidjan',
@@ -47,8 +48,8 @@ export function HeroSection() {
       {/* Image de fond avec overlay gradient */}
       <div className="absolute inset-0">
         <img
-          src="/hero_building.jpg"
-          alt="Immeuble moderne à Abidjan - Orchid Apartments"
+          src={ILLUSTRATIONS.realistic.heroFamilyReal}
+          alt="Famille heureuse devant leur nouvelle maison à Abidjan"
           className="w-full h-full object-cover"
           loading="eager"
           fetchPriority="high"

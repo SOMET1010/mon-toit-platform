@@ -16,6 +16,8 @@ import { ApplicationStatusTracker } from '@/components/application/ApplicationSt
 import { ApplicationsTableView } from '@/components/application/ApplicationsTableView';
 import ViewToggle from '@/components/properties/ViewToggle';
 import { logger } from '@/services/logger';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
+import { EmptyState } from '@/components/ui/empty-state';
 
 import type { ApplicationStatus } from '@/types';
 
@@ -281,16 +283,17 @@ const ApplicationsList = ({
   if (applications.length === 0) {
     return (
       <Card>
-        <CardContent className="py-12 text-center">
-          <div className="space-y-4">
-            <p className="text-muted-foreground text-lg">Aucune candidature pour le moment</p>
-            {!isOwner && (
-              <p className="text-sm text-muted-foreground">
-                Parcourez nos annonces et déposez votre première candidature !
-              </p>
-            )}
-          </div>
-        </CardContent>
+        <EmptyState
+          illustration={ILLUSTRATIONS.emptyStates.noApplications}
+          title="Aucune candidature"
+          description={isOwner 
+            ? "Vous n'avez reçu aucune candidature pour vos biens. Assurez-vous que vos annonces sont bien visibles et attractives."
+            : "Vous n'avez pas encore déposé de candidature. Parcourez nos annonces et trouvez votre logement idéal !"}
+          action={!isOwner ? {
+            label: "Parcourir les annonces",
+            onClick: () => window.location.href = '/recherche'
+          } : undefined}
+        />
       </Card>
     );
   }

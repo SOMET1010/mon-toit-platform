@@ -15,6 +15,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, MessageCircle, Paperclip, Download, FileText, Image as ImageIcon, File } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { logger } from '@/services/logger';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
+import { EmptyState } from '@/components/ui/empty-state';
 import { sanitizeMessage, sanitizeText } from '@/lib/sanitize';
 import type { Message as MessageType } from '@/types';
 import { Badge } from '@/components/ui/badge';
@@ -446,10 +448,17 @@ const Messages = () => {
                       <p>Chargement des conversations...</p>
                     </div>
                   ) : conversations.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground">
-                      <MessageCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>Aucune conversation</p>
-                      <p className="text-xs mt-2">Commencez à discuter avec un propriétaire</p>
+                    <div className="py-8">
+                      <EmptyState
+                        illustration={ILLUSTRATIONS.emptyStates.noMessages}
+                        title="Aucune conversation"
+                        description="Commencez à discuter avec des propriétaires ou des locataires en visitant les annonces"
+                        action={{
+                          label: "Parcourir les annonces",
+                          onClick: () => window.location.href = '/recherche'
+                        }}
+                        className="py-4"
+                      />
                     </div>
                   ) : (
                     <div className="space-y-1">

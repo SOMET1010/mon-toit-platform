@@ -1,4 +1,5 @@
-import { Star, Quote } from 'lucide-react';
+import { Star } from 'lucide-react';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
 
 const testimonials = [
   {
@@ -87,8 +88,8 @@ export function TestimonialsSection() {
             <div className="order-2 lg:order-1 relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border">
                 <img
-                  src="/illustration_famille_maison.png"
-                  alt="Famille ivoirienne heureuse devant leur nouvelle maison"
+                  src={ILLUSTRATIONS.realistic.happyTenantCouple}
+                  alt="Couple ivoirien heureux dans leur nouveau logement"
                   className="w-full h-auto"
                 />
               </div>

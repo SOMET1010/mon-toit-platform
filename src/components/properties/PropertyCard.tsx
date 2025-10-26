@@ -306,7 +306,9 @@ export const PropertyCard = ({
       <CardContent className="space-y-2 sm:space-y-3 p-2 sm:p-3 md:p-4 pt-0">
         <div className="flex items-center text-muted-foreground">
           <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-primary" />
-          <span className="line-clamp-1 font-medium">{property.city}</span>
+          <span className="line-clamp-1 font-medium">
+            {property.location ? `${property.location}, ${property.city}` : property.city}
+          </span>
         </div>
 
         <div className="flex items-center gap-4 text-sm bg-muted/50 p-2 rounded-xl">

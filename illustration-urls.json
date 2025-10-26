@@ -1,0 +1,30 @@
+{
+  "empty-states": {
+    "no-properties.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/empty-states/no-properties.png",
+    "no-favorites.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/empty-states/no-favorites.png",
+    "no-messages.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/empty-states/no-messages.png",
+    "no-applications.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/empty-states/no-applications.png",
+    "no-search-results.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/empty-states/no-search-results.png"
+  },
+  "features": {
+    "ansut-certification.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/features/ansut-certification.png",
+    "electronic-signature.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/features/electronic-signature.png",
+    "identity-verification.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/features/identity-verification.png",
+    "secure-payment.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/features/secure-payment.png",
+    "virtual-visit.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/features/virtual-visit.png"
+  },
+  "sections": {
+    "hero-happy-family.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/sections/hero-happy-family.png",
+    "how-it-works.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/sections/how-it-works.png",
+    "testimonials.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/sections/testimonials.png",
+    "security-trust.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/sections/security-trust.png",
+    "customer-support.png": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/sections/customer-support.png"
+  },
+  "realistic": {
+    "hero-family-real.jpg": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/realistic/hero-family-real.jpg",
+    "agent-professional.jpg": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/realistic/agent-professional.jpg",
+    "happy-tenant-couple.jpg": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/realistic/happy-tenant-couple.jpg",
+    "customer-support-agent.jpg": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/realistic/customer-support-agent.jpg",
+    "abidjan-modern-building.jpg": "https://haffcubwactwjpngcpdf.supabase.co/storage/v1/object/public/illustrations/realistic/abidjan-modern-building.jpg"
+  }
+}

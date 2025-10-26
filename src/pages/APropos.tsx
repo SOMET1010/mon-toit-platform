@@ -5,6 +5,7 @@ import Testimonials from "@/components/Testimonials";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Users, Award, TrendingUp } from "lucide-react";
 import { AkanPattern } from "@/components/ui/african-patterns";
+import { ILLUSTRATIONS } from '@/lib/illustrations';
 import { GradientButton } from "@/components/ui/gradient-button";
 
 const APropos = () => {
@@ -16,14 +17,25 @@ const APropos = () => {
           <div className="max-w-4xl mx-auto">
             {/* Hero avec pattern culturel */}
             <div className="relative mb-12">
-              <AkanPattern />
-              <div className="relative z-10">
-                <h1 className="text-h1 text-center mb-4">
-                  <span className="text-gradient-primary">À propos</span> de Mon Toit
-                </h1>
-                <p className="text-xl text-muted-foreground text-center">
-                  La plateforme de confiance pour l'immobilier en Côte d'Ivoire
-                </p>
+              <div className="grid lg:grid-cols-2 gap-8 items-center mb-8">
+                <div>
+                  <AkanPattern />
+                  <div className="relative z-10">
+                    <h1 className="text-h1 mb-4">
+                      <span className="text-gradient-primary">À propos</span> de Mon Toit
+                    </h1>
+                    <p className="text-xl text-muted-foreground">
+                      La plateforme de confiance pour l'immobilier en Côte d'Ivoire
+                    </p>
+                  </div>
+                </div>
+                <div className="relative">
+                  <img
+                    src={ILLUSTRATIONS.realistic.agentProfessional}
+                    alt="Agent immobilier professionnel Mon Toit"
+                    className="rounded-2xl shadow-2xl w-full h-auto"
+                  />
+                </div>
               </div>
             </div>
 
@@ -95,6 +107,23 @@ const APropos = () => {
                 </ul>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Image immeuble moderne */}
+          <div className="my-20">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+              <img
+                src={ILLUSTRATIONS.realistic.abidjanModernBuilding}
+                alt="Immeuble moderne à Cocody, Abidjan"
+                className="w-full h-auto"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                <div className="p-8 text-white">
+                  <h3 className="text-3xl font-bold mb-2">Des biens de qualité à Abidjan</h3>
+                  <p className="text-lg">Cocody, Plateau, Marcory, Yopougon... Trouvez votre toit idéal</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Fonctionnalités de la plateforme */}

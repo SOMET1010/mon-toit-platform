@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
+import { ILLUSTRATIONS } from '@/lib/illustrations';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Link } from 'react-router-dom';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
@@ -67,17 +69,16 @@ const Favorites = () => {
           </div>
 
           {properties.length === 0 ? (
-            <Card className="p-16 text-center border-2 shadow-xl bg-gradient-to-br from-background to-muted/20">
-              <div className="p-6 rounded-full bg-primary/10 w-fit mx-auto mb-6">
-                <Heart className="h-20 w-20 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3">Aucun favori pour le moment</h3>
-              <p className="text-muted-foreground mb-6 text-lg max-w-md mx-auto">
-                Commencez à explorer nos biens et ajoutez vos coups de cœur à vos favoris
-              </p>
-              <Button asChild size="lg" className="rounded-xl h-14 px-8 text-base font-semibold shadow-lg">
-                <Link to="/recherche">🏠 Parcourir les biens</Link>
-              </Button>
+            <Card className="border-2 shadow-xl bg-gradient-to-br from-background to-muted/20">
+              <EmptyState
+                illustration={ILLUSTRATIONS.emptyStates.noFavorites}
+                title="Aucun favori pour le moment"
+                description="Commencez à explorer nos biens et ajoutez vos coups de cœur à vos favoris"
+                action={{
+                  label: "🏠 Parcourir les biens",
+                  onClick: () => window.location.href = '/recherche'
+                }}
+              />
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

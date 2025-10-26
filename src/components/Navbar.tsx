@@ -32,6 +32,8 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
   const { user, profile, signOut } = useAuth();
   const { canAccessAdminDashboard } = usePermissions();
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/auth';
 
   return (<>
     <nav
@@ -197,7 +199,7 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
-            ) : (
+            ) : !isAuthPage ? (
               <Button 
                 size="sm" 
                 variant="default"
@@ -209,7 +211,7 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
                   <span className="hidden md:inline">Connexion</span>
                 </Link>
               </Button>
-            )}
+            ) : null}
             
             {/* Mobile Menu */}
             <MobileMenu />

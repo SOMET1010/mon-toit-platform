@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  illustration?: string;
   title: string;
   description?: string;
   action?: {
@@ -16,6 +17,7 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ 
   icon: Icon, 
+  illustration,
   title, 
   description, 
   action,
@@ -37,10 +39,19 @@ export const EmptyState = ({
         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         className="mb-6"
       >
-        <div className="relative">
-          <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl" />
-          <Icon className="h-16 w-16 text-primary relative" strokeWidth={1.5} />
-        </div>
+        {illustration ? (
+          <img
+            src={illustration}
+            alt={title}
+            className="w-64 h-auto mx-auto"
+            loading="lazy"
+          />
+        ) : Icon ? (
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl" />
+            <Icon className="h-16 w-16 text-primary relative" strokeWidth={1.5} />
+          </div>
+        ) : null}
       </motion.div>
 
       <motion.h3
