@@ -24,7 +24,7 @@ export const handleCryptoNeoError = (error: any): ErrorHandling => {
     case 'ONECI_DATA_MISSING':
     case 'ONECI_NOT_VERIFIED':
       return {
-        userMessage: 'Vérification ONECI incomplète. Veuillez compléter votre vérification d\'identité.',
+        userMessage: 'Vérification Smile ID incomplète. Veuillez compléter votre vérification d\'identité.',
         action: 'redirect_verification',
         redirectUrl: '/verification'
       };

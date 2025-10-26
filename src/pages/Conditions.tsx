@@ -17,7 +17,7 @@ const Conditions = () => {
 
       <h2>3. Vérification d'identité</h2>
       <p>
-        La plateforme utilise les services ONECI et CNAM pour vérifier l'identité 
+        La plateforme utilise les services Smile ID pour vérifier l'identité 
         des utilisateurs, conformément à la réglementation ivoirienne.
       </p>
 

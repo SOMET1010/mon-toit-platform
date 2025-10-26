@@ -11,8 +11,8 @@ import { TenantScoreExplanation } from './TenantScoreExplanation';
 interface VerificationData {
   oneci_status: string;
   cnam_status: string;
-  oneci_verified: boolean;
-  cnam_verified: boolean;
+  smile_id_verified: boolean;
+  smile_id_verified: boolean;
   face_verified: boolean;
   face_verification_status: string;
   tenant_score: number;
@@ -93,7 +93,7 @@ const VerificationStatus = () => {
             <div className="flex items-center gap-3">
               {getStatusIcon(verification?.oneci_status || 'pending')}
               <div>
-                <h3 className="font-semibold">Vérification ONECI</h3>
+                <h3 className="font-semibold">Vérification Smile ID</h3>
                 <p className="text-sm text-muted-foreground">Carte Nationale d'Identité</p>
               </div>
             </div>
@@ -122,7 +122,7 @@ const VerificationStatus = () => {
                   <TenantScoreBadge score={verification.tenant_score} size="lg" />
                   <TenantScoreExplanation
                     currentScore={verification.tenant_score}
-                    oneciVerified={verification.oneci_verified}
+                    oneciVerified={verification.smile_id_verified}
                     faceVerified={verification.face_verified}
                   />
                 </div>

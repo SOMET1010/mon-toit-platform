@@ -294,8 +294,7 @@ export const SUCCESS_MESSAGES = {
   
   // Verification
   VERIFICATION_SUCCESS: 'Vérification réussie',
-  ONECI_VERIFIED: 'Identité ONECI vérifiée',
-  CNAM_VERIFIED: 'CNAM vérifié',
+    smile_id_verified: 'Identité vérifiée via Smile ID',
   FACE_VERIFIED: 'Visage vérifié',
   
   // Lease

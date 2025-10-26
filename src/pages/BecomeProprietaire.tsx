@@ -20,7 +20,7 @@ interface Requirement {
 /**
  * Page pour devenir propriétaire
  * - Affichage des prérequis
- * - Vérification ONECI
+ * - Vérification Smile ID
  * - Activation du rôle
  */
 export const BecomeProprietaire = () => {
@@ -35,10 +35,10 @@ export const BecomeProprietaire = () => {
   const requirements: Requirement[] = [
     {
       id: 'oneci',
-      label: 'Vérification ONECI (CNI)',
+      label: 'Vérification Smile ID (CNI)',
       description: 'Vérifiez votre identité avec votre Carte Nationale d\'Identité ivoirienne',
       icon: <Shield className="h-5 w-5" />,
-      completed: profile?.oneci_verified || false,
+      completed: profile?.smile_id_verified || false,
       action: () => navigate('/verification/oneci'),
       actionLabel: 'Vérifier mon identité'
     },

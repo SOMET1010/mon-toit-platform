@@ -86,7 +86,7 @@ const CommentCaMarche = () => {
                       <div>
                         <h3 className="font-semibold mb-2">Comment se fait la vérification ANSUT ?</h3>
                         <p className="text-sm text-muted-foreground">
-                          Vérification d'identité via ONECI ou CNAM en 48h maximum. Totalement sécurisé et confidentiel.
+                          Vérification d'identité via Smile ID en 48h maximum. Totalement sécurisé et confidentiel.
                         </p>
                       </div>
                     </div>

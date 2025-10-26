@@ -39,8 +39,8 @@ interface ApplicationDetailProps {
     profiles: {
       full_name: string;
       phone: string | null;
-      oneci_verified: boolean;
-      cnam_verified: boolean;
+      smile_id_verified: boolean;
+      smile_id_verified: boolean;
     };
   };
   onClose: () => void;
@@ -170,28 +170,28 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {application.profiles.oneci_verified ? (
+                  {application.profiles.smile_id_verified ? (
                     <CheckCircle className="h-5 w-5 text-green-600" />
                   ) : (
                     <XCircle className="h-5 w-5 text-muted-foreground" />
                   )}
                   <span>Identité ONECI</span>
                 </div>
-                <Badge variant={application.profiles.oneci_verified ? 'default' : 'secondary'}>
-                  {application.profiles.oneci_verified ? 'Vérifiée' : 'Non vérifiée'}
+                <Badge variant={application.profiles.smile_id_verified ? 'default' : 'secondary'}>
+                  {application.profiles.smile_id_verified ? 'Vérifiée' : 'Non vérifiée'}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {application.profiles.cnam_verified ? (
+                  {application.profiles.smile_id_verified ? (
                     <CheckCircle className="h-5 w-5 text-green-600" />
                   ) : (
                     <XCircle className="h-5 w-5 text-muted-foreground" />
                   )}
                   <span>Employeur CNAM</span>
                 </div>
-                <Badge variant={application.profiles.cnam_verified ? 'default' : 'secondary'}>
-                  {application.profiles.cnam_verified ? 'Vérifiée' : 'Non vérifiée'}
+                <Badge variant={application.profiles.smile_id_verified ? 'default' : 'secondary'}>
+                  {application.profiles.smile_id_verified ? 'Vérifiée' : 'Non vérifiée'}
                 </Badge>
               </div>
             </CardContent>

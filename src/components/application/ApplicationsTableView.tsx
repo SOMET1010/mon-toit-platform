@@ -25,8 +25,8 @@ interface ApplicationDisplay {
   };
   profiles: {
     full_name: string;
-    oneci_verified: boolean;
-    cnam_verified: boolean;
+    smile_id_verified: boolean;
+    smile_id_verified: boolean;
   };
 }
 
@@ -84,7 +84,7 @@ export const ApplicationsTableView = ({
                 {isOwner ? (
                   <div className="flex items-center gap-2">
                     <span>{application.profiles.full_name}</span>
-                    {application.profiles.oneci_verified && (
+                    {application.profiles.smile_id_verified && (
                       <Badge variant="outline" className="text-xs">ONECI</Badge>
                     )}
                   </div>

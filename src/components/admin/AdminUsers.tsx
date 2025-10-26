@@ -12,8 +12,8 @@ type User = {
   user_type: string;
   city: string | null;
   is_verified: boolean;
-  oneci_verified: boolean;
-  cnam_verified: boolean;
+  smile_id_verified: boolean;
+  smile_id_verified: boolean;
   created_at: string;
 };
 
@@ -90,14 +90,14 @@ const AdminUsers = () => {
                   <TableCell>{getUserTypeBadge(user.user_type)}</TableCell>
                   <TableCell>{user.city || '-'}</TableCell>
                   <TableCell>
-                    {user.oneci_verified ? (
+                    {user.smile_id_verified ? (
                       <CheckCircle className="h-5 w-5 text-green-600" />
                     ) : (
                       <XCircle className="h-5 w-5 text-muted-foreground" />
                     )}
                   </TableCell>
                   <TableCell>
-                    {user.cnam_verified ? (
+                    {user.smile_id_verified ? (
                       <CheckCircle className="h-5 w-5 text-green-600" />
                     ) : (
                       <XCircle className="h-5 w-5 text-muted-foreground" />

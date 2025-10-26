@@ -15,8 +15,8 @@ export const VerificationProgress = () => {
   if (!profile) return null;
 
   const verifications = [
-    { key: 'oneci_verified', label: 'ONECI (Identité)' },
-    { key: 'cnam_verified', label: 'CNAM (Emploi)' },
+    { key: 'smile_id_verified', label: 'ONECI (Identité)' },
+    { key: 'smile_id_verified', label: 'CNAM (Emploi)' },
   ];
 
   const completedCount = verifications.filter(v => profile[v.key as keyof typeof profile]).length;

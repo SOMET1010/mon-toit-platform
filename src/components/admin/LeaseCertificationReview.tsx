@@ -46,13 +46,13 @@ interface LeaseDetails {
   } | null;
   landlord: {
     full_name: string;
-    oneci_verified: boolean;
-    cnam_verified: boolean;
+    smile_id_verified: boolean;
+    smile_id_verified: boolean;
   } | null;
   tenant: {
     full_name: string;
-    oneci_verified: boolean;
-    cnam_verified: boolean;
+    smile_id_verified: boolean;
+    smile_id_verified: boolean;
   } | null;
 }
 
@@ -80,8 +80,8 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
         .select(`
           *,
           property:properties!leases_property_id_fkey(title, address, city),
-          landlord:profiles!leases_landlord_id_fkey(full_name, oneci_verified, cnam_verified),
-          tenant:profiles!leases_tenant_id_fkey(full_name, oneci_verified, cnam_verified)
+          landlord:profiles!leases_landlord_id_fkey(full_name, smile_id_verified, smile_id_verified),
+          tenant:profiles!leases_tenant_id_fkey(full_name, smile_id_verified, smile_id_verified)
         `)
         .eq('id', leaseId)
         .single();
@@ -211,7 +211,7 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
   if (!lease) return null;
 
   const isFullySigned = lease.landlord_signed_at && lease.tenant_signed_at;
-  const bothVerified = lease.landlord?.oneci_verified && lease.tenant?.oneci_verified;
+  const bothVerified = lease.landlord?.smile_id_verified && lease.tenant?.smile_id_verified;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -268,14 +268,14 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
                 <p className="font-medium">{lease.landlord?.full_name || 'N/A'}</p>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
-                    {lease.landlord?.oneci_verified ? (
+                    {lease.landlord?.smile_id_verified ? (
                       <Badge className="bg-green-600">ONECI Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">ONECI Non vérifié</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {lease.landlord?.cnam_verified ? (
+                    {lease.landlord?.smile_id_verified ? (
                       <Badge className="bg-green-600">CNAM Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">CNAM Non vérifié</Badge>
@@ -304,14 +304,14 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
                 <p className="font-medium">{lease.tenant?.full_name || 'N/A'}</p>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
-                    {lease.tenant?.oneci_verified ? (
+                    {lease.tenant?.smile_id_verified ? (
                       <Badge className="bg-green-600">ONECI Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">ONECI Non vérifié</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {lease.tenant?.cnam_verified ? (
+                    {lease.tenant?.smile_id_verified ? (
                       <Badge className="bg-green-600">CNAM Vérifié</Badge>
                     ) : (
                       <Badge variant="outline">CNAM Non vérifié</Badge>

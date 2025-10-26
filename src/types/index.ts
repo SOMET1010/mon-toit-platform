@@ -58,8 +58,8 @@ export interface Profile {
   bio: string | null;
   city: string | null;
   is_verified: boolean;
-  oneci_verified: boolean;
-  cnam_verified: boolean;
+  smile_id_verified: boolean;
+  smile_id_verified: boolean;
   face_verified: boolean;
   created_at: string;
   updated_at: string;
@@ -87,8 +87,8 @@ export interface ApplicationWithDetails extends Application {
   profiles: {
     full_name: string;
     phone: string | null;
-    oneci_verified: boolean;
-    cnam_verified: boolean;
+    smile_id_verified: boolean;
+    smile_id_verified: boolean;
   };
   user_verifications?: UserVerification[];
 }
@@ -107,8 +107,8 @@ export interface UserVerification {
   cnam_employer: string | null;
   face_similarity_score: number | null;
   face_verification_attempts: number;
-  oneci_verified_at: string | null;
-  cnam_verified_at: string | null;
+  smile_id_verified_at: string | null;
+  smile_id_verified_at: string | null;
   face_verified_at: string | null;
   score_updated_at: string | null;
   created_at: string;

@@ -47,8 +47,8 @@ type ApplicationDisplay = {
   profiles: {
     full_name: string;
     phone: string | null;
-    oneci_verified: boolean;
-    cnam_verified: boolean;
+    smile_id_verified: boolean;
+    smile_id_verified: boolean;
   };
 };
 
@@ -106,14 +106,14 @@ const Applications = () => {
           // Récupérer les infos du candidat
           const { data: applicant } = await supabase
             .from('profiles')
-            .select('full_name, phone, oneci_verified, cnam_verified')
+            .select('full_name, phone, smile_id_verified, smile_id_verified')
             .eq('id', app.applicant_id)
             .maybeSingle();
 
           return {
             ...app,
             properties: property || { title: 'Propriété supprimée', monthly_rent: 0, city: 'N/A', owner_id: '', deposit_amount: null, charges_amount: null },
-            profiles: applicant || { full_name: 'Utilisateur supprimé', phone: null, oneci_verified: false, cnam_verified: false },
+            profiles: applicant || { full_name: 'Utilisateur supprimé', phone: null, smile_id_verified: false },
           };
         })
       );
@@ -338,10 +338,10 @@ const ApplicationsList = ({
                   </span>
                   {isOwner && (
                     <div className="flex gap-2">
-                      {application.profiles?.oneci_verified && (
+                      {application.profiles?.smile_id_verified && (
                         <Badge variant="outline" className="text-xs">ONECI ✓</Badge>
                       )}
-                      {application.profiles?.cnam_verified && (
+                      {application.profiles?.smile_id_verified && (
                         <Badge variant="outline" className="text-xs">CNAM ✓</Badge>
                       )}
                     </div>

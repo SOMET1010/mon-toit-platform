@@ -14,8 +14,8 @@ interface VerificationForReview {
   city: string;
   oneci_status: string;
   cnam_status: string;
-  oneci_verified_at: string | null;
-  cnam_verified_at: string | null;
+  smile_id_verified_at: string | null;
+  smile_id_verified_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -108,11 +108,11 @@ export const TiersVerificationQueue = () => {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium mb-1">Vérification ONECI</p>
+                <p className="text-sm font-medium mb-1">Vérification Smile ID</p>
                 {getStatusBadge(verification.oneci_status)}
-                {verification.oneci_verified_at && (
+                {verification.smile_id_verified_at && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Vérifié le {new Date(verification.oneci_verified_at).toLocaleDateString('fr-FR')}
+                    Vérifié le {new Date(verification.smile_id_verified_at).toLocaleDateString('fr-FR')}
                   </p>
                 )}
               </div>
@@ -120,9 +120,9 @@ export const TiersVerificationQueue = () => {
               <div>
                 <p className="text-sm font-medium mb-1">Vérification CNAM</p>
                 {getStatusBadge(verification.cnam_status)}
-                {verification.cnam_verified_at && (
+                {verification.smile_id_verified_at && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Vérifié le {new Date(verification.cnam_verified_at).toLocaleDateString('fr-FR')}
+                    Vérifié le {new Date(verification.smile_id_verified_at).toLocaleDateString('fr-FR')}
                   </p>
                 )}
               </div>

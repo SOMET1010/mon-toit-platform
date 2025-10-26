@@ -19,7 +19,7 @@ import ContextBar from "@/components/ContextBar";
 import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { InstallPWA } from "@/components/pwa/InstallPWA";
 import { SplashScreen } from "@/components/pwa/SplashScreen";
-import { PageTransition } from "@/components/animations/PageTransition";
+import { PageTransition } from "@/components/navigation/PageTransition";
 import { MainLayout } from "@/components/layout/MainLayout";
 
 // Eager load critical pages

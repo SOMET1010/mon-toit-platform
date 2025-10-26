@@ -227,7 +227,7 @@ const Profile = () => {
                     <TenantScoreBadge score={tenantScore} size="lg" />
                     <TenantScoreExplanation
                       currentScore={tenantScore}
-                      oneciVerified={profile.oneci_verified}
+                      oneciVerified={profile.smile_id_verified}
                       faceVerified={profile.face_verified}
                     />
                   </div>
@@ -252,8 +252,8 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Vérification ONECI (Identité)</span>
-                {profile.oneci_verified ? (
+                <span className="text-sm">Vérification Smile ID (Identité)</span>
+                {profile.smile_id_verified ? (
                   <div className="flex items-center gap-1 text-green-600">
                     <CheckCircle2 className="h-4 w-4" />
                     <span className="text-sm font-medium">Vérifié</span>
@@ -267,7 +267,7 @@ const Profile = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Vérification CNAM (Emploi)</span>
-                {profile.cnam_verified ? (
+                {profile.smile_id_verified ? (
                   <div className="flex items-center gap-1 text-green-600">
                     <CheckCircle2 className="h-4 w-4" />
                     <span className="text-sm font-medium">Vérifié</span>

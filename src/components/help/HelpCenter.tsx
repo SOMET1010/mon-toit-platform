@@ -30,7 +30,7 @@ const FAQ_CATEGORIES = {
       videoUrl: '#',
     },
     {
-      question: 'Qu\'est-ce que la vérification ONECI/CNAM ?',
+      question: 'Qu\'est-ce que la Vérification Smile ID/CNAM ?',
       answer: 'C\'est une vérification de votre identité et situation professionnelle qui augmente vos chances d\'être accepté par les propriétaires.',
       videoUrl: '#',
     },

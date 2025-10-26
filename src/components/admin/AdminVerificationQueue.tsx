@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { 
-  VerificationWithUser, 
-  PassportVerification,
-  VerificationAction,
-  VerificationStatus,
-  VerificationType
-} from '@/types/admin';
-import { AdminVerificationStats } from '@/components/admin/AdminVerificationStats';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,415 +8,456 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle2, XCircle, Clock, User, FileText, Shield, Globe } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, User, Shield, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { handleError } from '@/lib/errorHandler';
+
+type VerificationStatus = 'pending' | 'approved' | 'rejected';
+
+interface SmileIDVerification {
+  id: string;
+  user_id: string;
+  status: VerificationStatus;
+  smile_job_id: string;
+  confidence_score: number;
+  result_code: string;
+  result_text: string;
+  selfie_image_url: string | null;
+  id_image_url: string | null;
+  full_response: any;
+  created_at: string;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  review_notes: string | null;
+  user_profile?: {
+    full_name: string;
+    email: string;
+    avatar_url: string | null;
+  };
+}
 
 export default function AdminVerificationQueue() {
-  const [verifications, setVerifications] = useState<VerificationWithUser[]>([]);
-  const [passportVerifications, setPassportVerifications] = useState<PassportVerification[]>([]);
+  const [verifications, setVerifications] = useState<SmileIDVerification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedVerification, setSelectedVerification] = useState<VerificationAction | null>(null);
+  const [selectedVerification, setSelectedVerification] = useState<SmileIDVerification | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<VerificationStatus>('pending');
 
-  const fetchPendingVerifications = async () => {
+  const fetchVerifications = async () => {
     try {
-      // Fetch ONECI/CNAM verifications
-      const { data, error } = await supabase.rpc('get_verifications_for_admin_review');
+      setLoading(true);
+      
+      // Fetch Smile ID verifications with user profiles
+      const { data, error } = await supabase
+        .from('smile_id_verifications')
+        .select(`
+          *,
+          user_profile:profiles!user_id (
+            full_name,
+            email,
+            avatar_url
+          )
+        `)
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
 
-      const enrichedData = (data || []).map((verification: any): VerificationWithUser => ({
-        user_id: verification.user_id,
-        oneci_status: verification.oneci_status as VerificationStatus,
-        cnam_status: verification.cnam_status as VerificationStatus,
-        passport_status: 'not_submitted' as VerificationStatus,
-        oneci_data: verification.oneci_data as any,
-        cnam_data: verification.cnam_data as any,
-        passport_data: null,
-        oneci_cni_number: verification.oneci_cni_number,
-        cnam_employer: verification.cnam_employer,
-        passport_number: null,
-        passport_nationality: null,
-        created_at: verification.created_at,
-        profiles: {
-          full_name: verification.full_name || 'N/A',
-          avatar_url: null,
-          email: 'user@example.com'
-        }
-      }));
-
-      setVerifications(enrichedData);
-
-      // Fetch passport verifications
-      const { data: passportData, error: passportError } = await supabase
-        .rpc('get_passport_verifications_for_admin' as never);
-      
-      if (!passportError && passportData) {
-        setPassportVerifications(passportData as unknown as PassportVerification[]);
-      }
+      setVerifications(data as SmileIDVerification[]);
     } catch (error: any) {
-      handleError(error, 'Impossible de charger les vérifications en attente');
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les vérifications",
+        variant: "destructive"
+      });
+      console.error('Error fetching verifications:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPendingVerifications();
+    fetchVerifications();
   }, []);
 
-  const handleAction = async () => {
+  const handleApprove = async () => {
     if (!selectedVerification) return;
 
     setSubmitting(true);
     try {
-      let functionName: string;
-      
-      if (selectedVerification.type === 'passport') {
-        functionName = selectedVerification.action === 'approve' 
-          ? 'approve_passport_verification' 
-          : 'reject_passport_verification';
-        
-        const { error } = await supabase.rpc(functionName as any, {
-          p_user_id: selectedVerification.userId,
-          p_review_notes: reviewNotes || null,
-        });
-        if (error) throw error;
-      } else {
-        functionName = selectedVerification.action === 'approve' 
-          ? 'approve_verification' 
-          : 'reject_verification';
+      const { error } = await supabase
+        .from('smile_id_verifications')
+        .update({
+          status: 'approved',
+          reviewed_at: new Date().toISOString(),
+          review_notes: reviewNotes || null
+        })
+        .eq('id', selectedVerification.id);
 
-        const { error } = await supabase.rpc(functionName as any, {
-          p_user_id: selectedVerification.userId,
-          p_verification_type: selectedVerification.type,
-          p_review_notes: reviewNotes || null,
-        });
-        if (error) throw error;
-      }
+      if (error) throw error;
+
+      // Update user profile to mark as verified
+      await supabase
+        .from('profiles')
+        .update({ smile_id_verified: true })
+        .eq('id', selectedVerification.user_id);
 
       toast({
-        title: selectedVerification.action === 'approve' ? 'Vérification approuvée' : 'Vérification rejetée',
-        description: `La vérification ${selectedVerification.type.toUpperCase()} a été ${selectedVerification.action === 'approve' ? 'approuvée' : 'rejetée'} avec succès.`,
+        title: "Vérification approuvée",
+        description: "L'utilisateur a été certifié avec succès"
       });
 
       setSelectedVerification(null);
       setReviewNotes('');
-      fetchPendingVerifications();
+      fetchVerifications();
     } catch (error: any) {
-      handleError(error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'approuver la vérification",
+        variant: "destructive"
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending_review':
-        return <Badge variant="secondary" className="flex items-center gap-1"><Clock className="h-3 w-3" /> En attente</Badge>;
-      case 'verified':
-        return <Badge variant="default" className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Vérifié</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive" className="flex items-center gap-1"><XCircle className="h-3 w-3" /> Rejeté</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  const handleReject = async () => {
+    if (!selectedVerification) return;
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('smile_id_verifications')
+        .update({
+          status: 'rejected',
+          reviewed_at: new Date().toISOString(),
+          review_notes: reviewNotes || null
+        })
+        .eq('id', selectedVerification.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Vérification rejetée",
+        description: "L'utilisateur a été notifié du rejet"
+      });
+
+      setSelectedVerification(null);
+      setReviewNotes('');
+      fetchVerifications();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de rejeter la vérification",
+        variant: "destructive"
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const getStatusBadge = (status: VerificationStatus) => {
+    const variants = {
+      pending: { variant: 'secondary' as const, icon: Clock, label: 'En attente' },
+      approved: { variant: 'default' as const, icon: CheckCircle2, label: 'Approuvé' },
+      rejected: { variant: 'destructive' as const, icon: XCircle, label: 'Rejeté' }
+    };
+
+    const config = variants[status];
+    const Icon = config.icon;
+
+    return (
+      <Badge variant={config.variant}>
+        <Icon className="mr-1 h-3 w-3" />
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getConfidenceColor = (score: number) => {
+    if (score >= 0.9) return 'text-green-600';
+    if (score >= 0.7) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const filteredVerifications = verifications.filter(v => v.status === activeTab);
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="space-y-6">
-        {/* Statistics Dashboard */}
-        <AdminVerificationStats />
-        
-        <Tabs defaultValue="oneci_cnam" className="w-full">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList>
-              <TabsTrigger value="oneci_cnam">ONECI & CNAM ({verifications.length})</TabsTrigger>
-              <TabsTrigger value="passport">Passeports ({passportVerifications.length})</TabsTrigger>
-            </TabsList>
-            <Button onClick={fetchPendingVerifications} variant="outline">
-              Rafraîchir
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">File de Vérification Smile ID</h2>
+        <p className="text-muted-foreground">
+          Examinez et approuvez les vérifications d'identité Smile ID
+        </p>
+      </div>
 
-          <TabsContent value="oneci_cnam" className="space-y-4">
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold">Vérifications ONECI & CNAM</h2>
-              <p className="text-muted-foreground">
-                {verifications.length} vérification{verifications.length > 1 ? 's' : ''} en attente de validation
-              </p>
+      {/* Statistics */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En attente</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {verifications.filter(v => v.status === 'pending').length}
             </div>
+          </CardContent>
+        </Card>
 
-        {verifications.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center h-64">
-              <CheckCircle2 className="h-16 w-16 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium">Aucune vérification en attente</p>
-              <p className="text-sm text-muted-foreground">Toutes les vérifications ont été traitées</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {verifications.map((verification) => (
-              <Card key={verification.user_id}>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Approuvées</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {verifications.filter(v => v.status === 'approved').length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Rejetées</CardTitle>
+            <XCircle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {verifications.filter(v => v.status === 'rejected').length}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as VerificationStatus)}>
+        <TabsList>
+          <TabsTrigger value="pending">
+            En attente ({verifications.filter(v => v.status === 'pending').length})
+          </TabsTrigger>
+          <TabsTrigger value="approved">
+            Approuvées ({verifications.filter(v => v.status === 'approved').length})
+          </TabsTrigger>
+          <TabsTrigger value="rejected">
+            Rejetées ({verifications.filter(v => v.status === 'rejected').length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="space-y-4 mt-4">
+          {filteredVerifications.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Shield className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Aucune vérification {activeTab === 'pending' ? 'en attente' : activeTab === 'approved' ? 'approuvée' : 'rejetée'}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredVerifications.map((verification) => (
+              <Card key={verification.id}>
                 <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
                       <Avatar>
-                        <AvatarImage src={verification.profiles.avatar_url || undefined} />
+                        <AvatarImage src={verification.user_profile?.avatar_url || undefined} />
                         <AvatarFallback>
-                          <User className="h-5 w-5" />
+                          <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-lg">{verification.profiles.full_name}</CardTitle>
-                        <CardDescription className="text-sm">{verification.profiles.email}</CardDescription>
+                        <CardTitle className="text-lg">
+                          {verification.user_profile?.full_name || 'Utilisateur inconnu'}
+                        </CardTitle>
+                        <CardDescription>
+                          {verification.user_profile?.email}
+                        </CardDescription>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(verification.created_at), 'PPp', { locale: fr })}
-                    </span>
+                    {getStatusBadge(verification.status)}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* ONECI Verification */}
-                  {verification.oneci_status === 'pending_review' && (
-                    <div className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-5 w-5 text-primary" />
-                          <span className="font-semibold">Vérification ONECI</span>
-                        </div>
-                        {getStatusBadge(verification.oneci_status)}
-                      </div>
-                      
-                      {verification.oneci_data && (
-                        <div className="bg-muted/50 rounded p-3 space-y-1 text-sm">
-                          <div><strong>CNI:</strong> {verification.oneci_cni_number}</div>
-                          <div><strong>Nom:</strong> {verification.oneci_data.lastName}</div>
-                          <div><strong>Prénom:</strong> {verification.oneci_data.firstName}</div>
-                          <div><strong>Date de naissance:</strong> {verification.oneci_data.birthDate}</div>
-                        </div>
-                      )}
-
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'oneci', action: 'approve' })}
-                          className="flex-1"
-                        >
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
-                          Approuver
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'oneci', action: 'reject' })}
-                          className="flex-1"
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          Rejeter
-                        </Button>
-                      </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Score de confiance:</span>
+                      <p className={`font-semibold ${getConfidenceColor(verification.confidence_score)}`}>
+                        {(verification.confidence_score * 100).toFixed(1)}%
+                      </p>
                     </div>
+                    <div>
+                      <span className="text-muted-foreground">Résultat:</span>
+                      <p className="font-semibold">{verification.result_text}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Job ID:</span>
+                      <p className="font-mono text-xs">{verification.smile_job_id}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Date de soumission:</span>
+                      <p>{format(new Date(verification.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}</p>
+                    </div>
+                  </div>
+
+                  {verification.status === 'pending' && (
+                    <Button
+                      onClick={() => setSelectedVerification(verification)}
+                      className="w-full"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      Examiner la vérification
+                    </Button>
                   )}
 
-                  {/* CNAM Verification */}
-                  {verification.cnam_status === 'pending_review' && (
-                    <div className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-primary" />
-                          <span className="font-semibold">Vérification CNAM</span>
-                        </div>
-                        {getStatusBadge(verification.cnam_status)}
-                      </div>
-                      
-                      {verification.cnam_data && (
-                        <div className="bg-muted/50 rounded p-3 space-y-1 text-sm">
-                          <div><strong>Employeur:</strong> {verification.cnam_employer}</div>
-                          <div><strong>Type de contrat:</strong> {verification.cnam_data.contractType || 'N/A'}</div>
-                          <div><strong>Salaire estimé:</strong> {verification.cnam_data.estimatedSalary || 'N/A'} FCFA</div>
-                          <div><strong>Statut:</strong> {verification.cnam_data.employmentStatus || 'N/A'}</div>
-                        </div>
-                      )}
-
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'cnam', action: 'approve' })}
-                          className="flex-1"
-                        >
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
-                          Approuver
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'cnam', action: 'reject' })}
-                          className="flex-1"
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          Rejeter
-                        </Button>
-                      </div>
+                  {verification.review_notes && (
+                    <div className="bg-muted p-3 rounded-lg">
+                      <p className="text-sm font-semibold mb-1">Notes de révision:</p>
+                      <p className="text-sm text-muted-foreground">{verification.review_notes}</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
-          </TabsContent>
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
 
-          <TabsContent value="passport" className="space-y-4">
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold">Vérifications Passeport</h2>
-              <p className="text-muted-foreground">
-                {passportVerifications.length} vérification{passportVerifications.length > 1 ? 's' : ''} passeport en attente
-              </p>
-            </div>
-
-            {passportVerifications.length === 0 ? (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center h-64">
-                  <CheckCircle2 className="h-16 w-16 text-muted-foreground mb-4" />
-                  <p className="text-lg font-medium">Aucune vérification passeport en attente</p>
-                  <p className="text-sm text-muted-foreground">Toutes les vérifications passeport ont été traitées</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4">
-                {passportVerifications.map((verification: any) => (
-                  <Card key={verification.user_id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarFallback>
-                              <User className="h-5 w-5" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <CardTitle className="text-lg">{verification.full_name}</CardTitle>
-                            <CardDescription className="text-sm">Nationalité: {verification.passport_nationality}</CardDescription>
-                          </div>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(verification.created_at), 'PPp', { locale: fr })}
-                        </span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="border rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-5 w-5 text-primary" />
-                            <span className="font-semibold">Vérification Passeport</span>
-                          </div>
-                          {getStatusBadge(verification.passport_status)}
-                        </div>
-                        
-                        {verification.passport_data && (
-                          <div className="bg-muted/50 rounded p-3 space-y-1 text-sm">
-                            <div><strong>Numéro passeport:</strong> {verification.passport_number}</div>
-                            <div><strong>Nationalité:</strong> {verification.passport_nationality}</div>
-                            <div><strong>Nom:</strong> {verification.passport_data.lastName}</div>
-                            <div><strong>Prénom:</strong> {verification.passport_data.firstName}</div>
-                            <div><strong>Date de naissance:</strong> {verification.passport_data.birthDate}</div>
-                            <div><strong>Date d'émission:</strong> {verification.passport_data.issueDate}</div>
-                            <div><strong>Date d'expiration:</strong> {verification.passport_data.expiryDate}</div>
-                          </div>
-                        )}
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'passport', action: 'approve' })}
-                            className="flex-1"
-                          >
-                            <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Approuver
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setSelectedVerification({ userId: verification.user_id, type: 'passport', action: 'reject' })}
-                            className="flex-1"
-                          >
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Rejeter
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Dialog de confirmation */}
+      {/* Review Dialog */}
       <Dialog open={!!selectedVerification} onOpenChange={() => setSelectedVerification(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {selectedVerification?.action === 'approve' ? 'Approuver' : 'Rejeter'} la vérification {selectedVerification?.type.toUpperCase()}
-            </DialogTitle>
+            <DialogTitle>Examiner la vérification Smile ID</DialogTitle>
             <DialogDescription>
-              {selectedVerification?.action === 'approve' 
-                ? 'Confirmez-vous vouloir approuver cette vérification ?'
-                : 'Veuillez indiquer le motif du rejet (obligatoire).'
-              }
+              Vérifiez les informations et approuvez ou rejetez la vérification
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="notes">
-                Notes {selectedVerification?.action === 'reject' && <span className="text-destructive">*</span>}
-              </Label>
-              <Textarea
-                id="notes"
-                value={reviewNotes}
-                onChange={(e) => setReviewNotes(e.target.value)}
-                placeholder={selectedVerification?.action === 'approve' 
-                  ? 'Notes optionnelles...'
-                  : 'Motif du rejet (obligatoire)...'
-                }
-                rows={4}
-              />
-            </div>
-          </div>
+          {selectedVerification && (
+            <div className="space-y-6">
+              {/* User Info */}
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={selectedVerification.user_profile?.avatar_url || undefined} />
+                  <AvatarFallback>
+                    <User className="h-8 w-8" />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {selectedVerification.user_profile?.full_name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedVerification.user_profile?.email}
+                  </p>
+                </div>
+              </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedVerification(null)} disabled={submitting}>
+              {/* Verification Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Score de confiance</Label>
+                  <p className={`text-2xl font-bold ${getConfidenceColor(selectedVerification.confidence_score)}`}>
+                    {(selectedVerification.confidence_score * 100).toFixed(1)}%
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label>Résultat Smile ID</Label>
+                  <p className="text-lg font-semibold">{selectedVerification.result_text}</p>
+                </div>
+              </div>
+
+              {/* Images */}
+              <div className="grid grid-cols-2 gap-4">
+                {selectedVerification.selfie_image_url && (
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      Photo Selfie
+                    </Label>
+                    <img
+                      src={selectedVerification.selfie_image_url}
+                      alt="Selfie"
+                      className="w-full rounded-lg border"
+                    />
+                  </div>
+                )}
+                {selectedVerification.id_image_url && (
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      Document d'identité
+                    </Label>
+                    <img
+                      src={selectedVerification.id_image_url}
+                      alt="ID Document"
+                      className="w-full rounded-lg border"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Review Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes de révision (optionnel)</Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Ajoutez des notes sur cette vérification..."
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              {/* Confidence Warning */}
+              {selectedVerification.confidence_score < 0.7 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-yellow-900">Score de confiance faible</p>
+                    <p className="text-sm text-yellow-700">
+                      Le score de confiance est inférieur à 70%. Examinez attentivement les images avant d'approuver.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedVerification(null)}
+              disabled={submitting}
+            >
               Annuler
             </Button>
-            <Button 
-              onClick={handleAction} 
-              disabled={submitting || (selectedVerification?.action === 'reject' && !reviewNotes.trim())}
-              variant={selectedVerification?.action === 'approve' ? 'default' : 'destructive'}
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={submitting}
             >
-              {submitting ? 'Traitement...' : selectedVerification?.action === 'approve' ? 'Approuver' : 'Rejeter'}
+              <XCircle className="mr-2 h-4 w-4" />
+              Rejeter
+            </Button>
+            <Button
+              onClick={handleApprove}
+              disabled={submitting}
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Approuver
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
+

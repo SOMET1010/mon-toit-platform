@@ -29,7 +29,7 @@ export const TenantScoreExplanation = ({
       points: 40,
       verified: oneciVerified,
       description: 'Vérification de votre Carte Nationale d\'Identité',
-      action: oneciVerified ? null : 'Compléter ma vérification ONECI',
+      action: oneciVerified ? null : 'Compléter ma Vérification Smile ID',
     },
     {
       icon: Camera,
@@ -146,7 +146,7 @@ export const TenantScoreExplanation = ({
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {!oneciVerified && (
-                <li>• Complétez votre vérification ONECI pour gagner +40 points immédiatement</li>
+                <li>• Complétez votre Vérification Smile ID pour gagner +40 points immédiatement</li>
               )}
               {!faceVerified && (
                 <li>• Activez la vérification faciale pour +30 points supplémentaires</li>

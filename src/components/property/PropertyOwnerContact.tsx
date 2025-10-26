@@ -38,7 +38,7 @@ export const PropertyOwnerContact = ({
           fallback={
             <Alert className="border-yellow-600">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Vérification ONECI requise</AlertTitle>
+              <AlertTitle>Vérification Smile ID requise</AlertTitle>
               <AlertDescription className="space-y-3">
                 <p>
                   Pour contacter ce propriétaire, vous devez d'abord <strong>vérifier votre identité</strong> 

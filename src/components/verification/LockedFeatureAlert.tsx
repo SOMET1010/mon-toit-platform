@@ -11,7 +11,7 @@ interface LockedFeatureAlertProps {
 
 const VERIFICATION_CONFIG = {
   oneci: {
-    title: 'Vérification ONECI requise',
+    title: 'Vérification Smile ID requise',
     description: 'Vous devez vérifier votre identité avec votre CNI pour accéder à cette fonctionnalité.',
     icon: ShieldCheck,
     color: 'border-yellow-600'

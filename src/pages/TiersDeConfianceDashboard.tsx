@@ -149,7 +149,7 @@ const TiersDeConfianceDashboard = () => {
           <TabsContent value="verifications">
             <Card>
               <CardHeader>
-                <CardTitle>Vérifications ONECI et CNAM en attente</CardTitle>
+                <CardTitle>Vérifications Smile ID en attente</CardTitle>
               </CardHeader>
               <CardContent>
                 <TiersVerificationQueue />

@@ -46,8 +46,8 @@ type Application = {
   profiles: {
     full_name: string;
     phone: string | null;
-    oneci_verified: boolean;
-    cnam_verified: boolean;
+    smile_id_verified: boolean;
+    smile_id_verified: boolean;
     face_verified: boolean;
     avatar_url: string | null;
   };
@@ -127,8 +127,8 @@ const PropertyApplications = () => {
           profiles (
             full_name,
             phone,
-            oneci_verified,
-            cnam_verified,
+            smile_id_verified,
+            smile_id_verified,
             face_verified,
             avatar_url
           )
@@ -436,13 +436,13 @@ const PropertyApplications = () => {
                           </div>
 
                           <div className="flex flex-wrap gap-2">
-                            {application.profiles.oneci_verified && (
+                            {application.profiles.smile_id_verified && (
                               <Badge variant="outline" className="rounded-full">
                                 <CheckCircle2 className="h-3 w-3 mr-1 text-green-600" />
                                 ONECI
                               </Badge>
                             )}
-                            {application.profiles.cnam_verified && (
+                            {application.profiles.smile_id_verified && (
                               <Badge variant="outline" className="rounded-full">
                                 <CheckCircle2 className="h-3 w-3 mr-1 text-green-600" />
                                 CNAM
