@@ -159,8 +159,8 @@ export const SutaChatbot = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="font-semibold">Sarrah</h3>
-              <p className="text-xs opacity-90">Assistante Mon Toit</p>
+              <h3 className="font-semibold">SUTA</h3>
+              <p className="text-xs opacity-90">Assistant Intelligent Mon Toit</p>
             </div>
           </div>
 
