@@ -38,3 +38,13 @@
 - [x] Générer toutes les tailles nécessaires (16x16, 32x32, 72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512)
 - [x] Favicon.ico généré
 
+
+
+## Phase 7 : Correction Bug Critique Page Détail
+- [x] Analyser le code de PropertyDetail.tsx
+- [x] Identifier la cause de l'erreur err_176147425836B (IDs invalides)
+- [x] Créer PropertyDetailWrapper avec validation UUID
+- [x] Intégrer PropertyDetailWrapper dans App.tsx
+- [ ] Tester la page de détail après déploiement
+- [ ] Corriger le chargement des images (nécessite vérification Supabase Storage)
+
