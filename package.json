@@ -1,7 +1,7 @@
 {
   "name": "vite_react_shadcn_ts",
   "private": true,
-  "version": "3.5.1.1.0",
+  "version": "3.5.2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,11 +9,11 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "version:major": "node scripts/bump-version.js major",
-    "version:minor": "node scripts/bump-version.js minor",
-    "version:patch": "node scripts/bump-version.js patch",
-    "version:build": "node scripts/bump-version.js build",
-    "version:revision": "node scripts/bump-version.js revision"
+    "version:major": "node scripts/bump-version.cjs major",
+    "version:minor": "node scripts/bump-version.cjs minor",
+    "version:patch": "node scripts/bump-version.cjs patch",
+    "version:build": "node scripts/bump-version.cjs build",
+    "version:revision": "node scripts/bump-version.cjs revision"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

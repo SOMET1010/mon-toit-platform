@@ -18,10 +18,10 @@ interface IntegrationConfig {
 const AdminIntegrations = () => {
   const { toast } = useToast();
   
-  // CinetPay Configuration
-  const [cinetpayApiKey, setCinetpayApiKey] = useState("");
-  const [cinetpaySiteId, setCinetpaySiteId] = useState("");
-  const [cinetpaySecretKey, setCinetpaySecretKey] = useState("");
+  // InTouch Configuration
+  const [intouchApiKey, setIntouchApiKey] = useState("");
+  const [intouchMerchantId, setIntouchMerchantId] = useState("");
+  const [intouchSecretKey, setIntouchSecretKey] = useState("");
   
   // Brevo Configuration
   const [brevoApiKey, setBrevoApiKey] = useState("");
@@ -32,10 +32,10 @@ const AdminIntegrations = () => {
   
   const integrations: IntegrationConfig[] = [
     {
-      name: "CinetPay",
+      name: "InTouch",
       status: "not_configured",
       icon: CreditCard,
-      description: "Paiements Mobile Money (Orange, MTN, Wave, Moov)"
+      description: "Agrégateur de paiements Mobile Money (Orange, MTN, Moov, Wave)"
     },
     {
       name: "Brevo",
@@ -51,11 +51,11 @@ const AdminIntegrations = () => {
     }
   ];
 
-  const saveCinetPayConfig = async () => {
-    if (!cinetpayApiKey || !cinetpaySiteId || !cinetpaySecretKey) {
+  const saveInTouchConfig = async () => {
+    if (!intouchApiKey || !intouchMerchantId || !intouchSecretKey) {
       toast({
         title: "Erreur",
-        description: "Veuillez remplir tous les champs CinetPay",
+        description: "Veuillez remplir tous les champs InTouch",
         variant: "destructive"
       });
       return;
@@ -63,16 +63,16 @@ const AdminIntegrations = () => {
 
     try {
       // Store in localStorage for now (in production, this should be stored securely in Supabase)
-      localStorage.setItem("cinetpay_config", JSON.stringify({
-        apiKey: cinetpayApiKey,
-        siteId: cinetpaySiteId,
-        secretKey: cinetpaySecretKey,
+      localStorage.setItem("intouch_config", JSON.stringify({
+        apiKey: intouchApiKey,
+        merchantId: intouchMerchantId,
+        secretKey: intouchSecretKey,
         configuredAt: new Date().toISOString()
       }));
 
       toast({
         title: "Configuration sauvegardée",
-        description: "Les paramètres CinetPay ont été enregistrés avec succès"
+        description: "Les paramètres InTouch ont été enregistrés avec succès"
       });
     } catch (error) {
       toast({
@@ -187,11 +187,11 @@ const AdminIntegrations = () => {
       </div>
 
       {/* Configuration Forms */}
-      <Tabs defaultValue="cinetpay" className="w-full">
+      <Tabs defaultValue="intouch" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="cinetpay">
+          <TabsTrigger value="intouch">
             <CreditCard className="mr-2 h-4 w-4" />
-            CinetPay
+            InTouch
           </TabsTrigger>
           <TabsTrigger value="brevo">
             <Mail className="mr-2 h-4 w-4" />
@@ -203,60 +203,60 @@ const AdminIntegrations = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="cinetpay" className="space-y-4">
+        <TabsContent value="intouch" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Configuration CinetPay</CardTitle>
+              <CardTitle>Configuration InTouch</CardTitle>
               <CardDescription>
-                Configurez vos clés API CinetPay pour activer les paiements Mobile Money
+                Configurez vos clés API InTouch pour activer les paiements Mobile Money
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="cinetpay-api-key">Clé API</Label>
+                <Label htmlFor="intouch-api-key">Clé API</Label>
                 <Input
-                  id="cinetpay-api-key"
+                  id="intouch-api-key"
                   type="password"
-                  placeholder="Votre clé API CinetPay"
-                  value={cinetpayApiKey}
-                  onChange={(e) => setCinetpayApiKey(e.target.value)}
+                  placeholder="Votre clé API InTouch"
+                  value={intouchApiKey}
+                  onChange={(e) => setIntouchApiKey(e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="cinetpay-site-id">Site ID</Label>
+                <Label htmlFor="intouch-merchant-id">Merchant ID</Label>
                 <Input
-                  id="cinetpay-site-id"
-                  placeholder="Votre Site ID CinetPay"
-                  value={cinetpaySiteId}
-                  onChange={(e) => setCinetpaySiteId(e.target.value)}
+                  id="intouch-merchant-id"
+                  placeholder="Votre Merchant ID InTouch"
+                  value={intouchMerchantId}
+                  onChange={(e) => setIntouchMerchantId(e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="cinetpay-secret">Clé secrète</Label>
+                <Label htmlFor="intouch-secret">Clé secrète</Label>
                 <Input
-                  id="cinetpay-secret"
+                  id="intouch-secret"
                   type="password"
-                  placeholder="Votre clé secrète CinetPay"
-                  value={cinetpaySecretKey}
-                  onChange={(e) => setCinetpaySecretKey(e.target.value)}
+                  placeholder="Votre clé secrète InTouch"
+                  value={intouchSecretKey}
+                  onChange={(e) => setIntouchSecretKey(e.target.value)}
                 />
               </div>
 
               <div className="bg-muted p-4 rounded-lg space-y-2">
-                <h4 className="font-medium text-sm">Comment obtenir vos clés CinetPay ?</h4>
+                <h4 className="font-medium text-sm">Comment obtenir vos clés InTouch ?</h4>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                  <li>Connectez-vous à votre compte CinetPay</li>
+                  <li>Connectez-vous à votre compte InTouch</li>
                   <li>Accédez à Paramètres → API</li>
-                  <li>Copiez votre API Key, Site ID et Secret Key</li>
+                  <li>Copiez votre API Key, Merchant ID et Secret Key</li>
                   <li>Collez-les dans les champs ci-dessus</li>
                 </ol>
               </div>
 
-              <Button onClick={saveCinetPayConfig} className="w-full">
+              <Button onClick={saveInTouchConfig} className="w-full">
                 <Save className="mr-2 h-4 w-4" />
-                Sauvegarder la configuration CinetPay
+                Sauvegarder la configuration InTouch
               </Button>
             </CardContent>
           </Card>
