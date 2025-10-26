@@ -11,7 +11,7 @@ interface SimpleImageEnhancedProps {
 
 // URLs Supabase Storage - CDN rapide et fiable
 // Les images sont hébergées sur Supabase Storage (bucket public: property-images)
-const SUPABASE_URL = 'https://btxhuqtirylvkgvoutoc.supabase.co';
+const SUPABASE_URL = 'https://haffcubwactwjpngcpdf.supabase.co';
 const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/property-images`;
 
 // Vraies photos de biens immobiliers à Abidjan
