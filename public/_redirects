@@ -1,0 +1,13 @@
+# Servir les fichiers statiques directement (pas de redirection SPA)
+/property-images/*  /property-images/:splat  200
+/icons/*            /icons/:splat            200
+/*.png              /:splat.png              200
+/*.jpg              /:splat.jpg              200
+/*.jpeg             /:splat.jpeg             200
+/*.ico              /:splat.ico              200
+/*.svg              /:splat.svg              200
+/*.webp             /:splat.webp             200
+
+# Redirection SPA pour toutes les autres routes
+/*                  /index.html              200
+
