@@ -87,7 +87,7 @@ export const LocationSection = ({
           <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div>
             <p className="font-medium text-foreground">{city}</p>
-            <p className="text-sm text-muted-foreground mt-1">Quartier: {address.split(',')[0]}</p>
+            <p className="text-sm text-muted-foreground mt-1">Quartier: {address?.split(',')[0] || address || 'Non spécifié'}</p>
           </div>
         </div>
         {user ? (
