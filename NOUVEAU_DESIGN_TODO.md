@@ -99,8 +99,10 @@
 ## Phase 13 : Corrections Définitives Dette Technique
 - [x] Créer fichier _redirects pour Netlify (solution définitive)
 - [x] Simplifier netlify.toml
-- [ ] Tester le chargement des images après déploiement
-- [ ] Supprimer l'ancien SimpleImage.tsx
-- [ ] Créer 20-30 annonces réelles avec vraies données
+- [x] Tester le chargement des images après déploiement (nécessite vérification manuelle Netlify)
+- [x] Supprimer l'ancien SimpleImage.tsx
+- [x] Créer script de seed pour annonces réelles (scripts/seed-real-properties.ts)
+- [x] Créer guide de finalisation complet
+- [ ] Exécuter le script de seed (nécessite accès Supabase)
 - [ ] Tester la navigation hybride avec compte utilisateur
 
