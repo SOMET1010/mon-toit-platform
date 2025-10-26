@@ -29,6 +29,7 @@ import Search from "./pages/Search";
 
 // Lazy load heavy pages
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const PropertyDetailWrapper = lazy(() => import("./components/property/PropertyDetailWrapper").then(module => ({ default: module.PropertyDetailWrapper })));
 const Offline = lazy(() => import("./pages/Offline"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -129,7 +130,7 @@ const AppContent = () => {
             <Route path="/a-propos" element={<AboutPage />} />
             <Route path="/property/:id" element={
               <Suspense fallback={<PropertyDetailSkeleton />}>
-                <PropertyDetail />
+                <PropertyDetailWrapper />
               </Suspense>
             } />
             <Route path="/certification" element={<Certification />} />

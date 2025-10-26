@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import ANSUTCertifiedBadge from '@/components/ui/ansut-certified-badge';
 import { useTimeAgo } from '@/hooks/useTimeAgo';
 import { toast } from '@/hooks/use-toast';
-import { SimpleImage } from '@/components/property/SimpleImage';
+import { SimpleImageEnhanced } from '@/components/property/SimpleImageEnhanced';
 import { useLongPress } from '@/hooks/useLongPress';
 import { triggerHapticFeedback } from '@/utils/haptics';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -141,7 +141,7 @@ export const PropertyCard = ({
         aria-labelledby={`property-title-${property.id}`}
         aria-describedby={`property-description-${property.id}`}
       >
-      <div className="relative h-56 sm:h-64 bg-muted overflow-hidden">
+      <div className="relative h-56 sm:h-64 bg-muted overflow-hidden rounded-t-2xl">
         {(() => {
           // Debug: Log property data to understand what we're working with
           console.log(`Property ${property.id} image data:`, {
@@ -155,10 +155,11 @@ export const PropertyCard = ({
             const validImages = property.images.filter(img => img && typeof img === 'string' && img.trim() !== '');
             if (validImages.length > 0) {
               return (
-                <SimpleImage
+                <SimpleImageEnhanced
                   src={validImages[0]}
                   alt={`${property.title} - ${property.city}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  propertyType={property.property_type}
+                  className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                 />
               );
             }
@@ -168,10 +169,11 @@ export const PropertyCard = ({
           if (property.main_image && typeof property.main_image === 'string' && property.main_image.trim() !== '') {
             return (
               <>
-                <SimpleImage
+                <SimpleImageEnhanced
                   src={property.main_image}
                   alt={`Photo du bien: ${property.title} - ${property.property_type} à ${property.city}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  propertyType={property.property_type}
+                  className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
               </>
@@ -182,9 +184,10 @@ export const PropertyCard = ({
           const demoImage = getDemoImage(property.id, property.property_type);
           return (
             <>
-              <SimpleImage
+              <SimpleImageEnhanced
                 src={demoImage}
                 alt={`Photo démonstration: ${property.title} - ${property.property_type} à ${property.city}`}
+                propertyType={property.property_type}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
@@ -347,7 +350,7 @@ export const PropertyCard = ({
             const validImages = property.images.filter(img => img && typeof img === 'string' && img.trim() !== '');
             if (validImages.length > 0) {
               return (
-                <SimpleImage
+                <SimpleImageEnhanced
                   src={validImages[0]} // Use first image for preview
                   alt={property.title}
                   className="w-full rounded-lg"
@@ -358,7 +361,7 @@ export const PropertyCard = ({
 
           if (property.main_image && typeof property.main_image === 'string' && property.main_image.trim() !== '') {
             return (
-              <SimpleImage
+              <SimpleImageEnhanced
                 src={property.main_image}
                 alt={property.title}
                 className="w-full rounded-lg"
@@ -370,7 +373,7 @@ export const PropertyCard = ({
           const demoImage = getDemoImage(property.id, property.property_type);
           return (
             <div className="relative">
-              <SimpleImage
+              <SimpleImageEnhanced
                 src={demoImage}
                 alt={`Photo démonstration: ${property.title}`}
                 className="w-full rounded-lg"
