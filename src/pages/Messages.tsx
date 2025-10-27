@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/common/PageHeader';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import MessageTemplates from '@/components/messaging/MessageTemplates';
 import AttachmentUpload from '@/components/messaging/AttachmentUpload';
@@ -425,12 +425,15 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+    <MainLayout>
+      <PageHeader
+        title="Messages"
+        description="Communiquez en toute sécurité avec les propriétaires et locataires"
+        badge={`${conversations.length} conversation${conversations.length > 1 ? 's' : ''}`}
+        icon={<MessageCircle className="h-10 w-10" />}
+      />
+      <main className="container mx-auto px-4 py-12">
         <div className="max-w-7xl mx-auto">
-          <DynamicBreadcrumb />
-          <h1 className="text-3xl font-bold mb-6">Messages</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[600px]">
             {/* Conversations list */}
@@ -592,8 +595,7 @@ const Messages = () => {
           </div>
         </div>
       </main>
-      <Footer />
-    </div>
+    </MainLayout>
   );
 };
 

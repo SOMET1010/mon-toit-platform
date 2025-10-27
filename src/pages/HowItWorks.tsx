@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useNavigate } from 'react-router-dom';
+import { TimelineSection } from '@/components/home/TimelineSection';
+import { SocialProofSection } from '@/components/home/SocialProofSection';
+import { ComplianceSection } from '@/components/home/ComplianceSection';
 import {
   Home,
   Building2,
@@ -198,8 +201,11 @@ const HowItWorks = () => {
         </div>
       </section>
 
+      {/* Timeline Section */}
+      <TimelineSection />
+
       {/* User Journeys Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -325,8 +331,14 @@ const HowItWorks = () => {
         </div>
       </section>
 
+      {/* Social Proof Section */}
+      <SocialProofSection />
+
+      {/* Compliance Section */}
+      <ComplianceSection />
+
       {/* FAQ Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">

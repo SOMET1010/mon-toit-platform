@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/common/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Link } from 'react-router-dom';
-import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Property } from '@/types';
 import { logger } from '@/services/logger';
@@ -51,21 +50,17 @@ const Favorites = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
-      <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-6 pt-24">
-        <div className="max-w-7xl mx-auto">
-          <DynamicBreadcrumb />
-          <div className="mb-10">
-            <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
-              <Heart className="h-8 w-8 text-primary fill-primary" />
-              Mes Favoris
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              {properties.length} bien{properties.length > 1 ? 's' : ''} sauvegardé{properties.length > 1 ? 's' : ''}
-            </p>
-          </div>
+    <MainLayout>
+      {/* Page Header unifié avec design ivoirien */}
+      <PageHeader
+        title="Mes Favoris"
+        description={`${properties.length} bien${properties.length > 1 ? 's' : ''} sauvegardé${properties.length > 1 ? 's' : ''}`}
+        badge={`${properties.length} favori${properties.length > 1 ? 's' : ''}`}
+        icon={<Heart className="h-10 w-10 fill-white" />}
+      />
 
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto">
           {properties.length === 0 ? (
             <Card className="p-16 text-center border-2 shadow-xl bg-gradient-to-br from-background to-muted/20">
               <div className="p-6 rounded-full bg-primary/10 w-fit mx-auto mb-6">
@@ -76,7 +71,7 @@ const Favorites = () => {
                 Commencez à explorer nos biens et ajoutez vos coups de cœur à vos favoris
               </p>
               <Button asChild size="lg" className="rounded-xl h-14 px-8 text-base font-semibold shadow-lg">
-                <Link to="/recherche">🏠 Parcourir les biens</Link>
+                <Link to="/properties">🏠 Parcourir les biens</Link>
               </Button>
             </Card>
           ) : (
@@ -94,9 +89,9 @@ const Favorites = () => {
           )}
         </div>
       </main>
-      <Footer />
-    </div>
+    </MainLayout>
   );
 };
 
 export default Favorites;
+

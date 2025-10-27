@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { ReactNode } from 'react';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/common/PageHeader';
+import { Scale } from 'lucide-react';
 
 interface LegalPageProps {
   title: string;
@@ -8,26 +9,30 @@ interface LegalPageProps {
   children: ReactNode;
 }
 
+/**
+ * LegalPage - Template unifié pour toutes les pages légales
+ * (Confidentialité, Conditions, Mentions légales)
+ */
 const LegalPage = ({ title, lastUpdated, children }: LegalPageProps) => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1 pt-16">
-        <div className="container mx-auto px-4 py-10">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold mb-2">{title}</h1>
-            <p className="text-sm text-muted-foreground mb-8">
-              Dernière mise à jour : {lastUpdated}
-            </p>
-            <div className="prose prose-lg max-w-none">
-              {children}
-            </div>
+    <MainLayout>
+      <PageHeader
+        title={title}
+        description={`Dernière mise à jour : ${lastUpdated}`}
+        badge="Informations légales"
+        icon={<Scale className="h-10 w-10" />}
+      />
+      
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="prose prose-lg max-w-none">
+            {children}
           </div>
         </div>
       </main>
-      <Footer />
-    </div>
+    </MainLayout>
   );
 };
 
 export default LegalPage;
+

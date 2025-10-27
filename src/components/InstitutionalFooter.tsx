@@ -18,7 +18,7 @@ export const InstitutionalFooter = () => {
           <div className="flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-6 w-6 text-white" />
-              <span className="font-bold text-lg">Certifié ANSUT</span>
+              <span className="font-bold text-lg">Propulsé par ANSUT</span>
             </div>
             <span className="hidden md:inline text-white/60">•</span>
             <span className="text-white/90">Service Public du Numérique</span>
@@ -44,7 +44,7 @@ export const InstitutionalFooter = () => {
               </div>
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">
-              Plateforme immobilière certifiée ANSUT pour la recherche et la publication de logements en Côte d'Ivoire.
+              Plateforme immobilière propulsée par ANSUT pour la recherche et la publication de logements en Côte d'Ivoire.
             </p>
             <div className="flex items-start gap-2 text-xs text-gray-400">
               <Shield className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />

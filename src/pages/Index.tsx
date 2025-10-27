@@ -1,10 +1,5 @@
 import { MainLayout } from "@/components/layout/MainLayout";
 import { DynamicHeroSection } from "@/components/home/DynamicHeroSection";
-import { TimelineSection } from "@/components/home/TimelineSection";
-import { SocialProofSection } from "@/components/home/SocialProofSection";
-import { ComplianceSection } from "@/components/home/ComplianceSection";
-import { FeaturesSection } from "@/components/home/FeaturesSection";
-import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { PropertyGrid } from "@/components/PropertyGrid";
 import OnboardingModal from "@/components/OnboardingModal";
 import { Helmet } from "react-helmet-async";
@@ -29,51 +24,52 @@ const Index = () => {
         {/* Hero avec sélecteur de rôle dynamique */}
         <DynamicHeroSection />
         
-        {/* Timeline 6 étapes */}
-        <TimelineSection />
-        
-        {/* KPI et preuves sociales */}
-        <SocialProofSection />
-        
-        {/* Section fonctionnalités avec certification ANSUT */}
-        <FeaturesSection />
-        
-        {/* Bandeau conformité */}
-        <ComplianceSection />
-        
-        {/* Main Property Grid - Biens disponibles */}
-        <PropertyGrid
-          limit={16}
-          showFilters={true}
-        />
-        
-        {/* Section témoignages avec illustration famille */}
-        <TestimonialsSection />
-
-        {/* Mini CTA - Subtle, non-intrusive */}
-        <section className="py-8 bg-gradient-to-b from-primary/5 to-background border-t border-primary/10">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2 text-foreground">
-                Pas encore trouvé votre toit idéal ?
+        {/* Biens disponibles - Limité à 8 pour éviter le scroll */}
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Biens disponibles
               </h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                Explorez plus de biens ou découvrez pourquoi 10 000+ Ivoiriens nous font confiance
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Découvrez notre sélection de logements vérifiés
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Button asChild size="lg" className="shadow-md min-w-[200px]">
-                  <Link to="/explorer">
-                    <Search className="h-4 w-4 mr-2" />
-                    Explorer plus de biens
-                  </Link>
+            </div>
+            <PropertyGrid
+              limit={8}
+              showFilters={false}
+            />
+            <div className="text-center mt-8">
+              <Link to="/properties">
+                <Button size="lg" variant="outline">
+                  Voir tous les biens
+                  <Search className="ml-2 h-4 w-4" />
                 </Button>
-                <Button asChild variant="outline" size="lg" className="shadow-sm min-w-[200px]">
-                  <Link to="/a-propos">
-                    <ShieldCheck className="h-4 w-4 mr-2" />
-                    Pourquoi Mon Toit ?
-                  </Link>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Final */}
+        <section className="py-16 bg-gradient-to-r from-orange-500 via-blue-600 to-green-600 text-white">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Vous voulez en savoir plus ?
+            </h2>
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              Découvrez comment Mon Toit simplifie la location immobilière en Côte d'Ivoire
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/comment-ca-marche">
+                <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 min-w-[220px]">
+                  Comment ça marche ?
                 </Button>
-              </div>
+              </Link>
+              <Link to="/auth">
+                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 min-w-[220px]">
+                  Créer mon compte
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

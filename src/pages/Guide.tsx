@@ -1,5 +1,5 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -28,22 +28,14 @@ const Guide = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
-      <Navbar />
-      <main className="flex-1 pt-24">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 py-10 mb-12 relative">
-          <AkanPattern />
-          <div className="container mx-auto px-4 text-center relative z-10">
-            <Badge variant="secondary" className="mb-4">Centre d'aide</Badge>
-            <h1 className="text-h1 mb-4">
-              Comment pouvons-nous <span className="text-gradient-secondary">vous aider</span> ?
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Guides détaillés, FAQ et support pour profiter pleinement de Mon Toit
-            </p>
-          </div>
-        </section>
+    <MainLayout>
+      <PageHeader
+        title="Centre d'aide"
+        description="Guides détaillés, FAQ et support pour profiter pleinement de Mon Toit"
+        badge="Centre d'aide"
+        icon={<HelpCircle className="h-10 w-10" />}
+      />
+      <main className="flex-1">
 
         <div className="container mx-auto px-4 pb-16">
           {/* Quick Links */}
@@ -537,10 +529,8 @@ const Guide = () => {
             </CardContent>
           </Card>
         </div>
-      </main>
-      <Footer />
-    </div>
+       </main>
+    </MainLayout>
   );
 };
-
 export default Guide;

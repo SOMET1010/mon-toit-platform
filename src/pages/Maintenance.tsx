@@ -5,8 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { logger } from '@/services/logger';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/common/PageHeader';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -240,18 +240,20 @@ const Maintenance = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex-1 container mx-auto px-4 py-8 pt-24">
+    <MainLayout>
+      <PageHeader
+        title="Maintenance"
+        description="Gérez vos demandes d'intervention et suivez leur progression"
+        badge="Gestion de maintenance"
+        icon={<Wrench className="h-10 w-10" />}
+      >
+        <Button onClick={() => setShowForm(!showForm)} size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+          <Plus className="h-4 w-4 mr-2" />
+          Nouvelle demande
+        </Button>
+      </PageHeader>
+      <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto space-y-6">
-          <DynamicBreadcrumb />
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Demandes de maintenance</h1>
-            <Button onClick={() => setShowForm(!showForm)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nouvelle demande
-            </Button>
-          </div>
 
           {showForm && (
             <Card>
@@ -377,11 +379,9 @@ const Maintenance = () => {
               </AlertDescription>
             </Alert>
           )}
-        </div>
+         </div>
       </div>
-      <Footer />
-    </div>
+    </MainLayout>
   );
 };
-
 export default Maintenance;
