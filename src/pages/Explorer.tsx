@@ -3,9 +3,9 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Map } from "lucide-react";
+import { SmartMap } from "@/components/SmartMap/SmartMap";
 
 // Lazy load des composants lourds
-const ExploreMap = lazy(() => import("@/components/ExploreMap"));
 const FeaturedProperties = lazy(() => import("@/components/FeaturedProperties"));
 
 const Explorer = () => {
@@ -21,12 +21,10 @@ const Explorer = () => {
 
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-7xl mx-auto">
-          {/* Carte interactive */}
-          <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg mb-16" />}>
-            <div className="mb-16 animate-fade-in">
-              <ExploreMap />
-            </div>
-          </Suspense>
+          {/* Carte interactive intelligente */}
+          <div className="mb-16 animate-fade-in">
+            <SmartMap />
+          </div>
 
           {/* Tous les biens */}
           <div className="mb-8">
