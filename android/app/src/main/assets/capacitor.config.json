@@ -4,7 +4,31 @@
 	"webDir": "dist",
 	"server": {
 		"androidScheme": "https",
-		"iosScheme": "https"
+		"iosScheme": "https",
+		"allowNavigation": [
+			"https://montoit.ci",
+			"https://*.supabase.co",
+			"https://api.mapbox.com",
+			"https://tiles.mapbox.com",
+			"https://*.mapbox.com",
+			"https://mon-toit.netlify.app/"
+		],
+		"cleartext": false
+	},
+	"ios": {
+		"scheme": "montoit",
+		"contentInset": "automatic",
+		"scrollEnabled": true,
+		"orientation": [
+			"portrait"
+		]
+	},
+	"android": {
+		"webContentsDebuggingEnabled": false,
+		"captureInput": true,
+		"loggingBehavior": "production",
+		"allowMixedContent": "never",
+		"orientation": "portrait"
 	},
 	"plugins": {
 		"SplashScreen": {
@@ -15,11 +39,69 @@
 			"androidScaleType": "CENTER_CROP",
 			"showSpinner": false,
 			"splashFullScreen": true,
-			"splashImmersive": true
+			"splashImmersive": true,
+			"launchFadeInDuration": 300
 		},
 		"StatusBar": {
 			"style": "dark",
-			"backgroundColor": "#FF8F00"
+			"backgroundColor": "#FF8F00",
+			"overlaysWebView": true
+		},
+		"App": {
+			"appendUserAgent": " MonToit-Secure-App/1.0",
+			"handleUrlOpen": true,
+			"allowNavigation": true
+		},
+		"Keyboard": {
+			"resize": "ionic",
+			"style": "dark",
+			"mode": "resize",
+			"hideFormActionBar": false
+		},
+		"Share": {
+			"enabled": true
+		},
+		"Haptics": {
+			"enabled": true
+		},
+		"Geolocation": {
+			"enableHighAccuracy": true,
+			"timeout": 10000,
+			"maximumAge": 300000
+		},
+		"Camera": {
+			"permissions": [
+				"camera",
+				"photos"
+			],
+			"resultType": "uri",
+			"quality": 90,
+			"allowEditing": false,
+			"correctOrientation": true,
+			"saveToGallery": true
+		},
+		"Filesystem": {
+			"directory": "DOCUMENTS",
+			"permissions": [
+				"read",
+				"write"
+			]
+		},
+		"Preferences": {
+			"group": "montoit.storage"
+		},
+		"Browser": {
+			"toolbarColor": "#667eea",
+			"presentationStyle": "fullscreen"
+		},
+		"Network": {},
+		"Device": {},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
 		}
 	}
 }
