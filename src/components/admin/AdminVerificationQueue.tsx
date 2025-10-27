@@ -32,7 +32,7 @@ export default function AdminVerificationQueue() {
 
   const fetchPendingVerifications = async () => {
     try {
-      // Fetch ONECI/CNAM verifications
+      // Fetch identity verifications
       const { data, error } = await supabase.rpc('get_verifications_for_admin_review');
       if (error) throw error;
 
@@ -148,10 +148,10 @@ export default function AdminVerificationQueue() {
         {/* Statistics Dashboard */}
         <AdminVerificationStats />
         
-        <Tabs defaultValue="oneci_cnam" className="w-full">
+        <Tabs defaultValue="identity_verification" className="w-full">
           <div className="flex items-center justify-between mb-4">
             <TabsList>
-              <TabsTrigger value="oneci_cnam">ONECI & CNAM ({verifications.length})</TabsTrigger>
+              <TabsTrigger value="identity_verification">Vérifications d'identité ({verifications.length})</TabsTrigger>
               <TabsTrigger value="passport">Passeports ({passportVerifications.length})</TabsTrigger>
             </TabsList>
             <Button onClick={fetchPendingVerifications} variant="outline">
@@ -159,9 +159,9 @@ export default function AdminVerificationQueue() {
             </Button>
           </div>
 
-          <TabsContent value="oneci_cnam" className="space-y-4">
+          <TabsContent value="identity_verification" className="space-y-4">
             <div className="mb-4">
-              <h2 className="text-2xl font-bold">Vérifications ONECI & CNAM</h2>
+              <h2 className="text-2xl font-bold">Vérifications Vérifications d'identité</h2>
               <p className="text-muted-foreground">
                 {verifications.length} vérification{verifications.length > 1 ? 's' : ''} en attente de validation
               </p>
@@ -199,13 +199,13 @@ export default function AdminVerificationQueue() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* ONECI Verification */}
+                  {/* Identity Verification */}
                   {verification.oneci_status === 'pending_review' && (
                     <div className="border rounded-lg p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Shield className="h-5 w-5 text-primary" />
-                          <span className="font-semibold">Vérification ONECI</span>
+                          <span className="font-semibold">Vérification d'identité</span>
                         </div>
                         {getStatusBadge(verification.oneci_status)}
                       </div>
@@ -241,13 +241,13 @@ export default function AdminVerificationQueue() {
                     </div>
                   )}
 
-                  {/* CNAM Verification */}
+                  {/* Employment Verification */}
                   {verification.cnam_status === 'pending_review' && (
                     <div className="border rounded-lg p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <FileText className="h-5 w-5 text-primary" />
-                          <span className="font-semibold">Vérification CNAM</span>
+                          <span className="font-semibold">Vérification employeur</span>
                         </div>
                         {getStatusBadge(verification.cnam_status)}
                       </div>

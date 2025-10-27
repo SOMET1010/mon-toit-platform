@@ -63,7 +63,7 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
               </span>
               <span className="text-xs text-secondary leading-tight flex items-center gap-1 font-semibold">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Certifié ANSUT
+                Propulsé par ANSUT
               </span>
             </div>
             </Link>
@@ -73,7 +73,7 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
           {!user && (
             <div className="hidden md:flex items-center gap-6">
               <Link 
-                to="/explorer" 
+                to="/properties" 
                 className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
               >
                 Explorer
@@ -83,6 +83,12 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
                 className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
               >
                 Publier
+              </Link>
+              <Link 
+                to="/comment-ca-marche" 
+                className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
+              >
+                Comment ça marche
               </Link>
               <Link 
                 to="/guide" 

@@ -31,7 +31,7 @@ export const TenantScoreBreakdown = ({ score, breakdown, recommendation }: Tenan
   const breakdownItems = breakdown ? [
     { 
       icon: Shield, 
-      label: 'Vérification identité ONECI', 
+      label: 'Vérification identité', 
       score: breakdown.identity_verification, 
       max: 40,
       color: 'text-blue-600'

@@ -85,7 +85,7 @@ export const ApplicationsTableView = ({
                   <div className="flex items-center gap-2">
                     <span>{application.profiles.full_name}</span>
                     {application.profiles.oneci_verified && (
-                      <Badge variant="outline" className="text-xs">ONECI</Badge>
+                      <Badge variant="outline" className="text-xs">Identité</Badge>
                     )}
                   </div>
                 ) : (

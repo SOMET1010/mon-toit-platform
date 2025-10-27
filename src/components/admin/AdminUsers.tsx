@@ -70,8 +70,8 @@ const AdminUsers = () => {
               <TableHead>Nom</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Ville</TableHead>
-              <TableHead>ONECI</TableHead>
-              <TableHead>CNAM</TableHead>
+              <TableHead>Identité</TableHead>
+              <TableHead>Employeur</TableHead>
               <TableHead>Vérifié</TableHead>
               <TableHead>Date d'inscription</TableHead>
             </TableRow>

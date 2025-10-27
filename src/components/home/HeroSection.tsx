@@ -70,9 +70,9 @@ export function HeroSection() {
               alt="ANSUT" 
               className="h-6 w-6 brightness-0 invert"
             />
-            <span className="text-sm font-medium">
-              Plateforme Certifiée ANSUT
-            </span>
+              <span className="text-sm font-medium">
+                Propulsé par ANSUT
+              </span>
           </div>
 
           {/* Titre principal */}
@@ -84,9 +84,28 @@ export function HeroSection() {
               en Côte d'Ivoire
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-              La première plateforme immobilière certifiée par l'État ivoirien. 
-              Sécurisée, transparente et 100% gratuite pour les locataires.
+              Plateforme immobilière <strong>propulsée par ANSUT</strong>. 
+              Vérification d'identité, signature électronique et paiement mobile.
             </p>
+            
+            {/* Quick Profile Selection */}
+            <div className="flex flex-wrap justify-center gap-3 pt-4">
+              <Link to="/how-it-works#tenant">
+                <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                  🏠 Je cherche un logement
+                </Button>
+              </Link>
+              <Link to="/how-it-works#owner">
+                <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                  🏢 Je loue mon bien
+                </Button>
+              </Link>
+              <Link to="/how-it-works">
+                <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                  🛡️ Je suis professionnel
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Formulaire de recherche */}

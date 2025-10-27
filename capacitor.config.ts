@@ -47,7 +47,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,
-      backgroundColor: '#667eea',
+      backgroundColor: '#1A4D7C', // Lagune Ébrié (bleu ANSUT)
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
@@ -59,7 +59,7 @@ const config: CapacitorConfig = {
     // StatusBar configuration
     StatusBar: {
       style: 'dark',
-      backgroundColor: '#FF8F00',
+      backgroundColor: '#E67E3A', // Abidjan Sunset (orange)
       overlaysWebView: true,
     },
     // App plugin configuration
@@ -109,7 +109,7 @@ const config: CapacitorConfig = {
     },
     // Browser plugin configuration
     Browser: {
-      toolbarColor: '#667eea',
+      toolbarColor: '#1A4D7C', // Lagune Ébrié (bleu ANSUT)
       presentationStyle: 'fullscreen',
     },
     // Network plugin configuration

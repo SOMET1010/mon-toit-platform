@@ -1,5 +1,8 @@
 import { MainLayout } from "@/components/layout/MainLayout";
-import { HeroSection } from "@/components/home/HeroSection";
+import { DynamicHeroSection } from "@/components/home/DynamicHeroSection";
+import { TimelineSection } from "@/components/home/TimelineSection";
+import { SocialProofSection } from "@/components/home/SocialProofSection";
+import { ComplianceSection } from "@/components/home/ComplianceSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { PropertyGrid } from "@/components/PropertyGrid";
@@ -23,11 +26,20 @@ const Index = () => {
       </Helmet>
 
       <main role="main">
-        {/* Hero avec nouveau design ivoirien */}
-        <HeroSection />
+        {/* Hero avec sélecteur de rôle dynamique */}
+        <DynamicHeroSection />
+        
+        {/* Timeline 6 étapes */}
+        <TimelineSection />
+        
+        {/* KPI et preuves sociales */}
+        <SocialProofSection />
         
         {/* Section fonctionnalités avec certification ANSUT */}
         <FeaturesSection />
+        
+        {/* Bandeau conformité */}
+        <ComplianceSection />
         
         {/* Main Property Grid - Biens disponibles */}
         <PropertyGrid

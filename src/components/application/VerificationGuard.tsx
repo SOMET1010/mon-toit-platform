@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import ONECIForm from '@/components/verification/ONECIForm';
+import { SmileIDVerification } from '@/components/verification/SmileIDVerification';
 import { Shield, AlertTriangle, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -186,7 +186,7 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
               Vérification d'identité requise
             </DialogTitle>
             <DialogDescription>
-              Pour postuler à ce bien, vous devez d'abord vérifier votre identité via ONECI
+              Pour postuler à ce bien, vous devez d'abord vérifier votre identité
             </DialogDescription>
           </DialogHeader>
 
@@ -196,7 +196,7 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Pourquoi cette vérification ?</AlertTitle>
               <AlertDescription>
-                La vérification ONECI permet aux propriétaires de confirmer votre identité 
+                La vérification d'identité permet aux propriétaires de confirmer votre identité 
                 et d'augmenter la confiance dans votre candidature. C'est une étape rapide 
                 et sécurisée.
               </AlertDescription>
@@ -250,18 +250,18 @@ export const VerificationGuard = ({ propertyId, onVerified, children }: Verifica
               </Alert>
             )}
 
-            {/* ONECI Form */}
+            {/* Identity Verification Form */}
             {!isVerified && !isPending && (
               <div className="border rounded-lg p-6 bg-muted/20">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                  Vérification ONECI
+                  Vérification d'Identité
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Complétez le formulaire ci-dessous pour vérifier votre identité. 
                   Une fois validé, vous pourrez continuer votre candidature.
                 </p>
-                <ONECIForm onSubmit={handleFormSubmit} />
+                <SmileIDVerification onSubmit={handleFormSubmit} />
                 <div className="mt-4">
                   <Button 
                     onClick={handleVerificationSuccess} 

@@ -105,7 +105,7 @@ export const AdminVerificationStats = () => {
       if (error) throw error;
 
       const csvRows = [
-        ['ID Utilisateur', 'Nom', 'Type', 'Statut ONECI', 'Statut CNAM', 'Score Locataire', 'Date Création', 'Date Révision', 'Révisé Par'].join(','),
+        ['ID Utilisateur', 'Nom', 'Type', 'Statut Identité', 'Statut Employeur', 'Score Locataire', 'Date Création', 'Date Révision', 'Révisé Par'].join(','),
         ...data.map((v: any) => [
           v.user_id,
           v.full_name || 'N/A',
@@ -246,17 +246,17 @@ export const AdminVerificationStats = () => {
               <Shield className="h-5 w-5 text-primary" />
               Vérifications par Type
             </CardTitle>
-            <CardDescription>Répartition des vérifications ONECI et CNAM</CardDescription>
+            <CardDescription>Répartition des vérifications</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <span className="font-medium">ONECI Vérifiées</span>
+              <span className="font-medium">Identités Vérifiées</span>
               <Badge variant="default" className="text-lg px-3 py-1">
                 {stats.oneci_verified}
               </Badge>
             </div>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <span className="font-medium">CNAM Vérifiées</span>
+              <span className="font-medium">Employeurs Vérifiés</span>
               <Badge variant="default" className="text-lg px-3 py-1">
                 {stats.cnam_verified}
               </Badge>

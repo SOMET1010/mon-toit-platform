@@ -225,8 +225,8 @@ export const VerificationAccessMonitor = () => {
             <SelectContent>
               <SelectItem value="all">Tous les types</SelectItem>
               <SelectItem value="full_view">Vue complète</SelectItem>
-              <SelectItem value="oneci_data">Données ONECI</SelectItem>
-              <SelectItem value="cnam_data">Données CNAM</SelectItem>
+              <SelectItem value="oneci_data">Données d'identité</SelectItem>
+              <SelectItem value="cnam_data">Données employeur</SelectItem>
               <SelectItem value="face_data">Données biométriques</SelectItem>
             </SelectContent>
           </Select>

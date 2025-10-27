@@ -3,8 +3,8 @@ import { ShieldCheck, FileCheck, Video, Lock, Headphones, TrendingUp } from 'luc
 const features = [
   {
     icon: ShieldCheck,
-    title: 'Certification ANSUT',
-    description: 'Tous les biens et propriétaires sont vérifiés et certifiés par l\'Autorité Nationale de Sécurisation des Transactions Urbaines.',
+    title: 'Propulsé par ANSUT',
+    description: 'Technologies certifiées ANSUT : vérification d\'identité Smile ID, signature électronique PSE agréé, et paiement Mobile Money.',
     color: 'text-primary'
   },
   {
@@ -50,8 +50,8 @@ export function FeaturesSection() {
             <span className="text-primary">Mon Toit</span> ?
           </h2>
           <p className="text-lg text-muted-foreground">
-            La première plateforme immobilière certifiée par l'État ivoirien. 
-            Nous garantissons sécurité, transparence et simplicité pour tous vos projets immobiliers.
+            Service numérique innovant propulsé par ANSUT. 
+            Nous simplifions la location immobilière en Côte d'Ivoire avec des technologies certifiées.
           </p>
         </div>
 

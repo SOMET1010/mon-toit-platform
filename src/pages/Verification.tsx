@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { DynamicBreadcrumb } from '@/components/navigation/DynamicBreadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import ONECIForm from '@/components/verification/ONECIForm';
+import { SmileIDVerification } from '@/components/verification/SmileIDVerification';
 import VerificationStatus from '@/components/verification/VerificationStatus';
 import FaceVerification from '@/components/verification/FaceVerification';
 import PassportVerificationForm from '@/components/verification/PassportVerificationForm';
@@ -42,40 +42,15 @@ const Verification = () => {
                 <h1 className="text-3xl font-bold">Vérification d'Identité</h1>
               </div>
               <p className="text-muted-foreground">
-                Complétez vos vérifications ONECI et Face ID pour augmenter votre crédibilité
+                Complétez votre vérification d'identité pour augmenter votre crédibilité
               </p>
             </div>
 
             <VerificationStatus />
 
-            <Tabs defaultValue="oneci" className="mt-8">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="oneci">
-                  ONECI (Ivoiriens)
-                </TabsTrigger>
-                <TabsTrigger value="face">
-                  Vérification Faciale
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="oneci">
-                <ONECIForm />
-              </TabsContent>
-
-              <TabsContent value="face">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Vérification Faciale</CardTitle>
-                    <CardDescription>
-                      Renforcez votre profil avec une vérification biométrique Smile ID
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FaceVerification />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+            <div className="mt-8">
+              <SmileIDVerification />
+            </div>
           </div>
         </main>
 

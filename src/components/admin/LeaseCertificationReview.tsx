@@ -269,16 +269,16 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
                     {lease.landlord?.oneci_verified ? (
-                      <Badge className="bg-green-600">ONECI Vérifié</Badge>
+                      <Badge className="bg-green-600">Identité Vérifiée</Badge>
                     ) : (
-                      <Badge variant="outline">ONECI Non vérifié</Badge>
+                      <Badge variant="outline">Identité non vérifiée</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     {lease.landlord?.cnam_verified ? (
-                      <Badge className="bg-green-600">CNAM Vérifié</Badge>
+                      <Badge className="bg-green-600">Employeur Vérifié</Badge>
                     ) : (
-                      <Badge variant="outline">CNAM Non vérifié</Badge>
+                      <Badge variant="outline">Employeur non vérifié</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
@@ -305,16 +305,16 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
                     {lease.tenant?.oneci_verified ? (
-                      <Badge className="bg-green-600">ONECI Vérifié</Badge>
+                      <Badge className="bg-green-600">Identité Vérifiée</Badge>
                     ) : (
-                      <Badge variant="outline">ONECI Non vérifié</Badge>
+                      <Badge variant="outline">Identité non vérifiée</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     {lease.tenant?.cnam_verified ? (
-                      <Badge className="bg-green-600">CNAM Vérifié</Badge>
+                      <Badge className="bg-green-600">Employeur Vérifié</Badge>
                     ) : (
-                      <Badge variant="outline">CNAM Non vérifié</Badge>
+                      <Badge variant="outline">Employeur non vérifié</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
@@ -347,7 +347,7 @@ const LeaseCertificationReview = ({ leaseId, open, onOpenChange, onClose, onStat
                 )}
               </div>
               <div className="flex items-center justify-between">
-                <span>Identités vérifiées (ONECI)</span>
+                <span>Identités vérifiées</span>
                 {bothVerified ? (
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 ) : (

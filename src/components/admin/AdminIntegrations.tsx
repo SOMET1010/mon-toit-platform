@@ -345,7 +345,7 @@ const AdminIntegrations = () => {
               <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg space-y-2">
                 <h4 className="font-medium text-sm">Fonctionnalités activées</h4>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Vérification faciale optionnelle après ONECI</li>
+                  <li>Vérification faciale optionnelle</li>
                   <li>Seuil de similarité: 70%</li>
                   <li>Maximum 3 tentatives par jour par utilisateur</li>
                   <li>Badge "Face ID vérifié" sur les profils</li>

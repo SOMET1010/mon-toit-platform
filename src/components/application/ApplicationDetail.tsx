@@ -175,7 +175,7 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
                   ) : (
                     <XCircle className="h-5 w-5 text-muted-foreground" />
                   )}
-                  <span>Identité ONECI</span>
+                  <span>Identité</span>
                 </div>
                 <Badge variant={application.profiles.oneci_verified ? 'default' : 'secondary'}>
                   {application.profiles.oneci_verified ? 'Vérifiée' : 'Non vérifiée'}
@@ -188,7 +188,7 @@ const ApplicationDetail = ({ application, onClose, onStatusUpdate, isOwner }: Ap
                   ) : (
                     <XCircle className="h-5 w-5 text-muted-foreground" />
                   )}
-                  <span>Employeur CNAM</span>
+                  <span>Employeur</span>
                 </div>
                 <Badge variant={application.profiles.cnam_verified ? 'default' : 'secondary'}>
                   {application.profiles.cnam_verified ? 'Vérifiée' : 'Non vérifiée'}

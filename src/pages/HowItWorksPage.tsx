@@ -1,16 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import HowItWorks from "@/components/HowItWorks";
-import { DynamicBreadcrumb } from "@/components/navigation/DynamicBreadcrumb";
+import HowItWorks from "@/pages/HowItWorks";
 
 const HowItWorksPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-20">
-        <div className="container mx-auto px-4 py-8">
-          <DynamicBreadcrumb />
-        </div>
+      <main className="flex-1 pt-16">
         <HowItWorks />
       </main>
       <Footer />
