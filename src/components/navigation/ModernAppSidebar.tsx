@@ -48,6 +48,12 @@ export function ModernAppSidebar() {
   const location = useLocation();
   const { open } = useSidebar();
 
+  // Afficher un skeleton pendant le chargement
+  if (!profile && user === undefined) {
+    return null; // ou un skeleton loader
+  }
+
+
   const isActive = (path: string) => location.pathname === path;
 
   // Get user initials
