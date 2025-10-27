@@ -1,0 +1,260 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy-edge-functions.yml'
+  workflow_dispatch:  # Permet le déclenchement manuel
+
+env:
+  SUPABASE_PROJECT_ID: haffcubwactwjpngcpdf
+
+jobs:
+  deploy:
+    name: Deploy Edge Functions
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      
+      - name: 📦 Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      
+      - name: 🔐 Login to Supabase
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "Authenticating with Supabase..."
+          supabase login --token $SUPABASE_ACCESS_TOKEN
+      
+      - name: 🔗 Link to Supabase project
+        run: |
+          echo "Linking to project $SUPABASE_PROJECT_ID..."
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+      
+      - name: 🚀 Deploy Priority Functions
+        run: |
+          echo "============================================"
+          echo "🚀 Deploying Priority Edge Functions"
+          echo "============================================"
+          
+          # Fonctions prioritaires (vérifications d'identité)
+          PRIORITY_FUNCTIONS=(
+            "smile-id-verification"
+            "oneci-verification"
+            "cnam-verification"
+            "face-verification"
+            "passport-verification"
+          )
+          
+          DEPLOYED=0
+          FAILED=0
+          
+          for func in "${PRIORITY_FUNCTIONS[@]}"; do
+            if [ -d "supabase/functions/${func}" ]; then
+              echo ""
+              echo "📦 Deploying: ${func}"
+              if supabase functions deploy "${func}" --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt; then
+                echo "✅ Deployed: ${func}"
+                ((DEPLOYED++))
+              else
+                echo "❌ Failed: ${func}"
+                ((FAILED++))
+              fi
+            else
+              echo "⚠️  Skipped (not found): ${func}"
+            fi
+          done
+          
+          echo ""
+          echo "============================================"
+          echo "📊 Priority Functions Summary"
+          echo "✅ Deployed: ${DEPLOYED}"
+          echo "❌ Failed: ${FAILED}"
+          echo "============================================"
+      
+      - name: 🔐 Deploy CryptoNeo Functions
+        run: |
+          echo ""
+          echo "============================================"
+          echo "🔐 Deploying CryptoNeo Functions"
+          echo "============================================"
+          
+          CRYPTONEO_FUNCTIONS=(
+            "cryptoneo-callback"
+            "cryptoneo-sign-document"
+            "cryptoneo-auth"
+            "cryptoneo-send-otp"
+            "cryptoneo-verify-signature"
+            "cryptoneo-generate-certificate"
+          )
+          
+          DEPLOYED=0
+          FAILED=0
+          
+          for func in "${CRYPTONEO_FUNCTIONS[@]}"; do
+            if [ -d "supabase/functions/${func}" ]; then
+              echo ""
+              echo "📦 Deploying: ${func}"
+              if supabase functions deploy "${func}" --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt; then
+                echo "✅ Deployed: ${func}"
+                ((DEPLOYED++))
+              else
+                echo "❌ Failed: ${func}"
+                ((FAILED++))
+              fi
+            else
+              echo "⚠️  Skipped (not found): ${func}"
+            fi
+          done
+          
+          echo ""
+          echo "============================================"
+          echo "📊 CryptoNeo Functions Summary"
+          echo "✅ Deployed: ${DEPLOYED}"
+          echo "❌ Failed: ${FAILED}"
+          echo "============================================"
+      
+      - name: 💰 Deploy Payment Functions
+        run: |
+          echo ""
+          echo "============================================"
+          echo "💰 Deploying Payment Functions"
+          echo "============================================"
+          
+          PAYMENT_FUNCTIONS=(
+            "mobile-money-payment"
+            "mobile-money-webhook"
+          )
+          
+          DEPLOYED=0
+          FAILED=0
+          
+          for func in "${PAYMENT_FUNCTIONS[@]}"; do
+            if [ -d "supabase/functions/${func}" ]; then
+              echo ""
+              echo "📦 Deploying: ${func}"
+              if supabase functions deploy "${func}" --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt; then
+                echo "✅ Deployed: ${func}"
+                ((DEPLOYED++))
+              else
+                echo "❌ Failed: ${func}"
+                ((FAILED++))
+              fi
+            else
+              echo "⚠️  Skipped (not found): ${func}"
+            fi
+          done
+          
+          echo ""
+          echo "============================================"
+          echo "📊 Payment Functions Summary"
+          echo "✅ Deployed: ${DEPLOYED}"
+          echo "❌ Failed: ${FAILED}"
+          echo "============================================"
+      
+      - name: 📄 Deploy Document Generation Functions
+        run: |
+          echo ""
+          echo "============================================"
+          echo "📄 Deploying Document Functions"
+          echo "============================================"
+          
+          DOCUMENT_FUNCTIONS=(
+            "generate-lease-pdf"
+            "generate-receipt"
+            "generate-report"
+          )
+          
+          DEPLOYED=0
+          FAILED=0
+          
+          for func in "${DOCUMENT_FUNCTIONS[@]}"; do
+            if [ -d "supabase/functions/${func}" ]; then
+              echo ""
+              echo "📦 Deploying: ${func}"
+              if supabase functions deploy "${func}" --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt; then
+                echo "✅ Deployed: ${func}"
+                ((DEPLOYED++))
+              else
+                echo "❌ Failed: ${func}"
+                ((FAILED++))
+              fi
+            else
+              echo "⚠️  Skipped (not found): ${func}"
+            fi
+          done
+          
+          echo ""
+          echo "============================================"
+          echo "📊 Document Functions Summary"
+          echo "✅ Deployed: ${DEPLOYED}"
+          echo "❌ Failed: ${FAILED}"
+          echo "============================================"
+      
+      - name: 🔧 Deploy Utility Functions
+        run: |
+          echo ""
+          echo "============================================"
+          echo "🔧 Deploying Utility Functions"
+          echo "============================================"
+          
+          UTILITY_FUNCTIONS=(
+            "switch-role-v2"
+            "add-role"
+            "tenant-scoring"
+            "generate-recommendations"
+            "send-email"
+            "send-certification-email"
+            "send-reminders"
+            "sarah-chat"
+            "geocode-address"
+          )
+          
+          DEPLOYED=0
+          FAILED=0
+          
+          for func in "${UTILITY_FUNCTIONS[@]}"; do
+            if [ -d "supabase/functions/${func}" ]; then
+              echo ""
+              echo "📦 Deploying: ${func}"
+              if supabase functions deploy "${func}" --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt; then
+                echo "✅ Deployed: ${func}"
+                ((DEPLOYED++))
+              else
+                echo "❌ Failed: ${func}"
+                ((FAILED++))
+              fi
+            else
+              echo "⚠️  Skipped (not found): ${func}"
+            fi
+          done
+          
+          echo ""
+          echo "============================================"
+          echo "📊 Utility Functions Summary"
+          echo "✅ Deployed: ${DEPLOYED}"
+          echo "❌ Failed: ${FAILED}"
+          echo "============================================"
+      
+      - name: 📊 Final Summary
+        run: |
+          echo ""
+          echo "============================================"
+          echo "🎉 DEPLOYMENT COMPLETE"
+          echo "============================================"
+          echo "All Edge Functions have been deployed!"
+          echo "Check the logs above for details."
+          echo "============================================"

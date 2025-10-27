@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { initializeSentry } from "@/lib/sentry-enhanced";
+import { SutaChatbot } from "@/components/SutaChatbot";
 import { usePrefetchRoutes } from "@/hooks/usePrefetchRoutes";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
@@ -28,6 +29,7 @@ import Search from "./pages/Search";
 
 // Lazy load heavy pages
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const PropertyDetailWrapper = lazy(() => import("./components/property/PropertyDetailWrapper").then(module => ({ default: module.PropertyDetailWrapper })));
 const Offline = lazy(() => import("./pages/Offline"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -114,6 +116,7 @@ const AppContent = () => {
       </a>
       
       <ContextBar />
+      <SutaChatbot />
       <main id="main-content" tabIndex={-1}>
         <MainLayout>
         <PageTransition>
@@ -127,7 +130,7 @@ const AppContent = () => {
             <Route path="/a-propos" element={<AboutPage />} />
             <Route path="/property/:id" element={
               <Suspense fallback={<PropertyDetailSkeleton />}>
-                <PropertyDetail />
+                <PropertyDetailWrapper />
               </Suspense>
             } />
             <Route path="/certification" element={<Certification />} />
