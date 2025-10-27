@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/services/logger";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { PageHeader } from "@/components/common/PageHeader";
 import { DynamicBreadcrumb } from "@/components/navigation/DynamicBreadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,8 @@ import { Download, FileText as FileTextIcon, Loader2, Star, Folder } from "lucid
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { DocumentManager } from "@/components/documents/DocumentManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LeaseTimeline } from "@/components/leases/LeaseTimeline";
+import { PaymentForm } from "@/components/leases/PaymentForm";
 import {
   Dialog,
   DialogContent,
@@ -198,29 +200,26 @@ export default function Leases() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <p>Chargement...</p>
-        </div>
-        <Footer />
+  return (
+    <MainLayout>
+      <div className="container mx-auto px-4 py-8">
+        <p>Chargement...</p>
       </div>
-    );
+    </MainLayout>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 py-6 pt-24">
-        <DynamicBreadcrumb />
-        
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Mes Baux</h1>
-          <p className="text-muted-foreground">
-            Gérez vos contrats de location et effectuez les paiements
-          </p>
-        </div>
+    <MainLayout>
+      <PageHeader
+        title="Mes Baux"
+        description="Gérez vos contrats de location et effectuez les paiements"
+        badge="Gestion des baux"
+        icon={FileText}
+      />
+      
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto">
 
         <div className="grid gap-6">
           {leases.length === 0 ? (
@@ -471,8 +470,8 @@ export default function Leases() {
             ))
           )}
         </div>
+        </div>
       </main>
-      <Footer />
-    </div>
+    </MainLayout>
   );
 }

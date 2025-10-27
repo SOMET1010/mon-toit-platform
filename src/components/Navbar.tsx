@@ -85,6 +85,12 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
                 Publier
               </Link>
               <Link 
+                to="/baux" 
+                className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
+              >
+                Baux
+              </Link>
+              <Link 
                 to="/comment-ca-marche" 
                 className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
               >
