@@ -78,6 +78,8 @@ import AboutPage from "./pages/AboutPage";
 import SmartMapV2 from "./pages/SmartMapV2";
 
 import MandatesHelp from "./pages/MandatesHelp";
+import Aide from "./pages/Aide";
+import CommentCaMarche from "./pages/CommentCaMarche";
 
 // Initialiser Sentry au démarrage de l'application
 initializeSentry();
@@ -371,6 +373,8 @@ const AppContent = () => {
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/certification-faq" element={<CertificationFAQ />} />
             <Route path="/tarifs" element={<Tarifs />} />
+            <Route path="/aide" element={<Aide />} />
+            <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
             
 
 
