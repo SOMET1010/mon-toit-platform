@@ -26,7 +26,7 @@ export function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 via-blue-600 to-green-600">
+    <div className="relative overflow-hidden bg-gradient-to-r from-orange-300 via-orange-100 to-stone-50">
       {/* Pattern ivoirien subtil */}
       <div
         className="absolute inset-0 opacity-10"

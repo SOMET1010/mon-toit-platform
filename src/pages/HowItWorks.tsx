@@ -165,7 +165,7 @@ const HowItWorks = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-blue-600 to-green-600 text-white py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-300 via-orange-100 to-stone-50 text-gray-800 py-20">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-6">
@@ -371,7 +371,7 @@ const HowItWorks = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-500 via-blue-600 to-green-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-r from-orange-300 via-orange-100 to-stone-50 text-gray-800 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-6">

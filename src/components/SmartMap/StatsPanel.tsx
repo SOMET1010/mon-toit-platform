@@ -53,7 +53,7 @@ export function StatsPanel({ properties }: StatsPanelProps) {
   ];
 
   return (
-    <Card className="mt-6 bg-gradient-to-r from-orange-50 via-blue-50 to-green-50 border-none shadow-lg">
+    <Card className="mt-6 bg-gradient-to-r from-orange-50 via-orange-50 to-stone-50 border-none shadow-lg">
       <div className="p-6">
         <h3 className="text-lg font-semibold mb-4">Statistiques du marché</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
