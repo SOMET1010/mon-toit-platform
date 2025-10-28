@@ -60,21 +60,21 @@ import { GuestMessagesInbox } from "@/components/owner/GuestMessagesInbox";
 import NotFound from "./pages/NotFound";
 import UserReviews from "./pages/UserReviews";
 import Publier from "./pages/Publier";
-import APropos from "./pages/APropos";
+
 import Conditions from "./pages/Conditions";
 import Confidentialite from "./pages/Confidentialite";
 import MentionsLegales from "./pages/MentionsLegales";
 import TiersDeConfianceDashboard from "./pages/TiersDeConfianceDashboard";
 import CertificationFAQ from "./pages/CertificationFAQ";
 import Tarifs from "./pages/Tarifs";
-import PopulateImages from "./pages/PopulateImages";
-import TestCryptoNeo from "./pages/TestCryptoNeo";
+
+
 import Guide from "./pages/Guide";
 import Explorer from "./pages/Explorer";
-import CommentCaMarche from "./pages/CommentCaMarche";
-import HowItWorksPage from "./pages/HowItWorksPage";
+
+
 import AboutPage from "./pages/AboutPage";
-import SmartMap from "./pages/SmartMap";
+
 import SmartMapV2 from "./pages/SmartMapV2";
 
 import MandatesHelp from "./pages/MandatesHelp";
@@ -126,7 +126,7 @@ const AppContent = () => {
             <Route path="/recherche" element={<Search />} />
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/carte-intelligente" element={<SmartMapV2 />} />
-            <Route path="/comment-ca-marche" element={<HowItWorksPage />} />
+
             <Route path="/a-propos" element={<AboutPage />} />
             <Route path="/property/:id" element={
               <Suspense fallback={<PropertyDetailSkeleton />}>
@@ -365,29 +365,15 @@ const AppContent = () => {
             />
             <Route path="/user/:userId/reviews" element={<UserReviews />} />
             <Route path="/publier" element={<Publier />} />
-            <Route path="/a-propos" element={<APropos />} />
+            <Route path="/a-propos" element={<AboutPage />} />
             <Route path="/conditions" element={<Conditions />} />
             <Route path="/confidentialite" element={<Confidentialite />} />
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/certification-faq" element={<CertificationFAQ />} />
             <Route path="/tarifs" element={<Tarifs />} />
             
-            <Route 
-              path="/populate-images" 
-              element={
-                <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
-                  <PopulateImages />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/test-cryptoneo" 
-              element={
-                <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
-                  <TestCryptoNeo />
-                </ProtectedRoute>
-              } 
-            />
+
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
