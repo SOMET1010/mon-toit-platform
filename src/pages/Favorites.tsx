@@ -71,7 +71,7 @@ const Favorites = () => {
                 Commencez à explorer nos biens et ajoutez vos coups de cœur à vos favoris
               </p>
               <Button asChild size="lg" className="rounded-xl h-14 px-8 text-base font-semibold shadow-lg">
-                <Link to="/properties">🏠 Parcourir les biens</Link>
+                <Link to="/recherche">🏠 Parcourir les biens</Link>
               </Button>
             </Card>
           ) : (

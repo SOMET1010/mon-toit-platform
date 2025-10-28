@@ -40,7 +40,7 @@ const Index = () => {
               showFilters={false}
             />
             <div className="text-center mt-8">
-              <Link to="/properties">
+              <Link to="/recherche">
                 <Button size="lg" variant="outline">
                   Voir tous les biens
                   <Search className="ml-2 h-4 w-4" />

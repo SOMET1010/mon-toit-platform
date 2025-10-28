@@ -73,7 +73,7 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
           {!user && (
             <div className="hidden md:flex items-center gap-6">
               <Link 
-                to="/properties" 
+                to="/explorer" 
                 className="text-sm font-medium text-foreground/80 hover:text-primary hover:underline decoration-2 underline-offset-4 transition-all duration-150"
               >
                 Explorer

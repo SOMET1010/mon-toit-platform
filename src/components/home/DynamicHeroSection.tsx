@@ -70,15 +70,15 @@ export function DynamicHeroSection() {
         {/* Sélecteur de rôle - Pills */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
           {[
-            { id: 'locataire' as Role, label: 'Je cherche un logement', Icon: Home },
-            { id: 'proprietaire' as Role, label: 'Je loue un bien', Icon: Building2 },
-            { id: 'tiers' as Role, label: 'Je vérifie & certifie', Icon: ShieldCheck },
-            { id: 'agence' as Role, label: 'Je gère des mandats', Icon: Landmark },
-          ].map(({ id, label, Icon }) => (
-            <button
+            { id: 'locataire' as Role, label: 'Je cherche un logement', Icon: Home, href: '/recherche' },
+            { id: 'proprietaire' as Role, label: 'Je loue un bien', Icon: Building2, href: '/publier' },
+            { id: 'tiers' as Role, label: 'Je vérifie & certifie', Icon: ShieldCheck, href: '/auth?role=tiers' },
+            { id: 'agence' as Role, label: 'Je gère des mandats', Icon: Landmark, href: '/auth?role=agence' },
+          ].map(({ id, label, Icon, href }) => (
+            <Link
               key={id}
-              onClick={() => setRole(id)}
-              aria-pressed={role === id}
+              to={href}
+              onMouseEnter={() => setRole(id)}
               className={`inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-sm font-semibold transition-all duration-200 ${
                 role === id
                   ? 'bg-white text-gray-900 border-white shadow-lg scale-105'
@@ -86,7 +86,7 @@ export function DynamicHeroSection() {
               }`}
             >
               <Icon className="h-4 w-4" /> {label}
-            </button>
+            </Link>
           ))}
         </div>
 
