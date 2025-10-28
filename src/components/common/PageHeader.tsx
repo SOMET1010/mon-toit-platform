@@ -40,7 +40,7 @@ export function PageHeader({
         {/* Breadcrumb */}
         {showBreadcrumb && (
           <div className="mb-4">
-            <DynamicBreadcrumb className="text-white/80 hover:text-white" />
+            <DynamicBreadcrumb className="text-gray-700 hover:text-gray-900" />
           </div>
         )}
 
@@ -49,7 +49,7 @@ export function PageHeader({
           <div className="mb-4">
             <Badge
               variant={badgeVariant}
-              className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+              className="bg-orange-600 text-white border-orange-700 hover:bg-orange-700"
             >
               {badge}
             </Badge>
@@ -58,15 +58,15 @@ export function PageHeader({
 
         {/* Title & Icon */}
         <div className="flex items-center gap-4 mb-4">
-          {icon && <div className="text-white">{icon}</div>}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+          {icon && <div className="text-gray-800">{icon}</div>}
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
             {title}
           </h1>
         </div>
 
         {/* Description */}
         {description && (
-          <p className="text-lg md:text-xl text-white/90 max-w-3xl">
+          <p className="text-lg md:text-xl text-gray-700 max-w-3xl">
             {description}
           </p>
         )}

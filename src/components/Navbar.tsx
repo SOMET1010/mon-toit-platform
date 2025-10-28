@@ -213,7 +213,7 @@ const Navbar = ({ showSidebarTrigger = false }: NavbarProps) => {
               <Button 
                 size="sm" 
                 variant="default"
-                className="font-semibold" 
+                className="font-semibold bg-orange-600 hover:bg-orange-700 text-white" 
                 asChild
               >
                 <Link to="/auth">
