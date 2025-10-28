@@ -21,10 +21,10 @@ const roleCTAs: Record<Role, { label: string; href: string }> = {
 };
 
 const roleColors: Record<Role, string> = {
-  locataire: 'border-blue-600 text-blue-600 bg-blue-50',
-  proprietaire: 'border-green-600 text-green-600 bg-green-50',
-  tiers: 'border-orange-600 text-orange-600 bg-orange-50',
-  agence: 'border-lime-600 text-lime-700 bg-lime-50',
+  locataire: 'border-orange-700 text-orange-700 bg-orange-50',
+  proprietaire: 'border-orange-700 text-orange-700 bg-orange-50',
+  tiers: 'border-orange-700 text-orange-700 bg-orange-50',
+  agence: 'border-orange-700 text-orange-700 bg-orange-50',
 };
 
 const roleIcons = {
@@ -39,7 +39,7 @@ export function DynamicHeroSection() {
   const roleCTA = roleCTAs[role];
 
   return (
-    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-green-600">
+    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-gradient-to-br from-orange-700 via-orange-500 to-amber-200">
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-black/10"></div>
       
@@ -99,7 +99,7 @@ export function DynamicHeroSection() {
                 key={i}
                 className="flex items-center gap-3 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm p-4 hover:bg-white/20 transition-all duration-200"
               >
-                <span className="flex-shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white text-sm font-bold">
+                <span className="flex-shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-orange-700 text-white text-sm font-bold">
                   {i + 1}
                 </span>
                 <span className="text-white font-medium text-sm">{step}</span>
