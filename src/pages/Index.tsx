@@ -51,7 +51,7 @@ const Index = () => {
         </section>
 
         {/* CTA Final */}
-        <section className="py-16 bg-gradient-to-r from-orange-700 via-orange-500 to-stone-200 text-white">
+        <section className="py-16 bg-gradient-to-r from-orange-300 via-orange-100 to-stone-50 text-gray-800">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Vous voulez en savoir plus ?

@@ -39,9 +39,8 @@ export function DynamicHeroSection() {
   const roleCTA = roleCTAs[role];
 
   return (
-    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-gradient-to-br from-orange-700 via-orange-500 to-stone-200">
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-black/10"></div>
+    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-gradient-to-br from-orange-300 via-orange-100 to-stone-50">
+      {/* Overlay gradient - Retiré pour fond clair */}
       
       {/* Pattern ivoirien subtil */}
       <div className="absolute inset-0 opacity-5" style={{
