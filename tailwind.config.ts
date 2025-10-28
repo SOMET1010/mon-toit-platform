@@ -1,7 +1,7 @@
 /**
  * MON TOIT - Configuration Tailwind CSS
  * Design System Professionnel
- * Dernière mise à jour: 28 Oct 2025 - v2 - Palette Orange pastel + Beige
+ * Dernière mise à jour: 28 Oct 2025 - v3 - Palette Orange pastel + Beige
  */
 
 import type { Config } from 'tailwindcss';
