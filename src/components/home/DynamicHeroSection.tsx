@@ -39,7 +39,7 @@ export function DynamicHeroSection() {
   const roleCTA = roleCTAs[role];
 
   return (
-    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-gradient-to-br from-orange-500 via-blue-600 to-green-600">
+    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-green-600">
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-black/10"></div>
       
@@ -116,9 +116,9 @@ export function DynamicHeroSection() {
               <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <Link to="/comment-ca-marche">
+          <Link to="/explorer">
             <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 min-w-[220px]">
-              Voir comment ça marche
+              Explorer les biens
             </Button>
           </Link>
         </div>

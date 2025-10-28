@@ -129,11 +129,14 @@ export const PropertyGrid = ({
               ))}
             </div>
           ) : isError ? (
-            <Alert variant="destructive">
-              <AlertDescription>
-                Erreur lors du chargement des propriétés. {(error as Error)?.message}
-              </AlertDescription>
-            </Alert>
+            <div className="text-center py-16">
+              <p className="text-xl text-muted-foreground mb-4">
+                Une erreur est survenue lors du chargement des biens.
+              </p>
+              <Button onClick={() => refetch()} variant="outline">
+                Réessayer
+              </Button>
+            </div>
           ) : filteredProperties.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-xl text-muted-foreground mb-4">

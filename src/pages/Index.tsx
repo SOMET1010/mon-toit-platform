@@ -51,7 +51,7 @@ const Index = () => {
         </section>
 
         {/* CTA Final */}
-        <section className="py-16 bg-gradient-to-r from-orange-500 via-blue-600 to-green-600 text-white">
+        <section className="py-16 bg-gradient-to-r from-orange-500 via-orange-400 to-green-600 text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Vous voulez en savoir plus ?
@@ -60,9 +60,9 @@ const Index = () => {
               Découvrez comment Mon Toit simplifie la location immobilière en Côte d'Ivoire
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/comment-ca-marche">
+              <Link to="/explorer">
                 <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 min-w-[220px]">
-                  Comment ça marche ?
+                  Explorer les biens
                 </Button>
               </Link>
               <Link to="/auth">

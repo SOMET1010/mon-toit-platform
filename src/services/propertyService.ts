@@ -12,7 +12,7 @@ export const shouldShowProperty = (property: Property, currentUserId?: string): 
     return true;
   }
   // Normalize status and hide rented/archived states for public users
-  const status = (property as any).status?.toString().toLowerCase();
+  const status = (property as any).status?.toString()?.toLowerCase() || '';
   const rentedStatuses = new Set(['loué', 'loue', 'rented', 'occupied', 'indisponible', 'archived', 'archivé']);
   return !rentedStatuses.has(status);
 };
@@ -245,7 +245,7 @@ export const propertyService = {
           'bureau': 'office',
           'local_commercial': 'store'
         };
-        const imageType = typeMap[property.property_type.toLowerCase()] || 'apartment';
+        const imageType = typeMap[property.property_type?.toLowerCase()] || 'apartment';
 
         // Add demo images array
         property.images = [
