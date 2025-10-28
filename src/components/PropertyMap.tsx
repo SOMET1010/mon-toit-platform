@@ -7,6 +7,7 @@ import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { logger } from '@/services/logger';
 import { secureStorage } from '@/lib/secureStorage';
+import { getMapboxToken } from '@/services/mapboxService';
 
 interface Property {
   id: string;
@@ -74,6 +75,29 @@ const PropertyMap = ({
   });
   const [mapboxToken, setMapboxToken] = useState(getStoredMapboxToken());
   const [tokenInput, setTokenInput] = useState('');
+  const [loadingToken, setLoadingToken] = useState(false);
+
+  // Récupérer le token depuis Supabase au chargement
+  useEffect(() => {
+    const fetchToken = async () => {
+      if (mapboxToken) return; // Si déjà présent, ne pas refetch
+      
+      setLoadingToken(true);
+      try {
+        const token = await getMapboxToken();
+        if (token) {
+          setMapboxToken(token);
+          logger.info('Token Mapbox récupéré depuis Supabase');
+        }
+      } catch (error) {
+        logger.error('Erreur lors de la récupération du token Mapbox:', error);
+      } finally {
+        setLoadingToken(false);
+      }
+    };
+    
+    fetchToken();
+  }, []);
 
   const handleSaveToken = () => {
     if (tokenInput.trim()) {
