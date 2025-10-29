@@ -155,6 +155,9 @@ export default defineConfig(({ mode }) => ({
       output: {
         // DÉSACTIVER inlineDynamicImports pour permettre le code splitting
         // inlineDynamicImports: true,
+        // Forcer un nouveau hash à chaque build avec timestamp
+        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
         manualChunks: {
           // Séparer les grosses dépendances en chunks distincts
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
@@ -163,12 +166,11 @@ export default defineConfig(({ mode }) => ({
           'map-vendor': ['mapbox-gl'],
           'supabase-vendor': ['@supabase/supabase-js'],
         },
-        chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.css')) {
-            return 'assets/styles-[hash][extname]';
+            return `assets/styles-[hash]-${Date.now()}[extname]`;
           }
-          return 'assets/[name]-[hash][extname]';
+          return `assets/[name]-[hash]-${Date.now()}[extname]`;
         }
       }
     },
