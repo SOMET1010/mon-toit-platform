@@ -105,7 +105,9 @@ const PropertyMap = ({
         return;
       }
 
-      mapboxgl.accessToken = mapboxConfig.token;
+      // Nettoyer le token (enlever les quotes PostgreSQL si présentes)
+      const cleanToken = mapboxConfig.token.replace(/^"|"$/g, '');
+      mapboxgl.accessToken = cleanToken;
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -128,7 +130,7 @@ const PropertyMap = ({
       map.current?.remove();
       map.current = null;
     };
-  }, [mapStyle, mapboxToken]);
+  }, [mapStyle, mapboxConfig]);
 
   // Function to add markers to the map
   const addMarkersToMap = () => {
