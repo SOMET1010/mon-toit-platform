@@ -46,12 +46,7 @@ export const InstitutionalFooter = () => {
             <p className="text-sm text-gray-700 leading-relaxed">
               Plateforme immobilière propulsée par ANSUT pour la recherche et la publication de logements en Côte d'Ivoire.
             </p>
-            <div className="flex items-start gap-2 text-xs text-gray-600">
-              <Shield className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
-              <span>
-                Propulsé par la Direction de la Transformation Digitale et de l'Innovation (DTDI) – ANSUT
-              </span>
-            </div>
+
           </div>
 
           {/* Colonne 2 : Navigation */}
