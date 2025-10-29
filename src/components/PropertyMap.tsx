@@ -9,6 +9,8 @@ import { logger } from '@/services/logger';
 import { secureStorage } from '@/lib/secureStorage';
 import { supabase } from '@/lib/supabase';
 
+// Force rebuild: 2025-10-29 09:15 UTC - RPC Supabase corrections applied
+
 interface Property {
   id: string;
   title: string;
