@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const NewIndex = () => {
-  // Build v2.1 - Nouveau design + RPC Supabase fixes
+  // Build v2.2 - Nouveau design + RPC Supabase fixes + Debug 404
   console.log('[NewIndex] Rendering new design homepage');
   
   return (
