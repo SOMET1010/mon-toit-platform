@@ -23,7 +23,7 @@ import { PageTransition } from "@/components/animations/PageTransition";
 import { MainLayout } from "@/components/layout/MainLayout";
 
 // Eager load critical pages
-import Index from "./pages/Index";
+import Index from "./pages/NewIndex"; // Nouveau design
 import Auth from "./pages/Auth";
 import Search from "./pages/Search";
 
