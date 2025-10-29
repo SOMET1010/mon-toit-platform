@@ -7,7 +7,7 @@ import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { logger } from '@/services/logger';
 import { secureStorage } from '@/lib/secureStorage';
-import { getMapboxToken } from '@/services/mapboxService';
+import { supabase } from '@/lib/supabase';
 
 interface Property {
   id: string;
@@ -26,30 +26,27 @@ interface PropertyMapProps {
   showLocationButton?: boolean;
 }
 
-const getStoredMapboxToken = () => {
-  // Import environment validator
+const getMapboxConfig = async () => {
   try {
-    const { getEnvVar } = require('@/lib/env-validation');
-
-    // Priorité 1: Variables d'environnement validées (supporte plusieurs noms)
-    const envToken = getEnvVar('VITE_MAPBOX_TOKEN') ||
-                     getEnvVar('VITE_MAPBOX_PUBLIC_TOKEN') ||
-                     getEnvVar('MAPBOX_PUBLIC_TOKEN');
-    if (envToken) return envToken;
+    // Appeler la fonction RPC Supabase pour récupérer la config Mapbox
+    const { data, error } = await supabase.rpc('get_mapbox_config');
+    
+    if (error) {
+      logger.error('[PropertyMap] Erreur récupération config Mapbox:', error);
+      throw new Error('Token Mapbox non configuré - Veuillez configurer le token dans les paramètres Supabase');
+    }
+    
+    if (!data || !data.token) {
+      throw new Error('Token Mapbox non trouvé dans la configuration');
+    }
+    
+    return data;
   } catch (error) {
-    console.warn('Environment validation not available, using fallback');
+    logger.error('[PropertyMap] Erreur getMapboxConfig:', error);
+    throw error;
   }
-
-  // Fallback direct aux variables d'environnement (avec validation de base)
-  const envToken = import.meta.env.VITE_MAPBOX_TOKEN ||
-                   import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN ||
-                   import.meta.env.MAPBOX_PUBLIC_TOKEN;
-  if (envToken && /^pk\.[a-zA-Z0-9.-_]+$/.test(envToken)) return envToken;
-
-  // Priorité 2: localStorage sécurisé (fallback)
-  return secureStorage.getItem('mapbox_token', true) || '';
 };
-const MAPBOX_TOKEN = getStoredMapboxToken();
+
 
 type MapStyle = 'streets' | 'satellite' | 'hybrid';
 
@@ -73,51 +70,42 @@ const PropertyMap = ({
   const [mapStyle, setMapStyle] = useState<MapStyle>(() => {
     return (secureStorage.getItem('preferredMapStyle') as MapStyle) || 'streets';
   });
-  const [mapboxToken, setMapboxToken] = useState(getStoredMapboxToken());
-  const [tokenInput, setTokenInput] = useState('');
-  const [loadingToken, setLoadingToken] = useState(false);
+  const [mapboxConfig, setMapboxConfig] = useState<any>(null);
+  const [loadingConfig, setLoadingConfig] = useState(true);
+  const [configError, setConfigError] = useState<string | null>(null);
 
-  // Récupérer le token depuis Supabase au chargement
+  // Récupérer la config Mapbox depuis Supabase au chargement
   useEffect(() => {
-    const fetchToken = async () => {
-      if (mapboxToken) return; // Si déjà présent, ne pas refetch
-      
-      setLoadingToken(true);
+    const fetchConfig = async () => {
+      setLoadingConfig(true);
       try {
-        const token = await getMapboxToken();
-        if (token) {
-          setMapboxToken(token);
-          logger.info('Token Mapbox récupéré depuis Supabase');
-        }
-      } catch (error) {
-        logger.error('Erreur lors de la récupération du token Mapbox:', error);
+        const config = await getMapboxConfig();
+        setMapboxConfig(config);
+        logger.info('[PropertyMap] Config Mapbox récupérée depuis Supabase');
+      } catch (error: any) {
+        logger.error('[PropertyMap] Erreur récupération config:', error);
+        setConfigError(error.message || 'Erreur de configuration Mapbox');
       } finally {
-        setLoadingToken(false);
+        setLoadingConfig(false);
       }
     };
     
-    fetchToken();
+    fetchConfig();
   }, []);
 
-  const handleSaveToken = () => {
-    if (tokenInput.trim()) {
-      secureStorage.setItem('mapbox_token', tokenInput.trim(), true);
-      setMapboxToken(tokenInput.trim());
-      window.location.reload();
-    }
-  };
+
 
   // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
     try {
-      if (!mapboxToken) {
-        logger.warn('Mapbox token not configured');
+      if (!mapboxConfig || !mapboxConfig.token) {
+        logger.warn('[PropertyMap] Config Mapbox non disponible');
         return;
       }
 
-      mapboxgl.accessToken = mapboxToken;
+      mapboxgl.accessToken = mapboxConfig.token;
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -332,34 +320,26 @@ const PropertyMap = ({
 
   return (
     <div className="relative w-full h-[600px]">
-      {!mapboxToken ? (
+      {loadingConfig ? (
         <Card className="p-6 flex flex-col items-center justify-center h-full">
-          <h3 className="text-lg font-semibold mb-4">Configuration Mapbox requise</h3>
+          <h3 className="text-lg font-semibold mb-4">Chargement de la carte...</h3>
+          <p className="text-sm text-muted-foreground">Récupération de la configuration Mapbox</p>
+        </Card>
+      ) : configError ? (
+        <Card className="p-6 flex flex-col items-center justify-center h-full">
+          <h3 className="text-lg font-semibold mb-4 text-destructive">Erreur de configuration</h3>
           <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
-            Veuillez entrer votre token PUBLIC Mapbox (pk.xxx) pour afficher la carte.
-            <br />
-            <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noopener noreferrer" className="text-primary underline">
-              Obtenez votre token ici
-            </a>
+            {configError}
           </p>
-          <div className="flex gap-2 w-full max-w-md">
-            <Input
-              type="text"
-              placeholder="pk.xxxxxxxxxxxxx"
-              value={tokenInput}
-              onChange={(e) => setTokenInput(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={handleSaveToken} disabled={!tokenInput.trim()}>
-              Enregistrer
-            </Button>
-          </div>
+          <p className="text-xs text-muted-foreground text-center">
+            Veuillez contacter l'administrateur pour configurer le token Mapbox dans Supabase.
+          </p>
         </Card>
       ) : (
         <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
       )}
       
-      {mapboxToken && showLocationButton && (
+      {mapboxConfig && showLocationButton && (
         <div className="absolute top-4 left-4 z-10">
           <Button
             onClick={handleLocateMe}
@@ -373,7 +353,7 @@ const PropertyMap = ({
         </div>
       )}
 
-      {mapboxToken && (
+      {mapboxConfig && (
         <div className="absolute top-16 left-4 z-10 flex flex-col gap-2">
         <Button
           onClick={() => handleStyleChange('streets')}
@@ -405,7 +385,7 @@ const PropertyMap = ({
         </div>
       )}
 
-      {mapboxToken && properties.filter(p => p.latitude === null || p.longitude === null).length > 0 && (
+      {mapboxConfig && properties.filter(p => p.latitude === null || p.longitude === null).length > 0 && (
         <Card className="absolute bottom-4 left-4 right-4 p-3 z-10 bg-background/95 backdrop-blur">
           <p className="text-sm text-muted-foreground">
             {properties.filter(p => p.latitude === null || p.longitude === null).length} bien(s) sans géolocalisation
