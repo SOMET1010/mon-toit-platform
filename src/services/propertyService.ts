@@ -106,7 +106,8 @@ export const propertyService = {
       return uniqueProperties as Property[];
     }
 
-    // Try secure RPC for public browsing, but with better error handling
+    // Try secure RPC for public browsing (v2.2 - Fixed cache issue)
+    logger.info('[PropertyService] Calling get_public_properties RPC', { filters });
     let { data, error } = await supabase.rpc('get_public_properties', {
       p_city: filters?.city || null,
       p_type: filters?.propertyType?.[0] || null,
@@ -119,7 +120,7 @@ export const propertyService = {
     // Fallback: if RPC is missing (404) or fails, try a safe direct query
     if (error || !data) {
       if (error?.code === 'PGRST116' || error?.message?.includes('function') || error?.message?.includes('404')) {
-        logger.warn('RPC function get_public_properties does not exist, using direct query fallback', { error });
+        logger.error('[PropertyService] RPC get_public_properties NOT FOUND - This should not happen!', { error, code: error?.code });
       } else {
         logger.warn('RPC get_public_properties failed, falling back to direct SELECT', { error });
       }
