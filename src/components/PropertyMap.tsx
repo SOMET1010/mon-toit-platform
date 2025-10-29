@@ -9,7 +9,8 @@ import { logger } from '@/services/logger';
 import { secureStorage } from '@/lib/secureStorage';
 import { supabase } from '@/lib/supabase';
 
-// Force rebuild: 2025-10-29 09:15 UTC - RPC Supabase corrections applied
+// Force rebuild: 2025-10-29 09:18 UTC - RPC Supabase corrections applied
+// Build version: v2.0 - Mapbox RPC integration complete
 
 interface Property {
   id: string;
