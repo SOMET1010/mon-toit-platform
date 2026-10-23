@@ -24,28 +24,47 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Récupérer ou créer la conversation
-    let currentConversationId = conversationId;
-    
-    if (!currentConversationId) {
-      const authHeader = req.headers.get('Authorization');
-      let userId = null;
-      
-      if (authHeader) {
-        const token = authHeader.replace('Bearer ', '');
-        const { data: { user } } = await supabase.auth.getUser(token);
-        userId = user?.id || null;
-      }
+    // Validate identity and ownership before any privileged conversation access.
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.match(/^Bearer\\s+(.+)$/i)?.[1];
+    if (!token) {
+      return new Response(JSON.stringify({ error: 'Authentification requise' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    const userId = authData?.user?.id;
+    if (authError || !userId) {
+      return new Response(JSON.stringify({ error: 'Session invalide' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    if (typeof message !== 'string' || !message.trim() || message.length > 2000 ||
+        (conversationId != null && (typeof conversationId !== 'string' || !/^[0-9a-f-]{36}$/i.test(conversationId)))) {
+      return new Response(JSON.stringify({ error: 'Paramètres invalides' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
+    let currentConversationId = conversationId;
+    if (currentConversationId) {
+      const { data: existing, error: lookupError } = await supabase
+        .from('suta_conversations')
+        .select('id')
+        .eq('id', currentConversationId)
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (lookupError || !existing) {
+        return new Response(JSON.stringify({ error: 'Conversation inaccessible' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    } else {
       const { data: conversation, error: convError } = await supabase
         .from('suta_conversations')
-        .insert({
-          user_id: userId,
-          session_id: sessionId || crypto.randomUUID()
-        })
-        .select()
+        .insert({ user_id: userId, session_id: typeof sessionId === 'string' ? sessionId.slice(0, 128) : crypto.randomUUID() })
+        .select('id')
         .single();
-
       if (convError) throw convError;
       currentConversationId = conversation.id;
     }
